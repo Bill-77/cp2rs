@@ -34,33 +34,49 @@ def create_ir_skeleton(full_ir):
 
 def fetch_requested_bodies(full_ir, ir_references):
     """
-    根据大模型提供的 ir_references 列表，从完整的 IR 中精准捞取对应的源码，增加对 global_states 的支持。
+    根据大模型提供的 ir_references 列表，从完整的 IR 中精准捞取对应的源码。
     """
     retrieved_data = {}
-    entities = full_ir.get("entities", {})
 
     for ref in ir_references:
         parts = ref.split('.')
         category = parts[0]
+        found = False
+        
         try:
-            if category == "standalone_functions" and len(parts) == 2:
-                for func in entities.get("standalone_functions", []):
-                    if func.get("name") == parts[1]:
-                        retrieved_data[ref] = func.get("body", "Body not found")
-                        break
-            elif category == "behaviors" and len(parts) == 3:
-                for behavior in entities.get("behaviors", []):
-                    if behavior.get("target_entity") == parts[1]:
-                        for method in behavior.get("methods", []):
-                            if method.get("name") == parts[2]:
-                                retrieved_data[ref] = method.get("body", "Body not found")
-                                break
-            # 【新增】对全局状态声明的索取支持
-            elif category == "global_states" and len(parts) == 2:
-                for gs in entities.get("global_states", []):
-                    if gs.get("name") == parts[1]:
-                        retrieved_data[ref] = gs.get("declaration", "Declaration not found")
-                        break
+            # 【修复点】：遍历所有文件，在各自的 entities 里面寻找目标
+            for file_path, file_data in full_ir.get("files", {}).items():
+                entities = file_data.get("entities", {})
+                
+                if category == "standalone_functions" and len(parts) == 2:
+                    for func in entities.get("standalone_functions", []):
+                        if func.get("name") == parts[1]:
+                            retrieved_data[ref] = func.get("body", "Body not found")
+                            found = True
+                            break
+                elif category == "behaviors" and len(parts) == 3:
+                    for behavior in entities.get("behaviors", []):
+                        if behavior.get("target_entity") == parts[1]:
+                            for method in behavior.get("methods", []):
+                                if method.get("name") == parts[2]:
+                                    retrieved_data[ref] = method.get("body", "Body not found")
+                                    found = True
+                                    break
+                # 寻找全局变量声明
+                elif category == "global_states" and len(parts) == 2:
+                    for gs in entities.get("global_states", []):
+                        if gs.get("name") == parts[1]:
+                            retrieved_data[ref] = gs.get("declaration", "Declaration not found")
+                            found = True
+                            break
+                
+                if found:
+                    break # 如果在这个文件里找到了，就停止遍历其他文件
+
+            # 防死锁提示：如果真没找到，明确告诉大模型，别让它猜
+            if not found:
+                retrieved_data[ref] = "Node Not Found in any file."
+
         except Exception as e:
             retrieved_data[ref] = f"Error retrieving {ref}: {str(e)}"
             

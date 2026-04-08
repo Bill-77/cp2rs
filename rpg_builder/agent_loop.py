@@ -91,6 +91,13 @@ def phase_two_agent_workflow(full_ir, prompt_2a, prompt_2b, llm_client, repo_nam
         messages.append({"role": "user", "content": "请务必在 <action> 或 <output> 标签中输出结果。"})
 
     if not rpg_json_str:
+        # 【新增：死锁拦截调试信息】
+        print("\n" + "!"*60)
+        print(f"❌ [死锁拦截] {prefix} 架构师陷入死循环，未输出 <output>！")
+        print("【大模型第 5 轮 (最后一轮) 的完整原始回复】:")
+        print(response) # 打印它最后一次到底说了什么
+        print("!"*60 + "\n")
+        
         raise Exception("❌ RPG 构建失败：达到最大循环次数或解析异常。")
 
     # === 阶段 2B: 降维功能清单提取 (One-Shot) ===
@@ -105,6 +112,12 @@ def phase_two_agent_workflow(full_ir, prompt_2a, prompt_2b, llm_client, repo_nam
     function_point_table_str = extract_xml_tag(response_2b, "output")
     
     if not function_point_table_str:
+        # 【新增：Step 2B 失败拦截与现场打印】
+        print("\n" + "!"*60)
+        print(f"❌ [异常拦截] {prefix} 提炼师未输出 <output> 标签！")
+        print("【大模型 Step 2B 完整的原始回复】:")
+        print(response_2b)
+        print("!"*60 + "\n")
         raise Exception("❌ 功能清单提炼失败：未找到 <output> 标签。")
 
     print(f"{prefix}   ✅✅ 功能清单提炼成功！")

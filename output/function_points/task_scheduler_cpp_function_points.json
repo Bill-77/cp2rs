@@ -1,8 +1,30 @@
 [
   {
     "id": "Root_01",
-    "semantic_name": "任务数据模型模块",
-    "description": "包含任务数据模型Task的定义，封装任务属性和状态管理方法",
+    "semantic_name": "应用入口模块",
+    "description": "程序主入口，负责初始化任务和调度器，并协调整个调度流程的执行",
+    "file_paths": [
+      "src/main.cpp"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_main_cpp",
+          "file_path": "src/main.cpp",
+          "semantic_name": "主程序组件",
+          "description": "包含main函数，作为整个任务调度系统的启动入口",
+          "mass_metrics": {
+            "leaf_nodes_count": 1
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  },
+  {
+    "id": "Root_02",
+    "semantic_name": "数据模型模块",
+    "description": "定义任务数据模型Task类，封装任务属性和状态管理方法",
     "file_paths": [
       "src/models/task.hpp"
     ],
@@ -11,8 +33,8 @@
         {
           "id": "Intermediate_task_hpp",
           "file_path": "src/models/task.hpp",
-          "semantic_name": "任务模型头文件",
-          "description": "定义Task数据模型及其相关方法",
+          "semantic_name": "任务模型组件",
+          "description": "定义Task数据模型及其相关行为方法",
           "mass_metrics": {
             "leaf_nodes_count": 5
           }
@@ -22,9 +44,9 @@
     "intra_module_edges": []
   },
   {
-    "id": "Root_02",
-    "semantic_name": "调度核心模块",
-    "description": "包含通用的调度器模板Scheduler，提供任务评估和优先级计数功能",
+    "id": "Root_03",
+    "semantic_name": "核心调度模块",
+    "description": "实现通用的调度器模板类，提供任务评估和优先级统计功能",
     "file_paths": [
       "src/core/scheduler.hpp"
     ],
@@ -33,32 +55,10 @@
         {
           "id": "Intermediate_scheduler_hpp",
           "file_path": "src/core/scheduler.hpp",
-          "semantic_name": "调度器头文件",
-          "description": "定义Scheduler模板类及其方法",
+          "semantic_name": "调度器核心组件",
+          "description": "实现Scheduler模板类及其评估方法",
           "mass_metrics": {
             "leaf_nodes_count": 3
-          }
-        }
-      ]
-    },
-    "intra_module_edges": []
-  },
-  {
-    "id": "Root_03",
-    "semantic_name": "应用入口模块",
-    "description": "程序主入口，协调任务创建和调度执行",
-    "file_paths": [
-      "src/main.cpp"
-    ],
-    "implementation_evidence": {
-      "intermediate_nodes": [
-        {
-          "id": "Intermediate_main_cpp",
-          "file_path": "src/main.cpp",
-          "semantic_name": "主程序文件",
-          "description": "包含main函数，作为程序入口点",
-          "mass_metrics": {
-            "leaf_nodes_count": 1
           }
         }
       ]
