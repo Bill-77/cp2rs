@@ -1,0 +1,47 @@
+
+# Python 虚拟环境
+
+venv/
+
+.venv/
+
+ENV/
+
+__pycache__/
+
+*.pyc
+
+
+
+# Rust 编译产物
+
+/target/
+
+**/*.rs.bk
+
+
+
+# C/C++ 编译产物
+
+build/
+
+cmake-build-*/
+
+*.o
+
+*.obj
+
+*.exe
+
+*.out
+
+
+
+# IDE 设置
+
+.vscode/
+
+.idea/
+
+.DS_Store
+

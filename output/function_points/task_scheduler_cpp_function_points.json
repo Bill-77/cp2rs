@@ -1,0 +1,68 @@
+[
+  {
+    "id": "Root_01",
+    "semantic_name": "任务数据模型层",
+    "description": "定义任务的核心数据模型Task类，封装任务属性（ID、优先级、激活状态）及其基本行为方法",
+    "file_paths": [
+      "src/models/task.hpp"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_task_hpp",
+          "file_path": "src/models/task.hpp",
+          "semantic_name": "任务模型定义文件",
+          "description": "定义Task数据模型类及其相关方法，包括构造函数、优先级获取、激活状态管理等",
+          "mass_metrics": {
+            "leaf_nodes_count": 5
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  },
+  {
+    "id": "Root_02",
+    "semantic_name": "调度核心逻辑层",
+    "description": "定义通用的调度器模板Scheduler，包含任务评估和高优先级计数等核心调度功能",
+    "file_paths": [
+      "src/core/scheduler.hpp"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_scheduler_hpp",
+          "file_path": "src/core/scheduler.hpp",
+          "semantic_name": "调度器核心定义文件",
+          "description": "定义通用的Scheduler模板类及其方法，包含任务评估和高优先级计数功能",
+          "mass_metrics": {
+            "leaf_nodes_count": 3
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  },
+  {
+    "id": "Root_03",
+    "semantic_name": "应用入口与集成层",
+    "description": "程序主入口，负责集成数据模型和调度核心，驱动整个任务调度流程",
+    "file_paths": [
+      "src/main.cpp"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_main_cpp",
+          "file_path": "src/main.cpp",
+          "semantic_name": "主程序入口文件",
+          "description": "包含main函数，作为整个任务调度程序的启动入口",
+          "mass_metrics": {
+            "leaf_nodes_count": 1
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  }
+]

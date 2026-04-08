@@ -1,0 +1,68 @@
+[
+  {
+    "id": "Root_01",
+    "semantic_name": "数据模型层",
+    "description": "定义核心数据结构Task，包含任务的基本属性和构造方法",
+    "file_paths": [
+      "src/models/task.rs"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_task_rs",
+          "file_path": "src/models/task.rs",
+          "semantic_name": "任务模型定义文件",
+          "description": "定义Task数据结构和相关行为实现",
+          "mass_metrics": {
+            "leaf_nodes_count": 2
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  },
+  {
+    "id": "Root_02",
+    "semantic_name": "核心业务逻辑层",
+    "description": "实现调度器核心逻辑，包括Schedulable接口定义、Scheduler泛型结构及其评估方法",
+    "file_paths": [
+      "src/core/scheduler.rs"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_scheduler_rs",
+          "file_path": "src/core/scheduler.rs",
+          "semantic_name": "调度器核心实现文件",
+          "description": "定义Schedulable接口、Scheduler泛型结构，并为Task实现调度契约",
+          "mass_metrics": {
+            "leaf_nodes_count": 7
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  },
+  {
+    "id": "Root_03",
+    "semantic_name": "应用入口层",
+    "description": "程序主入口，协调数据模型和业务逻辑层的使用",
+    "file_paths": [
+      "src/main.rs"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_main_rs",
+          "file_path": "src/main.rs",
+          "semantic_name": "主程序入口文件",
+          "description": "包含main函数，作为整个应用的启动入口",
+          "mass_metrics": {
+            "leaf_nodes_count": 1
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  }
+]

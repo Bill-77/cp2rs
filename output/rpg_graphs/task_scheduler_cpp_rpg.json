@@ -1,0 +1,135 @@
+{
+  "nodes": {
+    "root_nodes": [
+      {
+        "id": "Root_01",
+        "semantic_name": "任务数据模型层",
+        "description": "定义任务的核心数据模型Task类，封装任务属性（ID、优先级、激活状态）及其基本行为方法"
+      },
+      {
+        "id": "Root_02",
+        "semantic_name": "调度核心逻辑层",
+        "description": "定义通用的调度器模板Scheduler，包含任务评估和高优先级计数等核心调度功能"
+      },
+      {
+        "id": "Root_03",
+        "semantic_name": "应用入口与集成层",
+        "description": "程序主入口，负责集成数据模型和调度核心，驱动整个任务调度流程"
+      }
+    ],
+    "intermediate_nodes": [
+      {
+        "id": "Intermediate_main_cpp",
+        "parent_root": "Root_03",
+        "file_path": "src/main.cpp",
+        "semantic_name": "主程序入口文件",
+        "description": "包含main函数，作为整个任务调度程序的启动入口"
+      },
+      {
+        "id": "Intermediate_task_hpp",
+        "parent_root": "Root_01",
+        "file_path": "src/models/task.hpp",
+        "semantic_name": "任务模型定义文件",
+        "description": "定义Task数据模型类及其相关方法，包括构造函数、优先级获取、激活状态管理等"
+      },
+      {
+        "id": "Intermediate_scheduler_hpp",
+        "parent_root": "Root_02",
+        "file_path": "src/core/scheduler.hpp",
+        "semantic_name": "调度器核心定义文件",
+        "description": "定义通用的Scheduler模板类及其方法，包含任务评估和高优先级计数功能"
+      }
+    ],
+    "leaf_nodes": [
+      {
+        "id": "Leaf_main",
+        "parent_intermediate": "Intermediate_main_cpp",
+        "ir_reference": "standalone_functions.main",
+        "semantic_name": "程序主入口函数",
+        "description": "int main() - 任务调度程序的启动入口函数"
+      },
+      {
+        "id": "Leaf_Task",
+        "parent_intermediate": "Intermediate_task_hpp",
+        "ir_reference": "data_models.Task",
+        "semantic_name": "任务数据模型类",
+        "description": "Task类 - 封装任务属性（ID、优先级、激活状态），严格控制状态修改权限"
+      },
+      {
+        "id": "Leaf_Task_constructor",
+        "parent_intermediate": "Intermediate_task_hpp",
+        "ir_reference": "behaviors.Task.Task",
+        "semantic_name": "任务构造函数",
+        "description": "Task(int id, int prio) - 使用任务ID和优先级初始化Task对象"
+      },
+      {
+        "id": "Leaf_getPriority",
+        "parent_intermediate": "Intermediate_task_hpp",
+        "ir_reference": "behaviors.Task.getPriority",
+        "semantic_name": "获取任务优先级",
+        "description": "int getPriority() const - 获取任务的优先级值"
+      },
+      {
+        "id": "Leaf_activate",
+        "parent_intermediate": "Intermediate_task_hpp",
+        "ir_reference": "behaviors.Task.activate",
+        "semantic_name": "激活任务",
+        "description": "void activate() - 将任务状态设置为激活"
+      },
+      {
+        "id": "Leaf_isActive",
+        "parent_intermediate": "Intermediate_task_hpp",
+        "ir_reference": "behaviors.Task.isActive",
+        "semantic_name": "检查任务激活状态",
+        "description": "bool isActive() const - 检查任务是否处于激活状态"
+      },
+      {
+        "id": "Leaf_Scheduler",
+        "parent_intermediate": "Intermediate_scheduler_hpp",
+        "ir_reference": "data_models.Scheduler",
+        "semantic_name": "调度器模板类",
+        "description": "Scheduler模板类 - 通用的任务调度器，支持不同类型任务的调度"
+      },
+      {
+        "id": "Leaf_getHighPrioCount",
+        "parent_intermediate": "Intermediate_scheduler_hpp",
+        "ir_reference": "behaviors.Scheduler.getHighPrioCount",
+        "semantic_name": "获取高优先级任务计数",
+        "description": "int getHighPrioCount() const - 获取高优先级任务的数量"
+      },
+      {
+        "id": "Leaf_evaluate",
+        "parent_intermediate": "Intermediate_scheduler_hpp",
+        "ir_reference": "standalone_functions.evaluate",
+        "semantic_name": "任务评估函数",
+        "description": "template <typename T> void Scheduler<T>::evaluate(T& item) - 评估传入的任务项"
+      }
+    ]
+  },
+  "edges": {
+    "inter_module_edges": [
+      {
+        "source": "Root_03",
+        "target": "Root_01",
+        "relation_type": "data_flow",
+        "description": "应用入口层创建和使用Task数据模型对象，将任务数据传递给调度系统",
+        "evidence": "基于IR骨架中main.cpp文件的dependencies包含models/task.hpp，表明main函数依赖并使用Task类"
+      },
+      {
+        "source": "Root_03",
+        "target": "Root_02",
+        "relation_type": "data_flow",
+        "description": "应用入口层实例化并使用Scheduler调度器，将调度逻辑集成到主程序中",
+        "evidence": "基于IR骨架中main.cpp文件的dependencies包含core/scheduler.hpp，表明main函数依赖并使用Scheduler类"
+      },
+      {
+        "source": "Root_01",
+        "target": "Root_02",
+        "relation_type": "data_flow",
+        "description": "调度核心层处理来自数据模型层的Task对象，进行任务评估和优先级调度",
+        "evidence": "基于项目名称'task_scheduler_cpp'和业务逻辑推断，Scheduler调度器设计用于处理Task任务对象，evaluate函数签名中的T&参数类型推断为Task&"
+      }
+    ],
+    "intra_module_edges": []
+  }
+}

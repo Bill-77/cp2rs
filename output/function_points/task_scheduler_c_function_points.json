@@ -1,0 +1,104 @@
+[
+  {
+    "id": "Root_01",
+    "semantic_name": "应用入口",
+    "description": "程序主入口，负责初始化系统并协调任务调度流程",
+    "file_paths": [
+      "src/main.c"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_main_c",
+          "file_path": "src/main.c",
+          "semantic_name": "主程序",
+          "description": "C程序标准入口点，依赖任务模型和调度器头文件",
+          "mass_metrics": {
+            "leaf_nodes_count": 1
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  },
+  {
+    "id": "Root_02",
+    "semantic_name": "数据模型",
+    "description": "定义和管理核心数据结构，特别是Task任务实体及其初始化逻辑",
+    "file_paths": [
+      "src/models/task.h",
+      "src/models/task.c"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_task_h",
+          "file_path": "src/models/task.h",
+          "semantic_name": "任务头文件",
+          "description": "声明Task数据结构的头文件，包含任务在分布式网络中流转所需的元数据定义",
+          "mass_metrics": {
+            "leaf_nodes_count": 1
+          }
+        },
+        {
+          "id": "Intermediate_task_c",
+          "file_path": "src/models/task.c",
+          "semantic_name": "任务实现",
+          "description": "Task数据结构的实现文件，提供任务初始化函数",
+          "mass_metrics": {
+            "leaf_nodes_count": 1
+          }
+        }
+      ]
+    },
+    "intra_module_edges": [
+      {
+        "source": "Intermediate_task_h",
+        "target": "Intermediate_task_c",
+        "relation_type": "execution_order",
+        "description": "任务头文件必须先被包含，任务实现文件才能使用其中定义的Task结构体",
+        "evidence": "基于IR骨架：task.c文件显式依赖task.h头文件"
+      }
+    ]
+  },
+  {
+    "id": "Root_03",
+    "semantic_name": "调度核心",
+    "description": "实现任务调度算法，维护调度状态（如高优先级任务计数），并提供评估接口",
+    "file_paths": [
+      "src/core/scheduler.c",
+      "src/core/scheduler.h"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_scheduler_c",
+          "file_path": "src/core/scheduler.c",
+          "semantic_name": "调度器实现",
+          "description": "调度器核心实现，包含全局状态维护和任务评估逻辑",
+          "mass_metrics": {
+            "leaf_nodes_count": 3
+          }
+        },
+        {
+          "id": "Intermediate_scheduler_h",
+          "file_path": "src/core/scheduler.h",
+          "semantic_name": "调度器头文件",
+          "description": "调度器函数声明的头文件",
+          "mass_metrics": {
+            "leaf_nodes_count": 0
+          }
+        }
+      ]
+    },
+    "intra_module_edges": [
+      {
+        "source": "Intermediate_scheduler_h",
+        "target": "Intermediate_scheduler_c",
+        "relation_type": "execution_order",
+        "description": "调度器头文件必须先被包含，调度器实现文件才能实现其中声明的函数",
+        "evidence": "基于IR骨架：scheduler.c文件显式依赖scheduler.h头文件"
+      }
+    ]
+  }
+]
