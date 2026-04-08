@@ -107,7 +107,7 @@ def phase_two_agent_workflow(full_ir, prompt_2a, prompt_2b, llm_client, repo_nam
     if not function_point_table_str:
         raise Exception("❌ 功能清单提炼失败：未找到 <output> 标签。")
 
-    print(f"{prefix}   ✅ 功能清单提炼成功！")
+    print(f"{prefix}   ✅✅ 功能清单提炼成功！")
     
     # === 调试版解析：看看大模型不稳定的回复具体什么情况，打印案发现场，先不自动修复 ===
     try:

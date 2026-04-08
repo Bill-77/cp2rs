@@ -3,55 +3,55 @@
     "root_nodes": [
       {
         "id": "Root_01",
-        "semantic_name": "应用入口",
-        "description": "程序主入口，负责初始化系统并协调任务调度流程"
+        "semantic_name": "任务模型模块",
+        "description": "负责定义和初始化基础任务节点实体，包含在分布式网络中流转所需的元数据"
       },
       {
         "id": "Root_02",
-        "semantic_name": "数据模型",
-        "description": "定义和管理核心数据结构，特别是Task任务实体及其初始化逻辑"
+        "semantic_name": "调度器核心模块",
+        "description": "负责任务调度评估和优先级统计，包含私有化的全局状态计数器"
       },
       {
         "id": "Root_03",
-        "semantic_name": "调度核心",
-        "description": "实现任务调度算法，维护调度状态（如高优先级任务计数），并提供评估接口"
+        "semantic_name": "应用入口模块",
+        "description": "程序主入口点，协调任务创建和调度过程"
       }
     ],
     "intermediate_nodes": [
       {
         "id": "Intermediate_main_c",
-        "parent_root": "Root_01",
+        "parent_root": "Root_03",
         "file_path": "src/main.c",
-        "semantic_name": "主程序",
-        "description": "C程序标准入口点，依赖任务模型和调度器头文件"
+        "semantic_name": "主程序文件",
+        "description": "包含main函数，作为程序执行的起点"
       },
       {
         "id": "Intermediate_task_h",
-        "parent_root": "Root_02",
+        "parent_root": "Root_01",
         "file_path": "src/models/task.h",
         "semantic_name": "任务头文件",
-        "description": "声明Task数据结构的头文件，包含任务在分布式网络中流转所需的元数据定义"
+        "description": "定义Task数据结构和相关宏"
       },
       {
         "id": "Intermediate_task_c",
-        "parent_root": "Root_02",
+        "parent_root": "Root_01",
         "file_path": "src/models/task.c",
-        "semantic_name": "任务实现",
-        "description": "Task数据结构的实现文件，提供任务初始化函数"
+        "semantic_name": "任务实现文件",
+        "description": "实现任务初始化函数"
       },
       {
         "id": "Intermediate_scheduler_c",
-        "parent_root": "Root_03",
+        "parent_root": "Root_02",
         "file_path": "src/core/scheduler.c",
-        "semantic_name": "调度器实现",
-        "description": "调度器核心实现，包含全局状态维护和任务评估逻辑"
+        "semantic_name": "调度器实现文件",
+        "description": "实现调度器核心逻辑和全局状态管理"
       },
       {
         "id": "Intermediate_scheduler_h",
-        "parent_root": "Root_03",
+        "parent_root": "Root_02",
         "file_path": "src/core/scheduler.h",
         "semantic_name": "调度器头文件",
-        "description": "调度器函数声明的头文件"
+        "description": "定义调度器接口和宏"
       }
     ],
     "leaf_nodes": [
@@ -59,77 +59,98 @@
         "id": "Leaf_main",
         "parent_intermediate": "Intermediate_main_c",
         "ir_reference": "standalone_functions.main",
-        "semantic_name": "主函数",
-        "description": "程序入口函数，协调整个任务调度流程"
+        "semantic_name": "程序主函数",
+        "description": "程序执行的入口点"
       },
       {
         "id": "Leaf_Task",
         "parent_intermediate": "Intermediate_task_h",
         "ir_reference": "data_models.Task",
-        "semantic_name": "任务实体",
+        "semantic_name": "任务数据结构",
         "description": "基础任务节点实体，包含在分布式网络中流转所需的元数据"
+      },
+      {
+        "id": "Leaf_TASK_H",
+        "parent_intermediate": "Intermediate_task_h",
+        "ir_reference": "macros.TASK_H",
+        "semantic_name": "任务头文件保护宏",
+        "description": "防止头文件重复包含的宏定义"
       },
       {
         "id": "Leaf_task_init",
         "parent_intermediate": "Intermediate_task_c",
         "ir_reference": "standalone_functions.task_init",
-        "semantic_name": "任务初始化",
-        "description": "初始化Task结构体的函数，设置任务ID和优先级"
+        "semantic_name": "任务初始化函数",
+        "description": "初始化Task结构体，设置ID和优先级"
       },
       {
         "id": "Leaf_s_high_prio_count",
         "parent_intermediate": "Intermediate_scheduler_c",
         "ir_reference": "global_states.s_high_prio_count",
-        "semantic_name": "高优先级计数器",
-        "description": "静态全局变量，用于统计高优先级任务数量，限制在当前编译单元可见"
+        "semantic_name": "高优先级任务计数器",
+        "description": "使用static私有化的全局状态变量，统计高优先级任务数量"
       },
       {
         "id": "Leaf_scheduler_get_high_prio_count",
         "parent_intermediate": "Intermediate_scheduler_c",
         "ir_reference": "standalone_functions.scheduler_get_high_prio_count",
         "semantic_name": "获取高优先级计数",
-        "description": "读取并返回当前高优先级任务数量的函数"
+        "description": "读取并返回s_high_prio_count全局状态的值"
       },
       {
         "id": "Leaf_scheduler_evaluate",
         "parent_intermediate": "Intermediate_scheduler_c",
         "ir_reference": "standalone_functions.scheduler_evaluate",
-        "semantic_name": "任务评估",
-        "description": "评估传入的任务指针，可能更新高优先级任务计数器"
+        "semantic_name": "调度评估函数",
+        "description": "评估传入的任务指针，可能更新高优先级计数器"
+      },
+      {
+        "id": "Leaf_SCHEDULER_H",
+        "parent_intermediate": "Intermediate_scheduler_h",
+        "ir_reference": "macros.SCHEDULER_H",
+        "semantic_name": "调度器头文件保护宏",
+        "description": "防止头文件重复包含的宏定义"
       }
     ]
   },
   "edges": {
     "inter_module_edges": [
       {
-        "source": "Root_02",
-        "target": "Root_03",
+        "source": "Root_01",
+        "target": "Root_02",
         "relation_type": "data_flow",
-        "description": "Task数据从数据模型模块流向调度核心模块，供scheduler_evaluate函数进行评估处理",
-        "evidence": "基于IR骨架：scheduler.c文件显式依赖../models/task.h，且scheduler_evaluate函数接收void*参数（根据上下文推断为Task*类型）"
+        "description": "任务模型模块向调度器核心模块提供Task数据结构作为输入",
+        "evidence": "基于IR提取的dependencies，scheduler.c文件显式依赖../models/task.h，且scheduler_evaluate函数接收void*参数，从业务逻辑推断该参数可能指向Task类型"
       },
       {
         "source": "Root_03",
         "target": "Root_01",
         "relation_type": "data_flow",
-        "description": "调度结果（如高优先级任务计数）从调度核心模块流向应用入口模块，供主函数使用或展示",
-        "evidence": "基于IR骨架：main.c文件显式依赖core/scheduler.h，表明主函数需要调用调度器接口"
+        "description": "应用入口模块调用任务模型模块创建和初始化任务",
+        "evidence": "基于IR提取的dependencies，main.c文件显式依赖models/task.h"
+      },
+      {
+        "source": "Root_03",
+        "target": "Root_02",
+        "relation_type": "data_flow",
+        "description": "应用入口模块调用调度器核心模块进行任务评估",
+        "evidence": "基于IR提取的dependencies，main.c文件显式依赖core/scheduler.h"
       }
     ],
     "intra_module_edges": [
       {
-        "source": "Intermediate_task_h",
-        "target": "Intermediate_task_c",
-        "relation_type": "execution_order",
-        "description": "任务头文件必须先被包含，任务实现文件才能使用其中定义的Task结构体",
-        "evidence": "基于IR骨架：task.c文件显式依赖task.h头文件"
-      },
-      {
         "source": "Intermediate_scheduler_h",
         "target": "Intermediate_scheduler_c",
         "relation_type": "execution_order",
-        "description": "调度器头文件必须先被包含，调度器实现文件才能实现其中声明的函数",
-        "evidence": "基于IR骨架：scheduler.c文件显式依赖scheduler.h头文件"
+        "description": "调度器头文件必须先被包含，然后实现文件才能编译",
+        "evidence": "基于IR提取的dependencies，scheduler.c文件显式依赖scheduler.h"
+      },
+      {
+        "source": "Intermediate_task_h",
+        "target": "Intermediate_task_c",
+        "relation_type": "execution_order",
+        "description": "任务头文件必须先被包含，然后实现文件才能编译",
+        "evidence": "基于IR提取的dependencies，task.c文件显式依赖task.h"
       }
     ]
   }
