@@ -5,7 +5,7 @@
     "src/main.c": {
       "file_path": "src/main.c",
       "summary": {
-        "dependencies_count": 2,
+        "dependencies_count": 3,
         "macros_count": 0,
         "global_states_count": 0,
         "data_models_count": 0,
@@ -14,8 +14,9 @@
         "standalone_functions_count": 1
       },
       "dependencies": [
-        "models/task.h",
-        "core/scheduler.h"
+        "system/3rd-party: <stdio.h>",
+        "local: \"models/task.h\"",
+        "local: \"core/scheduler.h\""
       ],
       "entities": {
         "macros": [],
@@ -38,7 +39,7 @@
     "src/models/task.h": {
       "file_path": "src/models/task.h",
       "summary": {
-        "dependencies_count": 0,
+        "dependencies_count": 1,
         "macros_count": 1,
         "global_states_count": 0,
         "data_models_count": 1,
@@ -46,7 +47,9 @@
         "behaviors_count": 0,
         "standalone_functions_count": 0
       },
-      "dependencies": [],
+      "dependencies": [
+        "system/3rd-party: <stdbool.h>"
+      ],
       "entities": {
         "macros": [
           {
@@ -80,7 +83,7 @@
         "standalone_functions_count": 1
       },
       "dependencies": [
-        "task.h"
+        "local: \"task.h\""
       ],
       "entities": {
         "macros": [],
@@ -112,8 +115,8 @@
         "standalone_functions_count": 2
       },
       "dependencies": [
-        "scheduler.h",
-        "../models/task.h"
+        "local: \"scheduler.h\"",
+        "local: \"../models/task.h\""
       ],
       "entities": {
         "macros": [],

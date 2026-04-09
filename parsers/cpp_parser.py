@@ -142,13 +142,21 @@ class CppParser:
         # 核心递归遍历函数
         def traverse(node, parent_node=None):
             
-            # 1. 匹配并提取 #include 依赖
+            # 1. 匹配并提取 #include 依赖，区分本地头文件与系统/三方库
             if node.type == "preproc_include":
                 for child in node.children:
                     if child.type == "string_literal":
-                        path_str = child.text.decode('utf-8').strip('"')
-                        if path_str not in result["dependencies"]:
-                            result["dependencies"].append(path_str)
+                        # 本地依赖 (e.g., #include "models/task.h")
+                        path_str = child.text.decode('utf-8') # 保留双引号，帮助 LLM 识别
+                        entry = f"local: {path_str}"
+                        if entry not in result["dependencies"]:
+                            result["dependencies"].append(entry)
+                    elif child.type == "system_lib_string":
+                        # 系统或三方库依赖 (e.g., #include <vector>, #include <openssl/ssl.h>)
+                        path_str = child.text.decode('utf-8') # 保留尖括号，帮助 LLM 识别
+                        entry = f"system/3rd-party: {path_str}"
+                        if entry not in result["dependencies"]:
+                            result["dependencies"].append(entry)
             
             # 2. 匹配并提取宏定义 (#define)
             elif node.type in ["preproc_def", "preproc_function_def"]:

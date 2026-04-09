@@ -101,15 +101,20 @@ class RustParser:
         def traverse(node):
             
             # 1. 匹配并清洗依赖声明 (use 语句与 mod 声明)
-            if node.type in ["use_declaration", "mod_item"]:
-                raw_text = clean_code_block(node.text)
-                # 剔除噪音符号
-                clean_dep = raw_text.replace("pub ", "").replace("use ", "").replace("mod ", "").replace(";", "").strip()
-                
-                # 【防污过滤网】直接拦截系统标准库和核心生态
-                if not (clean_dep.startswith("std::") or clean_dep.startswith("core::") or clean_dep.startswith("alloc::")):
-                    if clean_dep not in result["dependencies"]:
-                        result["dependencies"].append(clean_dep)
+            if node.type == "use_declaration":
+                # 保留完整的 use 语句，但不包含 pub。例如 "use std::sync::Arc;" 或 "use tokio::spawn;"
+                raw_text = clean_code_block(node.text).replace("pub ", "").strip()
+                # 移除原先的 std/core 过滤网，因为并发原语和数据结构对大模型推理极具价值！
+                if raw_text not in result["dependencies"]:
+                    result["dependencies"].append(raw_text)
+                    
+            elif node.type == "mod_item":
+                # 提取 mod 声明 (只提取 mod xxx; 形式，作为本地模块依赖)
+                raw_text = clean_code_block(node.text).replace("pub ", "").strip()
+                # 忽略 mod xxx { ... } 形式的内联模块，只抓取文件引入
+                if raw_text.endswith(";"):
+                    if raw_text not in result["dependencies"]:
+                        result["dependencies"].append(raw_text)
                     
             # 2. 匹配并提取宏定义
             elif node.type == "macro_definition":

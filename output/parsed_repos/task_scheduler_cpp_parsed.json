@@ -5,7 +5,7 @@
     "src/main.cpp": {
       "file_path": "src/main.cpp",
       "summary": {
-        "dependencies_count": 2,
+        "dependencies_count": 3,
         "macros_count": 0,
         "global_states_count": 0,
         "data_models_count": 0,
@@ -14,8 +14,9 @@
         "standalone_functions_count": 1
       },
       "dependencies": [
-        "models/task.hpp",
-        "core/scheduler.hpp"
+        "system/3rd-party: <iostream>",
+        "local: \"models/task.hpp\"",
+        "local: \"core/scheduler.hpp\""
       ],
       "entities": {
         "macros": [],

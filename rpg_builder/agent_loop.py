@@ -100,6 +100,23 @@ def phase_two_agent_workflow(full_ir, prompt_2a, prompt_2b, llm_client, repo_nam
         
         raise Exception("❌ RPG 构建失败：达到最大循环次数或解析异常。")
 
+    # === 【新增：后处理清洗】物理切断所有自环边 ===
+    try:
+        temp_rpg_data = clean_and_parse_json(rpg_json_str)
+        if "edges" in temp_rpg_data and "intra_module_edges" in temp_rpg_data["edges"]:
+            original_edges = temp_rpg_data["edges"]["intra_module_edges"]
+            # 列表推导式：只保留 source 和 target 不相等的边
+            cleaned_edges = [edge for edge in original_edges if edge.get("source") != edge.get("target")]
+            
+            if len(original_edges) != len(cleaned_edges):
+                print(f"{prefix}   🛡️ [架构修正] 已自动拦截并切断 {len(original_edges) - len(cleaned_edges)} 条非法的模块内自环边！")
+            
+            temp_rpg_data["edges"]["intra_module_edges"] = cleaned_edges
+            # 将清洗后的干净数据转回 JSON 字符串，以确保后续阶段 2B 拿到的也是干净的
+            rpg_json_str = json.dumps(temp_rpg_data, ensure_ascii=False)
+    except Exception as e:
+        print(f"{prefix}   ⚠️ [架构修正警告] JSON 解析失败，跳过自环清理: {e}")
+
     # === 阶段 2B: 降维功能清单提取 (One-Shot) ===
     print(f"{prefix}[Step 2B] 开始将 RPG 降维提炼为 Root 级功能清单...")
     

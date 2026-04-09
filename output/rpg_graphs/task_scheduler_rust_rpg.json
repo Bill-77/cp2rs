@@ -3,41 +3,41 @@
     "root_nodes": [
       {
         "id": "Root_01",
-        "semantic_name": "数据模型模块",
-        "description": "定义任务数据结构和基础行为，包含Task数据模型及其构造方法"
+        "semantic_name": "程序入口与协调模块",
+        "description": "包含程序主入口main函数，负责协调整个任务调度系统的初始化、执行和结果输出"
       },
       {
         "id": "Root_02",
-        "semantic_name": "核心调度模块",
-        "description": "定义调度器核心逻辑，包括泛型调度器Scheduler、可调度接口Schedulable，以及Task对Schedulable接口的实现"
+        "semantic_name": "数据模型模块",
+        "description": "定义任务调度系统的核心数据模型Task，包含任务属性和基础行为实现"
       },
       {
         "id": "Root_03",
-        "semantic_name": "应用程序模块",
-        "description": "程序入口点，负责初始化任务和调度器，协调整个系统的执行流程"
+        "semantic_name": "调度核心模块",
+        "description": "实现泛型调度器Scheduler和Schedulable接口，提供任务评估和优先级统计功能"
       }
     ],
     "intermediate_nodes": [
       {
         "id": "Intermediate_main_rs",
-        "parent_root": "Root_03",
+        "parent_root": "Root_01",
         "file_path": "src/main.rs",
-        "semantic_name": "应用程序入口组件",
-        "description": "包含main函数，作为整个任务调度系统的启动入口"
+        "semantic_name": "主程序组件",
+        "description": "应用程序的主入口点，初始化任务和调度器，协调整个调度流程"
       },
       {
         "id": "Intermediate_task_rs",
-        "parent_root": "Root_01",
+        "parent_root": "Root_02",
         "file_path": "src/models/task.rs",
         "semantic_name": "任务模型组件",
-        "description": "定义Task数据结构和相关行为方法"
+        "description": "定义Task数据结构和相关实现，包括构造函数和Schedulable接口实现"
       },
       {
         "id": "Intermediate_scheduler_rs",
-        "parent_root": "Root_02",
+        "parent_root": "Root_03",
         "file_path": "src/core/scheduler.rs",
         "semantic_name": "调度器核心组件",
-        "description": "定义调度器核心逻辑，包括Scheduler泛型结构体、Schedulable接口及其实现"
+        "description": "定义Schedulable接口和泛型Scheduler结构，实现任务评估和统计功能"
       }
     ],
     "leaf_nodes": [
@@ -45,29 +45,43 @@
         "id": "Leaf_main",
         "parent_intermediate": "Intermediate_main_rs",
         "ir_reference": "standalone_functions.main",
-        "semantic_name": "程序主入口",
-        "description": "应用程序的启动函数，初始化任务和调度器，执行调度评估"
+        "semantic_name": "主函数",
+        "description": "程序入口点，创建任务实例，初始化调度器，执行任务评估并输出结果"
       },
       {
         "id": "Leaf_Task",
         "parent_intermediate": "Intermediate_task_rs",
         "ir_reference": "data_models.Task",
         "semantic_name": "任务数据结构",
-        "description": "任务数据结构，包含任务ID、优先级和激活状态等字段"
+        "description": "任务数据模型，包含任务ID、优先级和激活状态等字段"
       },
       {
         "id": "Leaf_Task_new",
         "parent_intermediate": "Intermediate_task_rs",
         "ir_reference": "behaviors.Task.new",
-        "semantic_name": "任务构造器",
+        "semantic_name": "任务构造函数",
         "description": "创建新的Task实例，初始化任务ID和优先级"
+      },
+      {
+        "id": "Leaf_Task_get_prio",
+        "parent_intermediate": "Intermediate_task_rs",
+        "ir_reference": "behaviors.Task.get_prio",
+        "semantic_name": "获取任务优先级",
+        "description": "实现Schedulable接口，返回任务的优先级值"
+      },
+      {
+        "id": "Leaf_Task_activate",
+        "parent_intermediate": "Intermediate_task_rs",
+        "ir_reference": "behaviors.Task.activate",
+        "semantic_name": "激活任务",
+        "description": "实现Schedulable接口，激活任务状态"
       },
       {
         "id": "Leaf_Scheduler",
         "parent_intermediate": "Intermediate_scheduler_rs",
         "ir_reference": "data_models.Scheduler",
         "semantic_name": "泛型调度器",
-        "description": "泛型调度器结构体，要求类型参数T必须实现Schedulable接口"
+        "description": "泛型调度器结构，要求类型参数T必须实现Schedulable接口"
       },
       {
         "id": "Leaf_Schedulable",
@@ -77,64 +91,50 @@
         "description": "定义可被调度器评估的行为契约，包括获取优先级和激活方法"
       },
       {
-        "id": "Leaf_Task_get_prio",
-        "parent_intermediate": "Intermediate_scheduler_rs",
-        "ir_reference": "behaviors.Task.get_prio",
-        "semantic_name": "任务优先级获取",
-        "description": "Task对Schedulable接口的实现，返回任务的优先级"
-      },
-      {
-        "id": "Leaf_Task_activate",
-        "parent_intermediate": "Intermediate_scheduler_rs",
-        "ir_reference": "behaviors.Task.activate",
-        "semantic_name": "任务激活",
-        "description": "Task对Schedulable接口的实现，激活任务状态"
-      },
-      {
         "id": "Leaf_Scheduler_new",
         "parent_intermediate": "Intermediate_scheduler_rs",
         "ir_reference": "behaviors.Scheduler.new",
-        "semantic_name": "调度器构造器",
+        "semantic_name": "调度器构造函数",
         "description": "创建新的Scheduler实例"
       },
       {
         "id": "Leaf_Scheduler_get_high_prio_count",
         "parent_intermediate": "Intermediate_scheduler_rs",
         "ir_reference": "behaviors.Scheduler.get_high_prio_count",
-        "semantic_name": "高优先级计数获取",
-        "description": "获取调度器中高优先级任务的数量"
+        "semantic_name": "获取高优先级计数",
+        "description": "统计调度器中高优先级任务的数量"
       },
       {
         "id": "Leaf_Scheduler_evaluate",
         "parent_intermediate": "Intermediate_scheduler_rs",
         "ir_reference": "behaviors.Scheduler.evaluate",
-        "semantic_name": "任务评估",
-        "description": "评估任务优先级，如果优先级高于阈值则激活任务并增加高优先级计数"
+        "semantic_name": "评估任务",
+        "description": "评估传入的任务，根据其优先级执行相应处理"
       }
     ]
   },
   "edges": {
     "inter_module_edges": [
       {
+        "source": "Root_02",
+        "target": "Root_03",
+        "relation_type": "data_flow",
+        "description": "Task数据模型作为输入流向调度核心模块，Scheduler<T>被实例化为Scheduler<Task>，Task对象通过evaluate方法进行评估处理",
+        "evidence": "通过索取main函数源码，确凿发现`let mut sched = Scheduler::new();`和`sched.evaluate(&mut t1);`，证明Scheduler被实例化为Scheduler<Task>，Task对象作为参数传递给调度器"
+      },
+      {
         "source": "Root_03",
         "target": "Root_01",
         "relation_type": "data_flow",
-        "description": "应用程序模块创建Task实例，将任务数据传入数据模型模块",
-        "evidence": "基于IR提取的dependencies包含'models { task }'和'models::task::Task'，且通过索取main函数源码确凿发现创建了Task实例：let mut t1 = Task::new(101, 3);"
+        "description": "调度核心模块的处理结果（高优先级任务计数）流向程序入口模块进行输出展示",
+        "evidence": "main函数中调用了`sched.get_high_prio_count()`获取调度结果并通过`println!`输出"
       },
       {
-        "source": "Root_03",
-        "target": "Root_02",
+        "source": "Root_02",
+        "target": "Root_01",
         "relation_type": "data_flow",
-        "description": "应用程序模块创建Scheduler实例并调用其评估方法，将控制流和数据传入核心调度模块",
-        "evidence": "基于IR提取的dependencies包含'core { scheduler }'和'scheduler'，且通过索取main函数源码确凿发现创建了Scheduler实例并调用evaluate方法：let mut sched = Scheduler::new(); sched.evaluate(&mut t1);"
-      },
-      {
-        "source": "Root_01",
-        "target": "Root_02",
-        "relation_type": "data_flow",
-        "description": "Task数据流入Scheduler进行评估，Task类型实现了Schedulable接口，使Task实例能够被Scheduler处理",
-        "evidence": "IR骨架显示'impl Schedulable for crate::models::task::Task'，且通过索取main函数源码确凿发现Scheduler被实例化为Scheduler<Task>类型，并接收Task实例作为参数：sched.evaluate(&mut t1);"
+        "description": "数据模型模块提供Task创建能力给程序入口模块，main函数直接实例化Task对象",
+        "evidence": "main函数中使用`Task::new()`创建t1和t2任务实例"
       }
     ],
     "intra_module_edges": []

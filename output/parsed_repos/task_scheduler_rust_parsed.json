@@ -5,7 +5,7 @@
     "src/main.rs": {
       "file_path": "src/main.rs",
       "summary": {
-        "dependencies_count": 5,
+        "dependencies_count": 4,
         "macros_count": 0,
         "global_states_count": 0,
         "data_models_count": 0,
@@ -14,11 +14,10 @@
         "standalone_functions_count": 1
       },
       "dependencies": [
-        "models {\n    task\n}",
-        "task",
-        "core {\n    scheduler\n}",
-        "scheduler",
-        "models::task::Task"
+        "mod task;",
+        "mod scheduler;",
+        "use models::task::Task;",
+        "use core::scheduler::Scheduler;"
       ],
       "entities": {
         "macros": [],

@@ -1,8 +1,30 @@
 [
   {
     "id": "Root_01",
+    "semantic_name": "程序入口与协调模块",
+    "description": "包含程序主入口main函数，负责协调整个任务调度系统的初始化、执行和结果输出",
+    "file_paths": [
+      "src/main.rs"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_main_rs",
+          "file_path": "src/main.rs",
+          "semantic_name": "主程序组件",
+          "description": "应用程序的主入口点，初始化任务和调度器，协调整个调度流程",
+          "mass_metrics": {
+            "leaf_nodes_count": 1
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  },
+  {
+    "id": "Root_02",
     "semantic_name": "数据模型模块",
-    "description": "定义任务数据结构和基础行为，包含Task数据模型及其构造方法",
+    "description": "定义任务调度系统的核心数据模型Task，包含任务属性和基础行为实现",
     "file_paths": [
       "src/models/task.rs"
     ],
@@ -12,9 +34,9 @@
           "id": "Intermediate_task_rs",
           "file_path": "src/models/task.rs",
           "semantic_name": "任务模型组件",
-          "description": "定义Task数据结构和相关行为方法",
+          "description": "定义Task数据结构和相关实现，包括构造函数和Schedulable接口实现",
           "mass_metrics": {
-            "leaf_nodes_count": 2
+            "leaf_nodes_count": 4
           }
         }
       ]
@@ -22,9 +44,9 @@
     "intra_module_edges": []
   },
   {
-    "id": "Root_02",
-    "semantic_name": "核心调度模块",
-    "description": "定义调度器核心逻辑，包括泛型调度器Scheduler、可调度接口Schedulable，以及Task对Schedulable接口的实现",
+    "id": "Root_03",
+    "semantic_name": "调度核心模块",
+    "description": "实现泛型调度器Scheduler和Schedulable接口，提供任务评估和优先级统计功能",
     "file_paths": [
       "src/core/scheduler.rs"
     ],
@@ -34,31 +56,9 @@
           "id": "Intermediate_scheduler_rs",
           "file_path": "src/core/scheduler.rs",
           "semantic_name": "调度器核心组件",
-          "description": "定义调度器核心逻辑，包括Scheduler泛型结构体、Schedulable接口及其实现",
+          "description": "定义Schedulable接口和泛型Scheduler结构，实现任务评估和统计功能",
           "mass_metrics": {
-            "leaf_nodes_count": 7
-          }
-        }
-      ]
-    },
-    "intra_module_edges": []
-  },
-  {
-    "id": "Root_03",
-    "semantic_name": "应用程序模块",
-    "description": "程序入口点，负责初始化任务和调度器，协调整个系统的执行流程",
-    "file_paths": [
-      "src/main.rs"
-    ],
-    "implementation_evidence": {
-      "intermediate_nodes": [
-        {
-          "id": "Intermediate_main_rs",
-          "file_path": "src/main.rs",
-          "semantic_name": "应用程序入口组件",
-          "description": "包含main函数，作为整个任务调度系统的启动入口",
-          "mass_metrics": {
-            "leaf_nodes_count": 1
+            "leaf_nodes_count": 5
           }
         }
       ]
