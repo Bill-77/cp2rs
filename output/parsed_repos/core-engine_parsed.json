@@ -1,0 +1,444 @@
+{
+  "repository_name": "core-engine",
+  "language": "c",
+  "files": {
+    "include/engine_api.h": {
+      "metadata": {
+        "language": "c",
+        "file_path": "include/engine_api.h",
+        "file_type": "header"
+      },
+      "dependencies": {
+        "system_includes": [],
+        "local_includes": [
+          "\"data_types.h\""
+        ]
+      },
+      "macros": [
+        {
+          "name": "ENGINE_API_H",
+          "is_function_like": false,
+          "definition": ""
+        }
+      ],
+      "global_states": [
+        {
+          "name": "g_hw_ctx",
+          "type": "HwContext",
+          "doc_comment": null,
+          "is_static": false,
+          "is_extern": true,
+          "is_const": false,
+          "attributes": [],
+          "compile_guards": [
+            "ENGINE_API_H"
+          ],
+          "contains_function_pointers": false,
+          "declaration": "extern HwContext g_hw_ctx;"
+        }
+      ],
+      "types": [],
+      "functions": [
+        {
+          "name": "engine_init",
+          "doc_comment": null,
+          "signature": "WEAK_SYM int engine_init(void* config)",
+          "has_body": false,
+          "is_static": false,
+          "is_variadic": false,
+          "attributes": [],
+          "compile_guards": [
+            "ENGINE_API_H"
+          ]
+        },
+        {
+          "name": "engine_panic",
+          "doc_comment": null,
+          "signature": "void engine_panic(const char* reason, ...)",
+          "has_body": false,
+          "is_static": false,
+          "is_variadic": true,
+          "attributes": [],
+          "compile_guards": [
+            "ENGINE_API_H"
+          ]
+        }
+      ]
+    },
+    "include/data_types.h": {
+      "metadata": {
+        "language": "c",
+        "file_path": "include/data_types.h",
+        "file_type": "header"
+      },
+      "dependencies": {
+        "system_includes": [
+          "<stdint.h>"
+        ],
+        "local_includes": [
+          "\"os_compiler.h\""
+        ]
+      },
+      "macros": [],
+      "global_states": [],
+      "types": [
+        {
+          "kind": "struct",
+          "name": "HwContext",
+          "doc_comment": null,
+          "attributes": [],
+          "fields_summary": [
+            "uint32_t is_active : 1;",
+            "uint32_t error_code : 7;",
+            "uint32_t reserved : 24;",
+            "union {\n        uint64_t raw_addr;\n        void* ptr_addr;\n    } ALIGN_8 mmu_mapping;"
+          ]
+        },
+        {
+          "kind": "typedef",
+          "name": "sched_callback_t",
+          "underlying_type": "void",
+          "declaration": "typedef void (*sched_callback_t)(struct EngineCtx* ctx, int status);"
+        }
+      ],
+      "functions": []
+    },
+    "include/os_compiler.h": {
+      "metadata": {
+        "language": "c",
+        "file_path": "include/os_compiler.h",
+        "file_type": "header"
+      },
+      "dependencies": {
+        "system_includes": [],
+        "local_includes": []
+      },
+      "macros": [
+        {
+          "name": "OS_COMPILER_H",
+          "is_function_like": false,
+          "definition": ""
+        },
+        {
+          "name": "ALIGN_8",
+          "is_function_like": false,
+          "definition": "__attribute__((aligned(8)))"
+        },
+        {
+          "name": "WEAK_SYM",
+          "is_function_like": false,
+          "definition": "__attribute__((weak))"
+        },
+        {
+          "name": "ALIGN_8",
+          "is_function_like": false,
+          "definition": ""
+        },
+        {
+          "name": "WEAK_SYM",
+          "is_function_like": false,
+          "definition": ""
+        },
+        {
+          "name": "MAX",
+          "is_function_like": true,
+          "definition": "((a) > (b) ? (a) : (b))",
+          "signature": "MAX(a, b)"
+        },
+        {
+          "name": "CONTAINER_OF",
+          "is_function_like": true,
+          "definition": "((type *)((char *)(ptr) - offsetof(type, member)))",
+          "signature": "CONTAINER_OF(ptr, type, member)"
+        }
+      ],
+      "global_states": [],
+      "types": [],
+      "functions": []
+    },
+    "src/task_sched.c": {
+      "metadata": {
+        "language": "c",
+        "file_path": "src/task_sched.c",
+        "file_type": "source"
+      },
+      "dependencies": {
+        "system_includes": [],
+        "local_includes": [
+          "\"../include/engine_api.h\""
+        ]
+      },
+      "macros": [],
+      "global_states": [
+        {
+          "name": "g_state_machine",
+          "type": "void",
+          "doc_comment": "// Router table",
+          "is_static": true,
+          "is_extern": false,
+          "is_const": false,
+          "attributes": [],
+          "compile_guards": [],
+          "contains_function_pointers": true,
+          "declaration": "static void (*g_state_machine[3])(struct EngineCtx*) = {\n    handle_idle,\n    handle_run,\n    handle_stop\n};",
+          "initialization_symbols": [
+            "handle_stop",
+            "handle_run",
+            "handle_idle"
+          ]
+        },
+        {
+          "name": "s_total_processed",
+          "type": "int",
+          "doc_comment": null,
+          "is_static": true,
+          "is_extern": false,
+          "is_const": false,
+          "attributes": [],
+          "compile_guards": [],
+          "contains_function_pointers": false,
+          "declaration": "static int s_total_processed = 0;"
+        }
+      ],
+      "types": [],
+      "functions": [
+        {
+          "name": "handle_idle",
+          "doc_comment": null,
+          "signature": "static void handle_idle(struct EngineCtx* ctx)",
+          "has_body": true,
+          "is_static": true,
+          "is_variadic": false,
+          "attributes": [],
+          "compile_guards": [],
+          "data_flow": {
+            "reads": [],
+            "writes": [],
+            "mutates_parameters": [
+              "ctx"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [],
+            "indirect_calls": [],
+            "has_unstructured_jumps": false
+          },
+          "has_parse_errors": false,
+          "body": "{ ctx->state = 1; }"
+        },
+        {
+          "name": "handle_run",
+          "doc_comment": null,
+          "signature": "static void handle_run(struct EngineCtx* ctx)",
+          "has_body": true,
+          "is_static": true,
+          "is_variadic": false,
+          "attributes": [],
+          "compile_guards": [],
+          "data_flow": {
+            "reads": [],
+            "writes": [],
+            "mutates_parameters": [
+              "ctx"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [],
+            "indirect_calls": [],
+            "has_unstructured_jumps": false
+          },
+          "has_parse_errors": false,
+          "body": "{ ctx->state = 2; }"
+        },
+        {
+          "name": "handle_stop",
+          "doc_comment": null,
+          "signature": "static void handle_stop(struct EngineCtx* ctx)",
+          "has_body": true,
+          "is_static": true,
+          "is_variadic": false,
+          "attributes": [],
+          "compile_guards": [],
+          "data_flow": {
+            "reads": [],
+            "writes": [],
+            "mutates_parameters": []
+          },
+          "control_flow": {
+            "direct_calls": [],
+            "indirect_calls": [
+              "ctx->cb"
+            ],
+            "has_unstructured_jumps": false
+          },
+          "has_parse_errors": false,
+          "body": "{ ctx->cb(ctx, 0); }"
+        },
+        {
+          "name": "engine_panic",
+          "doc_comment": null,
+          "signature": "void engine_panic(const char* reason, ...)",
+          "has_body": true,
+          "is_static": false,
+          "is_variadic": true,
+          "attributes": [],
+          "compile_guards": [],
+          "data_flow": {
+            "reads": [],
+            "writes": [],
+            "mutates_parameters": []
+          },
+          "control_flow": {
+            "direct_calls": [],
+            "indirect_calls": [],
+            "has_unstructured_jumps": true
+          },
+          "has_parse_errors": false,
+          "body": "{\n    // dummy panic\n    goto halt;\nhalt:\n    while(1);\n}"
+        },
+        {
+          "name": "process_tasks",
+          "doc_comment": null,
+          "signature": "int process_tasks(struct EngineCtx* ctx, int count)",
+          "has_body": true,
+          "is_static": false,
+          "is_variadic": false,
+          "attributes": [],
+          "compile_guards": [],
+          "data_flow": {
+            "reads": [
+              "s_total_processed"
+            ],
+            "writes": [
+              "s_total_processed"
+            ],
+            "mutates_parameters": []
+          },
+          "control_flow": {
+            "direct_calls": [
+              "engine_panic"
+            ],
+            "indirect_calls": [
+              "g_state_machine[current_state]"
+            ],
+            "has_unstructured_jumps": true
+          },
+          "has_parse_errors": false,
+          "body": "{\n    if (!ctx) return -1;\n\n#ifdef DEBUG_MODE\n    engine_panic(\"processing %d tasks\", count);\n#endif\n\n    for (int i = 0; i < count; i++) {\n        static int s_total_processed = 0;\n        s_total_processed++;\n\n        int current_state = ctx->state;\n        if (current_state >= 0 && current_state < 3) {\n            g_state_machine[current_state](ctx);\n        } else {\n            goto sys_err;\n        }\n    }\n    \n    return 0;\n\nsys_err:\n    return -2;\n}"
+        }
+      ]
+    },
+    "src/mem_alloc.c": {
+      "metadata": {
+        "language": "c",
+        "file_path": "src/mem_alloc.c",
+        "file_type": "source"
+      },
+      "dependencies": {
+        "system_includes": [
+          "<stddef.h>"
+        ],
+        "local_includes": [
+          "\"../include/engine_api.h\""
+        ]
+      },
+      "macros": [],
+      "global_states": [
+        {
+          "name": "g_alloc_count",
+          "type": "int",
+          "doc_comment": null,
+          "is_static": false,
+          "is_extern": false,
+          "is_const": false,
+          "attributes": [],
+          "compile_guards": [],
+          "contains_function_pointers": false,
+          "declaration": "int g_alloc_count = 0, g_free_count = 0;"
+        },
+        {
+          "name": "g_free_count",
+          "type": "int",
+          "doc_comment": null,
+          "is_static": false,
+          "is_extern": false,
+          "is_const": false,
+          "attributes": [],
+          "compile_guards": [],
+          "contains_function_pointers": false,
+          "declaration": "int g_alloc_count = 0, g_free_count = 0;"
+        },
+        {
+          "name": "g_hw_ctx",
+          "type": "HwContext",
+          "doc_comment": null,
+          "is_static": false,
+          "is_extern": false,
+          "is_const": false,
+          "attributes": [],
+          "compile_guards": [],
+          "contains_function_pointers": false,
+          "declaration": "HwContext g_hw_ctx = {0};"
+        }
+      ],
+      "types": [],
+      "functions": [
+        {
+          "name": "track_allocation",
+          "doc_comment": null,
+          "signature": "static void track_allocation(size_t sz)",
+          "has_body": true,
+          "is_static": true,
+          "is_variadic": false,
+          "attributes": [],
+          "compile_guards": [],
+          "data_flow": {
+            "reads": [
+              "g_alloc_count"
+            ],
+            "writes": [
+              "g_alloc_count"
+            ],
+            "mutates_parameters": []
+          },
+          "control_flow": {
+            "direct_calls": [],
+            "indirect_calls": [],
+            "has_unstructured_jumps": false
+          },
+          "has_parse_errors": false,
+          "body": "{\n    g_alloc_count++;\n}"
+        },
+        {
+          "name": "alloc_aligned",
+          "doc_comment": "/**\n * Allocate aligned memory block\n * ptr: pointer to physical memory\n */",
+          "signature": "int alloc_aligned(void** ptr, size_t sz)",
+          "has_body": true,
+          "is_static": false,
+          "is_variadic": false,
+          "attributes": [],
+          "compile_guards": [],
+          "data_flow": {
+            "reads": [],
+            "writes": [
+              "g_hw_ctx"
+            ],
+            "mutates_parameters": [
+              "ptr"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "MAX",
+              "track_allocation"
+            ],
+            "indirect_calls": [],
+            "has_unstructured_jumps": false
+          },
+          "has_parse_errors": false,
+          "body": "{\n    if (!ptr || sz == 0) return -1;\n    \n    int actual_sz = MAX(sz, 64);\n    \n    *ptr = (void*)0x20000000; \n    \n    // update hardware mmu\n    g_hw_ctx.mmu_mapping.ptr_addr = *ptr;\n    g_hw_ctx.is_active = 1;\n\n    track_allocation(sizeof(HwContext));\n    \n    return 0;\n}"
+        }
+      ]
+    }
+  }
+}
