@@ -5,8 +5,8 @@ import re
 # 导入刚刚封板的终级 C 语言解析器
 from parsers.c_parser import CParser
 # 保留原有解析器（假设尚未重构完毕）
-from parsers.cpp_parser import CppParser
-from parsers.rust_parser import RustParser
+# from parsers.cpp_parser import CppParser
+# from parsers.rust_parser import RustParser
 
 def detect_repo_language(repo_path):
     """

@@ -1,0 +1,272 @@
+{
+  "repository_name": "task_scheduler_c",
+  "language": "c",
+  "files": {
+    "src/main.c": {
+      "metadata": {
+        "language": "c",
+        "file_path": "src/main.c",
+        "file_type": "source"
+      },
+      "dependencies": {
+        "system_includes": [
+          "<stdio.h>"
+        ],
+        "local_includes": [
+          "\"models/task.h\"",
+          "\"core/scheduler.h\""
+        ]
+      },
+      "macros": [],
+      "global_states": [],
+      "types": [],
+      "functions": [
+        {
+          "name": "main",
+          "doc_comment": null,
+          "signature": "int main()",
+          "has_body": true,
+          "is_static": false,
+          "is_variadic": false,
+          "attributes": [],
+          "compile_guards": [],
+          "data_flow": {
+            "reads": [],
+            "writes": [],
+            "mutates_parameters": []
+          },
+          "control_flow": {
+            "direct_calls": [
+              "printf",
+              "task_init",
+              "scheduler_get_high_prio_count",
+              "scheduler_evaluate"
+            ],
+            "indirect_calls": [],
+            "has_unstructured_jumps": false
+          },
+          "has_parse_errors": false,
+          "body": "{\n    Task t1, t2;\n    task_init(&t1, 101, 3);\n    task_init(&t2, 102, 8);\n\n    scheduler_evaluate(&t1);\n    scheduler_evaluate(&t2);\n\n    printf(\"High Priority Tasks: %d\\n\", scheduler_get_high_prio_count());\n    return 0;\n}"
+        }
+      ]
+    },
+    "src/models/task.h": {
+      "metadata": {
+        "language": "c",
+        "file_path": "src/models/task.h",
+        "file_type": "header"
+      },
+      "dependencies": {
+        "system_includes": [
+          "<stdbool.h>"
+        ],
+        "local_includes": []
+      },
+      "macros": [
+        {
+          "name": "TASK_H",
+          "is_function_like": false,
+          "definition": ""
+        }
+      ],
+      "global_states": [],
+      "types": [
+        {
+          "kind": "struct",
+          "name": "Task",
+          "doc_comment": null,
+          "attributes": [],
+          "fields_summary": [
+            "int task_id;",
+            "int priority;",
+            "bool is_active;"
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "task_init",
+          "doc_comment": "/**\n * @brief 初始化任务节点\n */",
+          "signature": "void task_init(Task* t, int id, int prio)",
+          "has_body": false,
+          "is_static": false,
+          "is_variadic": false,
+          "attributes": [],
+          "compile_guards": [
+            "TASK_H"
+          ]
+        }
+      ]
+    },
+    "src/models/task.c": {
+      "metadata": {
+        "language": "c",
+        "file_path": "src/models/task.c",
+        "file_type": "source"
+      },
+      "dependencies": {
+        "system_includes": [],
+        "local_includes": [
+          "\"task.h\""
+        ]
+      },
+      "macros": [],
+      "global_states": [],
+      "types": [],
+      "functions": [
+        {
+          "name": "task_init",
+          "doc_comment": null,
+          "signature": "void task_init(Task* t, int id, int prio)",
+          "has_body": true,
+          "is_static": false,
+          "is_variadic": false,
+          "attributes": [],
+          "compile_guards": [],
+          "data_flow": {
+            "reads": [],
+            "writes": [],
+            "mutates_parameters": [
+              "t"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [],
+            "indirect_calls": [],
+            "has_unstructured_jumps": false
+          },
+          "has_parse_errors": false,
+          "body": "{\n    if (t) {\n        t->task_id = id;\n        t->priority = prio;\n        t->is_active = false;\n    }\n}"
+        }
+      ]
+    },
+    "src/core/scheduler.c": {
+      "metadata": {
+        "language": "c",
+        "file_path": "src/core/scheduler.c",
+        "file_type": "source"
+      },
+      "dependencies": {
+        "system_includes": [],
+        "local_includes": [
+          "\"scheduler.h\"",
+          "\"../models/task.h\""
+        ]
+      },
+      "macros": [],
+      "global_states": [
+        {
+          "name": "s_high_prio_count",
+          "type": "int",
+          "doc_comment": "/* 使用 static 将状态变量私有化，限制在当前编译单元可见 */",
+          "is_static": true,
+          "is_extern": false,
+          "is_const": false,
+          "attributes": [],
+          "compile_guards": [],
+          "contains_function_pointers": false,
+          "declaration": "static int s_high_prio_count = 0;"
+        }
+      ],
+      "types": [],
+      "functions": [
+        {
+          "name": "scheduler_get_high_prio_count",
+          "doc_comment": null,
+          "signature": "int scheduler_get_high_prio_count(void)",
+          "has_body": true,
+          "is_static": false,
+          "is_variadic": false,
+          "attributes": [],
+          "compile_guards": [],
+          "data_flow": {
+            "reads": [
+              "s_high_prio_count"
+            ],
+            "writes": [],
+            "mutates_parameters": []
+          },
+          "control_flow": {
+            "direct_calls": [],
+            "indirect_calls": [],
+            "has_unstructured_jumps": false
+          },
+          "has_parse_errors": false,
+          "body": "{\n    return s_high_prio_count;\n}"
+        },
+        {
+          "name": "scheduler_evaluate",
+          "doc_comment": null,
+          "signature": "void scheduler_evaluate(void* generic_task_ptr)",
+          "has_body": true,
+          "is_static": false,
+          "is_variadic": false,
+          "attributes": [],
+          "compile_guards": [],
+          "data_flow": {
+            "reads": [
+              "s_high_prio_count"
+            ],
+            "writes": [
+              "s_high_prio_count"
+            ],
+            "mutates_parameters": []
+          },
+          "control_flow": {
+            "direct_calls": [],
+            "indirect_calls": [],
+            "has_unstructured_jumps": false
+          },
+          "has_parse_errors": false,
+          "body": "{\n    if (!generic_task_ptr) return;\n    \n    Task* t = (Task*)generic_task_ptr;\n    if (t->priority > 5) {\n        t->is_active = true;\n        s_high_prio_count++;\n    }\n}"
+        }
+      ]
+    },
+    "src/core/scheduler.h": {
+      "metadata": {
+        "language": "c",
+        "file_path": "src/core/scheduler.h",
+        "file_type": "header"
+      },
+      "dependencies": {
+        "system_includes": [],
+        "local_includes": []
+      },
+      "macros": [
+        {
+          "name": "SCHEDULER_H",
+          "is_function_like": false,
+          "definition": ""
+        }
+      ],
+      "global_states": [],
+      "types": [],
+      "functions": [
+        {
+          "name": "scheduler_get_high_prio_count",
+          "doc_comment": "/**\n * @brief 获取当前调度器生命周期内成功激活的高优先级任务总数\n * @return 激活数量\n */",
+          "signature": "int scheduler_get_high_prio_count(void)",
+          "has_body": false,
+          "is_static": false,
+          "is_variadic": false,
+          "attributes": [],
+          "compile_guards": [
+            "SCHEDULER_H"
+          ]
+        },
+        {
+          "name": "scheduler_evaluate",
+          "doc_comment": null,
+          "signature": "void scheduler_evaluate(void* generic_task_ptr)",
+          "has_body": false,
+          "is_static": false,
+          "is_variadic": false,
+          "attributes": [],
+          "compile_guards": [
+            "SCHEDULER_H"
+          ]
+        }
+      ]
+    }
+  }
+}
