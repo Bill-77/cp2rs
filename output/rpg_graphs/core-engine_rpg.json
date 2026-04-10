@@ -1,0 +1,304 @@
+{
+  "nodes": {
+    "root_nodes": [
+      {
+        "id": "Root_CoreAPI",
+        "semantic_name": "核心API接口层",
+        "description": "提供引擎的核心API接口、数据类型定义和编译器相关宏定义"
+      },
+      {
+        "id": "Root_TaskScheduler",
+        "semantic_name": "任务调度器",
+        "description": "处理任务调度和状态机管理"
+      },
+      {
+        "id": "Root_MemoryAllocator",
+        "semantic_name": "内存分配器",
+        "description": "负责内存分配和硬件上下文管理"
+      }
+    ],
+    "intermediate_nodes": [
+      {
+        "id": "Intermediate_engine_api_h",
+        "parent_root": "Root_CoreAPI",
+        "file_path": "include/engine_api.h",
+        "semantic_name": "引擎API头文件",
+        "description": "定义引擎的核心API函数声明和全局硬件上下文"
+      },
+      {
+        "id": "Intermediate_data_types_h",
+        "parent_root": "Root_CoreAPI",
+        "file_path": "include/data_types.h",
+        "semantic_name": "数据类型定义头文件",
+        "description": "定义硬件上下文结构和回调函数类型"
+      },
+      {
+        "id": "Intermediate_os_compiler_h",
+        "parent_root": "Root_CoreAPI",
+        "file_path": "include/os_compiler.h",
+        "semantic_name": "编译器适配头文件",
+        "description": "提供编译器相关的宏定义和内存对齐工具"
+      },
+      {
+        "id": "Intermediate_task_sched_c",
+        "parent_root": "Root_TaskScheduler",
+        "file_path": "src/task_sched.c",
+        "semantic_name": "任务调度实现",
+        "description": "实现任务调度、状态机处理和panic函数"
+      },
+      {
+        "id": "Intermediate_mem_alloc_c",
+        "parent_root": "Root_MemoryAllocator",
+        "file_path": "src/mem_alloc.c",
+        "semantic_name": "内存分配实现",
+        "description": "实现内存分配函数和硬件上下文管理"
+      }
+    ],
+    "leaf_nodes": [
+      {
+        "id": "Leaf_g_hw_ctx_extern",
+        "parent_intermediate": "Intermediate_engine_api_h",
+        "ir_reference": "global_states.g_hw_ctx",
+        "semantic_name": "全局硬件上下文(外部声明)",
+        "description": "在头文件中声明的extern硬件上下文，可被多个模块访问"
+      },
+      {
+        "id": "Leaf_engine_init_decl",
+        "parent_intermediate": "Intermediate_engine_api_h",
+        "ir_reference": "functions.engine_init",
+        "semantic_name": "引擎初始化函数声明",
+        "description": "弱符号声明的引擎初始化函数，接受void*配置参数"
+      },
+      {
+        "id": "Leaf_engine_panic_decl",
+        "parent_intermediate": "Intermediate_engine_api_h",
+        "ir_reference": "functions.engine_panic",
+        "semantic_name": "引擎panic函数声明",
+        "description": "可变参数的错误处理函数声明"
+      },
+      {
+        "id": "Leaf_HwContext_type",
+        "parent_intermediate": "Intermediate_data_types_h",
+        "ir_reference": "types.HwContext",
+        "semantic_name": "硬件上下文结构体",
+        "description": "包含状态位域和内存映射联合体的硬件上下文结构"
+      },
+      {
+        "id": "Leaf_sched_callback_t_type",
+        "parent_intermediate": "Intermediate_data_types_h",
+        "ir_reference": "types.sched_callback_t",
+        "semantic_name": "调度回调类型",
+        "description": "调度回调函数的类型定义"
+      },
+      {
+        "id": "Leaf_OS_COMPILER_H_macro",
+        "parent_intermediate": "Intermediate_os_compiler_h",
+        "ir_reference": "macros.OS_COMPILER_H",
+        "semantic_name": "头文件保护宏",
+        "description": "os_compiler.h的头文件保护宏"
+      },
+      {
+        "id": "Leaf_ALIGN_8_macro",
+        "parent_intermediate": "Intermediate_os_compiler_h",
+        "ir_reference": "macros.ALIGN_8",
+        "semantic_name": "8字节对齐宏",
+        "description": "指定8字节内存对齐的宏"
+      },
+      {
+        "id": "Leaf_WEAK_SYM_macro",
+        "parent_intermediate": "Intermediate_os_compiler_h",
+        "ir_reference": "macros.WEAK_SYM",
+        "semantic_name": "弱符号宏",
+        "description": "定义弱符号的宏"
+      },
+      {
+        "id": "Leaf_MAX_macro",
+        "parent_intermediate": "Intermediate_os_compiler_h",
+        "ir_reference": "macros.MAX",
+        "semantic_name": "最大值宏",
+        "description": "计算两个值中最大值的函数式宏"
+      },
+      {
+        "id": "Leaf_CONTAINER_OF_macro",
+        "parent_intermediate": "Intermediate_os_compiler_h",
+        "ir_reference": "macros.CONTAINER_OF",
+        "semantic_name": "容器宏",
+        "description": "通过成员指针获取容器结构的宏"
+      },
+      {
+        "id": "Leaf_g_state_machine",
+        "parent_intermediate": "Intermediate_task_sched_c",
+        "ir_reference": "global_states.g_state_machine",
+        "semantic_name": "状态机路由表",
+        "description": "静态函数指针数组，包含idle、run、stop三个状态处理函数"
+      },
+      {
+        "id": "Leaf_s_total_processed",
+        "parent_intermediate": "Intermediate_task_sched_c",
+        "ir_reference": "global_states.s_total_processed",
+        "semantic_name": "已处理任务计数器",
+        "description": "静态计数器，记录已处理的任务总数"
+      },
+      {
+        "id": "Leaf_handle_idle",
+        "parent_intermediate": "Intermediate_task_sched_c",
+        "ir_reference": "functions.handle_idle",
+        "semantic_name": "空闲状态处理器",
+        "description": "静态函数，处理空闲状态，修改EngineCtx参数"
+      },
+      {
+        "id": "Leaf_handle_run",
+        "parent_intermediate": "Intermediate_task_sched_c",
+        "ir_reference": "functions.handle_run",
+        "semantic_name": "运行状态处理器",
+        "description": "静态函数，处理运行状态，修改EngineCtx参数"
+      },
+      {
+        "id": "Leaf_handle_stop",
+        "parent_intermediate": "Intermediate_task_sched_c",
+        "ir_reference": "functions.handle_stop",
+        "semantic_name": "停止状态处理器",
+        "description": "静态函数，处理停止状态，通过ctx->cb执行回调"
+      },
+      {
+        "id": "Leaf_engine_panic_impl",
+        "parent_intermediate": "Intermediate_task_sched_c",
+        "ir_reference": "functions.engine_panic",
+        "semantic_name": "引擎panic函数实现",
+        "description": "可变参数错误处理函数的实现，包含非结构化跳转"
+      },
+      {
+        "id": "Leaf_process_tasks",
+        "parent_intermediate": "Intermediate_task_sched_c",
+        "ir_reference": "functions.process_tasks",
+        "semantic_name": "任务处理主函数",
+        "description": "处理任务队列，通过状态机调用相应处理函数，可触发panic"
+      },
+      {
+        "id": "Leaf_g_alloc_count",
+        "parent_intermediate": "Intermediate_mem_alloc_c",
+        "ir_reference": "global_states.g_alloc_count",
+        "semantic_name": "分配计数器",
+        "description": "全局变量，记录内存分配次数"
+      },
+      {
+        "id": "Leaf_g_free_count",
+        "parent_intermediate": "Intermediate_mem_alloc_c",
+        "ir_reference": "global_states.g_free_count",
+        "semantic_name": "释放计数器",
+        "description": "全局变量，记录内存释放次数"
+      },
+      {
+        "id": "Leaf_g_hw_ctx_def",
+        "parent_intermediate": "Intermediate_mem_alloc_c",
+        "ir_reference": "global_states.g_hw_ctx",
+        "semantic_name": "全局硬件上下文(定义)",
+        "description": "硬件上下文全局变量的实际定义和初始化"
+      },
+      {
+        "id": "Leaf_track_allocation",
+        "parent_intermediate": "Intermediate_mem_alloc_c",
+        "ir_reference": "functions.track_allocation",
+        "semantic_name": "分配跟踪函数",
+        "description": "静态函数，跟踪内存分配操作，更新分配计数器"
+      },
+      {
+        "id": "Leaf_alloc_aligned",
+        "parent_intermediate": "Intermediate_mem_alloc_c",
+        "ir_reference": "functions.alloc_aligned",
+        "semantic_name": "对齐内存分配函数",
+        "description": "分配对齐的内存块，更新硬件上下文，使用MAX宏"
+      }
+    ]
+  },
+  "edges": {
+    "inter_module_edges": [
+      {
+        "source": "Root_TaskScheduler",
+        "target": "Root_CoreAPI",
+        "relation_type": "data_flow",
+        "description": "任务调度模块调用核心API的panic函数处理运行时错误",
+        "evidence": "process_tasks函数直接调用了engine_panic，而engine_panic在engine_api.h中声明为外部可用函数"
+      },
+      {
+        "source": "Root_MemoryAllocator",
+        "target": "Root_CoreAPI",
+        "relation_type": "data_flow",
+        "description": "内存分配模块写入硬件上下文状态，核心API模块可读取该状态",
+        "evidence": "alloc_aligned函数写入了g_hw_ctx全局变量，而g_hw_ctx在engine_api.h中声明为extern，允许跨模块访问"
+      },
+      {
+        "source": "Root_CoreAPI",
+        "target": "Root_MemoryAllocator",
+        "relation_type": "data_flow",
+        "description": "核心API提供宏定义给内存分配模块使用",
+        "evidence": "alloc_aligned函数使用了MAX宏进行大小计算，该宏定义在os_compiler.h中"
+      }
+    ],
+    "intra_module_edges": [
+      {
+        "source": "Intermediate_engine_api_h",
+        "target": "Intermediate_data_types_h",
+        "relation_type": "execution_order",
+        "description": "API头文件依赖数据类型定义，需要先包含数据类型头文件",
+        "evidence": "engine_api.h通过#include \"data_types.h\"显式包含了数据类型定义"
+      },
+      {
+        "source": "Intermediate_data_types_h",
+        "target": "Intermediate_os_compiler_h",
+        "relation_type": "execution_order",
+        "description": "数据类型定义依赖编译器相关宏，需要先包含编译器适配头文件",
+        "evidence": "data_types.h通过#include \"os_compiler.h\"显式包含了编译器宏定义"
+      },
+      {
+        "source": "Leaf_process_tasks",
+        "target": "Leaf_g_state_machine",
+        "relation_type": "execution_order",
+        "description": "任务处理主函数通过状态机路由表调用具体的状态处理函数",
+        "evidence": "process_tasks函数通过g_state_machine[current_state]间接调用状态处理函数"
+      },
+      {
+        "source": "Leaf_g_state_machine",
+        "target": "Leaf_handle_idle",
+        "relation_type": "execution_order",
+        "description": "状态机路由表在索引0位置指向空闲状态处理函数",
+        "evidence": "g_state_machine数组初始化为{handle_idle, handle_run, handle_stop}，handle_idle是第一个元素"
+      },
+      {
+        "source": "Leaf_g_state_machine",
+        "target": "Leaf_handle_run",
+        "relation_type": "execution_order",
+        "description": "状态机路由表在索引1位置指向运行状态处理函数",
+        "evidence": "g_state_machine数组初始化为{handle_idle, handle_run, handle_stop}，handle_run是第二个元素"
+      },
+      {
+        "source": "Leaf_g_state_machine",
+        "target": "Leaf_handle_stop",
+        "relation_type": "execution_order",
+        "description": "状态机路由表在索引2位置指向停止状态处理函数",
+        "evidence": "g_state_machine数组初始化为{handle_idle, handle_run, handle_stop}，handle_stop是第三个元素"
+      },
+      {
+        "source": "Leaf_process_tasks",
+        "target": "Leaf_engine_panic_impl",
+        "relation_type": "execution_order",
+        "description": "任务处理函数在错误条件下调用panic函数",
+        "evidence": "process_tasks函数的control_flow中记录了到engine_panic的直接调用"
+      },
+      {
+        "source": "Leaf_alloc_aligned",
+        "target": "Leaf_track_allocation",
+        "relation_type": "execution_order",
+        "description": "内存分配函数调用跟踪函数记录分配操作",
+        "evidence": "alloc_aligned函数的control_flow中记录了到track_allocation的直接调用"
+      },
+      {
+        "source": "Leaf_alloc_aligned",
+        "target": "Leaf_MAX_macro",
+        "relation_type": "execution_order",
+        "description": "内存分配函数使用MAX宏进行大小计算",
+        "evidence": "alloc_aligned函数的control_flow中记录了到MAX宏的调用"
+      }
+    ]
+  }
+}

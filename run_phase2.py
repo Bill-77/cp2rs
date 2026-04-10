@@ -32,9 +32,7 @@ def process_single_repo(filename, llm_client):
         safe_print(f"   -> 🔍 识别到 [{repo_name}] 的语言标签为: '{repo_lang}'")
         
         active_prompt_2a = get_architect_prompt(repo_lang)
-        if not isinstance(active_prompt_2a, str) or len(active_prompt_2a) < 50:
-            raise ValueError(f"获取到的 Prompt 无效！当前语言: {repo_lang}")
-            
+
         results = phase_two_agent_workflow(
             full_ir=full_ir,
             prompt_2a=active_prompt_2a,

@@ -1,0 +1,104 @@
+[
+  {
+    "id": "Root_ApplicationEntry",
+    "semantic_name": "应用程序入口",
+    "description": "主程序入口点，负责初始化任务和调用调度器",
+    "file_paths": [
+      "src/main.c"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_main_c",
+          "file_path": "src/main.c",
+          "semantic_name": "主程序模块",
+          "description": "包含main函数，程序执行起点",
+          "mass_metrics": {
+            "leaf_nodes_count": 1
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  },
+  {
+    "id": "Root_TaskModel",
+    "semantic_name": "任务数据模型",
+    "description": "定义任务数据结构及相关操作",
+    "file_paths": [
+      "src/models/task.h",
+      "src/models/task.c"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_task_h",
+          "file_path": "src/models/task.h",
+          "semantic_name": "任务模型接口",
+          "description": "任务结构体定义和函数声明头文件",
+          "mass_metrics": {
+            "leaf_nodes_count": 2
+          }
+        },
+        {
+          "id": "Intermediate_task_c",
+          "file_path": "src/models/task.c",
+          "semantic_name": "任务模型实现",
+          "description": "任务初始化函数实现",
+          "mass_metrics": {
+            "leaf_nodes_count": 1
+          }
+        }
+      ]
+    },
+    "intra_module_edges": [
+      {
+        "source": "Intermediate_task_h",
+        "target": "Intermediate_task_c",
+        "relation_type": "execution_order",
+        "description": "任务模型头文件必须先被包含，源文件才能实现其中声明的函数",
+        "evidence": "task_init在头文件中声明(has_body: false)，在源文件中有实现(has_body: true)，遵循C语言头文件-源文件分离模式"
+      }
+    ]
+  },
+  {
+    "id": "Root_SchedulerCore",
+    "semantic_name": "调度器核心",
+    "description": "调度器核心逻辑，包含任务评估和状态统计",
+    "file_paths": [
+      "src/core/scheduler.h",
+      "src/core/scheduler.c"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_scheduler_h",
+          "file_path": "src/core/scheduler.h",
+          "semantic_name": "调度器接口",
+          "description": "调度器函数声明头文件",
+          "mass_metrics": {
+            "leaf_nodes_count": 2
+          }
+        },
+        {
+          "id": "Intermediate_scheduler_c",
+          "file_path": "src/core/scheduler.c",
+          "semantic_name": "调度器实现",
+          "description": "调度器核心逻辑实现，包含私有状态变量",
+          "mass_metrics": {
+            "leaf_nodes_count": 3
+          }
+        }
+      ]
+    },
+    "intra_module_edges": [
+      {
+        "source": "Intermediate_scheduler_h",
+        "target": "Intermediate_scheduler_c",
+        "relation_type": "execution_order",
+        "description": "调度器头文件必须先被包含，源文件才能实现其中声明的函数",
+        "evidence": "scheduler_get_high_prio_count和scheduler_evaluate在头文件中声明(has_body: false)，在源文件中有实现(has_body: true)"
+      }
+    ]
+  }
+]

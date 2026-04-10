@@ -1,0 +1,103 @@
+[
+  {
+    "id": "Root_CoreAPI",
+    "semantic_name": "核心API接口层",
+    "description": "提供引擎的核心API接口、数据类型定义和编译器相关宏定义",
+    "file_paths": [
+      "include/engine_api.h",
+      "include/data_types.h",
+      "include/os_compiler.h"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_engine_api_h",
+          "file_path": "include/engine_api.h",
+          "semantic_name": "引擎API头文件",
+          "description": "定义引擎的核心API函数声明和全局硬件上下文",
+          "mass_metrics": {
+            "leaf_nodes_count": 3
+          }
+        },
+        {
+          "id": "Intermediate_data_types_h",
+          "file_path": "include/data_types.h",
+          "semantic_name": "数据类型定义头文件",
+          "description": "定义硬件上下文结构和回调函数类型",
+          "mass_metrics": {
+            "leaf_nodes_count": 2
+          }
+        },
+        {
+          "id": "Intermediate_os_compiler_h",
+          "file_path": "include/os_compiler.h",
+          "semantic_name": "编译器适配头文件",
+          "description": "提供编译器相关的宏定义和内存对齐工具",
+          "mass_metrics": {
+            "leaf_nodes_count": 5
+          }
+        }
+      ]
+    },
+    "intra_module_edges": [
+      {
+        "source": "Intermediate_engine_api_h",
+        "target": "Intermediate_data_types_h",
+        "relation_type": "execution_order",
+        "description": "API头文件依赖数据类型定义，需要先包含数据类型头文件",
+        "evidence": "engine_api.h通过#include \"data_types.h\"显式包含了数据类型定义"
+      },
+      {
+        "source": "Intermediate_data_types_h",
+        "target": "Intermediate_os_compiler_h",
+        "relation_type": "execution_order",
+        "description": "数据类型定义依赖编译器相关宏，需要先包含编译器适配头文件",
+        "evidence": "data_types.h通过#include \"os_compiler.h\"显式包含了编译器宏定义"
+      }
+    ]
+  },
+  {
+    "id": "Root_TaskScheduler",
+    "semantic_name": "任务调度器",
+    "description": "处理任务调度和状态机管理",
+    "file_paths": [
+      "src/task_sched.c"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_task_sched_c",
+          "file_path": "src/task_sched.c",
+          "semantic_name": "任务调度实现",
+          "description": "实现任务调度、状态机处理和panic函数",
+          "mass_metrics": {
+            "leaf_nodes_count": 7
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  },
+  {
+    "id": "Root_MemoryAllocator",
+    "semantic_name": "内存分配器",
+    "description": "负责内存分配和硬件上下文管理",
+    "file_paths": [
+      "src/mem_alloc.c"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_mem_alloc_c",
+          "file_path": "src/mem_alloc.c",
+          "semantic_name": "内存分配实现",
+          "description": "实现内存分配函数和硬件上下文管理",
+          "mass_metrics": {
+            "leaf_nodes_count": 5
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  }
+]

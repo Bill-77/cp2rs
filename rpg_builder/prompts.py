@@ -116,6 +116,7 @@ PROMPT_2A_ARCHITECT_C = """
 """
 
 PROMPT_2A_ARCHITECT = """
+这是 PROMPT_2A_ARCHITECT
 """
 
 PROMPT_2B_EXTRACTOR = """
@@ -200,3 +201,8 @@ PROMPT_ROUTER = {
 
 def get_architect_prompt(language: str) -> str:
     """根据语言动态获取对应的 2A Prompt"""
+    lang = str(language).lower()
+    prompt = PROMPT_ROUTER.get(lang, PROMPT_ROUTER["default"])
+    if not prompt or not isinstance(prompt, str):
+        return PROMPT_ROUTER["default"]
+    return prompt
