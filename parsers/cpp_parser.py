@@ -111,11 +111,23 @@ class _CppFileWorker:
     基于 Tree-sitter 与 Schema 4.5
     """
     def __init__(self, source_code: bytes, file_path: str):
-        self.source_code = source_code
         self.file_path = file_path
         
-        # 1. 启动 Tree-sitter 解析
-        self.tree = parser.parse(source_code)
+        clean_code_str = source_code.decode('utf-8', errors='ignore')
+        
+        # 匹配全大写字母/数字/下划线，且以 API, EXPORT, IMPORT, CORE 结尾的单词
+        clean_code_str = re.sub(r'\b[A-Z0-9_]+_(API|EXPORT|IMPORT|CORE)\b', '', clean_code_str)
+        # 清洗破坏性的编译器属性
+        clean_code_str = re.sub(r'__attribute__\s*\(\([^)]+\)\)', '', clean_code_str)
+        clean_code_str = re.sub(r'__declspec\s*\([^)]+\)', '', clean_code_str)
+        
+        # 将清洗后的代码重新编码，并覆盖 self.source_code
+        self.source_code = clean_code_str.encode('utf-8')
+        
+        # 1. 启动 Tree-sitter 解析清洗后的安全代码
+        self.tree = parser.parse(self.source_code)
+        
+        # 2. 初始化无状态的作用域大脑
         self.scope_tracker = ScopeTracker()
 
         # 2. Schema 4.5 终极版初始骨架
@@ -211,39 +223,50 @@ class _CppFileWorker:
         # 将 registry 中的类转换回列表，并存入 schema
         self.schema["classes"] = list(self._class_registry.values())
 
-    def _walk(self, node: tree_sitter.Node):
+    def _walk(self, node: tree_sitter.Node, is_extern_c_context: bool = False):
         """核心路由：AST 深度遍历器"""
         if node.type == 'ERROR' or node.is_missing:
             self.schema["metadata"]["error_node_count"] += 1
+
+        # 【新增：拦截 ABI 边界】
+        if node.type == 'linkage_specification':
+            val_node = node.child_by_field_name('value')
+            if val_node and self._get_text(val_node) == '"C"':
+                # 带着 C 链接上下文遍历内部的代码块
+                body_node = node.child_by_field_name('body')
+                if body_node:
+                    for child in body_node.children:
+                        self._walk(child, is_extern_c_context=True)
+                return
 
         # 1. 命名空间
         if node.type == 'namespace_definition':
             self._handle_namespace(node)
             return 
 
-        # 2. 【新增】类与结构体
+        # 2. 类与结构体
         elif node.type in ('class_specifier', 'struct_specifier'):
             self._handle_class(node)
             return
 
-        # 3. 【新增】函数体定义 (有 {} 的函数)
+        # 3. 函数体定义 (有 {} 的函数)
         elif node.type == 'function_definition':
-            self._handle_function(node, has_body=True)
+            self._handle_function(node, has_body=True, is_extern_c=is_extern_c_context)
             return
 
-        # 4. 【新增】常规声明 (无 {} 的函数原型、=delete 契约、全局/静态变量初始化)
+        # 4. 常规声明 (无 {} 的函数原型、=delete 契约、全局/静态变量初始化)
         elif node.type == 'declaration':
             self._handle_declaration(node)
             return
 
-        # 5. 【新增】模板实例化 (防范链接器幻觉)
+        # 5. 模板实例化 (防范链接器幻觉)
         elif node.type == 'template_instantiation_declaration':
             self.schema["explicit_instantiations"].append(self._get_text(node).strip())
             return
 
         # 默认回退：继续深度遍历子节点
         for child in node.children:
-            self._walk(child)
+            self._walk(child, is_extern_c_context)
 
     def _handle_class(self, node: tree_sitter.Node):
         """
@@ -340,7 +363,7 @@ class _CppFileWorker:
                     while decl_node and decl_node.type in ('pointer_declarator', 'reference_declarator'):
                         decl_node = decl_node.child_by_field_name('declarator')
                     if decl_node and decl_node.type == 'scoped_identifier':
-                        scope_node = decl_node.child_by_field_name('namespace')
+                        scope_node = decl_node.child_by_field_name('scope')
                         if scope_node:
                             class_fqn = self.scope_tracker.resolve_entity_fqn(self._get_text(scope_node))
                             
@@ -368,13 +391,30 @@ class _CppFileWorker:
         # 其他未命中情况（如普通局部变量、typedef等），继续下钻
         for child in node.children:
             self._walk(child)
+
+        # 如果既不是契约、不是类外静态、不是函数，且在全局/命名空间下，那它就是全局状态！
+        if self.scope_tracker.current_scope.scope_type in (ScopeType.GLOBAL, ScopeType.NAMESPACE, ScopeType.ANONYMOUS_NAMESPACE):
+            # 提取 is_static, has_internal_linkage 等，然后加入 self.schema["global_states"]
+            pass
             
     # ==========================================
     # 第四部分：核心函数解析引擎
     # ==========================================
-    def _handle_function(self, node: tree_sitter.Node, has_body: bool, is_contract: bool = False):
+    def _handle_function(self, node: tree_sitter.Node, has_body: bool, is_contract: bool = False, is_extern_c: bool = False):
         """处理所有形态的函数：类方法、独立函数、类外实现、契约"""
-        
+        # 契约(= delete/default)拦截 ，利用 AST 特征判定
+        body_node = node.child_by_field_name('body')
+        is_deleted = False
+        is_defaulted = False
+    
+        if body_node:
+            if body_node.type == 'delete_method_clause':
+                is_deleted = True
+                has_body = False # 逻辑上它没有身体
+            elif body_node.type == 'default_method_clause':
+                is_defaulted = True
+                has_body = False
+
         # 1. 深度挖掘真实的 identifier (扒开指针、引用的外衣)
         declarator_node = node.child_by_field_name('declarator')
         if not declarator_node:
@@ -384,6 +424,23 @@ class _CppFileWorker:
                     break
         if not declarator_node:
             return
+
+        # ========================================================
+        # 【新增】：在继续下钻之前，先把函数的参数列表提取出来
+        # 原因：参数本质上也是局部变量，绝不能作为外部依赖连线！
+        # ========================================================
+        parameters = set()
+        params_node = declarator_node.child_by_field_name('parameters')
+        if params_node:
+            for p in params_node.children:
+                if p.type in ('parameter_declaration', 'optional_parameter_declaration'):
+                    p_decl = p.child_by_field_name('declarator')
+                    # 扒开参数的指针/引用外衣 (如 const Task* t -> t)
+                    while p_decl and p_decl.type in ('pointer_declarator', 'reference_declarator', 'array_declarator'):
+                        p_decl = p_decl.child_by_field_name('declarator')
+                    if p_decl and p_decl.type == 'identifier':
+                        parameters.add(self._get_text(p_decl))
+        # ========================================================
 
         curr = declarator_node
         while curr and curr.type not in ('identifier', 'scoped_identifier', 'field_identifier', 'operator_name', 'destructor_name'):
@@ -425,7 +482,8 @@ class _CppFileWorker:
             "name": func_name_only,
             "signature": signature,
             "is_out_of_line_definition": is_out_of_line,
-            "has_body": has_body
+            "has_body": has_body,
+            "is_extern_c": is_extern_c
         }
 
         if has_body or is_contract:
@@ -449,13 +507,14 @@ class _CppFileWorker:
             func_data["data_flow"] = {
                 "reads_globals": [], "writes_globals": [],
                 "reads_members": [], "writes_members": [],
+                "unresolved_reads": [], "unresolved_writes": [], 
                 "local_statics": []
             }
             func_data["control_flow"] = {
                 "direct_calls": [], "indirect_calls": [], "throws": []
             }
             
-            self._analyze_function_body(body_node, func_data)
+            self._analyze_function_body(body_node, func_data, parameters)
 
         # 7. 归档
         if target_class_fqn:
@@ -474,15 +533,18 @@ class _CppFileWorker:
             func_data["name"] = self.scope_tracker.resolve_entity_fqn(raw_name)
             self.schema["standalone_functions"].append(func_data)
 
-    def _analyze_function_body(self, body_node: tree_sitter.Node, func_data: dict):
-        """微观引擎：函数体内部的控制流与数据流探针 (完美防弹版)"""
+    def _analyze_function_body(self, body_node: tree_sitter.Node, func_data: dict, parameters: set):
+        """微观引擎：带局部遮蔽过滤的数据流探针 (终极防弹版)"""
         if not body_node:
             return
 
         direct_calls = set()
         local_statics = set()
         writes = set()
-        all_identifiers = set() # 用作 reads 的初始全集
+        # 用作 reads 的初始全集
+        all_identifiers = set()
+        # 用于收集普通的局部变量 (如 int temp = 0;)
+        local_vars = set()
 
         def _traverse_body(node: tree_sitter.Node):
             # 1. 局部静态变量
@@ -492,14 +554,22 @@ class _CppFileWorker:
                     if child.type == 'storage_class_specifier' and self._get_text(child) == 'static':
                         is_static = True
                         break
-                if is_static:
-                    for child in node.children:
-                        if child.type == 'init_declarator':
-                            decl = child.child_by_field_name('declarator')
-                            if decl and decl.type == 'identifier':
-                                local_statics.add(self._get_text(decl))
-                        elif child.type == 'identifier':
-                            local_statics.add(self._get_text(child))
+
+                # 登记被声明的变量名
+                for child in node.children:
+                    if child.type == 'init_declarator':
+                        decl = child.child_by_field_name('declarator')
+                        # 扒掉指针/引用 (如 int* p)
+                        while decl and decl.type in ('pointer_declarator', 'reference_declarator', 'array_declarator'):
+                            decl = decl.child_by_field_name('declarator')
+                        if decl and decl.type == 'identifier':
+                            var_name = self._get_text(decl)
+                            if is_static: local_statics.add(var_name)
+                            else: local_vars.add(var_name) # <- 登记到普通局部变量
+                    elif child.type == 'identifier':
+                        var_name = self._get_text(child)
+                        if is_static: local_statics.add(var_name)
+                        else: local_vars.add(var_name) # <- 登记到普通局部变量
 
             # 2. 函数调用 (Direct/Indirect)
             elif node.type == 'call_expression':
@@ -520,7 +590,7 @@ class _CppFileWorker:
                 if left_node:
                     writes.add(self._get_text(left_node))
             
-            # 4. 【精准修复 1】：更新写操作 (Update: i++, --count)
+            # 4. 更新写操作 (Update: i++, --count)
             elif node.type == 'update_expression':
                 # 无论是前缀还是后缀，提取唯一的 identifier 参数即可
                 for child in node.children:
@@ -528,7 +598,7 @@ class _CppFileWorker:
                         writes.add(self._get_text(child))
                         break
 
-            # 5. 【精准修复 2】：全量抓取标识符 (用于做减法提取 reads)
+            # 5. 全量抓取标识符 (用于做减法提取 reads)
             elif node.type in ('identifier', 'scoped_identifier', 'field_identifier'):
                 all_identifiers.add(self._get_text(node))
                     
@@ -544,16 +614,17 @@ class _CppFileWorker:
         if local_statics:
             func_data["data_flow"]["local_statics"] = list(local_statics)
 
-        # 【精准修复 2】：计算真正的 reads
-        # 剔除所有的调用函数名、被写入的变量名，以及局部静态变量名
-        actual_reads = all_identifiers - writes - direct_calls - local_statics
+        # 1. 真实的 Write = 所有写操作 - 局部变量 - 函数入参
+        true_writes = writes - local_vars - parameters
+        # 2. 真实的 Read = 所有标识符 - 写操作 - 函数调用名 - 静态变量 - 局部变量 - 函数入参
+        true_reads = all_identifiers - writes - direct_calls - local_statics - local_vars - parameters
 
         # 辅助归类函数 (结合前缀与 this-> 智能判定)
         def _classify_and_append(var_name: str, target_dict: dict, is_write: bool):
             is_explicit_member = False
             clean_name = var_name
             
-            # 【精准修复 3】：处理 this-> 前缀
+            # 处理 this-> 前缀
             if clean_name.startswith('this->'):
                 is_explicit_member = True
                 clean_name = clean_name.replace('this->', '', 1)
@@ -565,16 +636,19 @@ class _CppFileWorker:
             # 启发式分类引擎
             if is_explicit_member or clean_name.startswith('m_') or clean_name.endswith('_'):
                 target_dict["writes_members" if is_write else "reads_members"].append(var_name)
-            elif clean_name.startswith('g_') or clean_name.startswith('s_'):
+            # 注意：这里顺手把刚才致命事故6中漏掉的 t_ (thread_local) 前缀给补上了
+            elif clean_name.startswith('g_') or clean_name.startswith('s_') or clean_name.startswith('t_'):
                 target_dict["writes_globals" if is_write else "reads_globals"].append(var_name)
-            # 对于普通的局部变量 (如 temp, i, buf)，我们直接丢弃，因为它们对宏观架构图毫无价值
+            else:
+                # 幸存下来的变量，100%是外部依赖，装进 unresolved 交给大模型
+                target_dict["unresolved_writes" if is_write else "unresolved_reads"].append(var_name)
 
         # 分配 writes
-        for w in writes:
+        for w in true_writes:
             _classify_and_append(w, func_data["data_flow"], is_write=True)
             
         # 分配 reads
-        for r in actual_reads:
+        for r in true_reads:
             _classify_and_append(r, func_data["data_flow"], is_write=False)
     pass
 

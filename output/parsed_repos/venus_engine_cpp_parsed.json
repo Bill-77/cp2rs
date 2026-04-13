@@ -9,7 +9,7 @@
         "file_type": "header",
         "companion_header": null,
         "ast_health": "healthy",
-        "error_node_count": 0
+        "error_node_count": 1
       },
       "dependencies": {
         "local_includes": []
@@ -49,42 +49,76 @@
           "using_declarations": [],
           "out_of_line_static_initializers": [],
           "methods": []
-        }
-      ],
-      "standalone_functions": [
+        },
         {
-          "name": "core::NonCopyable",
-          "signature": "class VENUS_API Connection : private core::NonCopyable",
-          "is_out_of_line_definition": false,
-          "has_body": true,
+          "name": "venus::network::Connection",
+          "kind": "class",
+          "is_physical_definition": true,
+          "is_forward_declaration": false,
+          "has_internal_linkage": false,
           "location": {
             "start_line": 26,
             "end_line": 54
           },
-          "data_flow": {
-            "reads_globals": [],
-            "writes_globals": [],
-            "reads_members": [
-              "m_state",
-              "m_remote_port",
-              "m_remote_ip",
-              "m_buffer"
-            ],
-            "writes_members": [],
-            "local_statics": [
-              "s_active_connections"
-            ]
-          },
-          "control_flow": {
-            "direct_calls": [
-              "load",
-              "DECLARE_DYNAMIC_CLASS"
-            ],
-            "indirect_calls": [],
-            "throws": []
-          }
+          "base_classes": [
+            "private core::NonCopyable"
+          ],
+          "friends": [],
+          "using_declarations": [
+            "using core::NonCopyable::NonCopyable;"
+          ],
+          "out_of_line_static_initializers": [],
+          "methods": [
+            {
+              "name": "Connection",
+              "signature": "Connection(const std::string& remote_ip, uint16_t remote_port) ;",
+              "is_out_of_line_definition": false,
+              "has_body": false,
+              "is_extern_c": false
+            },
+            {
+              "name": "~Connection",
+              "signature": "virtual ~Connection() noexcept ;",
+              "is_out_of_line_definition": false,
+              "has_body": false,
+              "is_extern_c": false
+            },
+            {
+              "name": "is_connected",
+              "signature": "inline bool is_connected() const noexcept",
+              "is_out_of_line_definition": false,
+              "has_body": true,
+              "is_extern_c": false,
+              "location": {
+                "start_line": 38,
+                "end_line": 40
+              },
+              "data_flow": {
+                "reads_globals": [],
+                "writes_globals": [],
+                "reads_members": [
+                  "m_state"
+                ],
+                "writes_members": [],
+                "unresolved_reads": [
+                  "memory_order_acquire",
+                  "ESTABLISHED"
+                ],
+                "unresolved_writes": [],
+                "local_statics": []
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "load"
+                ],
+                "indirect_calls": [],
+                "throws": []
+              }
+            }
+          ]
         }
       ],
+      "standalone_functions": [],
       "types": []
     },
     "include/core/macros.hpp": {
@@ -94,7 +128,7 @@
         "file_type": "header",
         "companion_header": null,
         "ast_health": "healthy",
-        "error_node_count": 0
+        "error_node_count": 1
       },
       "dependencies": {
         "local_includes": []
@@ -148,6 +182,7 @@
               "signature": "NonCopyable() = default;",
               "is_out_of_line_definition": false,
               "has_body": true,
+              "is_extern_c": false,
               "location": {
                 "start_line": 13,
                 "end_line": 13
@@ -157,6 +192,8 @@
                 "writes_globals": [],
                 "reads_members": [],
                 "writes_members": [],
+                "unresolved_reads": [],
+                "unresolved_writes": [],
                 "local_statics": []
               },
               "control_flow": {
@@ -170,6 +207,7 @@
               "signature": "~NonCopyable() = default;",
               "is_out_of_line_definition": false,
               "has_body": true,
+              "is_extern_c": false,
               "location": {
                 "start_line": 14,
                 "end_line": 14
@@ -179,6 +217,8 @@
                 "writes_globals": [],
                 "reads_members": [],
                 "writes_members": [],
+                "unresolved_reads": [],
+                "unresolved_writes": [],
                 "local_statics": []
               },
               "control_flow": {
@@ -192,6 +232,7 @@
               "signature": "NonCopyable(const NonCopyable&) = delete;",
               "is_out_of_line_definition": false,
               "has_body": true,
+              "is_extern_c": false,
               "location": {
                 "start_line": 17,
                 "end_line": 17
@@ -201,6 +242,8 @@
                 "writes_globals": [],
                 "reads_members": [],
                 "writes_members": [],
+                "unresolved_reads": [],
+                "unresolved_writes": [],
                 "local_statics": []
               },
               "control_flow": {
@@ -214,6 +257,7 @@
               "signature": "NonCopyable & operator=(const NonCopyable&) = delete;",
               "is_out_of_line_definition": false,
               "has_body": true,
+              "is_extern_c": false,
               "location": {
                 "start_line": 18,
                 "end_line": 18
@@ -223,6 +267,8 @@
                 "writes_globals": [],
                 "reads_members": [],
                 "writes_members": [],
+                "unresolved_reads": [],
+                "unresolved_writes": [],
                 "local_statics": []
               },
               "control_flow": {
@@ -279,6 +325,7 @@
           "signature": "void log_internal_error(const string& msg)",
           "is_out_of_line_definition": false,
           "has_body": true,
+          "is_extern_c": false,
           "location": {
             "start_line": 15,
             "end_line": 17
@@ -288,6 +335,12 @@
             "writes_globals": [],
             "reads_members": [],
             "writes_members": [],
+            "unresolved_reads": [
+              "endl",
+              "msg",
+              "cerr"
+            ],
+            "unresolved_writes": [],
             "local_statics": []
           },
           "control_flow": {
@@ -301,6 +354,7 @@
           "signature": "bool Connection::IsKindOf(const char* name) const",
           "is_out_of_line_definition": false,
           "has_body": true,
+          "is_extern_c": false,
           "location": {
             "start_line": 23,
             "end_line": 25
@@ -310,6 +364,8 @@
             "writes_globals": [],
             "reads_members": [],
             "writes_members": [],
+            "unresolved_reads": [],
+            "unresolved_writes": [],
             "local_statics": []
           },
           "control_flow": {
@@ -325,6 +381,7 @@
           "signature": "Connection::Connection(const string& remote_ip, uint16_t remote_port) : NonCopyable(), m_remote_ip(remote_ip), m_remote_port(remote_port), m_state(ConnectionState::INIT), m_buffer(nullptr)",
           "is_out_of_line_definition": false,
           "has_body": true,
+          "is_extern_c": false,
           "location": {
             "start_line": 27,
             "end_line": 35
@@ -337,6 +394,10 @@
             "writes_globals": [],
             "reads_members": [],
             "writes_members": [],
+            "unresolved_reads": [
+              "memory_order_relaxed"
+            ],
+            "unresolved_writes": [],
             "local_statics": []
           },
           "control_flow": {
@@ -352,6 +413,7 @@
           "signature": "Connection::~Connection() noexcept",
           "is_out_of_line_definition": false,
           "has_body": true,
+          "is_extern_c": false,
           "location": {
             "start_line": 37,
             "end_line": 40
@@ -363,12 +425,16 @@
             "writes_globals": [],
             "reads_members": [],
             "writes_members": [],
+            "unresolved_reads": [
+              "memory_order_relaxed"
+            ],
+            "unresolved_writes": [],
             "local_statics": []
           },
           "control_flow": {
             "direct_calls": [
-              "disconnect",
-              "fetch_sub"
+              "fetch_sub",
+              "disconnect"
             ],
             "indirect_calls": [],
             "throws": []
@@ -379,6 +445,7 @@
           "signature": "bool Connection::connect() noexcept",
           "is_out_of_line_definition": false,
           "has_body": true,
+          "is_extern_c": false,
           "location": {
             "start_line": 42,
             "end_line": 67
@@ -386,23 +453,32 @@
           "data_flow": {
             "reads_globals": [],
             "writes_globals": [
+              "t_last_error_code",
               "s_connection_attempts"
             ],
             "reads_members": [
-              "m_state",
-              "m_remote_port"
+              "m_remote_port",
+              "m_state"
             ],
             "writes_members": [],
+            "unresolved_reads": [
+              "MAX_CONNECTION_RETRIES",
+              "e",
+              "CONNECTING",
+              "CLOSED",
+              "ESTABLISHED"
+            ],
+            "unresolved_writes": [],
             "local_statics": [
               "s_connection_attempts"
             ]
           },
           "control_flow": {
             "direct_calls": [
-              "log_internal_error",
+              "store",
               "what",
               "load",
-              "store"
+              "log_internal_error"
             ],
             "indirect_calls": [],
             "throws": []
@@ -413,6 +489,7 @@
           "signature": "void Connection::disconnect()",
           "is_out_of_line_definition": false,
           "has_body": true,
+          "is_extern_c": false,
           "location": {
             "start_line": 69,
             "end_line": 74
@@ -425,13 +502,17 @@
               "m_buffer"
             ],
             "writes_members": [],
+            "unresolved_reads": [
+              "CLOSED"
+            ],
+            "unresolved_writes": [],
             "local_statics": []
           },
           "control_flow": {
             "direct_calls": [
               "is_connected",
-              "reset",
-              "store"
+              "store",
+              "reset"
             ],
             "indirect_calls": [],
             "throws": []
@@ -442,6 +523,7 @@
           "signature": "ConnectionState Connection::get_global_fallback_state()",
           "is_out_of_line_definition": false,
           "has_body": true,
+          "is_extern_c": false,
           "location": {
             "start_line": 76,
             "end_line": 78
@@ -451,6 +533,10 @@
             "writes_globals": [],
             "reads_members": [],
             "writes_members": [],
+            "unresolved_reads": [
+              "CLOSED"
+            ],
+            "unresolved_writes": [],
             "local_statics": []
           },
           "control_flow": {
@@ -461,9 +547,10 @@
         },
         {
           "name": "venus_net_force_cleanup",
-          "signature": "VENUS_API void venus_net_force_cleanup()",
+          "signature": "void venus_net_force_cleanup()",
           "is_out_of_line_definition": false,
           "has_body": true,
+          "is_extern_c": true,
           "location": {
             "start_line": 88,
             "end_line": 90
@@ -473,6 +560,10 @@
             "writes_globals": [],
             "reads_members": [],
             "writes_members": [],
+            "unresolved_reads": [
+              "get_global_fallback_state"
+            ],
+            "unresolved_writes": [],
             "local_statics": []
           },
           "control_flow": {
