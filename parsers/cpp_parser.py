@@ -158,29 +158,6 @@ class _CppFileWorker:
         self._finalize_schema()
         return self.schema
 
-    def _walk(self, node: tree_sitter.Node):
-        """
-        核心路由：AST 深度遍历器 (The AST Walker)
-        负责拦截关键语素，并维持 ScopeTracker 的出入栈平衡。
-        """
-        # --- 健壮性防线：捕捉宏截断与语法解析失败 ---
-        if node.type == 'ERROR' or node.is_missing:
-            self.schema["metadata"]["error_node_count"] += 1
-
-        # --- 路由分发 ---
-        if node.type == 'namespace_definition':
-            self._handle_namespace(node)
-            return # 已经接管了子节点遍历，直接 return 避免重复
-
-        # TODO (下一步实现): class_specifier, struct_specifier
-        # TODO (下一步实现): function_definition
-        # TODO (下一步实现): declaration (包含 global_states, types, static initializers 等)
-        # TODO (下一步实现): preproc_include (用于 dependencies 和 companion_header)
-
-        # 默认回退：继续深度遍历子节点
-        for child in node.children:
-            self._walk(child)
-
     def _handle_namespace(self, node: tree_sitter.Node):
         """
         处理 Namespace (包括极其致命的匿名命名空间)
@@ -343,6 +320,9 @@ class _CppFileWorker:
         """
         处理常规声明：函数原型、变量声明、现代 C++ 契约
         """
+        # 提取节点的纯文本
+        text = self._get_text(node).strip()
+
         # 1. 无视空格、换行、及尾部注释的契约拦截 (= delete, = default)
         # 匹配模式：等号 + 任意空白 + delete/default + 任意空白 + 分号 + (可选的尾部空白或注释)
         contract_match = re.search(r'=\s*(delete|default)\s*;\s*(//.*|/\*.*\*/\s*)*$', text, re.DOTALL)
@@ -356,6 +336,9 @@ class _CppFileWorker:
             for child in node.children:
                 if child.type == 'init_declarator':
                     decl_node = child.child_by_field_name('declarator')
+                    # 剥离指针和引用的外衣，直达本质
+                    while decl_node and decl_node.type in ('pointer_declarator', 'reference_declarator'):
+                        decl_node = decl_node.child_by_field_name('declarator')
                     if decl_node and decl_node.type == 'scoped_identifier':
                         scope_node = decl_node.child_by_field_name('namespace')
                         if scope_node:
@@ -450,6 +433,8 @@ class _CppFileWorker:
 
         # 6. 数据流引擎挂载 (仅有 body 时挂载，空数据将在 finalize 阶段剥离)
         if has_body:
+            # 从语法树节点中真正把函数体提取出来
+            body_node = node.child_by_field_name('body')
             # 嗅探构造函数初始化列表
             init_list_node = node.child_by_field_name('initializers')
             if not init_list_node:
@@ -539,7 +524,7 @@ class _CppFileWorker:
             elif node.type == 'update_expression':
                 # 无论是前缀还是后缀，提取唯一的 identifier 参数即可
                 for child in node.children:
-                    if child.type in ('identifier', 'scoped_identifier', 'field_expression'):
+                    if child.type in ('identifier', 'scoped_identifier', 'field_expression', 'subscript_expression'):
                         writes.add(self._get_text(child))
                         break
 

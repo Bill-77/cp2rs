@@ -1,0 +1,490 @@
+{
+  "repository_name": "venus_engine_cpp",
+  "language": "cpp",
+  "files": {
+    "include/network/connection.hpp": {
+      "metadata": {
+        "language": "cpp",
+        "file_path": "include/network/connection.hpp",
+        "file_type": "header",
+        "companion_header": null,
+        "ast_health": "healthy",
+        "error_node_count": 0
+      },
+      "dependencies": {
+        "local_includes": []
+      },
+      "namespaces": [
+        {
+          "name": "venus",
+          "is_anonymous": false,
+          "using_directives": []
+        }
+      ],
+      "global_states": [],
+      "explicit_instantiations": [],
+      "classes": [
+        {
+          "name": "venus::network::PacketBuffer",
+          "kind": "class",
+          "is_physical_definition": false,
+          "is_forward_declaration": true,
+          "has_internal_linkage": false,
+          "location": null,
+          "base_classes": [],
+          "friends": [],
+          "using_declarations": [],
+          "out_of_line_static_initializers": [],
+          "methods": []
+        },
+        {
+          "name": "venus::network::TlsContext",
+          "kind": "struct",
+          "is_physical_definition": false,
+          "is_forward_declaration": true,
+          "has_internal_linkage": false,
+          "location": null,
+          "base_classes": [],
+          "friends": [],
+          "using_declarations": [],
+          "out_of_line_static_initializers": [],
+          "methods": []
+        }
+      ],
+      "standalone_functions": [
+        {
+          "name": "core::NonCopyable",
+          "signature": "class VENUS_API Connection : private core::NonCopyable",
+          "is_out_of_line_definition": false,
+          "has_body": true,
+          "location": {
+            "start_line": 26,
+            "end_line": 54
+          },
+          "data_flow": {
+            "reads_globals": [],
+            "writes_globals": [],
+            "reads_members": [
+              "m_state",
+              "m_remote_port",
+              "m_remote_ip",
+              "m_buffer"
+            ],
+            "writes_members": [],
+            "local_statics": [
+              "s_active_connections"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "load",
+              "DECLARE_DYNAMIC_CLASS"
+            ],
+            "indirect_calls": [],
+            "throws": []
+          }
+        }
+      ],
+      "types": []
+    },
+    "include/core/macros.hpp": {
+      "metadata": {
+        "language": "cpp",
+        "file_path": "include/core/macros.hpp",
+        "file_type": "header",
+        "companion_header": null,
+        "ast_health": "healthy",
+        "error_node_count": 0
+      },
+      "dependencies": {
+        "local_includes": []
+      },
+      "namespaces": [],
+      "global_states": [],
+      "explicit_instantiations": [],
+      "classes": [],
+      "standalone_functions": [],
+      "types": []
+    },
+    "include/core/non_copyable.hpp": {
+      "metadata": {
+        "language": "cpp",
+        "file_path": "include/core/non_copyable.hpp",
+        "file_type": "header",
+        "companion_header": null,
+        "ast_health": "healthy",
+        "error_node_count": 0
+      },
+      "dependencies": {
+        "local_includes": []
+      },
+      "namespaces": [
+        {
+          "name": "venus",
+          "is_anonymous": false,
+          "using_directives": []
+        }
+      ],
+      "global_states": [],
+      "explicit_instantiations": [],
+      "classes": [
+        {
+          "name": "venus::core::NonCopyable",
+          "kind": "class",
+          "is_physical_definition": true,
+          "is_forward_declaration": false,
+          "has_internal_linkage": false,
+          "location": {
+            "start_line": 11,
+            "end_line": 19
+          },
+          "base_classes": [],
+          "friends": [],
+          "using_declarations": [],
+          "out_of_line_static_initializers": [],
+          "methods": [
+            {
+              "name": "NonCopyable",
+              "signature": "NonCopyable() = default;",
+              "is_out_of_line_definition": false,
+              "has_body": true,
+              "location": {
+                "start_line": 13,
+                "end_line": 13
+              },
+              "data_flow": {
+                "reads_globals": [],
+                "writes_globals": [],
+                "reads_members": [],
+                "writes_members": [],
+                "local_statics": []
+              },
+              "control_flow": {
+                "direct_calls": [],
+                "indirect_calls": [],
+                "throws": []
+              }
+            },
+            {
+              "name": "~NonCopyable",
+              "signature": "~NonCopyable() = default;",
+              "is_out_of_line_definition": false,
+              "has_body": true,
+              "location": {
+                "start_line": 14,
+                "end_line": 14
+              },
+              "data_flow": {
+                "reads_globals": [],
+                "writes_globals": [],
+                "reads_members": [],
+                "writes_members": [],
+                "local_statics": []
+              },
+              "control_flow": {
+                "direct_calls": [],
+                "indirect_calls": [],
+                "throws": []
+              }
+            },
+            {
+              "name": "NonCopyable",
+              "signature": "NonCopyable(const NonCopyable&) = delete;",
+              "is_out_of_line_definition": false,
+              "has_body": true,
+              "location": {
+                "start_line": 17,
+                "end_line": 17
+              },
+              "data_flow": {
+                "reads_globals": [],
+                "writes_globals": [],
+                "reads_members": [],
+                "writes_members": [],
+                "local_statics": []
+              },
+              "control_flow": {
+                "direct_calls": [],
+                "indirect_calls": [],
+                "throws": []
+              }
+            },
+            {
+              "name": "& operator=(const NonCopyable&)",
+              "signature": "NonCopyable & operator=(const NonCopyable&) = delete;",
+              "is_out_of_line_definition": false,
+              "has_body": true,
+              "location": {
+                "start_line": 18,
+                "end_line": 18
+              },
+              "data_flow": {
+                "reads_globals": [],
+                "writes_globals": [],
+                "reads_members": [],
+                "writes_members": [],
+                "local_statics": []
+              },
+              "control_flow": {
+                "direct_calls": [],
+                "indirect_calls": [],
+                "throws": []
+              }
+            }
+          ]
+        }
+      ],
+      "standalone_functions": [],
+      "types": []
+    },
+    "src/network/connection.cpp": {
+      "metadata": {
+        "language": "cpp",
+        "file_path": "src/network/connection.cpp",
+        "file_type": "source",
+        "companion_header": null,
+        "ast_health": "healthy",
+        "error_node_count": 1
+      },
+      "dependencies": {
+        "local_includes": []
+      },
+      "namespaces": [
+        {
+          "name": "venus",
+          "is_anonymous": false,
+          "using_directives": []
+        }
+      ],
+      "global_states": [],
+      "explicit_instantiations": [],
+      "classes": [
+        {
+          "name": "std::shared_ptr<venus::network::Connection>",
+          "kind": "class",
+          "is_physical_definition": false,
+          "is_forward_declaration": true,
+          "has_internal_linkage": false,
+          "location": null,
+          "base_classes": [],
+          "friends": [],
+          "using_declarations": [],
+          "out_of_line_static_initializers": [],
+          "methods": []
+        }
+      ],
+      "standalone_functions": [
+        {
+          "name": "venus::network::anonymous_namespace_1::log_internal_error",
+          "signature": "void log_internal_error(const string& msg)",
+          "is_out_of_line_definition": false,
+          "has_body": true,
+          "location": {
+            "start_line": 15,
+            "end_line": 17
+          },
+          "data_flow": {
+            "reads_globals": [],
+            "writes_globals": [],
+            "reads_members": [],
+            "writes_members": [],
+            "local_statics": []
+          },
+          "control_flow": {
+            "direct_calls": [],
+            "indirect_calls": [],
+            "throws": []
+          }
+        },
+        {
+          "name": "Connection::IsKindOf",
+          "signature": "bool Connection::IsKindOf(const char* name) const",
+          "is_out_of_line_definition": false,
+          "has_body": true,
+          "location": {
+            "start_line": 23,
+            "end_line": 25
+          },
+          "data_flow": {
+            "reads_globals": [],
+            "writes_globals": [],
+            "reads_members": [],
+            "writes_members": [],
+            "local_statics": []
+          },
+          "control_flow": {
+            "direct_calls": [
+              "string"
+            ],
+            "indirect_calls": [],
+            "throws": []
+          }
+        },
+        {
+          "name": "Connection::Connection",
+          "signature": "Connection::Connection(const string& remote_ip, uint16_t remote_port) : NonCopyable(), m_remote_ip(remote_ip), m_remote_port(remote_port), m_state(ConnectionState::INIT), m_buffer(nullptr)",
+          "is_out_of_line_definition": false,
+          "has_body": true,
+          "location": {
+            "start_line": 27,
+            "end_line": 35
+          },
+          "initializer_list_snapshot": ": NonCopyable(), \n      m_remote_ip(remote_ip), \n      m_remote_port(remote_port),\n      m_state(ConnectionState::INIT),\n      m_buffer(nullptr)",
+          "data_flow": {
+            "reads_globals": [
+              "s_active_connections"
+            ],
+            "writes_globals": [],
+            "reads_members": [],
+            "writes_members": [],
+            "local_statics": []
+          },
+          "control_flow": {
+            "direct_calls": [
+              "fetch_add"
+            ],
+            "indirect_calls": [],
+            "throws": []
+          }
+        },
+        {
+          "name": "Connection::~Connection",
+          "signature": "Connection::~Connection() noexcept",
+          "is_out_of_line_definition": false,
+          "has_body": true,
+          "location": {
+            "start_line": 37,
+            "end_line": 40
+          },
+          "data_flow": {
+            "reads_globals": [
+              "s_active_connections"
+            ],
+            "writes_globals": [],
+            "reads_members": [],
+            "writes_members": [],
+            "local_statics": []
+          },
+          "control_flow": {
+            "direct_calls": [
+              "disconnect",
+              "fetch_sub"
+            ],
+            "indirect_calls": [],
+            "throws": []
+          }
+        },
+        {
+          "name": "Connection::connect",
+          "signature": "bool Connection::connect() noexcept",
+          "is_out_of_line_definition": false,
+          "has_body": true,
+          "location": {
+            "start_line": 42,
+            "end_line": 67
+          },
+          "data_flow": {
+            "reads_globals": [],
+            "writes_globals": [
+              "s_connection_attempts"
+            ],
+            "reads_members": [
+              "m_state",
+              "m_remote_port"
+            ],
+            "writes_members": [],
+            "local_statics": [
+              "s_connection_attempts"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "log_internal_error",
+              "what",
+              "load",
+              "store"
+            ],
+            "indirect_calls": [],
+            "throws": []
+          }
+        },
+        {
+          "name": "Connection::disconnect",
+          "signature": "void Connection::disconnect()",
+          "is_out_of_line_definition": false,
+          "has_body": true,
+          "location": {
+            "start_line": 69,
+            "end_line": 74
+          },
+          "data_flow": {
+            "reads_globals": [],
+            "writes_globals": [],
+            "reads_members": [
+              "m_state",
+              "m_buffer"
+            ],
+            "writes_members": [],
+            "local_statics": []
+          },
+          "control_flow": {
+            "direct_calls": [
+              "is_connected",
+              "reset",
+              "store"
+            ],
+            "indirect_calls": [],
+            "throws": []
+          }
+        },
+        {
+          "name": "Connection::get_global_fallback_state",
+          "signature": "ConnectionState Connection::get_global_fallback_state()",
+          "is_out_of_line_definition": false,
+          "has_body": true,
+          "location": {
+            "start_line": 76,
+            "end_line": 78
+          },
+          "data_flow": {
+            "reads_globals": [],
+            "writes_globals": [],
+            "reads_members": [],
+            "writes_members": [],
+            "local_statics": []
+          },
+          "control_flow": {
+            "direct_calls": [],
+            "indirect_calls": [],
+            "throws": []
+          }
+        },
+        {
+          "name": "venus_net_force_cleanup",
+          "signature": "VENUS_API void venus_net_force_cleanup()",
+          "is_out_of_line_definition": false,
+          "has_body": true,
+          "location": {
+            "start_line": 88,
+            "end_line": 90
+          },
+          "data_flow": {
+            "reads_globals": [],
+            "writes_globals": [],
+            "reads_members": [],
+            "writes_members": [],
+            "local_statics": []
+          },
+          "control_flow": {
+            "direct_calls": [],
+            "indirect_calls": [
+              "venus::network::Connection::get_global_fallback_state"
+            ],
+            "throws": []
+          }
+        }
+      ],
+      "types": []
+    }
+  }
+}

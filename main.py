@@ -5,8 +5,8 @@ import argparse
 
 # 导入刚刚封板的终级 C 语言解析器
 from parsers.c_parser import CParser
+from parsers.cpp_parser import CppParser
 # 保留原有解析器（假设尚未重构完毕）
-# from parsers.cpp_parser import CppParser
 # from parsers.rust_parser import RustParser
 
 def detect_repo_language(repo_path):
@@ -31,48 +31,7 @@ def detect_repo_language(repo_path):
                 
     return "c" if has_c else "unknown"
 
-def inject_global_references(repo_data):
-    """
-    【旧版补偿逻辑】：跨文件符号关联扫描。
-    注意：此函数仅对尚未重构的 C++ 和 Rust 解析器生效。
-    """
-    # 【架构级拦截】：保护 Schema 3.1 的精确度
-    if repo_data.get("language") == "c":
-        print("  -> [架构提示] C 语言已启用底层 AST 数据流引擎，无需进行正则补偿，避免破坏 Scope Stack 的精准度。")
-        return repo_data
-
-    # ======== 以下为针对旧版 Schema 的正则补偿逻辑 ========
-    global_names = set()
-    for file_path, file_data in repo_data.get("files", {}).items():
-        for state in file_data.get("entities", {}).get("global_states", []):
-            if state.get("name"):
-                global_names.add(state["name"])
-
-    if not global_names:
-        return repo_data
-
-    pattern_str = r'\b(' + '|'.join(re.escape(name) for name in global_names) + r')\b'
-    regex = re.compile(pattern_str)
-
-    for file_path, file_data in repo_data.get("files", {}).items():
-        for func in file_data.get("entities", {}).get("standalone_functions", []):
-            body = func.get("body", "")
-            if body:
-                matches = set(regex.findall(body))
-                if matches:
-                    func["referenced_global_states"] = list(matches)
-
-        for behavior in file_data.get("entities", {}).get("behaviors", []):
-            for method in behavior.get("methods", []):
-                body = method.get("body", "")
-                if body:
-                    matches = set(regex.findall(body))
-                    if matches:
-                        method["referenced_global_states"] = list(matches)
-
-    return repo_data
-
-def parse_repository(repo_path):
+def parse_repository(repo_path, pre_detected_lang=None):
     """
     遍历整个代码仓库，智能判断语言并解析，合并为单一的扁平化字典。
     """
@@ -118,7 +77,8 @@ def parse_repository(repo_path):
                     print(f"❌ 读取文件失败 {rel_path}: {e}")
                     continue
                 
-                print(f"  -> 正在解析: {rel_path} ...")
+                # 不打印具体的文件路径，避免日志过于冗长
+                # print(f"  -> 正在解析: {rel_path} ...")
                 
                 # 【接口适配】：调用全新的 parse_file 接口
                 if detected_language in ("c", "cpp"):
@@ -129,10 +89,6 @@ def parse_repository(repo_path):
                     
                 repo_data["files"][rel_path] = file_result
                 
-    # 全局关联分析
-    print(f"  -> 正在执行 Phase 1.5: 跨文件全局符号关联扫描...")
-    repo_data = inject_global_references(repo_data)
-    
     return repo_data
 
 if __name__ == "__main__":
