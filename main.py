@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import argparse
 
 # 导入刚刚封板的终级 C 语言解析器
 from parsers.c_parser import CParser
@@ -76,7 +77,8 @@ def parse_repository(repo_path):
     遍历整个代码仓库，智能判断语言并解析，合并为单一的扁平化字典。
     """
     repo_name = os.path.basename(os.path.normpath(repo_path))
-    detected_language = detect_repo_language(repo_path)
+    # 如果外层已经探测过，就直接用，否则自行探测
+    detected_language = pre_detected_lang if pre_detected_lang else detect_repo_language(repo_path)
     
     if detected_language == "unknown":
         print(f"⚠️ 无法识别仓库 [{repo_name}] 的语言，已跳过。")
@@ -119,7 +121,7 @@ def parse_repository(repo_path):
                 print(f"  -> 正在解析: {rel_path} ...")
                 
                 # 【接口适配】：调用全新的 parse_file 接口
-                if detected_language == "c":
+                if detected_language in ("c", "cpp"):
                     file_result = parser.parse_file(rel_path, code_bytes)
                 else:
                     # 兼容老版解析器的接口
@@ -134,26 +136,52 @@ def parse_repository(repo_path):
     return repo_data
 
 if __name__ == "__main__":
+    # ==========================================
+    # 命令行测试脚手架配置
+    # ==========================================
+    parser = argparse.ArgumentParser(description="多语言 AST 全量解析引擎 (C/C++/Rust)")
+    parser.add_argument("-l", "--lang", choices=["all", "c", "cpp", "rust"], default="all",
+                        help="按语言过滤：只解析特定语言的仓库")
+    parser.add_argument("-r", "--repo", type=str, default="",
+                        help="按仓库名过滤：只解析名字包含该字符串的仓库 (例如: venus_engine)")
+    
+    args = parser.parse_args()
+
     BASE_INPUT_DIRS = ["data/cc_repos", "data/rust_repos"]   
     BASE_OUTPUT_DIR = "output/parsed_repos"
     
     os.makedirs(BASE_OUTPUT_DIR, exist_ok=True)
     
+    print("=" * 60)
+    print(f"🛠️  AST 解析引擎已启动")
+    print(f"📌 当前过滤条件 -> 语言: [{args.lang}], 仓库名: [{args.repo if args.repo else '全部'}]")
+    print("=" * 60)
+
     for base_dir in BASE_INPUT_DIRS:
         if not os.path.exists(base_dir):
-            print(f"⚠️ 找不到目录 {base_dir}，跳过...")
             continue
         
         repo_names = [d for d in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, d))]
         if not repo_names:
             continue
         
-        print(f"\n🔎 在 {base_dir} 中发现 {len(repo_names)} 个仓库: {repo_names}")
-        
         for repo_name in repo_names:
+            # 按仓库名称过滤 (支持模糊匹配)
+            if args.repo and args.repo.lower() not in repo_name.lower():
+                continue
+                
             target_repo_path = os.path.join(base_dir, repo_name)
             
-            final_json_data = parse_repository(target_repo_path)
+            # 提前探测语言
+            detected_lang = detect_repo_language(target_repo_path)
+            
+            # 按语言类型过滤
+            if args.lang != "all" and detected_lang != args.lang:
+                print(f"⏩ 跳过仓库 [{repo_name}] (语言为 {detected_lang}，但不符合过滤条件 {args.lang})")
+                continue
+
+            # 开始正式解析
+            final_json_data = parse_repository(target_repo_path, pre_detected_lang=detected_lang)
             if not final_json_data:
                 continue
             
