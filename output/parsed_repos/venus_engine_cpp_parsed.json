@@ -433,8 +433,8 @@
           },
           "control_flow": {
             "direct_calls": [
-              "fetch_sub",
-              "disconnect"
+              "disconnect",
+              "fetch_sub"
             ],
             "indirect_calls": [],
             "throws": []
@@ -457,16 +457,16 @@
               "s_connection_attempts"
             ],
             "reads_members": [
-              "m_remote_port",
-              "m_state"
+              "m_state",
+              "m_remote_port"
             ],
             "writes_members": [],
             "unresolved_reads": [
-              "MAX_CONNECTION_RETRIES",
-              "e",
-              "CONNECTING",
               "CLOSED",
-              "ESTABLISHED"
+              "ESTABLISHED",
+              "MAX_CONNECTION_RETRIES",
+              "CONNECTING",
+              "e"
             ],
             "unresolved_writes": [],
             "local_statics": [
@@ -475,10 +475,10 @@
           },
           "control_flow": {
             "direct_calls": [
-              "store",
+              "log_internal_error",
               "what",
               "load",
-              "log_internal_error"
+              "store"
             ],
             "indirect_calls": [],
             "throws": []
@@ -498,8 +498,8 @@
             "reads_globals": [],
             "writes_globals": [],
             "reads_members": [
-              "m_state",
-              "m_buffer"
+              "m_buffer",
+              "m_state"
             ],
             "writes_members": [],
             "unresolved_reads": [

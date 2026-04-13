@@ -113,21 +113,16 @@ class _CppFileWorker:
     def __init__(self, source_code: bytes, file_path: str):
         self.file_path = file_path
         
+        # 1. 智能正则清道夫
         clean_code_str = source_code.decode('utf-8', errors='ignore')
-        
-        # 匹配全大写字母/数字/下划线，且以 API, EXPORT, IMPORT, CORE 结尾的单词
         clean_code_str = re.sub(r'\b[A-Z0-9_]+_(API|EXPORT|IMPORT|CORE)\b', '', clean_code_str)
-        # 清洗破坏性的编译器属性
         clean_code_str = re.sub(r'__attribute__\s*\(\([^)]+\)\)', '', clean_code_str)
         clean_code_str = re.sub(r'__declspec\s*\([^)]+\)', '', clean_code_str)
         
         # 将清洗后的代码重新编码，并覆盖 self.source_code
         self.source_code = clean_code_str.encode('utf-8')
         
-        # 1. 启动 Tree-sitter 解析清洗后的安全代码
         self.tree = parser.parse(self.source_code)
-        
-        # 2. 初始化无状态的作用域大脑
         self.scope_tracker = ScopeTracker()
 
         # 2. Schema 4.5 终极版初始骨架
@@ -425,21 +420,29 @@ class _CppFileWorker:
         if not declarator_node:
             return
 
-        # ========================================================
+# ========================================================
         # 【新增】：在继续下钻之前，先把函数的参数列表提取出来
         # 原因：参数本质上也是局部变量，绝不能作为外部依赖连线！
         # ========================================================
         parameters = set()
-        params_node = declarator_node.child_by_field_name('parameters')
-        if params_node:
-            for p in params_node.children:
-                if p.type in ('parameter_declaration', 'optional_parameter_declaration'):
-                    p_decl = p.child_by_field_name('declarator')
-                    # 扒开参数的指针/引用外衣 (如 const Task* t -> t)
-                    while p_decl and p_decl.type in ('pointer_declarator', 'reference_declarator', 'array_declarator'):
-                        p_decl = p_decl.child_by_field_name('declarator')
-                    if p_decl and p_decl.type == 'identifier':
-                        parameters.add(self._get_text(p_decl))
+        
+        # 【精准修复】：必须先剥去返回值的指针/引用外衣，找到真正的 function_declarator
+        func_decl_node = declarator_node
+        while func_decl_node and func_decl_node.type in ('pointer_declarator', 'reference_declarator'):
+            func_decl_node = func_decl_node.child_by_field_name('declarator')
+            
+        # 只有在真正的 function_declarator 下，才能安全地取到 'parameters'
+        if func_decl_node and func_decl_node.type == 'function_declarator':
+            params_node = func_decl_node.child_by_field_name('parameters')
+            if params_node:
+                for p in params_node.children:
+                    if p.type in ('parameter_declaration', 'optional_parameter_declaration'):
+                        p_decl = p.child_by_field_name('declarator')
+                        # 扒开参数自身的指针/引用外衣 (如 const Task* t -> t)
+                        while p_decl and p_decl.type in ('pointer_declarator', 'reference_declarator', 'array_declarator'):
+                            p_decl = p_decl.child_by_field_name('declarator')
+                        if p_decl and p_decl.type == 'identifier':
+                            parameters.add(self._get_text(p_decl))
         # ========================================================
 
         curr = declarator_node
@@ -534,44 +537,25 @@ class _CppFileWorker:
             self.schema["standalone_functions"].append(func_data)
 
     def _analyze_function_body(self, body_node: tree_sitter.Node, func_data: dict, parameters: set):
-        """微观引擎：带局部遮蔽过滤的数据流探针 (终极防弹版)"""
-        if not body_node:
-            return
+        if not body_node: return
 
-        direct_calls = set()
-        local_statics = set()
-        writes = set()
-        # 用作 reads 的初始全集
-        all_identifiers = set()
-        # 用于收集普通的局部变量 (如 int temp = 0;)
-        local_vars = set()
+        direct_calls, local_statics, writes, all_identifiers, local_vars = set(), set(), set(), set(), set()
 
         def _traverse_body(node: tree_sitter.Node):
-            # 1. 局部静态变量
+            # 登记局部变量
             if node.type == 'declaration':
-                is_static = False
-                for child in node.children:
-                    if child.type == 'storage_class_specifier' and self._get_text(child) == 'static':
-                        is_static = True
-                        break
-
-                # 登记被声明的变量名
+                is_static = any(c.type == 'storage_class_specifier' and self._get_text(c) == 'static' for c in node.children)
                 for child in node.children:
                     if child.type == 'init_declarator':
                         decl = child.child_by_field_name('declarator')
-                        # 扒掉指针/引用 (如 int* p)
                         while decl and decl.type in ('pointer_declarator', 'reference_declarator', 'array_declarator'):
                             decl = decl.child_by_field_name('declarator')
                         if decl and decl.type == 'identifier':
-                            var_name = self._get_text(decl)
-                            if is_static: local_statics.add(var_name)
-                            else: local_vars.add(var_name) # <- 登记到普通局部变量
+                            (local_statics if is_static else local_vars).add(self._get_text(decl))
                     elif child.type == 'identifier':
-                        var_name = self._get_text(child)
-                        if is_static: local_statics.add(var_name)
-                        else: local_vars.add(var_name) # <- 登记到普通局部变量
+                        (local_statics if is_static else local_vars).add(self._get_text(child))
 
-            # 2. 函数调用 (Direct/Indirect)
+            # 调用
             elif node.type == 'call_expression':
                 func_node = node.child_by_field_name('function')
                 if func_node:
@@ -579,78 +563,55 @@ class _CppFileWorker:
                         direct_calls.add(self._get_text(func_node))
                     elif func_node.type == 'field_expression':
                         field_node = func_node.child_by_field_name('field')
-                        if field_node:
-                            direct_calls.add(self._get_text(field_node))
+                        if field_node: direct_calls.add(self._get_text(field_node))
                     else:
                         func_data["control_flow"]["indirect_calls"].append(self._get_text(func_node))
-
-            # 3. 赋值写操作 (Assignment)
+            # 赋值写
             elif node.type == 'assignment_expression':
                 left_node = node.child_by_field_name('left')
-                if left_node:
-                    writes.add(self._get_text(left_node))
-            
-            # 4. 更新写操作 (Update: i++, --count)
+                if left_node: writes.add(self._get_text(left_node))
+            # 更新写
             elif node.type == 'update_expression':
-                # 无论是前缀还是后缀，提取唯一的 identifier 参数即可
                 for child in node.children:
                     if child.type in ('identifier', 'scoped_identifier', 'field_expression', 'subscript_expression'):
                         writes.add(self._get_text(child))
                         break
 
-            # 5. 全量抓取标识符 (用于做减法提取 reads)
+            # 抓取所有可能被读写的标识符
             elif node.type in ('identifier', 'scoped_identifier', 'field_identifier'):
                 all_identifiers.add(self._get_text(node))
                     
-            # 递归下钻
             for child in node.children:
                 _traverse_body(child)
 
         _traverse_body(body_node)
 
-        # 组装基础数据
-        if direct_calls:
-            func_data["control_flow"]["direct_calls"] = list(direct_calls)
-        if local_statics:
-            func_data["data_flow"]["local_statics"] = list(local_statics)
+        if direct_calls: func_data["control_flow"]["direct_calls"] = list(direct_calls)
+        if local_statics: func_data["data_flow"]["local_statics"] = list(local_statics)
 
-        # 1. 真实的 Write = 所有写操作 - 局部变量 - 函数入参
+        # 核心逻辑：物理遮蔽减法！
         true_writes = writes - local_vars - parameters
-        # 2. 真实的 Read = 所有标识符 - 写操作 - 函数调用名 - 静态变量 - 局部变量 - 函数入参
         true_reads = all_identifiers - writes - direct_calls - local_statics - local_vars - parameters
 
-        # 辅助归类函数 (结合前缀与 this-> 智能判定)
         def _classify_and_append(var_name: str, target_dict: dict, is_write: bool):
-            is_explicit_member = False
             clean_name = var_name
-            
-            # 处理 this-> 前缀
+            is_explicit_member = False
             if clean_name.startswith('this->'):
                 is_explicit_member = True
                 clean_name = clean_name.replace('this->', '', 1)
-            
-            # 剥离可能的作用域前缀 (例如 MyClass::m_var 变成 m_var)
             if '::' in clean_name:
                 clean_name = clean_name.split('::')[-1]
 
-            # 启发式分类引擎
             if is_explicit_member or clean_name.startswith('m_') or clean_name.endswith('_'):
                 target_dict["writes_members" if is_write else "reads_members"].append(var_name)
-            # 注意：这里顺手把刚才致命事故6中漏掉的 t_ (thread_local) 前缀给补上了
             elif clean_name.startswith('g_') or clean_name.startswith('s_') or clean_name.startswith('t_'):
                 target_dict["writes_globals" if is_write else "reads_globals"].append(var_name)
             else:
-                # 幸存下来的变量，100%是外部依赖，装进 unresolved 交给大模型
+                # 幸存者装入 unresolved 桶！
                 target_dict["unresolved_writes" if is_write else "unresolved_reads"].append(var_name)
 
-        # 分配 writes
-        for w in true_writes:
-            _classify_and_append(w, func_data["data_flow"], is_write=True)
-            
-        # 分配 reads
-        for r in true_reads:
-            _classify_and_append(r, func_data["data_flow"], is_write=False)
-    pass
+        for w in true_writes: _classify_and_append(w, func_data["data_flow"], is_write=True)
+        for r in true_reads: _classify_and_append(r, func_data["data_flow"], is_write=False)
 
 # 对外暴露无状态的 CppParser
 class CppParser:
