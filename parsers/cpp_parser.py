@@ -397,18 +397,18 @@ class _CppFileWorker:
     # ==========================================
     def _handle_function(self, node: tree_sitter.Node, has_body: bool, is_contract: bool = False, is_extern_c: bool = False):
         """处理所有形态的函数：类方法、独立函数、类外实现、契约"""
-        # 契约(= delete/default)拦截 ，利用 AST 特征判定
-        body_node = node.child_by_field_name('body')
-        is_deleted = False
-        is_defaulted = False
-    
-        if body_node:
-            if body_node.type == 'delete_method_clause':
+        # 不依赖 'body' 字段名，直接遍历子节点寻找契约(= delete/default)的 AST 特征进行拦截
+        for child in node.children:
+            if child.type == 'delete_method_clause':
                 is_deleted = True
-                has_body = False # 逻辑上它没有身体
-            elif body_node.type == 'default_method_clause':
+                has_body = False
+                is_contract = True
+                break
+            elif child.type == 'default_method_clause':
                 is_defaulted = True
                 has_body = False
+                is_contract = True
+                break
 
         # 1. 深度挖掘真实的 identifier (扒开指针、引用的外衣)
         declarator_node = node.child_by_field_name('declarator')
