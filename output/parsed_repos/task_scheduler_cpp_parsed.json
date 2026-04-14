@@ -1,0 +1,332 @@
+{
+  "repository_name": "task_scheduler_cpp",
+  "language": "cpp",
+  "files": {
+    "src/main.cpp": {
+      "metadata": {
+        "language": "cpp",
+        "file_path": "src/main.cpp",
+        "file_type": "source",
+        "companion_header": null,
+        "ast_health": "healthy",
+        "error_node_count": 0
+      },
+      "dependencies": {
+        "local_includes": []
+      },
+      "namespaces": [],
+      "global_states": [],
+      "explicit_instantiations": [],
+      "classes": [],
+      "standalone_functions": [
+        {
+          "name": "main",
+          "signature": "int main()",
+          "is_out_of_line_definition": false,
+          "has_body": true,
+          "is_extern_c": false,
+          "location": {
+            "start_line": 5,
+            "end_line": 15
+          },
+          "data_flow": {
+            "reads_globals": [],
+            "writes_globals": [],
+            "reads_members": [],
+            "writes_members": [],
+            "unresolved_reads": [
+              "cout"
+            ],
+            "unresolved_writes": [],
+            "local_statics": []
+          },
+          "control_flow": {
+            "direct_calls": [
+              "evaluate",
+              "getHighPrioCount"
+            ],
+            "indirect_calls": [],
+            "throws": []
+          }
+        }
+      ],
+      "types": []
+    },
+    "src/models/task.hpp": {
+      "metadata": {
+        "language": "cpp",
+        "file_path": "src/models/task.hpp",
+        "file_type": "header",
+        "companion_header": null,
+        "ast_health": "healthy",
+        "error_node_count": 0
+      },
+      "dependencies": {
+        "local_includes": []
+      },
+      "namespaces": [
+        {
+          "name": "models",
+          "is_anonymous": false,
+          "using_directives": []
+        }
+      ],
+      "global_states": [],
+      "explicit_instantiations": [],
+      "classes": [
+        {
+          "name": "models::Task",
+          "kind": "class",
+          "is_physical_definition": true,
+          "is_forward_declaration": false,
+          "has_internal_linkage": false,
+          "location": {
+            "start_line": 9,
+            "end_line": 21
+          },
+          "base_classes": [],
+          "friends": [],
+          "using_declarations": [],
+          "out_of_line_static_initializers": [],
+          "fields_summary": [
+            "int taskId;",
+            "int priority;",
+            "bool active{false};"
+          ],
+          "methods": [
+            {
+              "name": "Task",
+              "signature": "Task(int id, int prio) : taskId(id), priority(prio)",
+              "is_out_of_line_definition": false,
+              "has_body": true,
+              "is_extern_c": false,
+              "location": {
+                "start_line": 16,
+                "end_line": 16
+              },
+              "initializer_list_snapshot": ": taskId(id), priority(prio)",
+              "data_flow": {
+                "reads_globals": [],
+                "writes_globals": [],
+                "reads_members": [],
+                "writes_members": [],
+                "unresolved_reads": [],
+                "unresolved_writes": [],
+                "local_statics": []
+              },
+              "control_flow": {
+                "direct_calls": [],
+                "indirect_calls": [],
+                "throws": []
+              }
+            },
+            {
+              "name": "getPriority",
+              "signature": "int getPriority() const",
+              "is_out_of_line_definition": false,
+              "has_body": true,
+              "is_extern_c": false,
+              "location": {
+                "start_line": 18,
+                "end_line": 18
+              },
+              "data_flow": {
+                "reads_globals": [],
+                "writes_globals": [],
+                "reads_members": [],
+                "writes_members": [],
+                "unresolved_reads": [
+                  "priority"
+                ],
+                "unresolved_writes": [],
+                "local_statics": []
+              },
+              "control_flow": {
+                "direct_calls": [],
+                "indirect_calls": [],
+                "throws": []
+              }
+            },
+            {
+              "name": "activate",
+              "signature": "void activate()",
+              "is_out_of_line_definition": false,
+              "has_body": true,
+              "is_extern_c": false,
+              "location": {
+                "start_line": 19,
+                "end_line": 19
+              },
+              "data_flow": {
+                "reads_globals": [],
+                "writes_globals": [],
+                "reads_members": [],
+                "writes_members": [],
+                "unresolved_reads": [],
+                "unresolved_writes": [
+                  "active"
+                ],
+                "local_statics": []
+              },
+              "control_flow": {
+                "direct_calls": [],
+                "indirect_calls": [],
+                "throws": []
+              }
+            },
+            {
+              "name": "isActive",
+              "signature": "bool isActive() const",
+              "is_out_of_line_definition": false,
+              "has_body": true,
+              "is_extern_c": false,
+              "location": {
+                "start_line": 20,
+                "end_line": 20
+              },
+              "data_flow": {
+                "reads_globals": [],
+                "writes_globals": [],
+                "reads_members": [],
+                "writes_members": [],
+                "unresolved_reads": [
+                  "active"
+                ],
+                "unresolved_writes": [],
+                "local_statics": []
+              },
+              "control_flow": {
+                "direct_calls": [],
+                "indirect_calls": [],
+                "throws": []
+              }
+            }
+          ]
+        }
+      ],
+      "standalone_functions": [],
+      "types": []
+    },
+    "src/core/scheduler.hpp": {
+      "metadata": {
+        "language": "cpp",
+        "file_path": "src/core/scheduler.hpp",
+        "file_type": "header",
+        "companion_header": null,
+        "ast_health": "healthy",
+        "error_node_count": 0
+      },
+      "dependencies": {
+        "local_includes": []
+      },
+      "namespaces": [
+        {
+          "name": "core",
+          "is_anonymous": false,
+          "using_directives": []
+        }
+      ],
+      "global_states": [],
+      "explicit_instantiations": [],
+      "classes": [
+        {
+          "name": "core::Scheduler",
+          "kind": "class",
+          "is_physical_definition": true,
+          "is_forward_declaration": false,
+          "has_internal_linkage": false,
+          "location": {
+            "start_line": 11,
+            "end_line": 19
+          },
+          "base_classes": [],
+          "friends": [],
+          "using_declarations": [],
+          "out_of_line_static_initializers": [],
+          "fields_summary": [
+            "int highPrioCount{0};",
+            "void evaluate(T& item);"
+          ],
+          "methods": [
+            {
+              "name": "getHighPrioCount",
+              "signature": "int getHighPrioCount() const",
+              "is_out_of_line_definition": false,
+              "has_body": true,
+              "is_extern_c": false,
+              "location": {
+                "start_line": 16,
+                "end_line": 16
+              },
+              "data_flow": {
+                "reads_globals": [],
+                "writes_globals": [],
+                "reads_members": [],
+                "writes_members": [],
+                "unresolved_reads": [
+                  "highPrioCount"
+                ],
+                "unresolved_writes": [],
+                "local_statics": []
+              },
+              "control_flow": {
+                "direct_calls": [],
+                "indirect_calls": [],
+                "throws": []
+              }
+            }
+          ]
+        },
+        {
+          "name": "core::Scheduler<T>",
+          "kind": "class",
+          "is_physical_definition": false,
+          "is_forward_declaration": false,
+          "has_internal_linkage": false,
+          "location": null,
+          "base_classes": [],
+          "friends": [],
+          "using_declarations": [],
+          "out_of_line_static_initializers": [],
+          "fields_summary": [],
+          "methods": [
+            {
+              "name": "evaluate",
+              "signature": "void Scheduler<T>::evaluate(T& item)",
+              "is_out_of_line_definition": true,
+              "has_body": true,
+              "is_extern_c": false,
+              "location": {
+                "start_line": 22,
+                "end_line": 27
+              },
+              "data_flow": {
+                "reads_globals": [],
+                "writes_globals": [],
+                "reads_members": [],
+                "writes_members": [],
+                "unresolved_reads": [
+                  "item"
+                ],
+                "unresolved_writes": [
+                  "highPrioCount"
+                ],
+                "local_statics": []
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "activate",
+                  "getPriority"
+                ],
+                "indirect_calls": [],
+                "throws": []
+              }
+            }
+          ]
+        }
+      ],
+      "standalone_functions": [],
+      "types": []
+    }
+  }
+}

@@ -259,6 +259,14 @@ class _CppFileWorker:
             self.schema["explicit_instantiations"].append(self._get_text(node).strip())
             return
 
+        # 6. 枚举声明
+        elif node.type == 'enum_specifier':
+            self.schema["types"].append({
+                "kind": "enum",
+                "declaration": self._get_text(node).strip()
+            })
+            return
+        
         # 默认回退：继续深度遍历子节点
         for child in node.children:
             self._walk(child, is_extern_c_context)
@@ -295,6 +303,7 @@ class _CppFileWorker:
                 "friends": [],
                 "using_declarations": [],
                 "out_of_line_static_initializers": [],
+                "fields_summary": [],
                 "methods": []
             }
         else:
@@ -327,7 +336,9 @@ class _CppFileWorker:
                 # 拦截类内的 using 隐式接口拉取 (补丁 4.2)
                 elif child.type == 'using_declaration':
                     self._class_registry[fqn]["using_declarations"].append(self._get_text(child).strip())
-                
+                # 拦截类内的成员变量声明
+                elif child.type == 'field_declaration':
+                    self._class_registry[fqn]["fields_summary"].append(self._get_text(child).strip())
                 else:
                     self._walk(child)
 
@@ -371,17 +382,20 @@ class _CppFileWorker:
                                     "is_forward_declaration": False,
                                     "has_internal_linkage": self.scope_tracker.is_internal_linkage(),
                                     "location": None, "base_classes": [], "friends": [], "using_declarations": [], 
-                                    "out_of_line_static_initializers": [], "methods": []
+                                    "out_of_line_static_initializers": [], "fields_summary": [],"methods": []
                                 }
                             self._class_registry[class_fqn]["out_of_line_static_initializers"].append(text)
                             return
         
-        # 3. 如果是普通的函数原型声明 (比如 void func();)
-        # 可以通过查找内部是否有 function_declarator 来判断
-        for child in node.children:
-            if child.type == 'function_declarator':
-                self._handle_function(node, has_body=False)
-                return
+        # 3. 如果是普通的函数原型声明，下钻查找
+        def _find_func_decl(n):
+            if n.type == 'function_declarator': return True
+            for c in n.children:
+                if _find_func_decl(c): return True
+            return False
+        if _find_func_decl(node):
+            self._handle_function(node, has_body=False)
+            return
 
         # 其他未命中情况（如普通局部变量、typedef等），继续下钻
         for child in node.children:
@@ -390,7 +404,20 @@ class _CppFileWorker:
         # 如果既不是契约、不是类外静态、不是函数，且在全局/命名空间下，那它就是全局状态！
         if self.scope_tracker.current_scope.scope_type in (ScopeType.GLOBAL, ScopeType.NAMESPACE, ScopeType.ANONYMOUS_NAMESPACE):
             # 提取 is_static, has_internal_linkage 等，然后加入 self.schema["global_states"]
-            pass
+            # 暴力提取最底层的变量名
+            for child in node.children:
+                if child.type in ('init_declarator', 'identifier', 'array_declarator'):
+                    var_node = child.child_by_field_name('declarator') if child.type == 'init_declarator' else child
+                    # 剥离指针
+                    while var_node and var_node.type in ('pointer_declarator', 'reference_declarator'):
+                        var_node = var_node.child_by_field_name('declarator')
+                    
+                    if var_node and var_node.type == 'identifier':
+                        self.schema["global_states"].append({
+                            "name": self._get_text(var_node),
+                            "declaration": text,
+                            "has_internal_linkage": self.scope_tracker.is_internal_linkage()
+                        })
             
     # ==========================================
     # 第四部分：核心函数解析引擎
@@ -446,7 +473,7 @@ class _CppFileWorker:
         # ========================================================
 
         curr = declarator_node
-        while curr and curr.type not in ('identifier', 'scoped_identifier', 'field_identifier', 'operator_name', 'destructor_name'):
+        while curr and curr.type not in ('identifier', 'scoped_identifier', 'qualified_identifier', 'field_identifier', 'operator_name', 'destructor_name'):
             curr_child = curr.child_by_field_name('declarator')
             if curr_child:
                 curr = curr_child
@@ -456,7 +483,7 @@ class _CppFileWorker:
         raw_name = self._get_text(curr) if curr else "unknown_func"
         
         # 2. 判定是否为类外定义 (Out-of-line)
-        is_out_of_line = (curr and curr.type == 'scoped_identifier')
+        is_out_of_line = (curr and curr.type in ('scoped_identifier', 'qualified_identifier'))
         
         # 3. 提取脱水签名 (剥离函数体)
         signature = ""
@@ -529,6 +556,7 @@ class _CppFileWorker:
                     "is_forward_declaration": False,
                     "has_internal_linkage": self.scope_tracker.is_internal_linkage(),
                     "location": None, "base_classes": [], "friends": [], "using_declarations": [], "out_of_line_static_initializers": [],
+                    "fields_summary": [],
                     "methods": []
                 }
             self._class_registry[target_class_fqn]["methods"].append(func_data)
@@ -586,8 +614,8 @@ class _CppFileWorker:
 
         _traverse_body(body_node)
 
-        if direct_calls: func_data["control_flow"]["direct_calls"] = list(direct_calls)
-        if local_statics: func_data["data_flow"]["local_statics"] = list(local_statics)
+        if direct_calls: func_data["control_flow"]["direct_calls"] = sorted(list(direct_calls))
+        if local_statics: func_data["data_flow"]["local_statics"] = sorted(list(local_statics))
 
         # 核心逻辑：物理遮蔽减法！
         true_writes = writes - local_vars - parameters
@@ -610,8 +638,8 @@ class _CppFileWorker:
                 # 幸存者装入 unresolved 桶！
                 target_dict["unresolved_writes" if is_write else "unresolved_reads"].append(var_name)
 
-        for w in true_writes: _classify_and_append(w, func_data["data_flow"], is_write=True)
-        for r in true_reads: _classify_and_append(r, func_data["data_flow"], is_write=False)
+        for w in sorted(true_writes): _classify_and_append(w, func_data["data_flow"], is_write=True)
+        for r in sorted(true_reads): _classify_and_append(r, func_data["data_flow"], is_write=False)
 
 # 对外暴露无状态的 CppParser
 class CppParser:
