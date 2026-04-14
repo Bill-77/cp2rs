@@ -1,0 +1,142 @@
+{
+  "nodes": {
+    "root_nodes": [
+      {
+        "id": "Root_Core",
+        "semantic_name": "核心基础设施模块",
+        "description": "提供基础工具类和宏定义，如不可拷贝基类NonCopyable"
+      },
+      {
+        "id": "Root_Network",
+        "semantic_name": "网络通信模块",
+        "description": "处理网络连接、数据包缓冲等网络相关功能，核心类为Connection"
+      }
+    ],
+    "intermediate_nodes": [
+      {
+        "id": "Intermediate_non_copyable_hpp",
+        "parent_root": "Root_Core",
+        "file_path": "include/core/non_copyable.hpp",
+        "semantic_name": "不可拷贝基类头文件",
+        "description": "定义venus::core::NonCopyable类，提供禁止拷贝的基类功能"
+      },
+      {
+        "id": "Intermediate_connection_hpp",
+        "parent_root": "Root_Network",
+        "file_path": "include/network/connection.hpp",
+        "semantic_name": "网络连接类头文件",
+        "description": "声明venus::network::Connection类及其相关前向声明，定义连接状态枚举和类接口"
+      },
+      {
+        "id": "Intermediate_connection_cpp",
+        "parent_root": "Root_Network",
+        "file_path": "src/network/connection.cpp",
+        "semantic_name": "网络连接类实现文件",
+        "description": "实现Connection类的所有方法，包含内部工具函数和C API"
+      }
+    ],
+    "leaf_nodes": [
+      {
+        "id": "Leaf_Connection_is_connected",
+        "parent_intermediate": "Intermediate_connection_hpp",
+        "ir_reference": "classes.Connection.is_connected",
+        "node_subtype": "member_function",
+        "belongs_to_class": "venus::network::Connection",
+        "semantic_name": "连接状态检查",
+        "description": "内联函数，检查连接是否处于ESTABLISHED状态"
+      },
+      {
+        "id": "Leaf_Connection_IsKindOf",
+        "parent_intermediate": "Intermediate_connection_cpp",
+        "ir_reference": "classes.Connection.IsKindOf",
+        "node_subtype": "member_function",
+        "belongs_to_class": "venus::network::Connection",
+        "semantic_name": "类型检查",
+        "description": "运行时类型检查方法，检查对象是否为指定类型"
+      },
+      {
+        "id": "Leaf_Connection_constructor",
+        "parent_intermediate": "Intermediate_connection_cpp",
+        "ir_reference": "classes.Connection.Connection",
+        "node_subtype": "member_function",
+        "belongs_to_class": "venus::network::Connection",
+        "semantic_name": "连接构造函数",
+        "description": "初始化连接对象，设置远程IP和端口，初始化状态为INIT，递增活动连接计数"
+      },
+      {
+        "id": "Leaf_Connection_destructor",
+        "parent_intermediate": "Intermediate_connection_cpp",
+        "ir_reference": "classes.Connection.~Connection",
+        "node_subtype": "member_function",
+        "belongs_to_class": "venus::network::Connection",
+        "semantic_name": "连接析构函数",
+        "description": "清理连接资源，断开连接，递减活动连接计数"
+      },
+      {
+        "id": "Leaf_Connection_connect",
+        "parent_intermediate": "Intermediate_connection_cpp",
+        "ir_reference": "classes.Connection.connect",
+        "node_subtype": "member_function",
+        "belongs_to_class": "venus::network::Connection",
+        "semantic_name": "建立连接",
+        "description": "尝试建立网络连接，处理重试逻辑，更新连接状态和错误码"
+      },
+      {
+        "id": "Leaf_Connection_disconnect",
+        "parent_intermediate": "Intermediate_connection_cpp",
+        "ir_reference": "classes.Connection.disconnect",
+        "node_subtype": "member_function",
+        "belongs_to_class": "venus::network::Connection",
+        "semantic_name": "断开连接",
+        "description": "断开网络连接，清理缓冲区，将状态设置为CLOSED"
+      },
+      {
+        "id": "Leaf_Connection_get_global_fallback_state",
+        "parent_intermediate": "Intermediate_connection_cpp",
+        "ir_reference": "classes.Connection.get_global_fallback_state",
+        "node_subtype": "member_function",
+        "belongs_to_class": "venus::network::Connection",
+        "semantic_name": "获取全局回退状态",
+        "description": "静态方法，返回全局回退连接状态(CLOSED)"
+      },
+      {
+        "id": "Leaf_log_internal_error",
+        "parent_intermediate": "Intermediate_connection_cpp",
+        "ir_reference": "standalone_functions.log_internal_error",
+        "node_subtype": "standalone_function",
+        "belongs_to_class": null,
+        "semantic_name": "内部错误日志",
+        "description": "匿名命名空间内的工具函数，用于记录内部错误信息到标准错误流"
+      },
+      {
+        "id": "Leaf_venus_net_force_cleanup",
+        "parent_intermediate": "Intermediate_connection_cpp",
+        "ir_reference": "standalone_functions.venus_net_force_cleanup",
+        "node_subtype": "standalone_function",
+        "belongs_to_class": null,
+        "semantic_name": "网络强制清理C API",
+        "description": "extern C函数，提供C语言接口调用get_global_fallback_state进行网络模块清理"
+      }
+    ]
+  },
+  "edges": {
+    "inter_module_edges": [
+      {
+        "source": "Root_Network",
+        "target": "Root_Core",
+        "relation_type": "data_flow",
+        "description": "网络模块依赖核心基础设施模块的不可拷贝基类",
+        "evidence": "Connection类继承自core::NonCopyable，这是明确的类继承关系，表示数据结构和行为的依赖"
+      }
+    ],
+    "intra_module_edges": [
+      {
+        "source": "Intermediate_connection_hpp",
+        "target": "Intermediate_connection_cpp",
+        "relation_type": "execution_order",
+        "description": "头文件必须在源文件之前被包含/处理",
+        "evidence": "connection.cpp实现了connection.hpp中声明的Connection类方法，遵循C++编译模型：声明在前，实现在后"
+      }
+    ]
+  }
+}

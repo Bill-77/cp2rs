@@ -1,0 +1,68 @@
+[
+  {
+    "id": "Root_01",
+    "semantic_name": "应用程序入口",
+    "description": "包含程序入口点 main 函数，负责初始化并驱动调度器",
+    "file_paths": [
+      "src/main.cpp"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_main_cpp",
+          "file_path": "src/main.cpp",
+          "semantic_name": "主程序源文件",
+          "description": "程序入口点，创建任务和调度器并执行评估",
+          "mass_metrics": {
+            "leaf_nodes_count": 1
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  },
+  {
+    "id": "Root_02",
+    "semantic_name": "模型层",
+    "description": "定义核心业务实体 Task，包含任务ID、优先级和激活状态",
+    "file_paths": [
+      "src/models/task.hpp"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_task_hpp",
+          "file_path": "src/models/task.hpp",
+          "semantic_name": "任务模型头文件",
+          "description": "定义 Task 类及其方法，包括构造函数、优先级获取和状态管理",
+          "mass_metrics": {
+            "leaf_nodes_count": 4
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  },
+  {
+    "id": "Root_03",
+    "semantic_name": "核心调度层",
+    "description": "实现任务调度器 Scheduler，包含优先级计数和任务评估逻辑",
+    "file_paths": [
+      "src/core/scheduler.hpp"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_scheduler_hpp",
+          "file_path": "src/core/scheduler.hpp",
+          "semantic_name": "调度器核心头文件",
+          "description": "定义 Scheduler 类和模板类 Scheduler<T>，包含优先级计数和任务评估模板方法",
+          "mass_metrics": {
+            "leaf_nodes_count": 2
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  }
+]

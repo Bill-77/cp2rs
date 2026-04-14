@@ -37,6 +37,7 @@ PROMPT_2A_ARCHITECT_C = """
 1. [File-Centric] 锚定中间与叶子节点: 
    - 将每个 C 文件 (`metadata.file_path`) 映射为一个 Intermediate 节点 (分配ID，如 `Intermediate_temp_sensor_c`)。
    - 提取文件内的 `global_states`, `types`, `functions` 作为挂载在其下的 Leaf 节点。
+     - 提取独立函数：提取为独立节点（`node_subtype`: "standalone_function", `belongs_to_class`: null）。
    - 充分利用 `doc_comment` 提取准确的业务语义描述 (`semantic_name` 和 `description`)。
 
 2. [Domain-Centric] 抽象根节点 (Root Clustering):
@@ -62,26 +63,28 @@ PROMPT_2A_ARCHITECT_C = """
   "nodes": {
     "root_nodes": [
       {
-        "id": "Root_01", 
-        "semantic_name": "宏观业务模块名称", 
+        "id": "Root_01",
+        "semantic_name": "宏观业务模块名称",
         "description": "..."
       }
     ],
     "intermediate_nodes": [
       {
-        "id": "Intermediate_main_c", 
-        "parent_root": "关联的Root节点ID", 
-        "file_path": "源文件路径", 
-        "semantic_name": "子组件名称", 
+        "id": "Intermediate_main_c",
+        "parent_root": "关联的Root节点ID",
+        "file_path": "源文件路径",
+        "semantic_name": "子组件名称",
         "description": "..."
       }
     ],
     "leaf_nodes": [
       {
-        "id": "Leaf_counter_sum", 
-        "parent_intermediate": "关联的Intermediate节点ID", 
-        "ir_reference": "指向IR原始数据的路径标示", 
-        "semantic_name": "底层核心功能名称", 
+        "id": "Leaf_counter_sum",
+        "parent_intermediate": "关联的Intermediate节点ID",
+        "ir_reference": "指向IR原始数据的路径标示",
+        "node_subtype": "standalone_function",
+        "belongs_to_class": null,
+        "semantic_name": "底层核心功能名称",
         "description": "..."
       }
     ]
@@ -89,20 +92,150 @@ PROMPT_2A_ARCHITECT_C = """
   "edges": {
     "inter_module_edges": [
       {
-        "source": "起点Root节点ID", 
-        "target": "终点Root节点ID", 
-        "relation_type": "data_flow", 
-        "description": "描述数据如何显式或隐式地流转", 
+        "source": "起点Root节点ID",
+        "target": "终点Root节点ID",
+        "relation_type": "data_flow",
+        "description": "描述数据如何显式或隐式地流转",
         "evidence": "阐述判定该数据流存在的物理依据"
       }
     ],
     "intra_module_edges": [
       {
-        "source": "起点Intermediate节点ID", 
-        "target": "终点Intermediate节点ID", 
-        "relation_type": "execution_order", 
-        "description": "描述文件组件间的执行先后顺序", 
+        "source": "起点Intermediate节点ID",
+        "target": "终点Intermediate节点ID",
+        "relation_type": "execution_order",
+        "description": "描述文件组件间的执行先后顺序",
         "evidence": "阐述判定该执行顺序存在的物理依据"
+      }
+    ]
+  }
+}
+</output>
+
+切记：
+1. 你的思考过程必须完全包裹在 <thinking> 中。
+2. 如果信息不足以建图，仅输出 <action> JSON 索取代码，绝对不要输出 <output>。
+3. 如果信息充足，输出完整的 <output> JSON。
+"""
+
+PROMPT_2A_ARCHITECT_CPP = """
+# Role & Objective
+你是一个世界顶级的 C++ 软件架构师和静态代码分析专家。你的核心任务是阅读由 C++ 编译器前端提取的“代码库脱水骨架 (C++ IR Skeleton Schema)”，通过极其严密的逻辑推理，将其逆向工程，升维成一个具备双重语义的立体拓扑图：代码库规划图 (RPG - Repository Planning Graph)。
+
+# Context: The Input C++ IR Skeleton
+你接收到的输入是一个 JSON 格式的文件骨架。为了避免认知过载，该骨架【已被刻意移除了具体的函数体 (body)】，仅保留了 C++ 最核心的物理与面向对象特征：
+- `classes` (类/结构体): 系统的核心业务实体。包含二象性标识 (`is_physical_definition` 等)，以及状态字典 `fields_summary` 和行为字典 `methods`。
+- `standalone_functions` (独立函数): 游离于类之外的函数，通常是系统边界 API (如 `is_extern_c`)、内部静态工具，或打破封装的友元函数 (Friend Functions)。
+- `global_states` & `types`: 全局状态与枚举/别名。需严格关注 `has_internal_linkage` (内部链接隔离属性)。
+- `data_flow` (数据流引擎): 包含确定的读写记录，以及极其关键的 `unresolved_reads` / `unresolved_writes`（局部遮蔽过滤后的外部依赖悬案桶）。
+
+# Mechanism: Dynamic Body Retrieval (按需索取机制)
+请始终坚持“骨架优先”策略。当通过类名、接口签名、`fields_summary` 或 `unresolved` 中的线索足以推断数据流向时，【绝对无需】索取源码。
+当且仅当出现以下“架构拓扑断层”场景时，你【必须且只能】发起索取：
+1. 泛型黑洞与隐式多态：参数是未显式绑定的模板参数（如 `template <typename T> void commit(T& record)`），且仅靠骨架无法推断其实际实例化的流向时。
+2. 未知的状态副作用：明确触碰了外部状态，但无法判断是读还是写，影响数据流向判定。
+
+【绝对禁令】：严禁靠猜测去脑补泛型/模板的具体实例化类型！你必须通过 <action> 查阅源码以获取铁证。
+
+【索取寻址规范 (Pure Pathing)】：
+在 <action> 中使用 `顶级类别.类名.方法名` 或 `顶级类别.独立函数名` 发起请求。
+- 严禁包含 C++ 作用域符 `::`，必须剥离！(如 `db::Transaction::commit` -> `classes.Transaction.commit`)
+- 严禁包含尖括号或模板参数！(如 `Engine<T>::start` -> `classes.Engine.start`)
+
+示例：
+<action>
+{
+  "action": "require_bodies",
+  "nodes": ["classes.Transaction.commit", "standalone_functions.render_mesh_c_api"]
+}
+</action>
+
+# Workflow: The C++ Native Chain of Thought (思维链工作流)
+除非你发起 `<action>` 请求，否则你必须在 `<thinking>` 标签内严格按照以下三个步骤的顺序进行深度推理：
+
+1. [File-Centric & OO Mapping] 锚定中间与叶子节点: 
+   - 将每个文件映射为一个中间节点 (Intermediate Node)，代表物理组件。
+   - 【头文件-源文件逻辑缝合】：遇到 `is_out_of_line_definition: true` 的方法时，必须在逻辑上将其与其头文件中归属的 Class 结合，它们是同一实体的两面。
+   - 【叶子节点提取法则】：叶子节点代表具体的执行动作。
+     a. **提取成员函数**：类内的重要方法提取为独立节点（`node_subtype`: "member_function", `belongs_to_class`: "全限定类名"）。
+     b. **提取独立/友元函数**：提取为独立节点（`node_subtype`: "standalone_function", `belongs_to_class`: null）。
+
+2. [Domain-Centric] 抽象根节点 (Root Clustering):
+   - 观察所有 Intermediate 节点（文件），根据目录层级和业务关联性，向上聚合成代表顶层业务子系统的 Root 模块。
+
+3. [Wiring] 严谨连线推演 (Rigorous Edge Injection):
+   - 跨模块边 (inter_module_edges)：推演 Root 模块间的数据流向 (`data_flow`)。
+   - 模块内边 (intra_module_edges)：推演同一 Root 模块内部文件间的执行顺序 (例如，由于 C++ 编译模型，定义了类的 `.hpp` 必须在实现它的 `.cpp` 之前执行)。
+   
+   【核心破案法则：决议 unresolved 悬案桶】：
+   当你看到 `unresolved_reads` / `unresolved_writes` 中有标识符时，必须执行推理：
+   1. 去当前函数的 `belongs_to_class` 对应的 `fields_summary` 里找，若存在，则为修改/读取对象内部状态。
+   2. 若不在类中，去全局 `global_states` 和 `types` (如 Enum) 找，若存在，则为跨文件/跨模块依赖！
+   3. 【友元越权判定】：若一个 `standalone_function` 读写了某个类的内部状态（通过悬案桶发现），这代表 C++ 的 friend 特权访问，必须作为 `data_flow` 连线并在 evidence 中说明。
+   
+   【架构师红线：内部链接隔离】：
+   标记了 `"has_internal_linkage": true` 的状态或类 (如匿名 namespace 实体)，【绝对禁止】任何跨文件的边指向它！
+
+# Output Constraints
+在完整的 `<thinking>` 推理结束后，请在 `<output>` 标签内输出合法的 JSON 字符串，严格遵循下方的 Schema。
+
+<output>
+{
+  "nodes": {
+    "root_nodes": [
+      {
+        "id": "Root_01",
+        "semantic_name": "宏观业务模块名称",
+        "description": "..."
+      }
+    ],
+    "intermediate_nodes": [
+      {
+        "id": "Intermediate_transaction_cpp",
+        "parent_root": "关联的Root节点ID",
+        "file_path": "源文件路径",
+        "semantic_name": "...",
+        "description": "..."
+      }
+    ],
+    "leaf_nodes": [
+      {
+        "id": "Leaf_Transaction_commit",
+        "parent_intermediate": "关联的Intermediate节点ID",
+        "ir_reference": "指向IR原始数据的路径标示（如 classes.Transaction.commit）",
+        "node_subtype": "member_function",
+        "belongs_to_class": "db::core::Transaction",
+        "semantic_name": "...",
+        "description": "..."
+      },
+      {
+        "id": "Leaf_render_mesh_c_api",
+        "parent_intermediate": "关联的Intermediate节点ID",
+        "ir_reference": "standalone_functions.render_mesh_c_api",
+        "node_subtype": "standalone_function",
+        "belongs_to_class": null,
+        "semantic_name": "...",
+        "description": "..."
+      }
+    ]
+  },
+  "edges": {
+    "inter_module_edges": [
+      {
+        "source": "起点Root节点ID",
+        "target": "终点Root节点ID",
+        "relation_type": "data_flow",
+        "description": "...",
+        "evidence": "必须阐明判定的物理依据（如通过 unresolved_reads 发现读取了全局状态，或发生模板实例化）"
+      }
+    ],
+    "intra_module_edges": [
+      {
+        "source": "起点Intermediate节点ID",
+        "target": "终点Intermediate节点ID",
+        "relation_type": "execution_order",
+        "description": "...",
+        "evidence": "必须阐明判定的物理依据（如源文件对头文件的包含关系）"
       }
     ]
   }
@@ -157,7 +290,7 @@ PROMPT_2B_EXTRACTOR = """
     "semantic_name": "...",
     "description": "...",
     "file_paths": [
-      "包含的中间节点 file_path 1", 
+      "包含的中间节点 file_path 1",
       "包含的中间节点 file_path 2"
     ],
     "implementation_evidence": {
@@ -194,7 +327,7 @@ PROMPT_2B_EXTRACTOR = """
 # 阶段二 Prompt 智能路由表
 PROMPT_ROUTER = {
     "c": PROMPT_2A_ARCHITECT_C,
-    # "cpp": PROMPT_2A_ARCHITECT_CPP, # 预留位置
+    "cpp": PROMPT_2A_ARCHITECT_CPP, # 预留位置
     # "rust": PROMPT_2A_ARCHITECT_RUST, # 预留位置
     "default": PROMPT_2A_ARCHITECT
 }
