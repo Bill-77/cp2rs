@@ -1,0 +1,370 @@
+{
+  "repository_name": "hyper_shield_rust",
+  "language": "rust",
+  "files": {
+    "src/lib.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/lib.rs",
+        "module_path": "crate",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "sub_modules": [
+          "pub mod core;",
+          "pub mod engine;"
+        ],
+        "re_exports": [
+          {
+            "visibility": "pub",
+            "source_path": "crate::core::error::ShieldError",
+            "alias": "ShieldError"
+          },
+          {
+            "visibility": "pub",
+            "source_path": "crate::engine::filter::RegexFilter",
+            "alias": "RegexFilter"
+          }
+        ]
+      },
+      "macros": [
+        {
+          "name": "audit_log",
+          "visibility": "macro_export"
+        }
+      ]
+    },
+    "src/engine/filter.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/engine/filter.rs",
+        "module_path": "crate::engine::filter",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "uses": [
+          "crate::core::state::{RequestContext, Result, ACTIVE_FILTERS}",
+          "crate::core::error::ShieldError",
+          "crate::engine::PacketInspector",
+          "std::sync::atomic::Ordering"
+        ]
+      },
+      "global_states": [
+        {
+          "name": "STRICT_MODE",
+          "type": "bool",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        }
+      ],
+      "type_aliases": [
+        {
+          "name": "Context",
+          "visibility": "private",
+          "underlying_type": "RequestContext<'a, String>"
+        }
+      ],
+      "types": [
+        {
+          "kind": "struct",
+          "name": "RegexFilter",
+          "visibility": "pub",
+          "fields_summary": [
+            "pattern: &'a [u8]",
+            "hit_count: usize"
+          ],
+          "derives": [
+            "Clone"
+          ]
+        }
+      ],
+      "impl_blocks": [
+        {
+          "target_type": "RegexFilter",
+          "trait_name": "PacketInspector",
+          "compile_guards": [
+            "#[cfg(target_os = \"linux\")]"
+          ],
+          "associated_constant_bindings": [
+            {
+              "name": "STRICT_MODE",
+              "value": "true"
+            }
+          ],
+          "associated_type_bindings": [
+            {
+              "name": "Context",
+              "target_type": "RequestContext<'a, String>"
+            }
+          ],
+          "methods": [
+            {
+              "name": "inspect",
+              "signature": "fn inspect(&mut self, ctx: &mut Self::Context) -> Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self",
+                  "ctx"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "ctx.payload.get_mut(..).ok_or",
+                  "ctx.payload.get_mut",
+                  "buffer.windows(self.pattern.len()).any",
+                  "buffer.windows",
+                  "self.pattern.len",
+                  "self.hit_count.checked_add(1).expect",
+                  "self.hit_count.checked_add",
+                  "ACTIVE_FILTERS.fetch_add",
+                  "Ok"
+                ],
+                "macro_invocations": [
+                  "crate::audit_log!"
+                ],
+                "error_propagation": [
+                  "?"
+                ],
+                "has_closures": true
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "RegexFilter",
+          "methods": [
+            {
+              "name": "new",
+              "signature": "pub fn new(pattern: &'a [u8]) -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "get_pattern",
+              "signature": "pub fn get_pattern<'b>(&'b self) -> &'b [u8]",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        }
+      ],
+      "standalone_functions": [
+        {
+          "name": "shield_ffi_execute_filter",
+          "signature": "pub unsafe extern \"C\" fn shield_ffi_execute_filter(\n    filter_ptr: *mut libc::c_void,\n    payload_ptr: *mut u8,\n    len: usize,\n) -> i32",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "filter_ptr",
+              "payload_ptr",
+              "len"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "filter_ptr.is_null",
+              "payload_ptr.is_null",
+              "std::slice::from_raw_parts_mut",
+              "String::from",
+              "filter.inspect"
+            ],
+            "has_closures": false
+          }
+        }
+      ]
+    },
+    "src/engine/mod.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/engine/mod.rs",
+        "module_path": "crate::engine",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "sub_modules": [
+          "pub mod filter;"
+        ]
+      },
+      "global_states": [
+        {
+          "name": "STRICT_MODE",
+          "type": "bool",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        }
+      ],
+      "traits": [
+        {
+          "name": "PacketInspector",
+          "visibility": "pub",
+          "associated_constants": [
+            {
+              "name": "STRICT_MODE",
+              "type": "bool"
+            }
+          ],
+          "associated_types": [
+            {
+              "name": "Context"
+            }
+          ],
+          "required_methods": [
+            "fn inspect(&mut self, ctx: &mut Self::Context) -> crate::core::state::Result<()>;"
+          ],
+          "provided_methods": [
+            {
+              "name": "is_healthy",
+              "signature": "fn is_healthy(&self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "src/core/error.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/core/error.rs",
+        "module_path": "crate::core::error",
+        "ast_health": "healthy"
+      },
+      "dependencies": {},
+      "types": [
+        {
+          "kind": "enum",
+          "name": "ShieldError",
+          "visibility": "pub",
+          "variants": [
+            {
+              "name": "Timeout",
+              "kind": "unit"
+            },
+            {
+              "name": "MalformedPacket",
+              "kind": "unit"
+            },
+            {
+              "name": "IoFailure",
+              "kind": "struct",
+              "fields": [
+                "code: i32",
+                "fatal: bool",
+                "message: String"
+              ]
+            }
+          ],
+          "derives": [
+            "Debug",
+            "Clone"
+          ]
+        }
+      ]
+    },
+    "src/core/state.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/core/state.rs",
+        "module_path": "crate::core::state",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "uses": [
+          "std::sync::atomic::{AtomicBool, AtomicUsize}"
+        ]
+      },
+      "global_states": [
+        {
+          "name": "ACTIVE_FILTERS",
+          "type": "AtomicUsize",
+          "kind": "static",
+          "visibility": "pub",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "AUDIT_ENABLED",
+          "type": "AtomicBool",
+          "kind": "static",
+          "visibility": "pub(crate)",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "MAX_PAYLOAD_SIZE",
+          "type": "usize",
+          "kind": "const",
+          "visibility": "pub",
+          "is_mut": false,
+          "is_unsafe": false
+        }
+      ],
+      "type_aliases": [
+        {
+          "name": "Result",
+          "generics": [
+            "T"
+          ],
+          "visibility": "pub",
+          "underlying_type": "std::result::Result<T, crate::core::error::ShieldError>"
+        }
+      ],
+      "types": [
+        {
+          "kind": "struct",
+          "name": "RequestContext",
+          "generics": [
+            "T: Send + Sync"
+          ],
+          "visibility": "pub",
+          "fields_summary": [
+            "ip_addr: String",
+            "payload: &'a mut [u8]",
+            "metadata: T"
+          ],
+          "derives": [
+            "Debug"
+          ]
+        }
+      ]
+    },
+    "src/core/mod.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/core/mod.rs",
+        "module_path": "crate::core",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "sub_modules": [
+          "pub mod state;",
+          "pub mod error;"
+        ]
+      }
+    }
+  }
+}

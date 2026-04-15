@@ -1,13 +1,31 @@
 import os
 import json
-import re
 import argparse
 
-# 导入刚刚封板的终级 C 语言解析器
+# 导入所有终极解析器
 from parsers.c_parser import CParser
 from parsers.cpp_parser import CppParser
-# 保留原有解析器（假设尚未重构完毕）
-# from parsers.rust_parser import RustParser
+from parsers.rust_parser import RustParser
+
+def dehydrate(data):
+    """
+    【数据脱水算法】
+    递归剔除所有空列表 []、空字典 {}、空字符串 "" 和 None。
+    极大地压缩 JSON 体积，减少大模型 Token 消耗并提高注意力集中度。
+    """
+    if isinstance(data, dict):
+        return {
+            k: dehydrate(v) 
+            for k, v in data.items() 
+            if v not in ([], "", {}, None)
+        }
+    elif isinstance(data, list):
+        return [
+            dehydrate(item) 
+            for item in data 
+            if item not in ([], "", {}, None)
+        ]
+    return data
 
 def detect_repo_language(repo_path):
     """
@@ -57,7 +75,6 @@ def parse_repository(repo_path, pre_detected_lang=None):
         parser = CppParser()
         valid_extensions = {'.c', '.cpp', '.cc', '.cxx', '.h', '.hpp'}
     elif detected_language == "c":
-        # 【新增】：路由至全新的 CParser
         parser = CParser()
         valid_extensions = {'.c', '.h'}
     
@@ -77,17 +94,12 @@ def parse_repository(repo_path, pre_detected_lang=None):
                     print(f"❌ 读取文件失败 {rel_path}: {e}")
                     continue
                 
-                # 不打印具体的文件路径，避免日志过于冗长
-                # print(f"  -> 正在解析: {rel_path} ...")
-                
-                # 【接口适配】：调用全新的 parse_file 接口
-                if detected_language in ("c", "cpp"):
+                # 【接口统一】：三门语言的引擎现已全部对齐 parse_file 接口
+                try:
                     file_result = parser.parse_file(rel_path, code_bytes)
-                else:
-                    # 兼容老版解析器的接口
-                    file_result = parser.parse_file_content(rel_path, code_bytes) 
-                    
-                repo_data["files"][rel_path] = file_result
+                    repo_data["files"][rel_path] = file_result
+                except Exception as e:
+                    print(f"❌ 解析语法树失败 {rel_path}: {e}")
                 
     return repo_data
 
@@ -138,14 +150,17 @@ if __name__ == "__main__":
 
             # 开始正式解析
             final_json_data = parse_repository(target_repo_path, pre_detected_lang=detected_lang)
-            if not final_json_data:
+            if not final_json_data or not final_json_data["files"]:
                 continue
             
             output_filename = f"{repo_name}_parsed.json"
             output_path = os.path.join(BASE_OUTPUT_DIR, output_filename)
             
+            # 执行脱水算法
+            cleaned_json_data = dehydrate(final_json_data)
+            
             with open(output_path, 'w', encoding='utf-8') as f:
-                json.dump(final_json_data, f, indent=2, ensure_ascii=False)
+                json.dump(cleaned_json_data, f, indent=2, ensure_ascii=False)
                 
             print(f"✅ 仓库 [{repo_name}] 解析完成！(共 {len(final_json_data['files'])} 个文件) -> {output_path}")
             print("-" * 50)
