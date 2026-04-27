@@ -112,12 +112,24 @@ class RustParser:
         return [self._get_text(c) for c in gen_node.children 
                 if c.type in ('type_parameter', 'lifetime', 'constrained_type_parameter')]
 
+    def _is_unsafe(self, node: tree_sitter.Node) -> bool:
+        """向下探查是否存在 unsafe 修饰符，穿透 function_modifiers 包装"""
+        for child in node.children:
+            # 1. 浅层匹配 (简单的 unsafe fn)
+            if child.type == 'unsafe':
+                return True
+            # 2. 深层匹配 (复杂的 pub unsafe extern "C" fn)
+            if child.type == 'function_modifiers' and 'unsafe' in self._get_text(child):
+                return True
+        return False
+
     # ==========================================
     # 解析主入口
     # ==========================================
-    def parse_file(self, file_path: str, source_code: bytes) -> dict:
+    def parse_file(self, file_path: str, source_code: bytes, global_dict: set = None) -> dict:
         tree = self.parser.parse(source_code)
         self.source_code = source_code
+        self.external_globals = global_dict or set()
         
         module_path = "crate"
         rel_parts = [p for p in file_path.replace(".rs", "").split('/') if p not in ('src', 'lib', 'main')]
@@ -245,9 +257,9 @@ class RustParser:
                 
                 # 嗅探内部载荷的数据类型
                 for sub in child.children:
-                    if sub.type in ('tuple_struct_pattern', 'tuple_type', 'tuple_struct_declaration'):
+                    # 【修复点】：只要节点类型带 'tuple' ，解决 Tuple Enum 载荷提空问题
+                    if 'tuple' in sub.type:
                         kind = "tuple"
-                        # 【终极修复】：直接遍历 Tuple 的内部节点，过滤掉括号和逗号，剩下的全是完整类型！
                         for field_node in sub.children:
                             if field_node.type not in ('(', ')', ','):
                                 fields.append(self._get_text(field_node))
@@ -287,8 +299,8 @@ class RustParser:
     # 提取逻辑: Layer 4 & 5 (Traits, Impls & 函数微观引擎)
     # ==========================================
     def _parse_layer_4_and_5(self, root_node):
-        # 【新增】：从 Layer 2 的成果中提取全局变量名称字典，查询复杂度 O(1)
-        known_globals = {g["name"] for g in self.result["global_states"]}
+        # 结合文件内的和项目级的全局变量
+        known_globals = {g["name"] for g in self.result["global_states"]} | self.external_globals
 
         # 1. 提取 Traits 和 Impls
         for node, tag in self._extract_matches(tree_sitter.QueryCursor(self.q_traits_impls), root_node):
@@ -386,7 +398,7 @@ class RustParser:
         body_node = node.child_by_field_name('body')
         signature = full_text[:full_text.rfind(self._get_text(body_node))].strip() if body_node else full_text
         
-        is_unsafe = any(c.type == 'unsafe' for c in node.children)
+        is_unsafe = self._is_unsafe(node)
         is_async = any(c.type == 'async' for c in node.children)
         
         # --- 数据流提取 (Data Flow) ---

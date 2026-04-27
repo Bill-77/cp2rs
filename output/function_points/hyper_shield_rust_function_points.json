@@ -1,0 +1,114 @@
+[
+  {
+    "id": "Root_01",
+    "semantic_name": "Core (核心层)",
+    "description": "提供全局状态管理、错误类型定义、请求上下文和结果类型别名。包含原子全局变量 (ACTIVE_FILTERS, AUDIT_ENABLED)、常量 (MAX_PAYLOAD_SIZE)、泛型上下文结构体 (RequestContext) 和错误枚举 (ShieldError)。",
+    "file_paths": [
+      "src/core/mod.rs",
+      "src/core/state.rs",
+      "src/core/error.rs"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_core",
+          "file_path": "src/core/mod.rs",
+          "semantic_name": "核心模块聚合器",
+          "description": "聚合 state 和 error 子模块。",
+          "mass_metrics": {
+            "leaf_nodes_count": 0
+          }
+        },
+        {
+          "id": "Intermediate_core_state",
+          "file_path": "src/core/state.rs",
+          "semantic_name": "全局状态与上下文管理",
+          "description": "定义全局原子变量 (ACTIVE_FILTERS, AUDIT_ENABLED)、常量 (MAX_PAYLOAD_SIZE)、泛型请求上下文 (RequestContext<T: Send + Sync>) 和 Result 类型别名。",
+          "mass_metrics": {
+            "leaf_nodes_count": 5
+          }
+        },
+        {
+          "id": "Intermediate_core_error",
+          "file_path": "src/core/error.rs",
+          "semantic_name": "错误类型定义",
+          "description": "定义 ShieldError 枚举，包含 Timeout、MalformedPacket 和 IoFailure 变体。",
+          "mass_metrics": {
+            "leaf_nodes_count": 1
+          }
+        }
+      ]
+    },
+    "intra_module_edges": [
+      {
+        "source": "Intermediate_core_state",
+        "target": "Intermediate_core_error",
+        "relation_type": "data_flow",
+        "description": "state 模块的 Result 类型别名引用了 error 模块的 ShieldError 类型，形成类型依赖关系。",
+        "evidence": "core/state.rs 的 type_aliases 中 Result 的 underlying_type 为 std::result::Result<T, crate::core::error::ShieldError>"
+      }
+    ]
+  },
+  {
+    "id": "Root_02",
+    "semantic_name": "Engine (引擎层)",
+    "description": "提供数据包检测抽象接口 (PacketInspector trait) 和基于正则表达式的具体实现 (RegexFilter)。包含 FFI 接口 (shield_ffi_execute_filter) 以支持 C 语言互操作。RegexFilter 的 PacketInspector 实现仅在 Linux 平台可用 (#[cfg(target_os = \"linux\")])。",
+    "file_paths": [
+      "src/engine/mod.rs",
+      "src/engine/filter.rs"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_engine",
+          "file_path": "src/engine/mod.rs",
+          "semantic_name": "引擎模块聚合器",
+          "description": "定义 PacketInspector trait (含关联常量 STRICT_MODE、关联类型 Context、必需方法 inspect 和默认方法 is_healthy)，聚合 filter 子模块。",
+          "mass_metrics": {
+            "leaf_nodes_count": 1
+          }
+        },
+        {
+          "id": "Intermediate_engine_filter",
+          "file_path": "src/engine/filter.rs",
+          "semantic_name": "正则过滤器实现",
+          "description": "实现 RegexFilter 结构体，在 Linux 平台上实现 PacketInspector trait，提供 FFI 接口 shield_ffi_execute_filter。包含全局常量 STRICT_MODE。",
+          "mass_metrics": {
+            "leaf_nodes_count": 5
+          }
+        }
+      ]
+    },
+    "intra_module_edges": [
+      {
+        "source": "Intermediate_engine",
+        "target": "Intermediate_engine_filter",
+        "relation_type": "execution_order",
+        "description": "engine/mod.rs 定义 PacketInspector trait，engine/filter.rs 实现该 trait (impl PacketInspector for RegexFilter)。trait 定义先于实现。",
+        "evidence": "engine/mod.rs 的 traits 包含 PacketInspector；engine/filter.rs 的 impl_blocks 包含 { target_type: \"RegexFilter\", trait_name: \"PacketInspector\" }"
+      }
+    ]
+  },
+  {
+    "id": "Root_03",
+    "semantic_name": "API (公共接口层)",
+    "description": "仓库根模块，负责重导出核心类型 (ShieldError) 和引擎组件 (RegexFilter)，并提供全局审计日志宏 (audit_log!)。作为外部 crate 的入口点。",
+    "file_paths": [
+      "src/lib.rs"
+    ],
+    "implementation_evidence": {
+      "intermediate_nodes": [
+        {
+          "id": "Intermediate_lib",
+          "file_path": "src/lib.rs",
+          "semantic_name": "公共接口入口",
+          "description": "仓库根模块，重导出 ShieldError 和 RegexFilter，定义 audit_log! 宏。",
+          "mass_metrics": {
+            "leaf_nodes_count": 1
+          }
+        }
+      ]
+    },
+    "intra_module_edges": []
+  }
+]

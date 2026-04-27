@@ -168,7 +168,7 @@
           "name": "shield_ffi_execute_filter",
           "signature": "pub unsafe extern \"C\" fn shield_ffi_execute_filter(\n    filter_ptr: *mut libc::c_void,\n    payload_ptr: *mut u8,\n    len: usize,\n) -> i32",
           "has_body": true,
-          "is_unsafe": false,
+          "is_unsafe": true,
           "is_async": false,
           "data_flow": {
             "takes_ownership": [
