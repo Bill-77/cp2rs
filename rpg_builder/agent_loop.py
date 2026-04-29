@@ -104,7 +104,7 @@ def auto_mount_leaf_nodes(rpg_data, full_ir):
 
     return rpg_data
 
-def phase_two_agent_workflow(full_ir, prompt_2a, prompt_2b, llm_client, repo_name=""):
+def phase_two_agent_workflow(full_ir, prompt_2a, llm_client, repo_name=""):
     """
     执行完整的阶段二工作流：先动态生成 RPG 图谱，再降维生成功能清单。
     """
@@ -204,48 +204,4 @@ def phase_two_agent_workflow(full_ir, prompt_2a, prompt_2b, llm_client, repo_nam
         print("="*60 + "\n")
         raise e
 
-    # 短路拦截，用于暂时跳过阶段 2B 的功能清单提炼，直接返回 RPG 图谱数据，方便调试阶段 2A 的输出质量。
-    if prompt_2b is None:
-        return {"rpg_graph": rpg_data}
-
-    # === 阶段 2B: 降维功能清单提取 (One-Shot) ===
-    print(f"{prefix}[Step 2B] 开始将 RPG 降维提炼为 Root 级功能清单...")
-    
-    # 后续 2B 逻辑保持不变...
-    messages_2b = [
-        {"role": "system", "content": prompt_2b},
-        {"role": "user", "content": f"这是刚刚构建完毕的 RPG 拓扑图数据：\n{json.dumps(rpg_data, ensure_ascii=False)}"}
-    ]
-    
-    response_2b = llm_client.chat_completion(messages_2b)
-    function_point_table_str = extract_xml_tag(response_2b, "output")
-    
-    if not function_point_table_str:
-        print("\n" + "!"*60)
-        print(f"❌ [异常拦截] {prefix} 提炼师未输出 <output> 标签！")
-        print("【大模型 Step 2B 完整的原始回复】:")
-        print(response_2b)
-        print("!"*60 + "\n")
-        raise Exception("❌ 功能清单提炼失败：未找到 <output> 标签。")
-
-    print(f"{prefix}   ✅✅ 功能清单提炼成功！")
-    
-    try:
-        fp_data = clean_and_parse_json(function_point_table_str)
-    except Exception as e:
-        print("\n" + "="*60)
-        print("❌ [调试拦截] 功能清单 (Step 2B) JSON 解析失败！")
-        print(f"报错信息: {e}")
-        print("-" * 60)
-        print("【大模型 Step 2B 完整的原始回复】:")
-        print(response_2b)
-        print("-" * 60)
-        print("【提取出的 <output> 字符串原文 (用 repr 显示排版)】:")
-        print(repr(function_point_table_str))
-        print("="*60 + "\n")
-        raise e
-
-    return {
-        "rpg_graph": rpg_data,
-        "function_point_table": fp_data
-    }
+    return rpg_data
