@@ -7,6 +7,15 @@ from parsers.c_parser import CParser
 from parsers.cpp_parser import CppParser
 from parsers.rust_parser import RustParser
 
+IGNORE_DIRS = {
+    'test', 'tests', 'testing', 
+    'example', 'examples', 'sample', 'samples',
+    'benchmark', 'benchmarks', 'benches',
+    'doc', 'docs', 
+    'third_party', 'vendor', 'extern', 'deps',
+    'build', 'out', 'target', 'bin'
+}
+
 def dehydrate(data):
     """
     【数据脱水算法】
@@ -81,7 +90,21 @@ def parse_repository(repo_path, pre_detected_lang=None):
     print(f"🚀 开始扫描仓库: {repo_path} (自动识别为: {detected_language.upper()} 语言)")
     
     for root, dirs, files in os.walk(repo_path):
+        # 【降噪 1：目录级拦截】
+        # 就地修改 dirs 列表，过滤掉黑名单目录和隐藏目录（如 .git, .github）
+        # os.walk 就不会再进入这些被剔除的目录了！
+        dirs[:] = [d for d in dirs if d.lower() not in IGNORE_DIRS and not d.startswith('.')]
+
         for file in files:
+            # 【降噪 2：文件级拦截】
+            # 过滤掉散落在正常目录下的测试文件 (如 *_test.c, test_*.rs)
+            lower_file = file.lower()
+            if lower_file.startswith('test_') or \
+               lower_file.endswith('_test.c') or \
+               lower_file.endswith('_test.cpp') or \
+               lower_file.endswith('_test.rs'):
+                continue
+
             ext = os.path.splitext(file)[1].lower()
             if ext in valid_extensions:
                 full_path = os.path.join(root, file)

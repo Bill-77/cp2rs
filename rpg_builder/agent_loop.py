@@ -35,13 +35,82 @@ def clean_and_parse_json(json_str):
             
         return json.loads(target_str)
 
+def auto_mount_leaf_nodes(rpg_data, full_ir):
+    """
+    【索引挂载机制】
+    作为 Phase 3 评估指标的纯粹路由指针。
+    剔除所有大模型脑补或正则生成的语义描述，只保留阶段一 schema 的原生物理标识与签名。
+    """
+    if "nodes" not in rpg_data:
+        rpg_data["nodes"] = {}
+    
+    # 初始化/覆盖 leaf_nodes
+    rpg_data["nodes"]["leaf_nodes"] = []
+    
+    inter_nodes = rpg_data["nodes"].get("intermediate_nodes", [])
+
+    for inter_node in inter_nodes:
+        file_path = inter_node.get("file_path")
+        if not file_path:
+            continue
+
+        # 从完整 IR 中获取该文件的 AST 数据
+        file_ast = full_ir.get("files", {}).get(file_path, {})
+        inter_id = inter_node.get("id", "Unknown_Inter")
+
+        # 1. 挂载独立函数 (C / C++ standalone / Rust standalone)
+        standalone_funcs = file_ast.get("functions", []) + file_ast.get("standalone_functions", [])
+        for func in standalone_funcs:
+            func_name = func.get("name", "unnamed")
+            rpg_data["nodes"]["leaf_nodes"].append({
+                "id": f"Leaf_{func_name}",
+                "parent_intermediate": inter_id,
+                "ir_reference": f"functions.{func_name}",
+                "node_subtype": "standalone_function",
+                "name": func_name,
+                "original_signature": func.get("signature", "")
+            })
+
+        # 2. 挂载类/结构体方法 (C++ classes / Rust impl_blocks)
+        class_blocks = file_ast.get("classes", []) + file_ast.get("impl_blocks", [])
+        for cls in class_blocks:
+            target_name = cls.get("name") or cls.get("target_type") or "UnknownClass"
+            for method in cls.get("methods", []):
+                method_name = method.get("name", "unnamed")
+                rpg_data["nodes"]["leaf_nodes"].append({
+                    "id": f"Leaf_{target_name}_{method_name}",
+                    "parent_intermediate": inter_id,
+                    "ir_reference": f"classes.{target_name}.{method_name}",
+                    "node_subtype": "member_function",
+                    "belongs_to_class": target_name,
+                    "name": method_name,
+                    "original_signature": method.get("signature", "")
+                })
+
+        # 3. 挂载 Trait 实现方法 (Rust 特有)
+        for trt in file_ast.get("traits", []):
+            trait_name = trt.get("name", "UnknownTrait")
+            for method in trt.get("provided_methods", []):
+                method_name = method.get("name", "unnamed")
+                rpg_data["nodes"]["leaf_nodes"].append({
+                    "id": f"Leaf_trait_{trait_name}_{method_name}",
+                    "parent_intermediate": inter_id,
+                    "ir_reference": f"traits.{trait_name}.{method_name}",
+                    "node_subtype": "trait_method",
+                    "belongs_to_class": trait_name,
+                    "name": method_name,
+                    "original_signature": method.get("signature", "")
+                })
+
+    return rpg_data
+
 def phase_two_agent_workflow(full_ir, prompt_2a, prompt_2b, llm_client, repo_name=""):
     """
     执行完整的阶段二工作流：先动态生成 RPG 图谱，再降维生成功能清单。
     """
     prefix = f"[{repo_name}] " if repo_name else ""
     
-    print(f"{prefix}[Step 1] 开始进行 IR 脱水...")
+    print(f"{prefix}[Step 1] 开始进行 schema 脱水...")
     skeleton_ir = create_ir_skeleton(full_ir)
     
     # === 阶段 2A: RPG 图谱动态构建 (The Agent Loop) ===
@@ -84,14 +153,14 @@ def phase_two_agent_workflow(full_ir, prompt_2a, prompt_2b, llm_client, repo_nam
         output_str = extract_xml_tag(response, "output")
         if output_str:
             rpg_json_str = output_str
-            print(f"{prefix}   ✅ RPG 拓扑图构建成功！跳出循环。")
+            print(f"{prefix}   ✅ RPG 拓扑图架构推理完成！跳出循环。")
             break
             
         # 3. 异常处理：既没有 action 也没有 output
         messages.append({"role": "user", "content": "请务必在 <action> 或 <output> 标签中输出结果。"})
 
     if not rpg_json_str:
-        # 【新增：死锁拦截调试信息】
+        # 【死锁拦截调试信息】
         print("\n" + "!"*60)
         print(f"❌ [死锁拦截] {prefix} 架构师陷入死循环，未输出 <output>！")
         print("【大模型第 5 轮 (最后一轮) 的完整原始回复】:")
@@ -100,7 +169,7 @@ def phase_two_agent_workflow(full_ir, prompt_2a, prompt_2b, llm_client, repo_nam
         
         raise Exception("❌ RPG 构建失败：达到最大循环次数或解析异常。")
 
-    # === 【新增：后处理清洗】物理切断所有自环边 ===
+    # === 【后处理清洗】物理切断所有自环边 ===
     try:
         temp_rpg_data = clean_and_parse_json(rpg_json_str)
         if "edges" in temp_rpg_data and "intra_module_edges" in temp_rpg_data["edges"]:
@@ -112,36 +181,19 @@ def phase_two_agent_workflow(full_ir, prompt_2a, prompt_2b, llm_client, repo_nam
                 print(f"{prefix}   🛡️ [架构修正] 已自动拦截并切断 {len(original_edges) - len(cleaned_edges)} 条非法的模块内自环边！")
             
             temp_rpg_data["edges"]["intra_module_edges"] = cleaned_edges
-            # 将清洗后的干净数据转回 JSON 字符串，以确保后续阶段 2B 拿到的也是干净的
+            # 将清洗后的干净数据转回 JSON 字符串
             rpg_json_str = json.dumps(temp_rpg_data, ensure_ascii=False)
     except Exception as e:
         print(f"{prefix}   ⚠️ [架构修正警告] JSON 解析失败，跳过自环清理: {e}")
 
-    # === 阶段 2B: 降维功能清单提取 (One-Shot) ===
-    print(f"{prefix}[Step 2B] 开始将 RPG 降维提炼为 Root 级功能清单...")
-    
-    messages_2b = [
-        {"role": "system", "content": prompt_2b},
-        {"role": "user", "content": f"这是刚刚构建完毕的 RPG 拓扑图数据：\n{rpg_json_str}"}
-    ]
-    
-    response_2b = llm_client.chat_completion(messages_2b)
-    function_point_table_str = extract_xml_tag(response_2b, "output")
-    
-    if not function_point_table_str:
-        # 【新增：Step 2B 失败拦截与现场打印】
-        print("\n" + "!"*60)
-        print(f"❌ [异常拦截] {prefix} 提炼师未输出 <output> 标签！")
-        print("【大模型 Step 2B 完整的原始回复】:")
-        print(response_2b)
-        print("!"*60 + "\n")
-        raise Exception("❌ 功能清单提炼失败：未找到 <output> 标签。")
-
-    print(f"{prefix}   ✅✅ 功能清单提炼成功！")
-    
-    # === 调试版解析：看看大模型不稳定的回复具体什么情况，打印案发现场，先不自动修复 ===
+    # === 解析大模型输出的图谱，并执行核心增强：自动挂载 Leaf Nodes ===
     try:
         rpg_data = clean_and_parse_json(rpg_json_str) 
+        
+        # 【自动挂载机制核心触发】：在这里用 Python 将底层的 AST 函数全量塞进图谱里！
+        rpg_data = auto_mount_leaf_nodes(rpg_data, full_ir)
+        print(f"{prefix}   🔗 [自动挂载] 已成功将原生函数的 AST 数据结构挂载至中间节点！")
+        
     except Exception as e:
         print("\n" + "="*60)
         print("❌ [调试拦截] RPG 图谱 (Step 2A) JSON 解析失败！")
@@ -152,6 +204,32 @@ def phase_two_agent_workflow(full_ir, prompt_2a, prompt_2b, llm_client, repo_nam
         print("="*60 + "\n")
         raise e
 
+    # 短路拦截，用于暂时跳过阶段 2B 的功能清单提炼，直接返回 RPG 图谱数据，方便调试阶段 2A 的输出质量。
+    if prompt_2b is None:
+        return {"rpg_graph": rpg_data}
+
+    # === 阶段 2B: 降维功能清单提取 (One-Shot) ===
+    print(f"{prefix}[Step 2B] 开始将 RPG 降维提炼为 Root 级功能清单...")
+    
+    # 后续 2B 逻辑保持不变...
+    messages_2b = [
+        {"role": "system", "content": prompt_2b},
+        {"role": "user", "content": f"这是刚刚构建完毕的 RPG 拓扑图数据：\n{json.dumps(rpg_data, ensure_ascii=False)}"}
+    ]
+    
+    response_2b = llm_client.chat_completion(messages_2b)
+    function_point_table_str = extract_xml_tag(response_2b, "output")
+    
+    if not function_point_table_str:
+        print("\n" + "!"*60)
+        print(f"❌ [异常拦截] {prefix} 提炼师未输出 <output> 标签！")
+        print("【大模型 Step 2B 完整的原始回复】:")
+        print(response_2b)
+        print("!"*60 + "\n")
+        raise Exception("❌ 功能清单提炼失败：未找到 <output> 标签。")
+
+    print(f"{prefix}   ✅✅ 功能清单提炼成功！")
+    
     try:
         fp_data = clean_and_parse_json(function_point_table_str)
     except Exception as e:

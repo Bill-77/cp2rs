@@ -1,0 +1,6140 @@
+{
+  "repository_name": "json-rust",
+  "language": "rust",
+  "files": {
+    "src/error.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/error.rs",
+        "module_path": "crate::error",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "uses": [
+          "std::{ char, error, fmt }",
+          "Error::*",
+          "Error::*"
+        ]
+      },
+      "types": [
+        {
+          "kind": "enum",
+          "name": "Error",
+          "visibility": "pub",
+          "variants": [
+            {
+              "name": "UnexpectedCharacter",
+              "kind": "struct",
+              "fields": [
+                "ch: char",
+                "line: usize",
+                "column: usize"
+              ]
+            },
+            {
+              "name": "UnexpectedEndOfJson",
+              "kind": "unit"
+            },
+            {
+              "name": "ExceededDepthLimit",
+              "kind": "unit"
+            },
+            {
+              "name": "FailedUtf8Parsing",
+              "kind": "unit"
+            },
+            {
+              "name": "WrongType",
+              "kind": "unit"
+            }
+          ],
+          "derives": [
+            "Debug",
+            "PartialEq",
+            "Eq"
+          ]
+        }
+      ],
+      "impl_blocks": [
+        {
+          "target_type": "Error",
+          "methods": [
+            {
+              "name": "wrong_type",
+              "signature": "pub fn wrong_type(expected: &str) -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "Error::WrongType",
+                  "expected.into"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Error",
+          "trait_name": "fmt::Display",
+          "methods": [
+            {
+              "name": "fmt",
+              "signature": "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "f"
+                ]
+              },
+              "control_flow": {
+                "macro_invocations": [
+                  "write!"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Error",
+          "trait_name": "error::Error",
+          "methods": [
+            {
+              "name": "description",
+              "signature": "fn description(&self) -> &str",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "src/lib.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/lib.rs",
+        "module_path": "crate",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "uses": [
+          "std::result"
+        ],
+        "sub_modules": [
+          "pub mod codegen;",
+          "mod parser;",
+          "mod value;",
+          "mod error;",
+          "mod util;",
+          "pub mod short;",
+          "pub mod object;",
+          "pub mod number;"
+        ],
+        "re_exports": [
+          {
+            "visibility": "pub",
+            "source_path": "error::Error",
+            "alias": "Error"
+          },
+          {
+            "visibility": "pub",
+            "source_path": "value::JsonValue",
+            "alias": "JsonValue"
+          },
+          {
+            "visibility": "pub",
+            "source_path": "value::JsonValue::Null",
+            "alias": "Null"
+          },
+          {
+            "visibility": "pub",
+            "source_path": "Error",
+            "alias": "JsonError"
+          },
+          {
+            "visibility": "pub",
+            "source_path": "crate::Result",
+            "alias": "JsonResult"
+          },
+          {
+            "visibility": "pub",
+            "source_path": "parser::parse",
+            "alias": "parse"
+          }
+        ]
+      },
+      "macros": [
+        {
+          "name": "array",
+          "visibility": "macro_export"
+        },
+        {
+          "name": "value",
+          "visibility": "macro_export"
+        },
+        {
+          "name": "object",
+          "visibility": "macro_export"
+        }
+      ],
+      "type_aliases": [
+        {
+          "name": "Result",
+          "generics": [
+            "T"
+          ],
+          "visibility": "pub",
+          "underlying_type": "result::Result<T, Error>"
+        },
+        {
+          "name": "Members",
+          "visibility": "pub",
+          "underlying_type": "::std::slice::Iter<'a, super::JsonValue>"
+        },
+        {
+          "name": "MembersMut",
+          "visibility": "pub",
+          "underlying_type": "::std::slice::IterMut<'a, super::JsonValue>"
+        },
+        {
+          "name": "Entries",
+          "visibility": "pub",
+          "underlying_type": "super::object::Iter<'a>"
+        },
+        {
+          "name": "EntriesMut",
+          "visibility": "pub",
+          "underlying_type": "super::object::IterMut<'a>"
+        },
+        {
+          "name": "Array",
+          "visibility": "pub",
+          "underlying_type": "Vec<JsonValue>"
+        }
+      ],
+      "standalone_functions": [
+        {
+          "name": "from",
+          "signature": "pub fn from<T>(value: T) -> JsonValue where T: Into<JsonValue>",
+          "generics": [
+            "T"
+          ],
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "value"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "value.into"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "stringify",
+          "signature": "pub fn stringify<T>(root: T) -> String where T: Into<JsonValue>",
+          "generics": [
+            "T"
+          ],
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "root"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "root.into",
+              "root.dump"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "stringify_pretty",
+          "signature": "pub fn stringify_pretty<T>(root: T, spaces: u16) -> String where T: Into<JsonValue>",
+          "generics": [
+            "T"
+          ],
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "root",
+              "spaces"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "root.into",
+              "root.pretty"
+            ],
+            "has_closures": false
+          }
+        }
+      ]
+    },
+    "src/parser.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/parser.rs",
+        "module_path": "crate::parser",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "uses": [
+          "std::{str, slice}",
+          "std::char::decode_utf16",
+          "std::convert::TryFrom",
+          "crate::object::Object",
+          "crate::number::Number",
+          "crate::{JsonValue, Error, Result}",
+          "super::*",
+          "crate::stringify",
+          "crate::JsonValue",
+          "crate::object",
+          "crate::array",
+          "std::fs::File",
+          "std::io::prelude::*"
+        ]
+      },
+      "macros": [
+        {
+          "name": "expect_byte",
+          "visibility": "private"
+        },
+        {
+          "name": "expect_sequence",
+          "visibility": "private"
+        },
+        {
+          "name": "expect_byte_ignore_whitespace",
+          "visibility": "private"
+        },
+        {
+          "name": "expect_eof",
+          "visibility": "private"
+        },
+        {
+          "name": "expect",
+          "visibility": "private"
+        },
+        {
+          "name": "expect_string",
+          "visibility": "private"
+        },
+        {
+          "name": "expect_number",
+          "visibility": "private"
+        },
+        {
+          "name": "allow_number_extensions",
+          "visibility": "private"
+        },
+        {
+          "name": "expect_fraction",
+          "visibility": "private"
+        }
+      ],
+      "global_states": [
+        {
+          "name": "MAX_PRECISION",
+          "type": "u64",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "DEPTH_LIMIT",
+          "type": "usize",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "QU",
+          "type": "bool",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "BS",
+          "type": "bool",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "CT",
+          "type": "bool",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "__",
+          "type": "bool",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "ALLOWED",
+          "type": "[bool; 256]",
+          "kind": "static",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        }
+      ],
+      "types": [
+        {
+          "kind": "struct",
+          "name": "Parser",
+          "visibility": "private",
+          "fields_summary": [
+            "buffer: Vec<u8>",
+            "source: &'a str",
+            "byte_ptr: *const u8",
+            "index: usize",
+            "length: usize"
+          ]
+        },
+        {
+          "kind": "struct",
+          "name": "StackBlock",
+          "visibility": "private"
+        }
+      ],
+      "impl_blocks": [
+        {
+          "target_type": "Parser",
+          "methods": [
+            {
+              "name": "new",
+              "signature": "pub fn new(source: &'a str) -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "Vec::with_capacity",
+                  "source.as_ptr",
+                  "source.len"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "is_eof",
+              "signature": "fn is_eof(&mut self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "read_byte",
+              "signature": "fn read_byte(&mut self) -> u8",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.byte_ptr.offset"
+                ],
+                "macro_invocations": [
+                  "debug_assert!"
+                ],
+                "error_propagation": [
+                  "debug_assert!"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "bump",
+              "signature": "fn bump(&mut self)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.index.wrapping_add"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "unexpected_character",
+              "signature": "fn unexpected_character<T: Sized>(&mut self) -> Result<T>",
+              "generics": [
+                "T: Sized"
+              ],
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.source[at..]\r\n                     .chars()\r\n                     .next()\r\n                     .expect",
+                  "self.source[at..]\r\n                     .chars()\r\n                     .next",
+                  "self.source[at..]\r\n                     .chars",
+                  "self.source[..at]\r\n                                .lines()\r\n                                .enumerate()\r\n                                .last()\r\n                                .unwrap_or",
+                  "self.source[..at]\r\n                                .lines()\r\n                                .enumerate()\r\n                                .last",
+                  "self.source[..at]\r\n                                .lines()\r\n                                .enumerate",
+                  "self.source[..at]\r\n                                .lines",
+                  "col.chars().count",
+                  "col.chars",
+                  "Err"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "read_hexdec_digit",
+              "signature": "fn read_hexdec_digit(&mut self) -> Result<u16>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "Ok",
+                  "self.unexpected_character"
+                ],
+                "macro_invocations": [
+                  "expect_byte!"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "read_hexdec_codepoint",
+              "signature": "fn read_hexdec_codepoint(&mut self) -> Result<u16>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "Ok",
+                  "self.read_hexdec_digit"
+                ],
+                "error_propagation": [
+                  "?"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "read_codepoint",
+              "signature": "fn read_codepoint(&mut self) -> Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.read_hexdec_codepoint",
+                  "char::try_from",
+                  "decode_utf16(\r\n                    [codepoint, self.read_hexdec_codepoint()?].iter().copied()\r\n                ).next",
+                  "decode_utf16",
+                  "[codepoint, self.read_hexdec_codepoint()?].iter().copied",
+                  "[codepoint, self.read_hexdec_codepoint()?].iter",
+                  "Err",
+                  "self.buffer.extend_from_slice",
+                  "unicode.encode_utf8(&mut buf).as_bytes",
+                  "unicode.encode_utf8",
+                  "Ok"
+                ],
+                "macro_invocations": [
+                  "expect_sequence!"
+                ],
+                "error_propagation": [
+                  "?"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "read_complex_string",
+              "signature": "fn read_complex_string<'b>(&mut self, start: usize) -> Result<&'b str>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "start"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ],
+                "reads_globals": [
+                  "ALLOWED"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.buffer.len",
+                  "self.buffer.extend_from_slice",
+                  "self.source.as_bytes",
+                  "self.buffer.push",
+                  "self.read_codepoint",
+                  "self.unexpected_character",
+                  "Ok",
+                  "str::from_utf8_unchecked",
+                  "slice::from_raw_parts",
+                  "self.buffer[len .. ].as_ptr"
+                ],
+                "macro_invocations": [
+                  "expect_byte!"
+                ],
+                "error_propagation": [
+                  "?"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "read_big_number",
+              "signature": "fn read_big_number(&mut self, mut num: u64) -> Result<Number>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "num"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.is_eof",
+                  "Ok",
+                  "Number::from_parts_unchecked",
+                  "self.read_byte",
+                  "self.bump",
+                  "num.checked_mul(10).and_then",
+                  "num.checked_mul",
+                  "num.checked_add",
+                  "e.checked_add(1).ok_or_else",
+                  "e.checked_add",
+                  "self.expect_exponent"
+                ],
+                "macro_invocations": [
+                  "expect_fraction!"
+                ],
+                "error_propagation": [
+                  "?"
+                ],
+                "has_closures": true
+              }
+            },
+            {
+              "name": "expect_exponent",
+              "signature": "fn expect_exponent(&mut self, num: u64, big_e: i16) -> Result<Number>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "num",
+                  "big_e"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.unexpected_character",
+                  "self.is_eof",
+                  "self.read_byte",
+                  "self.bump",
+                  "e.saturating_mul(10).saturating_add",
+                  "e.saturating_mul",
+                  "Ok",
+                  "Number::from_parts_unchecked",
+                  "big_e.saturating_add"
+                ],
+                "macro_invocations": [
+                  "expect_byte!"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "parse",
+              "signature": "fn parse(&mut self) -> Result<JsonValue>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ],
+                "reads_globals": [
+                  "DEPTH_LIMIT"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "Vec::with_capacity",
+                  "stack.len",
+                  "Err",
+                  "stack.push",
+                  "StackBlock",
+                  "JsonValue::Array",
+                  "Vec::new",
+                  "Object::with_capacity",
+                  "self.unexpected_character",
+                  "object.insert_index",
+                  "JsonValue::Object",
+                  "Object::new",
+                  "expect_string!(self).into",
+                  "JsonValue::Number",
+                  "JsonValue::Boolean",
+                  "stack.last_mut",
+                  "Ok",
+                  "array.push",
+                  "object.override_at",
+                  "stack.pop"
+                ],
+                "macro_invocations": [
+                  "expect_byte_ignore_whitespace!",
+                  "expect_string!",
+                  "expect!",
+                  "allow_number_extensions!",
+                  "expect_number!",
+                  "expect_byte!",
+                  "expect_sequence!",
+                  "expect_eof!",
+                  "unreachable!"
+                ],
+                "error_propagation": [
+                  "unreachable!"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        }
+      ],
+      "standalone_functions": [
+        {
+          "name": "parse",
+          "signature": "pub fn parse(source: &str) -> Result<JsonValue>",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {},
+          "control_flow": {
+            "direct_calls": [
+              "Parser::new(source).parse",
+              "Parser::new"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "it_should_parse_escaped_forward_slashes_with_quotes",
+          "signature": "fn it_should_parse_escaped_forward_slashes_with_quotes()",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {},
+          "control_flow": {
+            "direct_calls": [
+              "File::open(\"tests/test_json_slashes_quotes\").unwrap",
+              "File::open",
+              "String::new",
+              "file.read_to_string(&mut contents).unwrap",
+              "file.read_to_string",
+              "parse(&contents).unwrap",
+              "parse",
+              "stringify",
+              "actual.clone"
+            ],
+            "macro_invocations": [
+              "assert_eq!"
+            ],
+            "error_propagation": [
+              "assert_eq!"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "it_should_parse_escaped_quotes",
+          "signature": "fn it_should_parse_escaped_quotes()",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {},
+          "control_flow": {
+            "direct_calls": [
+              "String::from",
+              "parse(&contents).unwrap",
+              "parse",
+              "stringify",
+              "actual.clone"
+            ],
+            "macro_invocations": [
+              "assert_eq!"
+            ],
+            "error_propagation": [
+              "assert_eq!"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "it_should_parse_basic_json_values",
+          "signature": "fn it_should_parse_basic_json_values()",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {},
+          "control_flow": {
+            "direct_calls": [
+              "parse(s).unwrap",
+              "parse"
+            ],
+            "macro_invocations": [
+              "object!",
+              "assert_eq!"
+            ],
+            "error_propagation": [
+              "assert_eq!"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "it_should_parse_json_arrays",
+          "signature": "fn it_should_parse_json_arrays()",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {},
+          "control_flow": {
+            "direct_calls": [
+              "parse(s).unwrap",
+              "parse"
+            ],
+            "macro_invocations": [
+              "object!",
+              "array!",
+              "assert_eq!"
+            ],
+            "error_propagation": [
+              "assert_eq!"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "it_should_parse_json_nested_object",
+          "signature": "fn it_should_parse_json_nested_object()",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {},
+          "control_flow": {
+            "direct_calls": [
+              "parse(s).unwrap",
+              "parse"
+            ],
+            "macro_invocations": [
+              "object!",
+              "assert_eq!"
+            ],
+            "error_propagation": [
+              "assert_eq!"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "it_should_parse_json_complex_object",
+          "signature": "fn it_should_parse_json_complex_object()",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {},
+          "control_flow": {
+            "direct_calls": [
+              "parse(s).unwrap",
+              "parse"
+            ],
+            "macro_invocations": [
+              "object!",
+              "assert_eq!"
+            ],
+            "error_propagation": [
+              "assert_eq!"
+            ],
+            "has_closures": false
+          }
+        }
+      ]
+    },
+    "src/object.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/object.rs",
+        "module_path": "crate::object",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "uses": [
+          "std::{ ptr, mem, str, slice, fmt }",
+          "std::ops::{ Index, IndexMut, Deref }",
+          "std::iter::FromIterator",
+          "crate::codegen::{ DumpGenerator, Generator, PrettyGenerator }",
+          "crate::value::JsonValue"
+        ]
+      },
+      "global_states": [
+        {
+          "name": "KEY_BUF_LEN",
+          "type": "usize",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "NULL",
+          "type": "JsonValue",
+          "kind": "static",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        }
+      ],
+      "type_aliases": [
+        {
+          "name": "Item",
+          "visibility": "private",
+          "underlying_type": "(&'a str, &'a JsonValue)"
+        },
+        {
+          "name": "Item",
+          "visibility": "private",
+          "underlying_type": "(&'a str, &'a mut JsonValue)"
+        },
+        {
+          "name": "Output",
+          "visibility": "private",
+          "underlying_type": "JsonValue"
+        },
+        {
+          "name": "Output",
+          "visibility": "private",
+          "underlying_type": "JsonValue"
+        },
+        {
+          "name": "Output",
+          "visibility": "private",
+          "underlying_type": "JsonValue"
+        }
+      ],
+      "types": [
+        {
+          "kind": "struct",
+          "name": "Key",
+          "visibility": "private",
+          "fields_summary": [
+            "buf: [u8; KEY_BUF_LEN]",
+            "len: usize",
+            "ptr: *mut u8",
+            "hash: u64"
+          ]
+        },
+        {
+          "kind": "struct",
+          "name": "Node",
+          "visibility": "private",
+          "fields_summary": [
+            "key: Key",
+            "value: JsonValue",
+            "left: usize",
+            "right: usize"
+          ],
+          "derives": [
+            "Clone"
+          ]
+        },
+        {
+          "kind": "struct",
+          "name": "Object",
+          "visibility": "pub",
+          "fields_summary": [
+            "store: Vec<Node>"
+          ],
+          "derives": [
+            "Debug"
+          ]
+        },
+        {
+          "kind": "struct",
+          "name": "Iter",
+          "visibility": "pub",
+          "fields_summary": [
+            "inner: slice::Iter<'a, Node>"
+          ]
+        },
+        {
+          "kind": "struct",
+          "name": "IterMut",
+          "visibility": "pub",
+          "fields_summary": [
+            "inner: slice::IterMut<'a, Node>"
+          ]
+        }
+      ],
+      "impl_blocks": [
+        {
+          "target_type": "Key",
+          "methods": [
+            {
+              "name": "new",
+              "signature": "fn new(hash: u64, len: usize) -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "hash",
+                  "len"
+                ],
+                "reads_globals": [
+                  "KEY_BUF_LEN"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "ptr::null_mut"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "as_bytes",
+              "signature": "fn as_bytes(&self) -> &[u8]",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "slice::from_raw_parts"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "as_str",
+              "signature": "fn as_str(&self) -> &str",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "str::from_utf8_unchecked",
+                  "self.as_bytes"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "attach",
+              "signature": "fn attach(&mut self, key: &[u8])",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ],
+                "reads_globals": [
+                  "KEY_BUF_LEN"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "ptr::copy_nonoverlapping",
+                  "key.as_ptr",
+                  "self.buf.as_mut_ptr",
+                  "key.to_vec",
+                  "heap.as_mut_ptr",
+                  "mem::forget"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "fix_ptr",
+              "signature": "fn fix_ptr(&mut self)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ],
+                "reads_globals": [
+                  "KEY_BUF_LEN"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.buf.as_mut_ptr"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Key",
+          "trait_name": "Sync"
+        },
+        {
+          "target_type": "Key",
+          "trait_name": "Send"
+        },
+        {
+          "target_type": "Key",
+          "trait_name": "Drop",
+          "methods": [
+            {
+              "name": "drop",
+              "signature": "fn drop(&mut self)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ],
+                "reads_globals": [
+                  "KEY_BUF_LEN"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "Vec::from_raw_parts",
+                  "drop"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Key",
+          "trait_name": "Clone",
+          "methods": [
+            {
+              "name": "clone",
+              "signature": "fn clone(&self) -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "reads_globals": [
+                  "KEY_BUF_LEN"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_bytes().to_vec",
+                  "self.as_bytes",
+                  "heap.as_mut_ptr",
+                  "mem::forget",
+                  "ptr::null_mut"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Node",
+          "trait_name": "fmt::Debug",
+          "methods": [
+            {
+              "name": "fmt",
+              "signature": "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "f"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "fmt::Debug::fmt",
+                  "self.key.as_str"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Node",
+          "trait_name": "PartialEq",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &Node) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.key.as_bytes",
+                  "other.key.as_bytes"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Node",
+          "methods": [
+            {
+              "name": "new",
+              "signature": "fn new(value: JsonValue, hash: u64, len: usize) -> Node",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "value",
+                  "hash",
+                  "len"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "Key::new"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Object",
+          "methods": [
+            {
+              "name": "new",
+              "signature": "pub fn new() -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "Vec::new"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "with_capacity",
+              "signature": "pub fn with_capacity(capacity: usize) -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "capacity"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "Vec::with_capacity"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "node_at_index_mut",
+              "signature": "fn node_at_index_mut(&mut self, index: usize) -> *mut Node",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "index"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.store.as_mut_ptr().offset",
+                  "self.store.as_mut_ptr"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "add_node",
+              "signature": "fn add_node(&mut self, key: &[u8], value: JsonValue, hash: u64) -> usize",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "value",
+                  "hash"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.store.len",
+                  "self.store.capacity",
+                  "Node::new",
+                  "key.len",
+                  "self.store.set_len",
+                  "ptr::copy_nonoverlapping",
+                  "self.store.as_mut_ptr().offset",
+                  "self.store.as_mut_ptr",
+                  "mem::forget",
+                  "self.store.get_unchecked_mut(index).key.attach",
+                  "self.store.get_unchecked_mut",
+                  "self.store.push",
+                  "self.store.iter_mut().take",
+                  "self.store.iter_mut",
+                  "node.key.fix_ptr"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "insert",
+              "signature": "pub fn insert(&mut self, key: &str, value: JsonValue)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "value"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.insert_index"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "insert_index",
+              "signature": "pub(crate) fn insert_index(&mut self, key: &str, value: JsonValue) -> usize",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "value"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "key.as_bytes",
+                  "hash_key",
+                  "self.store.len",
+                  "self.store.push",
+                  "Node::new",
+                  "key.len",
+                  "self.store[0].key.attach",
+                  "self.node_at_index_mut",
+                  "node.key.as_bytes",
+                  "self.add_node"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "override_at",
+              "signature": "pub(crate) fn override_at(&mut self, index: usize, value: JsonValue)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "index",
+                  "value"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "override_last",
+              "signature": "pub fn override_last(&mut self, value: JsonValue)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "value"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.store.last_mut"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "get",
+              "signature": "pub fn get(&self, key: &str) -> Option<&JsonValue>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.store.len",
+                  "key.as_bytes",
+                  "hash_key",
+                  "self.store.get_unchecked",
+                  "node.key.as_bytes",
+                  "Some"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "get_mut",
+              "signature": "pub fn get_mut(&mut self, key: &str) -> Option<&mut JsonValue>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.store.len",
+                  "key.as_bytes",
+                  "hash_key",
+                  "self.store.get_unchecked",
+                  "node.key.as_bytes",
+                  "self.store.get_unchecked_mut",
+                  "Some"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "remove",
+              "signature": "pub fn remove(&mut self, key: &str) -> Option<JsonValue>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.store.len",
+                  "key.as_bytes",
+                  "hash_key",
+                  "self.store.get_unchecked",
+                  "node.key.as_bytes",
+                  "Object::with_capacity",
+                  "self.store.iter_mut().enumerate",
+                  "self.store.iter_mut",
+                  "Some",
+                  "mem::replace",
+                  "new_object.insert",
+                  "node.key.as_str",
+                  "mem::swap"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "len",
+              "signature": "pub fn len(&self) -> usize",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.store.len"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "is_empty",
+              "signature": "pub fn is_empty(&self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.store.is_empty"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "clear",
+              "signature": "pub fn clear(&mut self)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.store.clear"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "iter",
+              "signature": "pub fn iter(&self) -> Iter",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.store.iter"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "iter_mut",
+              "signature": "pub fn iter_mut(&mut self) -> IterMut",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.store.iter_mut"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "dump",
+              "signature": "pub fn dump(&self) -> String",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "DumpGenerator::new",
+                  "gen.write_object(self).expect",
+                  "gen.write_object",
+                  "gen.consume"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "pretty",
+              "signature": "pub fn pretty(&self, spaces: u16) -> String",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "spaces"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "PrettyGenerator::new",
+                  "gen.write_object(self).expect",
+                  "gen.write_object",
+                  "gen.consume"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Object",
+          "trait_name": "Clone",
+          "methods": [
+            {
+              "name": "clone",
+              "signature": "fn clone(&self) -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.store.clone",
+                  "store.iter_mut",
+                  "node.key.fix_ptr"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Object",
+          "trait_name": "FromIterator<(K, V)>",
+          "impl_generics": [
+            "K: AsRef<str>",
+            "V: Into<JsonValue>"
+          ],
+          "methods": [
+            {
+              "name": "from_iter",
+              "signature": "fn from_iter<I: IntoIterator<Item=(K, V)>>(iter: I) -> Self",
+              "generics": [
+                "I: IntoIterator<Item=(K, V)>"
+              ],
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "iter"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "iter.into_iter",
+                  "Object::with_capacity",
+                  "iter.size_hint",
+                  "object.insert",
+                  "key.as_ref",
+                  "value.into"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Object",
+          "trait_name": "PartialEq",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &Object) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.len",
+                  "other.len",
+                  "self.iter",
+                  "other.get"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Iter",
+          "methods": [
+            {
+              "name": "empty",
+              "signature": "pub fn empty() -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "[].iter"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Iter",
+          "trait_name": "Iterator",
+          "associated_type_bindings": [
+            {
+              "name": "Item",
+              "target_type": "(&'a str, &'a JsonValue)"
+            }
+          ],
+          "methods": [
+            {
+              "name": "next",
+              "signature": "fn next(&mut self) -> Option<Self::Item>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.inner.next().map",
+                  "self.inner.next",
+                  "node.key.as_str"
+                ],
+                "has_closures": true
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Iter",
+          "trait_name": "DoubleEndedIterator",
+          "methods": [
+            {
+              "name": "next_back",
+              "signature": "fn next_back(&mut self) -> Option<Self::Item>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.inner.next_back().map",
+                  "self.inner.next_back",
+                  "node.key.as_str"
+                ],
+                "has_closures": true
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Iter",
+          "trait_name": "ExactSizeIterator",
+          "methods": [
+            {
+              "name": "len",
+              "signature": "fn len(&self) -> usize",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.inner.len"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "IterMut",
+          "methods": [
+            {
+              "name": "empty",
+              "signature": "pub fn empty() -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "[].iter_mut"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "IterMut",
+          "trait_name": "Iterator",
+          "associated_type_bindings": [
+            {
+              "name": "Item",
+              "target_type": "(&'a str, &'a mut JsonValue)"
+            }
+          ],
+          "methods": [
+            {
+              "name": "next",
+              "signature": "fn next(&mut self) -> Option<Self::Item>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.inner.next().map",
+                  "self.inner.next",
+                  "node.key.as_str"
+                ],
+                "has_closures": true
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "IterMut",
+          "trait_name": "DoubleEndedIterator",
+          "methods": [
+            {
+              "name": "next_back",
+              "signature": "fn next_back(&mut self) -> Option<Self::Item>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.inner.next_back().map",
+                  "self.inner.next_back",
+                  "node.key.as_str"
+                ],
+                "has_closures": true
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "IterMut",
+          "trait_name": "ExactSizeIterator",
+          "methods": [
+            {
+              "name": "len",
+              "signature": "fn len(&self) -> usize",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.inner.len"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Object",
+          "trait_name": "Index<&'a str>",
+          "associated_type_bindings": [
+            {
+              "name": "Output",
+              "target_type": "JsonValue"
+            }
+          ],
+          "methods": [
+            {
+              "name": "index",
+              "signature": "fn index(&self, index: &str) -> &JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "reads_globals": [
+                  "NULL"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.get"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Object",
+          "trait_name": "Index<String>",
+          "associated_type_bindings": [
+            {
+              "name": "Output",
+              "target_type": "JsonValue"
+            }
+          ],
+          "methods": [
+            {
+              "name": "index",
+              "signature": "fn index(&self, index: String) -> &JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "index"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.index",
+                  "index.deref"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Object",
+          "trait_name": "Index<&'a String>",
+          "associated_type_bindings": [
+            {
+              "name": "Output",
+              "target_type": "JsonValue"
+            }
+          ],
+          "methods": [
+            {
+              "name": "index",
+              "signature": "fn index(&self, index: &String) -> &JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.index",
+                  "index.deref"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Object",
+          "trait_name": "IndexMut<&'a str>",
+          "methods": [
+            {
+              "name": "index_mut",
+              "signature": "fn index_mut(&mut self, index: &str) -> &mut JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.get(index).is_none",
+                  "self.get",
+                  "self.insert",
+                  "self.get_mut(index).unwrap",
+                  "self.get_mut"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Object",
+          "trait_name": "IndexMut<String>",
+          "methods": [
+            {
+              "name": "index_mut",
+              "signature": "fn index_mut(&mut self, index: String) -> &mut JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "index"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.index_mut",
+                  "index.deref"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Object",
+          "trait_name": "IndexMut<&'a String>",
+          "methods": [
+            {
+              "name": "index_mut",
+              "signature": "fn index_mut(&mut self, index: &String) -> &mut JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.index_mut",
+                  "index.deref"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        }
+      ],
+      "standalone_functions": [
+        {
+          "name": "hash_key",
+          "signature": "fn hash_key(key: &[u8]) -> u64",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {},
+          "control_flow": {
+            "direct_calls": [
+              "hash.wrapping_mul"
+            ],
+            "has_closures": false
+          }
+        }
+      ]
+    },
+    "src/number.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/number.rs",
+        "module_path": "crate::number",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "uses": [
+          "std::{ ops, fmt, f32, f64 }",
+          "std::convert::{TryFrom, Infallible}",
+          "std::num::{FpCategory, TryFromIntError}",
+          "crate::util::grisu2",
+          "crate::util::print_dec"
+        ]
+      },
+      "macros": [
+        {
+          "name": "impl_unsigned",
+          "visibility": "private"
+        },
+        {
+          "name": "impl_signed",
+          "visibility": "private"
+        },
+        {
+          "name": "impl_integer",
+          "visibility": "private"
+        }
+      ],
+      "global_states": [
+        {
+          "name": "NAN",
+          "type": "Number",
+          "kind": "const",
+          "visibility": "pub",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "NEGATIVE",
+          "type": "u8",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "POSITIVE",
+          "type": "u8",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "NAN_MASK",
+          "type": "u8",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "CACHE_POWERS",
+          "type": "[f64; 23]",
+          "kind": "static",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "CACHE_POWERS",
+          "type": "[f32; 23]",
+          "kind": "static",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "CACHED",
+          "type": "[u64; 20]",
+          "kind": "static",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        }
+      ],
+      "type_aliases": [
+        {
+          "name": "Output",
+          "visibility": "private",
+          "underlying_type": "Number"
+        }
+      ],
+      "types": [
+        {
+          "kind": "struct",
+          "name": "Number",
+          "visibility": "pub",
+          "fields_summary": [
+            "category: u8",
+            "exponent: i16",
+            "mantissa: u64"
+          ],
+          "derives": [
+            "Copy",
+            "Clone",
+            "Debug"
+          ]
+        },
+        {
+          "kind": "struct",
+          "name": "NumberOutOfScope",
+          "visibility": "pub",
+          "derives": [
+            "Clone",
+            "Copy"
+          ]
+        }
+      ],
+      "impl_blocks": [
+        {
+          "target_type": "Number",
+          "methods": [
+            {
+              "name": "from_parts_unchecked",
+              "signature": "pub unsafe fn from_parts_unchecked(positive: bool, mantissa: u64, exponent: i16) -> Self",
+              "has_body": true,
+              "is_unsafe": true,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "positive",
+                  "mantissa",
+                  "exponent"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "from_parts",
+              "signature": "pub fn from_parts(positive: bool, mut mantissa: u64, mut exponent: i16) -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "positive",
+                  "mantissa",
+                  "exponent"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "Number::from_parts_unchecked"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "as_parts",
+              "signature": "pub fn as_parts(&self) -> (bool, u64, i16)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "reads_globals": [
+                  "POSITIVE"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "is_sign_positive",
+              "signature": "pub fn is_sign_positive(&self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "reads_globals": [
+                  "POSITIVE"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "is_zero",
+              "signature": "pub fn is_zero(&self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.is_nan"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "is_nan",
+              "signature": "pub fn is_nan(&self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "reads_globals": [
+                  "NAN_MASK"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "is_empty",
+              "signature": "pub fn is_empty(&self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.is_nan"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "as_fixed_point_u64",
+              "signature": "pub fn as_fixed_point_u64(&self, point: u16) -> Option<u64>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "point"
+                ],
+                "reads_globals": [
+                  "POSITIVE"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "Some",
+                  "self.mantissa.wrapping_div",
+                  "decimal_power",
+                  "self.mantissa.wrapping_mul"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "as_fixed_point_i64",
+              "signature": "pub fn as_fixed_point_i64(&self, point: u16) -> Option<i64>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "point"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.is_nan",
+                  "self.is_sign_positive",
+                  "Some",
+                  "num.wrapping_div",
+                  "decimal_power",
+                  "num.wrapping_mul"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Number",
+          "trait_name": "PartialEq",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &Number) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.is_zero",
+                  "other.is_zero",
+                  "self.is_nan",
+                  "other.is_nan",
+                  "decimal_power",
+                  "self.mantissa.wrapping_mul",
+                  "other.mantissa.wrapping_mul"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Number",
+          "trait_name": "fmt::Display",
+          "methods": [
+            {
+              "name": "fmt",
+              "signature": "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "f"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.is_nan",
+                  "f.write_str",
+                  "self.as_parts",
+                  "Vec::new",
+                  "print_dec::write(&mut buf, positive, mantissa, exponent).unwrap",
+                  "print_dec::write",
+                  "String::from_utf8_unchecked"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "f64",
+          "trait_name": "From<Number>",
+          "methods": [
+            {
+              "name": "from",
+              "signature": "fn from(num: Number) -> f64",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "num"
+                ],
+                "reads_globals": [
+                  "NAN"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "num.is_nan",
+                  "exponentiate_f64",
+                  "num.is_sign_positive"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "f32",
+          "trait_name": "From<Number>",
+          "methods": [
+            {
+              "name": "from",
+              "signature": "fn from(num: Number) -> f32",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "num"
+                ],
+                "reads_globals": [
+                  "NAN"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "num.is_nan",
+                  "exponentiate_f32",
+                  "num.is_sign_positive"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Number",
+          "trait_name": "From<f64>",
+          "methods": [
+            {
+              "name": "from",
+              "signature": "fn from(float: f64) -> Number",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "float"
+                ],
+                "reads_globals": [
+                  "NAN"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "float.classify",
+                  "float.is_sign_positive",
+                  "grisu2::convert",
+                  "Number::from_parts"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Number",
+          "trait_name": "From<f32>",
+          "methods": [
+            {
+              "name": "from",
+              "signature": "fn from(float: f32) -> Number",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "float"
+                ],
+                "reads_globals": [
+                  "NAN"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "float.classify",
+                  "float.is_sign_positive",
+                  "grisu2::convert",
+                  "Number::from_parts"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Number",
+          "trait_name": "PartialEq<f64>",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &f64) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "f64::from"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Number",
+          "trait_name": "PartialEq<f32>",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &f32) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "f32::from"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "f64",
+          "trait_name": "PartialEq<Number>",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &Number) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "f64::from"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "f32",
+          "trait_name": "PartialEq<Number>",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &Number) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "f32::from"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "NumberOutOfScope",
+          "trait_name": "From<Infallible>",
+          "methods": [
+            {
+              "name": "from",
+              "signature": "fn from(_: Infallible) -> NumberOutOfScope",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "_"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "NumberOutOfScope",
+          "trait_name": "From<TryFromIntError>",
+          "methods": [
+            {
+              "name": "from",
+              "signature": "fn from(_: TryFromIntError) -> NumberOutOfScope",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "_"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Number",
+          "trait_name": "ops::Neg",
+          "associated_type_bindings": [
+            {
+              "name": "Output",
+              "target_type": "Number"
+            }
+          ],
+          "methods": [
+            {
+              "name": "neg",
+              "signature": "fn neg(self) -> Number",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "self"
+                ],
+                "reads_globals": [
+                  "POSITIVE"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        }
+      ],
+      "standalone_functions": [
+        {
+          "name": "exponentiate_f64",
+          "signature": "fn exponentiate_f64(n: f64, e: i16) -> f64",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "n",
+              "e"
+            ],
+            "reads_globals": [
+              "CACHE_POWERS"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "10f64.powf"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "exponentiate_f32",
+          "signature": "fn exponentiate_f32(n: f32, e: i16) -> f32",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "n",
+              "e"
+            ],
+            "reads_globals": [
+              "CACHE_POWERS"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "10f32.powf"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "decimal_power",
+          "signature": "fn decimal_power(mut e: u16) -> u64",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "e"
+            ],
+            "reads_globals": [
+              "CACHED"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "pow.saturating_mul"
+            ],
+            "has_closures": false
+          }
+        }
+      ]
+    },
+    "src/codegen.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/codegen.rs",
+        "module_path": "crate::codegen",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "uses": [
+          "std::ptr",
+          "std::io::Write",
+          "std::io",
+          "crate::JsonValue",
+          "crate::number::Number",
+          "crate::object::Object",
+          "crate::util::print_dec",
+          "super::*"
+        ]
+      },
+      "global_states": [
+        {
+          "name": "QU",
+          "type": "u8",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "BS",
+          "type": "u8",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "BB",
+          "type": "u8",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "TT",
+          "type": "u8",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "NN",
+          "type": "u8",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "FF",
+          "type": "u8",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "RR",
+          "type": "u8",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "UU",
+          "type": "u8",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "__",
+          "type": "u8",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "ESCAPED",
+          "type": "[u8; 256]",
+          "kind": "static",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        }
+      ],
+      "type_aliases": [
+        {
+          "name": "T",
+          "visibility": "private",
+          "underlying_type": "Vec<u8>"
+        },
+        {
+          "name": "T",
+          "visibility": "private",
+          "underlying_type": "Vec<u8>"
+        },
+        {
+          "name": "T",
+          "visibility": "private",
+          "underlying_type": "W"
+        },
+        {
+          "name": "T",
+          "visibility": "private",
+          "underlying_type": "W"
+        }
+      ],
+      "types": [
+        {
+          "kind": "struct",
+          "name": "DumpGenerator",
+          "visibility": "pub",
+          "fields_summary": [
+            "code: Vec<u8>"
+          ]
+        },
+        {
+          "kind": "struct",
+          "name": "PrettyGenerator",
+          "visibility": "pub",
+          "fields_summary": [
+            "code: Vec<u8>",
+            "dent: u16",
+            "spaces_per_indent: u16"
+          ]
+        },
+        {
+          "kind": "struct",
+          "name": "WriterGenerator",
+          "generics": [
+            "W: 'a + Write"
+          ],
+          "visibility": "pub",
+          "fields_summary": [
+            "writer: &'a mut W"
+          ]
+        },
+        {
+          "kind": "struct",
+          "name": "PrettyWriterGenerator",
+          "generics": [
+            "W: 'a + Write"
+          ],
+          "visibility": "pub",
+          "fields_summary": [
+            "writer: &'a mut W",
+            "dent: u16",
+            "spaces_per_indent: u16"
+          ]
+        }
+      ],
+      "traits": [
+        {
+          "name": "Generator",
+          "visibility": "pub",
+          "associated_types": [
+            {
+              "name": "T"
+            }
+          ],
+          "required_methods": [
+            "fn get_writer(&mut self) -> &mut Self::T;",
+            "fn write_min(&mut self, slice: &[u8], min: u8) -> io::Result<()>;"
+          ],
+          "provided_methods": [
+            {
+              "name": "write",
+              "signature": "fn write(&mut self, slice: &[u8]) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.get_writer().write_all",
+                  "self.get_writer"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "write_char",
+              "signature": "fn write_char(&mut self, ch: u8) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "ch"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.get_writer().write_all",
+                  "self.get_writer"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "new_line",
+              "signature": "fn new_line(&mut self) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "Ok"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "indent",
+              "signature": "fn indent(&mut self)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "dedent",
+              "signature": "fn dedent(&mut self)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "write_string_complex",
+              "signature": "fn write_string_complex(&mut self, string: &str, mut start: usize) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "start"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ],
+                "reads_globals": [
+                  "ESCAPED"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.write",
+                  "string.as_bytes",
+                  "string.bytes().enumerate().skip",
+                  "string.bytes().enumerate",
+                  "string.bytes",
+                  "self.write_char"
+                ],
+                "macro_invocations": [
+                  "write!"
+                ],
+                "error_propagation": [
+                  "?"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "write_string",
+              "signature": "fn write_string(&mut self, string: &str) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ],
+                "reads_globals": [
+                  "ESCAPED"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.write_char",
+                  "string.bytes().enumerate",
+                  "string.bytes",
+                  "self.write_string_complex",
+                  "self.write",
+                  "string.as_bytes"
+                ],
+                "error_propagation": [
+                  "?"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "write_number",
+              "signature": "fn write_number(&mut self, num: &Number) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "num.is_nan",
+                  "self.write",
+                  "num.as_parts",
+                  "print_dec::write",
+                  "self.get_writer"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "write_object",
+              "signature": "fn write_object(&mut self, object: &Object) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.write_char",
+                  "object.iter",
+                  "iter.next",
+                  "self.indent",
+                  "self.new_line",
+                  "self.write_string",
+                  "self.write_min",
+                  "self.write_json",
+                  "Ok",
+                  "self.dedent"
+                ],
+                "error_propagation": [
+                  "?"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "write_json",
+              "signature": "fn write_json(&mut self, json: &JsonValue) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.write",
+                  "self.write_string",
+                  "short.as_str",
+                  "self.write_number",
+                  "self.write_char",
+                  "array.iter",
+                  "iter.next",
+                  "self.indent",
+                  "self.new_line",
+                  "self.write_json",
+                  "Ok",
+                  "self.dedent",
+                  "self.write_object"
+                ],
+                "error_propagation": [
+                  "?"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        }
+      ],
+      "impl_blocks": [
+        {
+          "target_type": "DumpGenerator",
+          "methods": [
+            {
+              "name": "new",
+              "signature": "pub fn new() -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "Vec::with_capacity"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "consume",
+              "signature": "pub fn consume(self) -> String",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "String::from_utf8_unchecked"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "DumpGenerator",
+          "trait_name": "Generator",
+          "associated_type_bindings": [
+            {
+              "name": "T",
+              "target_type": "Vec<u8>"
+            }
+          ],
+          "methods": [
+            {
+              "name": "write",
+              "signature": "fn write(&mut self, slice: &[u8]) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "extend_from_slice",
+                  "Ok"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "write_char",
+              "signature": "fn write_char(&mut self, ch: u8) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "ch"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.code.push",
+                  "Ok"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "get_writer",
+              "signature": "fn get_writer(&mut self) -> &mut Vec<u8>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "write_min",
+              "signature": "fn write_min(&mut self, _: &[u8], min: u8) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "min"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.code.push",
+                  "Ok"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "PrettyGenerator",
+          "methods": [
+            {
+              "name": "new",
+              "signature": "pub fn new(spaces: u16) -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "spaces"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "Vec::with_capacity"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "consume",
+              "signature": "pub fn consume(self) -> String",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "String::from_utf8_unchecked"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "PrettyGenerator",
+          "trait_name": "Generator",
+          "associated_type_bindings": [
+            {
+              "name": "T",
+              "target_type": "Vec<u8>"
+            }
+          ],
+          "methods": [
+            {
+              "name": "write",
+              "signature": "fn write(&mut self, slice: &[u8]) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "extend_from_slice",
+                  "Ok"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "write_char",
+              "signature": "fn write_char(&mut self, ch: u8) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "ch"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.code.push",
+                  "Ok"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "get_writer",
+              "signature": "fn get_writer(&mut self) -> &mut Vec<u8>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "write_min",
+              "signature": "fn write_min(&mut self, slice: &[u8], _: u8) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "_"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "extend_from_slice",
+                  "Ok"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "new_line",
+              "signature": "fn new_line(&mut self) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.code.push",
+                  "Ok"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "indent",
+              "signature": "fn indent(&mut self)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "dedent",
+              "signature": "fn dedent(&mut self)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "WriterGenerator",
+          "impl_generics": [
+            "W"
+          ],
+          "methods": [
+            {
+              "name": "new",
+              "signature": "pub fn new(writer: &'a mut W) -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "WriterGenerator",
+          "trait_name": "Generator",
+          "impl_generics": [
+            "W"
+          ],
+          "associated_type_bindings": [
+            {
+              "name": "T",
+              "target_type": "W"
+            }
+          ],
+          "methods": [
+            {
+              "name": "get_writer",
+              "signature": "fn get_writer(&mut self) -> &mut W",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "write_min",
+              "signature": "fn write_min(&mut self, _: &[u8], min: u8) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "min"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.writer.write_all"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "PrettyWriterGenerator",
+          "impl_generics": [
+            "W"
+          ],
+          "methods": [
+            {
+              "name": "new",
+              "signature": "pub fn new(writer: &'a mut W, spaces: u16) -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "spaces"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "PrettyWriterGenerator",
+          "trait_name": "Generator",
+          "impl_generics": [
+            "W"
+          ],
+          "associated_type_bindings": [
+            {
+              "name": "T",
+              "target_type": "W"
+            }
+          ],
+          "methods": [
+            {
+              "name": "get_writer",
+              "signature": "fn get_writer(&mut self) -> &mut W",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "write_min",
+              "signature": "fn write_min(&mut self, slice: &[u8], _: u8) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "_"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.writer.write_all"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "new_line",
+              "signature": "fn new_line(&mut self) -> io::Result<()>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.write_char",
+                  "Ok"
+                ],
+                "error_propagation": [
+                  "?"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "indent",
+              "signature": "fn indent(&mut self)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "dedent",
+              "signature": "fn dedent(&mut self)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        }
+      ],
+      "standalone_functions": [
+        {
+          "name": "extend_from_slice",
+          "signature": "fn extend_from_slice(dst: &mut Vec<u8>, src: &[u8])",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {
+            "mutates_borrows": [
+              "dst"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "dst.len",
+              "src.len",
+              "dst.reserve",
+              "dst.set_len",
+              "ptr::copy_nonoverlapping",
+              "src.as_ptr",
+              "dst.as_mut_ptr().offset",
+              "dst.as_mut_ptr"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "should_not_panic_on_bad_bytes",
+          "signature": "fn should_not_panic_on_bad_bytes()",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {},
+          "control_flow": {
+            "direct_calls": [
+              "[0, 12, 128, 88, 64, 99].to_vec",
+              "String::from_utf8_unchecked",
+              "DumpGenerator::new",
+              "generator.write_string(&s).unwrap",
+              "generator.write_string"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "should_not_panic_on_bad_bytes_2",
+          "signature": "fn should_not_panic_on_bad_bytes_2()",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {},
+          "control_flow": {
+            "direct_calls": [
+              "String::from_utf8_unchecked",
+              "data.to_vec",
+              "DumpGenerator::new",
+              "generator.write_string(&s).unwrap",
+              "generator.write_string"
+            ],
+            "has_closures": false
+          }
+        }
+      ]
+    },
+    "src/short.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/short.rs",
+        "module_path": "crate::short",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "uses": [
+          "std::{ ptr, str, slice, fmt }",
+          "std::ops::Deref"
+        ]
+      },
+      "global_states": [
+        {
+          "name": "MAX_LEN",
+          "type": "usize",
+          "kind": "const",
+          "visibility": "pub",
+          "is_mut": false,
+          "is_unsafe": false
+        }
+      ],
+      "type_aliases": [
+        {
+          "name": "Target",
+          "visibility": "private",
+          "underlying_type": "str"
+        }
+      ],
+      "types": [
+        {
+          "kind": "struct",
+          "name": "Short",
+          "visibility": "pub",
+          "fields_summary": [
+            "len: u8",
+            "value: [u8; MAX_LEN]"
+          ],
+          "derives": [
+            "Clone",
+            "Copy"
+          ]
+        }
+      ],
+      "impl_blocks": [
+        {
+          "target_type": "Short",
+          "methods": [
+            {
+              "name": "from_slice",
+              "signature": "pub unsafe fn from_slice(slice: &str) -> Self",
+              "has_body": true,
+              "is_unsafe": true,
+              "is_async": false,
+              "data_flow": {
+                "reads_globals": [
+                  "MAX_LEN"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "slice.len",
+                  "ptr::copy_nonoverlapping",
+                  "slice.as_ptr",
+                  "short.value.as_mut_ptr"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "as_str",
+              "signature": "pub fn as_str(&self) -> &str",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "str::from_utf8_unchecked",
+                  "slice::from_raw_parts",
+                  "self.value.as_ptr"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Short",
+          "trait_name": "PartialEq",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &Short) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_str",
+                  "other.as_str"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Short",
+          "trait_name": "fmt::Debug",
+          "methods": [
+            {
+              "name": "fmt",
+              "signature": "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "f"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "fmt::Debug::fmt",
+                  "self.as_str"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Short",
+          "trait_name": "fmt::Display",
+          "methods": [
+            {
+              "name": "fmt",
+              "signature": "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "f"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "fmt::Display::fmt",
+                  "self.as_str"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Short",
+          "trait_name": "Deref",
+          "associated_type_bindings": [
+            {
+              "name": "Target",
+              "target_type": "str"
+            }
+          ],
+          "methods": [
+            {
+              "name": "deref",
+              "signature": "fn deref(&self) -> &str",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_str"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "String",
+          "trait_name": "From<Short>",
+          "methods": [
+            {
+              "name": "from",
+              "signature": "fn from(short: Short) -> String",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "short"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "String::from",
+                  "short.as_str"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Short",
+          "trait_name": "PartialEq<str>",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &str) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_str().eq",
+                  "self.as_str"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "str",
+          "trait_name": "PartialEq<Short>",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &Short) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "other.as_str().eq",
+                  "other.as_str"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "Short",
+          "trait_name": "PartialEq<String>",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &String) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_str().eq",
+                  "self.as_str"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "String",
+          "trait_name": "PartialEq<Short>",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &Short) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "other.as_str().eq",
+                  "other.as_str"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "src/value/implements.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/value/implements.rs",
+        "module_path": "crate::value::implements",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "uses": [
+          "std::collections::{BTreeMap, HashMap}",
+          "crate::short::{self, Short}",
+          "crate::number::Number",
+          "crate::object::Object",
+          "crate::value::JsonValue"
+        ]
+      },
+      "macros": [
+        {
+          "name": "implement_eq",
+          "visibility": "private"
+        },
+        {
+          "name": "implement",
+          "visibility": "private"
+        }
+      ],
+      "impl_blocks": [
+        {
+          "target_type": "JsonValue",
+          "trait_name": "From<&'a str>",
+          "methods": [
+            {
+              "name": "from",
+              "signature": "fn from(val: &'a str) -> JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "val.len",
+                  "JsonValue::Short",
+                  "Short::from_slice",
+                  "JsonValue::String",
+                  "val.into"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "From<Option<T>>",
+          "impl_generics": [
+            "T: Into<JsonValue>"
+          ],
+          "methods": [
+            {
+              "name": "from",
+              "signature": "fn from(val: Option<T>) -> JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "val"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "val.into"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "From<Vec<T>>",
+          "impl_generics": [
+            "T: Into<JsonValue>"
+          ],
+          "methods": [
+            {
+              "name": "from",
+              "signature": "fn from(val: Vec<T>) -> JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "val"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "JsonValue::Array",
+                  "val.into_iter().map(Into::into).collect",
+                  "val.into_iter().map",
+                  "val.into_iter"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "From<&'a [T]>",
+          "impl_generics": [
+            "T: Into<JsonValue> + Clone"
+          ],
+          "methods": [
+            {
+              "name": "from",
+              "signature": "fn from(val: &'a [T]) -> JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "JsonValue::Array",
+                  "val.iter().cloned().map(Into::into).collect",
+                  "val.iter().cloned().map",
+                  "val.iter().cloned",
+                  "val.iter"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "From<HashMap<K, V>>",
+          "impl_generics": [
+            "K: AsRef<str>",
+            "V: Into<JsonValue>"
+          ],
+          "methods": [
+            {
+              "name": "from",
+              "signature": "fn from(val: HashMap<K, V>) -> JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "val"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "JsonValue::Object",
+                  "val.into_iter().collect",
+                  "val.into_iter"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "From<BTreeMap<K, V>>",
+          "impl_generics": [
+            "K: AsRef<str>",
+            "V: Into<JsonValue>"
+          ],
+          "methods": [
+            {
+              "name": "from",
+              "signature": "fn from(val: BTreeMap<K, V>) -> JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "val"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "JsonValue::Object",
+                  "val.into_iter().collect",
+                  "val.into_iter"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "PartialEq<&'a str>",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &&str) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "&'a str",
+          "trait_name": "PartialEq<JsonValue>",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &JsonValue) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "PartialEq<str>",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &str) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "str",
+          "trait_name": "PartialEq<JsonValue>",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &JsonValue) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "src/value/mod.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/value/mod.rs",
+        "module_path": "crate::value",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "uses": [
+          "std::ops::{Index, IndexMut, Deref}",
+          "std::convert::TryInto",
+          "std::{fmt, mem, usize, u8, u16, u32, u64, isize, i8, i16, i32, i64, f32}",
+          "std::io::{self, Write}",
+          "crate::{Result, Error}",
+          "crate::short::Short",
+          "crate::number::Number",
+          "crate::object::Object",
+          "crate::iterators::{ Members, MembersMut, Entries, EntriesMut }",
+          "crate::codegen::{ Generator, PrettyGenerator, DumpGenerator, WriterGenerator, PrettyWriterGenerator }",
+          "self::JsonValue::*"
+        ],
+        "sub_modules": [
+          "mod implements;"
+        ]
+      },
+      "macros": [
+        {
+          "name": "number_to_unsigned",
+          "visibility": "private"
+        },
+        {
+          "name": "number_to_signed",
+          "visibility": "private"
+        }
+      ],
+      "global_states": [
+        {
+          "name": "NULL",
+          "type": "JsonValue",
+          "kind": "static",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        }
+      ],
+      "type_aliases": [
+        {
+          "name": "Output",
+          "visibility": "private",
+          "underlying_type": "JsonValue"
+        },
+        {
+          "name": "Output",
+          "visibility": "private",
+          "underlying_type": "JsonValue"
+        },
+        {
+          "name": "Output",
+          "visibility": "private",
+          "underlying_type": "JsonValue"
+        },
+        {
+          "name": "Output",
+          "visibility": "private",
+          "underlying_type": "JsonValue"
+        }
+      ],
+      "types": [
+        {
+          "kind": "enum",
+          "name": "JsonValue",
+          "visibility": "pub",
+          "variants": [
+            {
+              "name": "Null",
+              "kind": "unit"
+            },
+            {
+              "name": "Short",
+              "kind": "unit"
+            },
+            {
+              "name": "String",
+              "kind": "unit"
+            },
+            {
+              "name": "Number",
+              "kind": "unit"
+            },
+            {
+              "name": "Boolean",
+              "kind": "unit"
+            },
+            {
+              "name": "Object",
+              "kind": "unit"
+            },
+            {
+              "name": "Array",
+              "kind": "unit"
+            }
+          ],
+          "derives": [
+            "Debug",
+            "Clone"
+          ]
+        }
+      ],
+      "impl_blocks": [
+        {
+          "target_type": "JsonValue",
+          "trait_name": "PartialEq",
+          "methods": [
+            {
+              "name": "eq",
+              "signature": "fn eq(&self, other: &Self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "a.as_str",
+                  "b.as_str"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "Eq"
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "fmt::Display",
+          "methods": [
+            {
+              "name": "fmt",
+              "signature": "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "f"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "f.alternate",
+                  "f.write_str",
+                  "self.pretty",
+                  "value.fmt",
+                  "self.dump"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "methods": [
+            {
+              "name": "new_object",
+              "signature": "pub fn new_object() -> JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "JsonValue::Object",
+                  "Object::new"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "new_array",
+              "signature": "pub fn new_array() -> JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "JsonValue::Array",
+                  "Vec::new"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "dump",
+              "signature": "pub fn dump(&self) -> String",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "DumpGenerator::new",
+                  "gen.write_json(self).expect",
+                  "gen.write_json",
+                  "gen.consume"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "pretty",
+              "signature": "pub fn pretty(&self, spaces: u16) -> String",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "spaces"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "PrettyGenerator::new",
+                  "gen.write_json(self).expect",
+                  "gen.write_json",
+                  "gen.consume"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "to_writer",
+              "signature": "pub fn to_writer<W: Write>(&self, writer: &mut W)",
+              "generics": [
+                "W: Write"
+              ],
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "writer"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "WriterGenerator::new",
+                  "gen.write_json(self).expect",
+                  "gen.write_json"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "write",
+              "signature": "pub fn write<W: Write>(&self, writer: &mut W) -> io::Result<()>",
+              "generics": [
+                "W: Write"
+              ],
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "writer"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "WriterGenerator::new",
+                  "gen.write_json"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "write_pretty",
+              "signature": "pub fn write_pretty<W: Write>(&self, writer: &mut W, spaces: u16) -> io::Result<()>",
+              "generics": [
+                "W: Write"
+              ],
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "spaces"
+                ],
+                "mutates_borrows": [
+                  "writer"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "PrettyWriterGenerator::new",
+                  "gen.write_json"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "is_string",
+              "signature": "pub fn is_string(&self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "is_number",
+              "signature": "pub fn is_number(&self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "is_boolean",
+              "signature": "pub fn is_boolean(&self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "is_null",
+              "signature": "pub fn is_null(&self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "is_object",
+              "signature": "pub fn is_object(&self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "is_array",
+              "signature": "pub fn is_array(&self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "is_empty",
+              "signature": "pub fn is_empty(&self) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "value.is_empty"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "as_str",
+              "signature": "pub fn as_str(&self) -> Option<&str>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "Some"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "as_number",
+              "signature": "pub fn as_number(&self) -> Option<Number>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "Some"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "as_f64",
+              "signature": "pub fn as_f64(&self) -> Option<f64>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_number().map",
+                  "self.as_number",
+                  "value.into"
+                ],
+                "has_closures": true
+              }
+            },
+            {
+              "name": "as_f32",
+              "signature": "pub fn as_f32(&self) -> Option<f32>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_number().map",
+                  "self.as_number",
+                  "value.into"
+                ],
+                "has_closures": true
+              }
+            },
+            {
+              "name": "as_u64",
+              "signature": "pub fn as_u64(&self) -> Option<u64>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_number().and_then",
+                  "self.as_number",
+                  "value.try_into().ok",
+                  "value.try_into"
+                ],
+                "has_closures": true
+              }
+            },
+            {
+              "name": "as_u32",
+              "signature": "pub fn as_u32(&self) -> Option<u32>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_u64().and_then",
+                  "self.as_u64"
+                ],
+                "macro_invocations": [
+                  "number_to_unsigned!"
+                ],
+                "has_closures": true
+              }
+            },
+            {
+              "name": "as_u16",
+              "signature": "pub fn as_u16(&self) -> Option<u16>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_u64().and_then",
+                  "self.as_u64"
+                ],
+                "macro_invocations": [
+                  "number_to_unsigned!"
+                ],
+                "has_closures": true
+              }
+            },
+            {
+              "name": "as_u8",
+              "signature": "pub fn as_u8(&self) -> Option<u8>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_u64().and_then",
+                  "self.as_u64"
+                ],
+                "macro_invocations": [
+                  "number_to_unsigned!"
+                ],
+                "has_closures": true
+              }
+            },
+            {
+              "name": "as_usize",
+              "signature": "pub fn as_usize(&self) -> Option<usize>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_u64().and_then",
+                  "self.as_u64"
+                ],
+                "macro_invocations": [
+                  "number_to_unsigned!"
+                ],
+                "has_closures": true
+              }
+            },
+            {
+              "name": "as_i64",
+              "signature": "pub fn as_i64(&self) -> Option<i64>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_number().and_then",
+                  "self.as_number",
+                  "value.try_into().ok",
+                  "value.try_into"
+                ],
+                "has_closures": true
+              }
+            },
+            {
+              "name": "as_i32",
+              "signature": "pub fn as_i32(&self) -> Option<i32>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_i64().and_then",
+                  "self.as_i64"
+                ],
+                "macro_invocations": [
+                  "number_to_signed!"
+                ],
+                "has_closures": true
+              }
+            },
+            {
+              "name": "as_i16",
+              "signature": "pub fn as_i16(&self) -> Option<i16>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_i64().and_then",
+                  "self.as_i64"
+                ],
+                "macro_invocations": [
+                  "number_to_signed!"
+                ],
+                "has_closures": true
+              }
+            },
+            {
+              "name": "as_i8",
+              "signature": "pub fn as_i8(&self) -> Option<i8>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_i64().and_then",
+                  "self.as_i64"
+                ],
+                "macro_invocations": [
+                  "number_to_signed!"
+                ],
+                "has_closures": true
+              }
+            },
+            {
+              "name": "as_isize",
+              "signature": "pub fn as_isize(&self) -> Option<isize>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.as_i64().and_then",
+                  "self.as_i64"
+                ],
+                "macro_invocations": [
+                  "number_to_signed!"
+                ],
+                "has_closures": true
+              }
+            },
+            {
+              "name": "as_bool",
+              "signature": "pub fn as_bool(&self) -> Option<bool>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "Some"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "as_fixed_point_u64",
+              "signature": "pub fn as_fixed_point_u64(&self, point: u16) -> Option<u64>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "point"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "value.as_fixed_point_u64"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "as_fixed_point_i64",
+              "signature": "pub fn as_fixed_point_i64(&self, point: u16) -> Option<i64>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "point"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "value.as_fixed_point_i64"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "take",
+              "signature": "pub fn take(&mut self) -> JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "mem::replace"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "take_string",
+              "signature": "pub fn take_string(&mut self) -> Option<String>",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "mem::swap",
+                  "Some",
+                  "short.into"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "push",
+              "signature": "pub fn push<T>(&mut self, value: T) -> Result<()>\r\n    where T: Into<JsonValue>",
+              "generics": [
+                "T"
+              ],
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "value"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "vec.push",
+                  "value.into",
+                  "Ok",
+                  "Err",
+                  "Error::wrong_type"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "pop",
+              "signature": "pub fn pop(&mut self) -> JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "vec.pop().unwrap_or",
+                  "vec.pop"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "contains",
+              "signature": "pub fn contains<T>(&self, item: T) -> bool where T: PartialEq<JsonValue>",
+              "generics": [
+                "T"
+              ],
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "item"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "vec.iter().any",
+                  "vec.iter"
+                ],
+                "has_closures": true
+              }
+            },
+            {
+              "name": "has_key",
+              "signature": "pub fn has_key(&self, key: &str) -> bool",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "object.get(key).is_some",
+                  "object.get"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "len",
+              "signature": "pub fn len(&self) -> usize",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "vec.len",
+                  "object.len"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "members",
+              "signature": "pub fn members(&self) -> Members",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "vec.iter",
+                  "[].iter"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "members_mut",
+              "signature": "pub fn members_mut(&mut self) -> MembersMut",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "vec.iter_mut",
+                  "[].iter_mut"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "entries",
+              "signature": "pub fn entries(&self) -> Entries",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "object.iter",
+                  "Entries::empty"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "entries_mut",
+              "signature": "pub fn entries_mut(&mut self) -> EntriesMut",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "object.iter_mut",
+                  "EntriesMut::empty"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "insert",
+              "signature": "pub fn insert<T>(&mut self, key: &str, value: T) -> Result<()>\r\n    where T: Into<JsonValue>",
+              "generics": [
+                "T"
+              ],
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "value"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "object.insert",
+                  "value.into",
+                  "Ok",
+                  "Err",
+                  "Error::wrong_type"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "remove",
+              "signature": "pub fn remove(&mut self, key: &str) -> JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "object.remove(key).unwrap_or",
+                  "object.remove"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "array_remove",
+              "signature": "pub fn array_remove(&mut self, index: usize) -> JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "index"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "vec.len",
+                  "vec.remove"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "clear",
+              "signature": "pub fn clear(&mut self)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "string.clear",
+                  "object.clear",
+                  "vec.clear"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "Index<usize>",
+          "associated_type_bindings": [
+            {
+              "name": "Output",
+              "target_type": "JsonValue"
+            }
+          ],
+          "methods": [
+            {
+              "name": "index",
+              "signature": "fn index(&self, index: usize) -> &JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "index"
+                ],
+                "reads_globals": [
+                  "NULL"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "vec.get(index).unwrap_or",
+                  "vec.get"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "IndexMut<usize>",
+          "methods": [
+            {
+              "name": "index_mut",
+              "signature": "fn index_mut(&mut self, index: usize) -> &mut JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "index"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "vec.len",
+                  "vec.push",
+                  "vec.last_mut().unwrap",
+                  "vec.last_mut",
+                  "JsonValue::new_array",
+                  "self.push(JsonValue::Null).unwrap",
+                  "self.push",
+                  "self.index_mut"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "Index<&'a str>",
+          "associated_type_bindings": [
+            {
+              "name": "Output",
+              "target_type": "JsonValue"
+            }
+          ],
+          "methods": [
+            {
+              "name": "index",
+              "signature": "fn index(&self, index: &str) -> &JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "reads_globals": [
+                  "NULL"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "Index<String>",
+          "associated_type_bindings": [
+            {
+              "name": "Output",
+              "target_type": "JsonValue"
+            }
+          ],
+          "methods": [
+            {
+              "name": "index",
+              "signature": "fn index(&self, index: String) -> &JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "index"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.index",
+                  "index.deref"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "Index<&'a String>",
+          "associated_type_bindings": [
+            {
+              "name": "Output",
+              "target_type": "JsonValue"
+            }
+          ],
+          "methods": [
+            {
+              "name": "index",
+              "signature": "fn index(&self, index: &String) -> &JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {},
+              "control_flow": {
+                "direct_calls": [
+                  "self.index",
+                  "index.deref"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "IndexMut<&'a str>",
+          "methods": [
+            {
+              "name": "index_mut",
+              "signature": "fn index_mut(&mut self, index: &str) -> &mut JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "JsonValue::new_object",
+                  "self.index_mut"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "IndexMut<String>",
+          "methods": [
+            {
+              "name": "index_mut",
+              "signature": "fn index_mut(&mut self, index: String) -> &mut JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "index"
+                ],
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.index_mut",
+                  "index.deref"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "JsonValue",
+          "trait_name": "IndexMut<&'a String>",
+          "methods": [
+            {
+              "name": "index_mut",
+              "signature": "fn index_mut(&mut self, index: &String) -> &mut JsonValue",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "mutates_borrows": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "self.index_mut",
+                  "index.deref"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "src/util/print_dec.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/util/print_dec.rs",
+        "module_path": "crate::util::print_dec",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "uses": [
+          "std::{io, mem, ptr, slice}"
+        ]
+      },
+      "global_states": [
+        {
+          "name": "DEC_DIGITS_LUT",
+          "type": "&'static[u8]",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "ZEROFILL",
+          "type": "&'static [u8]",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "BUF_LEN",
+          "type": "usize",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        }
+      ],
+      "standalone_functions": [
+        {
+          "name": "write_num",
+          "signature": "unsafe fn write_num(n: &mut u64, curr: &mut isize, buf_ptr: *mut u8, lut_ptr: *const u8)",
+          "has_body": true,
+          "is_unsafe": true,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "buf_ptr",
+              "lut_ptr"
+            ],
+            "mutates_borrows": [
+              "n",
+              "curr"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "ptr::copy_nonoverlapping",
+              "lut_ptr.offset",
+              "buf_ptr.offset"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "write",
+          "signature": "pub unsafe fn write<W: io::Write>(wr: &mut W, positive: bool, mut n: u64, exponent: i16) -> io::Result<()>",
+          "generics": [
+            "W: io::Write"
+          ],
+          "has_body": true,
+          "is_unsafe": true,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "positive",
+              "n",
+              "exponent"
+            ],
+            "mutates_borrows": [
+              "wr"
+            ],
+            "reads_globals": [
+              "BUF_LEN",
+              "DEC_DIGITS_LUT",
+              "ZEROFILL"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "wr.write_all",
+              "mem::MaybeUninit::<[u8; BUF_LEN]>::uninit",
+              "buf.as_mut_ptr",
+              "DEC_DIGITS_LUT.as_ptr",
+              "write_num",
+              "slice::from_raw_parts",
+              "buf_ptr.offset",
+              "safe_abs",
+              "ptr::copy_nonoverlapping",
+              "lut_ptr.offset",
+              "Ok",
+              "write"
+            ],
+            "error_propagation": [
+              "?"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "safe_abs",
+          "signature": "fn safe_abs(x : i16) -> u16",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "x"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "x.checked_abs",
+              "i16::max_value"
+            ],
+            "has_closures": false
+          }
+        }
+      ]
+    },
+    "src/util/grisu2.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/util/grisu2.rs",
+        "module_path": "crate::util::grisu2",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "uses": [
+          "crate::util::diyfp::{ self, DiyFp }"
+        ]
+      },
+      "global_states": [
+        {
+          "name": "POW10",
+          "type": "[u32; 10]",
+          "kind": "static",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        }
+      ],
+      "standalone_functions": [
+        {
+          "name": "grisu_round",
+          "signature": "unsafe fn grisu_round(buffer: &mut u64, delta: u64, mut rest: u64, ten_kappa: u64, wp_w: u64)",
+          "has_body": true,
+          "is_unsafe": true,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "delta",
+              "rest",
+              "ten_kappa",
+              "wp_w"
+            ],
+            "mutates_borrows": [
+              "buffer"
+            ]
+          },
+          "control_flow": {
+            "has_closures": false
+          }
+        },
+        {
+          "name": "count_decimal_digit32",
+          "signature": "fn count_decimal_digit32(n: u32) -> i16",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "n"
+            ]
+          },
+          "control_flow": {
+            "has_closures": false
+          }
+        },
+        {
+          "name": "digit_gen",
+          "signature": "unsafe fn digit_gen(w: DiyFp, mp: DiyFp, mut delta: u64, mut k: i16) -> (u64, i16)",
+          "has_body": true,
+          "is_unsafe": true,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "w",
+              "mp",
+              "delta",
+              "k"
+            ],
+            "reads_globals": [
+              "POW10"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "DiyFp::new",
+              "count_decimal_digit32",
+              "kappa.wrapping_sub",
+              "grisu_round"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "convert",
+          "signature": "pub fn convert(float: f64) -> (u64, i16)",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "float"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "DiyFp::from_f64",
+              "v.normalized_boundaries",
+              "diyfp::get_cached_power",
+              "v.normalize",
+              "digit_gen"
+            ],
+            "has_closures": false
+          }
+        }
+      ]
+    },
+    "src/util/diyfp.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/util/diyfp.rs",
+        "module_path": "crate::util::diyfp",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "uses": [
+          "std::{mem, ops}"
+        ]
+      },
+      "global_states": [
+        {
+          "name": "DIY_SIGNIFICAND_SIZE",
+          "type": "isize",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "DP_SIGNIFICAND_SIZE",
+          "type": "isize",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "DP_EXPONENT_BIAS",
+          "type": "isize",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "DP_MIN_EXPONENT",
+          "type": "isize",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "DP_EXPONENT_MASK",
+          "type": "u64",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "DP_SIGNIFICAND_MASK",
+          "type": "u64",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "DP_HIDDEN_BIT",
+          "type": "u64",
+          "kind": "const",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "CACHED_POWERS_F",
+          "type": "[u64; 87]",
+          "kind": "static",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        },
+        {
+          "name": "CACHED_POWERS_E",
+          "type": "[i16; 87]",
+          "kind": "static",
+          "visibility": "private",
+          "is_mut": false,
+          "is_unsafe": false
+        }
+      ],
+      "type_aliases": [
+        {
+          "name": "Output",
+          "visibility": "private",
+          "underlying_type": "DiyFp"
+        },
+        {
+          "name": "Output",
+          "visibility": "private",
+          "underlying_type": "DiyFp"
+        }
+      ],
+      "types": [
+        {
+          "kind": "struct",
+          "name": "DiyFp",
+          "visibility": "pub",
+          "fields_summary": [
+            "f: u64",
+            "e: isize"
+          ],
+          "derives": [
+            "Copy",
+            "Clone",
+            "Debug"
+          ]
+        }
+      ],
+      "impl_blocks": [
+        {
+          "target_type": "DiyFp",
+          "methods": [
+            {
+              "name": "new",
+              "signature": "pub fn new(f: u64, e: isize) -> Self",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "f",
+                  "e"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "from_f64",
+              "signature": "pub unsafe fn from_f64(d: f64) -> Self",
+              "has_body": true,
+              "is_unsafe": true,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "d"
+                ],
+                "reads_globals": [
+                  "DP_EXPONENT_MASK",
+                  "DP_SIGNIFICAND_SIZE",
+                  "DP_SIGNIFICAND_MASK",
+                  "DP_HIDDEN_BIT",
+                  "DP_EXPONENT_BIAS",
+                  "DP_MIN_EXPONENT"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "mem::transmute"
+                ],
+                "has_closures": false
+              }
+            },
+            {
+              "name": "normalize",
+              "signature": "pub fn normalize(self) -> DiyFp",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "self"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "normalize_boundary",
+              "signature": "pub fn normalize_boundary(self) -> DiyFp",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "self"
+                ],
+                "reads_globals": [
+                  "DP_HIDDEN_BIT",
+                  "DIY_SIGNIFICAND_SIZE",
+                  "DP_SIGNIFICAND_SIZE"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            },
+            {
+              "name": "normalized_boundaries",
+              "signature": "pub fn normalized_boundaries(self) -> (DiyFp, DiyFp)",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "self"
+                ],
+                "reads_globals": [
+                  "DP_HIDDEN_BIT"
+                ]
+              },
+              "control_flow": {
+                "direct_calls": [
+                  "DiyFp::new((self.f << 1) + 1, self.e - 1).normalize_boundary",
+                  "DiyFp::new"
+                ],
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "DiyFp",
+          "trait_name": "ops::Sub",
+          "associated_type_bindings": [
+            {
+              "name": "Output",
+              "target_type": "DiyFp"
+            }
+          ],
+          "methods": [
+            {
+              "name": "sub",
+              "signature": "fn sub(self, rhs: DiyFp) -> DiyFp",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "self",
+                  "rhs"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        },
+        {
+          "target_type": "DiyFp",
+          "trait_name": "ops::Mul",
+          "associated_type_bindings": [
+            {
+              "name": "Output",
+              "target_type": "DiyFp"
+            }
+          ],
+          "methods": [
+            {
+              "name": "mul",
+              "signature": "fn mul(self, rhs: DiyFp) -> DiyFp",
+              "has_body": true,
+              "is_unsafe": false,
+              "is_async": false,
+              "data_flow": {
+                "takes_ownership": [
+                  "self",
+                  "rhs"
+                ]
+              },
+              "control_flow": {
+                "has_closures": false
+              }
+            }
+          ]
+        }
+      ],
+      "standalone_functions": [
+        {
+          "name": "get_cached_power_by_index",
+          "signature": "fn get_cached_power_by_index(index: usize) -> DiyFp",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "index"
+            ],
+            "reads_globals": [
+              "CACHED_POWERS_F",
+              "CACHED_POWERS_E"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "DiyFp::new"
+            ],
+            "has_closures": false
+          }
+        },
+        {
+          "name": "get_cached_power",
+          "signature": "pub fn get_cached_power(e: isize) -> (DiyFp, isize)",
+          "has_body": true,
+          "is_unsafe": false,
+          "is_async": false,
+          "data_flow": {
+            "takes_ownership": [
+              "e"
+            ]
+          },
+          "control_flow": {
+            "direct_calls": [
+              "get_cached_power_by_index"
+            ],
+            "has_closures": false
+          }
+        }
+      ]
+    },
+    "src/util/mod.rs": {
+      "metadata": {
+        "language": "rust",
+        "file_path": "src/util/mod.rs",
+        "module_path": "crate::util",
+        "ast_health": "healthy"
+      },
+      "dependencies": {
+        "sub_modules": [
+          "pub mod diyfp;",
+          "pub mod grisu2;",
+          "pub mod print_dec;"
+        ]
+      }
+    }
+  }
+}

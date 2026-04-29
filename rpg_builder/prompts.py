@@ -34,11 +34,10 @@ PROMPT_2A_ARCHITECT_C = """
 # Workflow: C-Native Chain of Thought (C语言特化思维链)
 除非你发起 `<action>` 请求，否则必须在 `<thinking>` 标签内严格按照以下步骤推理：
 
-1. [File-Centric] 锚定中间与叶子节点: 
+1. [File-Centric] 锚定中间节点 (Intermediate Nodes): 
    - 将每个 C 文件 (`metadata.file_path`) 映射为一个 Intermediate 节点 (分配ID，如 `Intermediate_temp_sensor_c`)。
-   - 提取文件内的 `global_states`, `types`, `functions` 作为挂载在其下的 Leaf 节点。
-     - 提取独立函数：提取为独立节点（`node_subtype`: "standalone_function", `belongs_to_class`: null）。
    - 充分利用 `doc_comment` 提取准确的业务语义描述 (`semantic_name` 和 `description`)。
+   - 【极限减负指令】：你需要在脑海中梳理底层的 functions/types/global_states 以进行连线推理，但绝对不要在最终的输出中罗列它们（系统会自动挂载叶子节点）！
 
 2. [Domain-Centric] 抽象根节点 (Root Clustering):
    - 根据 Intermediate 的目录层级 (如 `src/drivers/`) 和业务相关性，向上聚合成大粒度的 Root 模块 (例如 `Root_HardwareDrivers`)。
@@ -76,17 +75,6 @@ PROMPT_2A_ARCHITECT_C = """
         "semantic_name": "子组件名称",
         "description": "..."
       }
-    ],
-    "leaf_nodes": [
-      {
-        "id": "Leaf_counter_sum",
-        "parent_intermediate": "关联的Intermediate节点ID",
-        "ir_reference": "指向IR原始数据的路径标示",
-        "node_subtype": "standalone_function",
-        "belongs_to_class": null,
-        "semantic_name": "底层核心功能名称",
-        "description": "..."
-      }
     ]
   },
   "edges": {
@@ -114,8 +102,9 @@ PROMPT_2A_ARCHITECT_C = """
 
 切记：
 1. 你的思考过程必须完全包裹在 <thinking> 中。
-2. 如果信息不足以建图，仅输出 <action> JSON 索取代码，绝对不要输出 <output>。
-3. 如果信息充足，输出完整的 <output> JSON。
+2. 绝对不要输出 leaf_nodes 数组！
+3. 如果信息不足以建图，仅输出 <action> JSON 索取代码，绝对不要输出 <output>。
+4. 如果信息充足，输出完整的 <output> JSON。
 """
 
 PROMPT_2A_ARCHITECT_CPP = """
@@ -153,12 +142,10 @@ PROMPT_2A_ARCHITECT_CPP = """
 # Workflow: The C++ Native Chain of Thought (思维链工作流)
 除非你发起 `<action>` 请求，否则你必须在 `<thinking>` 标签内严格按照以下三个步骤的顺序进行深度推理：
 
-1. [File-Centric & OO Mapping] 锚定中间与叶子节点: 
+1. [File-Centric & OO Mapping] 锚定中间节点: 
    - 将每个文件映射为一个中间节点 (Intermediate Node)，代表物理组件。
    - 【头文件-源文件逻辑缝合】：遇到 `is_out_of_line_definition: true` 的方法时，必须在逻辑上将其与其头文件中归属的 Class 结合，它们是同一实体的两面。
-   - 【叶子节点提取法则】：叶子节点代表具体的执行动作。
-     a. **提取成员函数**：类内的重要方法提取为独立节点（`node_subtype`: "member_function", `belongs_to_class`: "全限定类名"）。
-     b. **提取独立/友元函数**：提取为独立节点（`node_subtype`: "standalone_function", `belongs_to_class`: null）。
+   - 【极限减负指令】：你需要在脑海中梳理底层的 member_function/standalone_function 等以进行连线推理，但绝对不要在最终的输出中罗列任何叶子节点（系统会自动挂载）！
 
 2. [Domain-Centric] 抽象根节点 (Root Clustering):
    - 观察所有 Intermediate 节点（文件），根据目录层级和业务关联性，向上聚合成代表顶层业务子系统的 Root 模块。
@@ -170,7 +157,7 @@ PROMPT_2A_ARCHITECT_CPP = """
    【核心破案法则：决议 unresolved 悬案桶】：
    当你看到 `unresolved_reads` / `unresolved_writes` 中有标识符时，必须执行推理：
    1. 去当前函数的 `belongs_to_class` 对应的 `fields_summary` 里找，若存在，则为修改/读取对象内部状态。
-   2. 若不在类中，去全局 `global_states` 和 `types` (如 Enum) 找，若存在，则为跨文件/跨模块依赖！
+   2. 若不在类中，去全局 `global_states` 和 `types` (如 Enum)找，若存在，则为跨文件/跨模块依赖！
    3. 【友元越权判定】：若一个 `standalone_function` 读写了某个类的内部状态（通过悬案桶发现），这代表 C++ 的 friend 特权访问，必须作为 `data_flow` 连线并在 evidence 中说明。
    
    【架构师红线：内部链接隔离】：
@@ -194,26 +181,6 @@ PROMPT_2A_ARCHITECT_CPP = """
         "id": "Intermediate_transaction_cpp",
         "parent_root": "关联的Root节点ID",
         "file_path": "源文件路径",
-        "semantic_name": "...",
-        "description": "..."
-      }
-    ],
-    "leaf_nodes": [
-      {
-        "id": "Leaf_Transaction_commit",
-        "parent_intermediate": "关联的Intermediate节点ID",
-        "ir_reference": "指向IR原始数据的路径标示（如 classes.Transaction.commit）",
-        "node_subtype": "member_function",
-        "belongs_to_class": "db::core::Transaction",
-        "semantic_name": "...",
-        "description": "..."
-      },
-      {
-        "id": "Leaf_render_mesh_c_api",
-        "parent_intermediate": "关联的Intermediate节点ID",
-        "ir_reference": "standalone_functions.render_mesh_c_api",
-        "node_subtype": "standalone_function",
-        "belongs_to_class": null,
         "semantic_name": "...",
         "description": "..."
       }
@@ -244,8 +211,9 @@ PROMPT_2A_ARCHITECT_CPP = """
 
 切记：
 1. 你的思考过程必须完全包裹在 <thinking> 中。
-2. 如果信息不足以建图，仅输出 <action> JSON 索取代码，绝对不要输出 <output>。
-3. 如果信息充足，输出完整的 <output> JSON。
+2. 绝对不要输出 leaf_nodes 数组！
+3. 如果信息不足以建图，仅输出 <action> JSON 索取代码，绝对不要输出 <output>。
+4. 如果信息充足，输出完整的 <output> JSON。
 """
 
 PROMPT_2A_ARCHITECT_RUST = """
@@ -285,10 +253,10 @@ PROMPT_2A_ARCHITECT_RUST = """
 # Workflow: The Chain of Thought (思维链工作流)
 除非发起 `<action>`，否则你必须在 `<thinking>` 标签内严格按照以下三个步骤的顺序进行深度推理：
 
-1. [File-Centric] 锚定中间与叶子节点 (Intermediate & Leaf Mapping): 
+1. [File-Centric] 锚定中间节点 (Intermediate Mapping): 
    - 以文件 (`file_path`) 为物理核心，映射为中间节点 (ID 格式 `Intermediate_{文件路径简写}`)，总结该模块的核心能力。
-   - 提取该文件内部的所有 `types`, `traits`, `impl_blocks` (及其内部 methods) 和 `standalone_functions` 作为叶子节点 (ID 格式 `Leaf_{名称}`)。
    - 【关键防伪】：密切关注 `compile_guards` (`#[cfg]`)。若节点存在编译守卫，必须在 `semantic_description` 中明确其平台/特性依赖。
+   - 【极限减负指令】：你需要在脑海中梳理底层的 types/traits/impl_blocks/functions 以进行连线推理，但绝对不要在最终的输出中罗列任何叶子节点（系统会自动挂载）！
 
 2. [Domain-Centric] 抽象根节点 (Root Clustering):
    - 观察所有中间节点，根据 Rust 的 `mod` 层级和 `re_exports` 映射，向上聚合成代表顶层业务子系统的 Root 模块（例如将网络层、引擎层隔离）。
@@ -330,15 +298,6 @@ PROMPT_2A_ARCHITECT_RUST = """
         "semantic_name": "子组件名称", 
         "description": "..."
       }
-    ],
-    "leaf_nodes": [
-      {
-        "id": "Leaf_RegexFilter_inspect", 
-        "parent_intermediate": "关联的Intermediate节点ID", 
-        "ir_reference": "指向IR原始数据的路径标示 (如 impl_blocks.RegexFilter.inspect)", 
-        "semantic_name": "底层核心功能名称", 
-        "description": "必须包含该节点的并发/可变性特征及编译守卫说明"
-      }
     ]
   },
   "edges": {
@@ -356,7 +315,7 @@ PROMPT_2A_ARCHITECT_RUST = """
         "source": "起点Intermediate节点ID", 
         "target": "终点Intermediate节点ID", 
         "relation_type": "execution_order", 
-        "description": "描述模块内的同步调用流或错误冒泡冒泡路径", 
+        "description": "描述模块内的同步调用流或错误冒泡路径", 
         "evidence": "阐述判定该流转的物理依据 (如 direct_calls 或 ?)"
       }
     ]
@@ -366,8 +325,9 @@ PROMPT_2A_ARCHITECT_RUST = """
 
 切记：
 1. 你的思考过程必须完全包裹在 <thinking> 中。
-2. 如果信息不足以建图，仅输出 <action> JSON 索取代码，绝对不要输出 <output>。
-3. 如果信息充足，输出完整的 <output> JSON。
+2. 绝对不要输出 leaf_nodes 数组！
+3. 如果信息不足以建图，仅输出 <action> JSON 索取代码，绝对不要输出 <output>。
+4. 如果信息充足，输出完整的 <output> JSON。
 """
 
 PROMPT_2A_ARCHITECT = """
@@ -449,8 +409,8 @@ PROMPT_2B_EXTRACTOR = """
 # 阶段二 Prompt 智能路由表
 PROMPT_ROUTER = {
     "c": PROMPT_2A_ARCHITECT_C,
-    "cpp": PROMPT_2A_ARCHITECT_CPP, # 预留位置
-    "rust": PROMPT_2A_ARCHITECT_RUST, # 预留位置
+    "cpp": PROMPT_2A_ARCHITECT_CPP,
+    "rust": PROMPT_2A_ARCHITECT_RUST,
     "default": PROMPT_2A_ARCHITECT
 }
 

@@ -1,0 +1,2270 @@
+{
+  "nodes": {
+    "root_nodes": [
+      {
+        "id": "Root_01",
+        "semantic_name": "Core Data Model Layer",
+        "description": "The foundational JSON value representation layer. Contains the JsonValue enum with all variants (Null, Short, String, Number, Boolean, Object, Array), the custom Object implementation with inline key optimization, the Number type with Grisu2-based float conversion, the Short string optimization, and all From/PartialEq trait implementations for type conversions. This layer owns the data structures that both parsing and serialization depend on."
+      },
+      {
+        "id": "Root_02",
+        "semantic_name": "Parsing Engine",
+        "description": "JSON text parsing subsystem. Contains the private Parser struct with raw pointer-based buffer management for high-performance tokenization, and the public parse() function. Produces JsonValue instances from &str input. Uses Error types for reporting parse failures including unexpected characters, depth limit exceeded, and type mismatches."
+      },
+      {
+        "id": "Root_03",
+        "semantic_name": "Serialization Engine",
+        "description": "JSON serialization subsystem implementing the Generator trait pattern. Provides four generator implementations: DumpGenerator (compact String output), PrettyGenerator (indented String output), WriterGenerator (compact io::Write output), and PrettyWriterGenerator (indented io::Write output). Handles string escaping, number formatting, and recursive object/array serialization."
+      },
+      {
+        "id": "Root_04",
+        "semantic_name": "Number Formatting Utilities",
+        "description": "Low-level number formatting infrastructure. Contains the DiyFp (Do-It-Yourself Floating Point) type for high-precision float manipulation, the Grisu2 algorithm implementation for efficient float-to-decimal conversion, and the print_dec module for writing decimal numbers to output streams using lookup tables."
+      },
+      {
+        "id": "Root_05",
+        "semantic_name": "Public API Surface",
+        "description": "The crate's public interface. Re-exports key types (JsonValue, Error, parse) and provides top-level convenience functions: from() for type conversion via Into<JsonValue>, stringify() for compact JSON output, and stringify_pretty() for formatted JSON output. Also exports the array!, object!, and value! macros for ergonomic JSON construction."
+      }
+    ],
+    "intermediate_nodes": [
+      {
+        "id": "Intermediate_value",
+        "parent_root": "Root_01",
+        "file_path": "src/value/mod.rs",
+        "semantic_name": "JsonValue Enum Core",
+        "description": "The central JsonValue enum with 7 variants and comprehensive API including dump/pretty serialization, type conversion methods (as_str, as_number, as_f64, etc.), collection operations (push, pop, insert, remove), and Index/IndexMut implementations for both array and object access patterns."
+      },
+      {
+        "id": "Intermediate_implements",
+        "parent_root": "Root_01",
+        "file_path": "src/value/implements.rs",
+        "semantic_name": "Type Conversion Implementations",
+        "description": "From trait implementations for converting common Rust types into JsonValue: &str, Option<T>, Vec<T>, &[T], HashMap, BTreeMap. Also provides PartialEq implementations for string comparisons against JsonValue."
+      },
+      {
+        "id": "Intermediate_object",
+        "parent_root": "Root_01",
+        "file_path": "src/object.rs",
+        "semantic_name": "Optimized JSON Object",
+        "description": "Custom Object implementation using a Vec<Node> with inline key storage optimization. Keys are stored in a stack buffer for small strings (KEY_BUF_LEN) and heap-allocated for larger ones. Provides insert, get, remove, iter, dump, and pretty operations. Implements Index, IndexMut, FromIterator, and PartialEq."
+      },
+      {
+        "id": "Intermediate_number",
+        "parent_root": "Root_01",
+        "file_path": "src/number.rs",
+        "semantic_name": "JSON Number Type",
+        "description": "Custom Number struct with category/exponent/mantissa representation. Supports conversion to/from f64, f32, and various integer types. Uses Grisu2 algorithm for float-to-decimal conversion. Provides fixed-point arithmetic via as_fixed_point_u64 and as_fixed_point_i64."
+      },
+      {
+        "id": "Intermediate_short",
+        "parent_root": "Root_01",
+        "file_path": "src/short.rs",
+        "semantic_name": "Short String Optimization",
+        "description": "Inline string optimization for strings up to MAX_LEN bytes. The Short struct stores string data directly in a fixed-size array, avoiding heap allocation for small strings. Implements Deref<Target=str> for transparent string access."
+      },
+      {
+        "id": "Intermediate_parser",
+        "parent_root": "Root_02",
+        "file_path": "src/parser.rs",
+        "semantic_name": "JSON Parser Implementation",
+        "description": "Private Parser struct with raw pointer-based buffer scanning for high-performance JSON parsing. Uses macros for byte-level tokenization (expect_byte, expect_string, expect_number). Reads DEPTH_LIMIT global for recursion control. The public parse() function creates a Parser and drives the parsing state machine."
+      },
+      {
+        "id": "Intermediate_error",
+        "parent_root": "Root_02",
+        "file_path": "src/error.rs",
+        "semantic_name": "Error Types and Display",
+        "description": "Error enum with 5 variants for JSON parsing failures. Implements Display for human-readable error messages and the standard Error trait. Provides the wrong_type() constructor for type mismatch errors."
+      },
+      {
+        "id": "Intermediate_codegen",
+        "parent_root": "Root_03",
+        "file_path": "src/codegen.rs",
+        "semantic_name": "JSON Code Generation",
+        "description": "Generator trait defining the serialization interface with write_json, write_string, write_number, write_object methods. Four implementations: DumpGenerator (compact String), PrettyGenerator (indented String), WriterGenerator (compact io::Write), PrettyWriterGenerator (indented io::Write). Handles string escaping via ESCAPED lookup table."
+      },
+      {
+        "id": "Intermediate_util",
+        "parent_root": "Root_04",
+        "file_path": "src/util/mod.rs",
+        "semantic_name": "Utilities Module Hub",
+        "description": "Module re-export hub for the number formatting utilities: diyfp (DIY floating point), grisu2 (float-to-decimal conversion), and print_dec (decimal number writing)."
+      },
+      {
+        "id": "Intermediate_diyfp",
+        "parent_root": "Root_04",
+        "file_path": "src/util/diyfp.rs",
+        "semantic_name": "DIY Floating Point",
+        "description": "DiyFp struct for high-precision floating point manipulation. Provides from_f64 (unsafe, uses transmute), normalize, normalized_boundaries, and arithmetic operations. Uses cached powers for efficient computation."
+      },
+      {
+        "id": "Intermediate_grisu2",
+        "parent_root": "Root_04",
+        "file_path": "src/util/grisu2.rs",
+        "semantic_name": "Grisu2 Float Conversion",
+        "description": "Implementation of the Grisu2 algorithm for converting f64 values to (u64, i16) representation. Contains digit_gen and grisu_round functions (both unsafe) for efficient decimal digit generation."
+      },
+      {
+        "id": "Intermediate_print_dec",
+        "parent_root": "Root_04",
+        "file_path": "src/util/print_dec.rs",
+        "semantic_name": "Decimal Number Printer",
+        "description": "Unsafe write function for writing decimal numbers to io::Write streams. Uses DEC_DIGITS_LUT lookup table for fast digit-to-byte conversion and ZEROFILL for padding. Handles sign, mantissa, and exponent components."
+      },
+      {
+        "id": "Intermediate_lib",
+        "parent_root": "Root_05",
+        "file_path": "src/lib.rs",
+        "semantic_name": "Crate Root and Public API",
+        "description": "The crate root module. Re-exports Error, JsonValue, Null, JsonError, JsonResult, and parse. Defines type aliases for iteration (Members, Entries, etc.). Provides top-level functions: from (generic Into<JsonValue> conversion), stringify (compact JSON output), and stringify_pretty (formatted JSON output). Exports array!, object!, and value! macros."
+      }
+    ],
+    "leaf_nodes": [
+      {
+        "id": "Leaf_JsonValue_eq",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &Self) -> bool"
+      },
+      {
+        "id": "Leaf_JsonValue_fmt",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.fmt",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "fmt",
+        "original_signature": "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result"
+      },
+      {
+        "id": "Leaf_JsonValue_new_object",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.new_object",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "new_object",
+        "original_signature": "pub fn new_object() -> JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_new_array",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.new_array",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "new_array",
+        "original_signature": "pub fn new_array() -> JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_dump",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.dump",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "dump",
+        "original_signature": "pub fn dump(&self) -> String"
+      },
+      {
+        "id": "Leaf_JsonValue_pretty",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.pretty",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "pretty",
+        "original_signature": "pub fn pretty(&self, spaces: u16) -> String"
+      },
+      {
+        "id": "Leaf_JsonValue_to_writer",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.to_writer",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "to_writer",
+        "original_signature": "pub fn to_writer<W: Write>(&self, writer: &mut W)"
+      },
+      {
+        "id": "Leaf_JsonValue_write",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.write",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "write",
+        "original_signature": "pub fn write<W: Write>(&self, writer: &mut W) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_JsonValue_write_pretty",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.write_pretty",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "write_pretty",
+        "original_signature": "pub fn write_pretty<W: Write>(&self, writer: &mut W, spaces: u16) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_JsonValue_is_string",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.is_string",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "is_string",
+        "original_signature": "pub fn is_string(&self) -> bool"
+      },
+      {
+        "id": "Leaf_JsonValue_is_number",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.is_number",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "is_number",
+        "original_signature": "pub fn is_number(&self) -> bool"
+      },
+      {
+        "id": "Leaf_JsonValue_is_boolean",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.is_boolean",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "is_boolean",
+        "original_signature": "pub fn is_boolean(&self) -> bool"
+      },
+      {
+        "id": "Leaf_JsonValue_is_null",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.is_null",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "is_null",
+        "original_signature": "pub fn is_null(&self) -> bool"
+      },
+      {
+        "id": "Leaf_JsonValue_is_object",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.is_object",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "is_object",
+        "original_signature": "pub fn is_object(&self) -> bool"
+      },
+      {
+        "id": "Leaf_JsonValue_is_array",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.is_array",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "is_array",
+        "original_signature": "pub fn is_array(&self) -> bool"
+      },
+      {
+        "id": "Leaf_JsonValue_is_empty",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.is_empty",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "is_empty",
+        "original_signature": "pub fn is_empty(&self) -> bool"
+      },
+      {
+        "id": "Leaf_JsonValue_as_str",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_str",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_str",
+        "original_signature": "pub fn as_str(&self) -> Option<&str>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_number",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_number",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_number",
+        "original_signature": "pub fn as_number(&self) -> Option<Number>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_f64",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_f64",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_f64",
+        "original_signature": "pub fn as_f64(&self) -> Option<f64>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_f32",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_f32",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_f32",
+        "original_signature": "pub fn as_f32(&self) -> Option<f32>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_u64",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_u64",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_u64",
+        "original_signature": "pub fn as_u64(&self) -> Option<u64>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_u32",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_u32",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_u32",
+        "original_signature": "pub fn as_u32(&self) -> Option<u32>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_u16",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_u16",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_u16",
+        "original_signature": "pub fn as_u16(&self) -> Option<u16>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_u8",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_u8",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_u8",
+        "original_signature": "pub fn as_u8(&self) -> Option<u8>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_usize",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_usize",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_usize",
+        "original_signature": "pub fn as_usize(&self) -> Option<usize>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_i64",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_i64",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_i64",
+        "original_signature": "pub fn as_i64(&self) -> Option<i64>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_i32",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_i32",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_i32",
+        "original_signature": "pub fn as_i32(&self) -> Option<i32>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_i16",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_i16",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_i16",
+        "original_signature": "pub fn as_i16(&self) -> Option<i16>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_i8",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_i8",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_i8",
+        "original_signature": "pub fn as_i8(&self) -> Option<i8>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_isize",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_isize",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_isize",
+        "original_signature": "pub fn as_isize(&self) -> Option<isize>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_bool",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_bool",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_bool",
+        "original_signature": "pub fn as_bool(&self) -> Option<bool>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_fixed_point_u64",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_fixed_point_u64",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_fixed_point_u64",
+        "original_signature": "pub fn as_fixed_point_u64(&self, point: u16) -> Option<u64>"
+      },
+      {
+        "id": "Leaf_JsonValue_as_fixed_point_i64",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.as_fixed_point_i64",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "as_fixed_point_i64",
+        "original_signature": "pub fn as_fixed_point_i64(&self, point: u16) -> Option<i64>"
+      },
+      {
+        "id": "Leaf_JsonValue_take",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.take",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "take",
+        "original_signature": "pub fn take(&mut self) -> JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_take_string",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.take_string",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "take_string",
+        "original_signature": "pub fn take_string(&mut self) -> Option<String>"
+      },
+      {
+        "id": "Leaf_JsonValue_push",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.push",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "push",
+        "original_signature": "pub fn push<T>(&mut self, value: T) -> Result<()>\r\n    where T: Into<JsonValue>"
+      },
+      {
+        "id": "Leaf_JsonValue_pop",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.pop",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "pop",
+        "original_signature": "pub fn pop(&mut self) -> JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_contains",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.contains",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "contains",
+        "original_signature": "pub fn contains<T>(&self, item: T) -> bool where T: PartialEq<JsonValue>"
+      },
+      {
+        "id": "Leaf_JsonValue_has_key",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.has_key",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "has_key",
+        "original_signature": "pub fn has_key(&self, key: &str) -> bool"
+      },
+      {
+        "id": "Leaf_JsonValue_len",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.len",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "len",
+        "original_signature": "pub fn len(&self) -> usize"
+      },
+      {
+        "id": "Leaf_JsonValue_members",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.members",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "members",
+        "original_signature": "pub fn members(&self) -> Members"
+      },
+      {
+        "id": "Leaf_JsonValue_members_mut",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.members_mut",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "members_mut",
+        "original_signature": "pub fn members_mut(&mut self) -> MembersMut"
+      },
+      {
+        "id": "Leaf_JsonValue_entries",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.entries",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "entries",
+        "original_signature": "pub fn entries(&self) -> Entries"
+      },
+      {
+        "id": "Leaf_JsonValue_entries_mut",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.entries_mut",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "entries_mut",
+        "original_signature": "pub fn entries_mut(&mut self) -> EntriesMut"
+      },
+      {
+        "id": "Leaf_JsonValue_insert",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.insert",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "insert",
+        "original_signature": "pub fn insert<T>(&mut self, key: &str, value: T) -> Result<()>\r\n    where T: Into<JsonValue>"
+      },
+      {
+        "id": "Leaf_JsonValue_remove",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.remove",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "remove",
+        "original_signature": "pub fn remove(&mut self, key: &str) -> JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_array_remove",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.array_remove",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "array_remove",
+        "original_signature": "pub fn array_remove(&mut self, index: usize) -> JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_clear",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.clear",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "clear",
+        "original_signature": "pub fn clear(&mut self)"
+      },
+      {
+        "id": "Leaf_JsonValue_index",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.index",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "index",
+        "original_signature": "fn index(&self, index: usize) -> &JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_index_mut",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.index_mut",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "index_mut",
+        "original_signature": "fn index_mut(&mut self, index: usize) -> &mut JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_index",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.index",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "index",
+        "original_signature": "fn index(&self, index: &str) -> &JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_index",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.index",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "index",
+        "original_signature": "fn index(&self, index: String) -> &JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_index",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.index",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "index",
+        "original_signature": "fn index(&self, index: &String) -> &JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_index_mut",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.index_mut",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "index_mut",
+        "original_signature": "fn index_mut(&mut self, index: &str) -> &mut JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_index_mut",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.index_mut",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "index_mut",
+        "original_signature": "fn index_mut(&mut self, index: String) -> &mut JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_index_mut",
+        "parent_intermediate": "Intermediate_value",
+        "ir_reference": "classes.JsonValue.index_mut",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "index_mut",
+        "original_signature": "fn index_mut(&mut self, index: &String) -> &mut JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_from",
+        "parent_intermediate": "Intermediate_implements",
+        "ir_reference": "classes.JsonValue.from",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "from",
+        "original_signature": "fn from(val: &'a str) -> JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_from",
+        "parent_intermediate": "Intermediate_implements",
+        "ir_reference": "classes.JsonValue.from",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "from",
+        "original_signature": "fn from(val: Option<T>) -> JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_from",
+        "parent_intermediate": "Intermediate_implements",
+        "ir_reference": "classes.JsonValue.from",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "from",
+        "original_signature": "fn from(val: Vec<T>) -> JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_from",
+        "parent_intermediate": "Intermediate_implements",
+        "ir_reference": "classes.JsonValue.from",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "from",
+        "original_signature": "fn from(val: &'a [T]) -> JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_from",
+        "parent_intermediate": "Intermediate_implements",
+        "ir_reference": "classes.JsonValue.from",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "from",
+        "original_signature": "fn from(val: HashMap<K, V>) -> JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_from",
+        "parent_intermediate": "Intermediate_implements",
+        "ir_reference": "classes.JsonValue.from",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "from",
+        "original_signature": "fn from(val: BTreeMap<K, V>) -> JsonValue"
+      },
+      {
+        "id": "Leaf_JsonValue_eq",
+        "parent_intermediate": "Intermediate_implements",
+        "ir_reference": "classes.JsonValue.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &&str) -> bool"
+      },
+      {
+        "id": "Leaf_&'a str_eq",
+        "parent_intermediate": "Intermediate_implements",
+        "ir_reference": "classes.&'a str.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "&'a str",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &JsonValue) -> bool"
+      },
+      {
+        "id": "Leaf_JsonValue_eq",
+        "parent_intermediate": "Intermediate_implements",
+        "ir_reference": "classes.JsonValue.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "JsonValue",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &str) -> bool"
+      },
+      {
+        "id": "Leaf_str_eq",
+        "parent_intermediate": "Intermediate_implements",
+        "ir_reference": "classes.str.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "str",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &JsonValue) -> bool"
+      },
+      {
+        "id": "Leaf_hash_key",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "functions.hash_key",
+        "node_subtype": "standalone_function",
+        "name": "hash_key",
+        "original_signature": "fn hash_key(key: &[u8]) -> u64"
+      },
+      {
+        "id": "Leaf_Key_new",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Key.new",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Key",
+        "name": "new",
+        "original_signature": "fn new(hash: u64, len: usize) -> Self"
+      },
+      {
+        "id": "Leaf_Key_as_bytes",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Key.as_bytes",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Key",
+        "name": "as_bytes",
+        "original_signature": "fn as_bytes(&self) -> &[u8]"
+      },
+      {
+        "id": "Leaf_Key_as_str",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Key.as_str",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Key",
+        "name": "as_str",
+        "original_signature": "fn as_str(&self) -> &str"
+      },
+      {
+        "id": "Leaf_Key_attach",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Key.attach",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Key",
+        "name": "attach",
+        "original_signature": "fn attach(&mut self, key: &[u8])"
+      },
+      {
+        "id": "Leaf_Key_fix_ptr",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Key.fix_ptr",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Key",
+        "name": "fix_ptr",
+        "original_signature": "fn fix_ptr(&mut self)"
+      },
+      {
+        "id": "Leaf_Key_drop",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Key.drop",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Key",
+        "name": "drop",
+        "original_signature": "fn drop(&mut self)"
+      },
+      {
+        "id": "Leaf_Key_clone",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Key.clone",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Key",
+        "name": "clone",
+        "original_signature": "fn clone(&self) -> Self"
+      },
+      {
+        "id": "Leaf_Node_fmt",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Node.fmt",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Node",
+        "name": "fmt",
+        "original_signature": "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result"
+      },
+      {
+        "id": "Leaf_Node_eq",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Node.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Node",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &Node) -> bool"
+      },
+      {
+        "id": "Leaf_Node_new",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Node.new",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Node",
+        "name": "new",
+        "original_signature": "fn new(value: JsonValue, hash: u64, len: usize) -> Node"
+      },
+      {
+        "id": "Leaf_Object_new",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.new",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "new",
+        "original_signature": "pub fn new() -> Self"
+      },
+      {
+        "id": "Leaf_Object_with_capacity",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.with_capacity",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "with_capacity",
+        "original_signature": "pub fn with_capacity(capacity: usize) -> Self"
+      },
+      {
+        "id": "Leaf_Object_node_at_index_mut",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.node_at_index_mut",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "node_at_index_mut",
+        "original_signature": "fn node_at_index_mut(&mut self, index: usize) -> *mut Node"
+      },
+      {
+        "id": "Leaf_Object_add_node",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.add_node",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "add_node",
+        "original_signature": "fn add_node(&mut self, key: &[u8], value: JsonValue, hash: u64) -> usize"
+      },
+      {
+        "id": "Leaf_Object_insert",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.insert",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "insert",
+        "original_signature": "pub fn insert(&mut self, key: &str, value: JsonValue)"
+      },
+      {
+        "id": "Leaf_Object_insert_index",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.insert_index",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "insert_index",
+        "original_signature": "pub(crate) fn insert_index(&mut self, key: &str, value: JsonValue) -> usize"
+      },
+      {
+        "id": "Leaf_Object_override_at",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.override_at",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "override_at",
+        "original_signature": "pub(crate) fn override_at(&mut self, index: usize, value: JsonValue)"
+      },
+      {
+        "id": "Leaf_Object_override_last",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.override_last",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "override_last",
+        "original_signature": "pub fn override_last(&mut self, value: JsonValue)"
+      },
+      {
+        "id": "Leaf_Object_get",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.get",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "get",
+        "original_signature": "pub fn get(&self, key: &str) -> Option<&JsonValue>"
+      },
+      {
+        "id": "Leaf_Object_get_mut",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.get_mut",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "get_mut",
+        "original_signature": "pub fn get_mut(&mut self, key: &str) -> Option<&mut JsonValue>"
+      },
+      {
+        "id": "Leaf_Object_remove",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.remove",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "remove",
+        "original_signature": "pub fn remove(&mut self, key: &str) -> Option<JsonValue>"
+      },
+      {
+        "id": "Leaf_Object_len",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.len",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "len",
+        "original_signature": "pub fn len(&self) -> usize"
+      },
+      {
+        "id": "Leaf_Object_is_empty",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.is_empty",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "is_empty",
+        "original_signature": "pub fn is_empty(&self) -> bool"
+      },
+      {
+        "id": "Leaf_Object_clear",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.clear",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "clear",
+        "original_signature": "pub fn clear(&mut self)"
+      },
+      {
+        "id": "Leaf_Object_iter",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.iter",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "iter",
+        "original_signature": "pub fn iter(&self) -> Iter"
+      },
+      {
+        "id": "Leaf_Object_iter_mut",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.iter_mut",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "iter_mut",
+        "original_signature": "pub fn iter_mut(&mut self) -> IterMut"
+      },
+      {
+        "id": "Leaf_Object_dump",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.dump",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "dump",
+        "original_signature": "pub fn dump(&self) -> String"
+      },
+      {
+        "id": "Leaf_Object_pretty",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.pretty",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "pretty",
+        "original_signature": "pub fn pretty(&self, spaces: u16) -> String"
+      },
+      {
+        "id": "Leaf_Object_clone",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.clone",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "clone",
+        "original_signature": "fn clone(&self) -> Self"
+      },
+      {
+        "id": "Leaf_Object_from_iter",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.from_iter",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "from_iter",
+        "original_signature": "fn from_iter<I: IntoIterator<Item=(K, V)>>(iter: I) -> Self"
+      },
+      {
+        "id": "Leaf_Object_eq",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &Object) -> bool"
+      },
+      {
+        "id": "Leaf_Iter_empty",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Iter.empty",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Iter",
+        "name": "empty",
+        "original_signature": "pub fn empty() -> Self"
+      },
+      {
+        "id": "Leaf_Iter_next",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Iter.next",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Iter",
+        "name": "next",
+        "original_signature": "fn next(&mut self) -> Option<Self::Item>"
+      },
+      {
+        "id": "Leaf_Iter_next_back",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Iter.next_back",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Iter",
+        "name": "next_back",
+        "original_signature": "fn next_back(&mut self) -> Option<Self::Item>"
+      },
+      {
+        "id": "Leaf_Iter_len",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Iter.len",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Iter",
+        "name": "len",
+        "original_signature": "fn len(&self) -> usize"
+      },
+      {
+        "id": "Leaf_IterMut_empty",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.IterMut.empty",
+        "node_subtype": "member_function",
+        "belongs_to_class": "IterMut",
+        "name": "empty",
+        "original_signature": "pub fn empty() -> Self"
+      },
+      {
+        "id": "Leaf_IterMut_next",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.IterMut.next",
+        "node_subtype": "member_function",
+        "belongs_to_class": "IterMut",
+        "name": "next",
+        "original_signature": "fn next(&mut self) -> Option<Self::Item>"
+      },
+      {
+        "id": "Leaf_IterMut_next_back",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.IterMut.next_back",
+        "node_subtype": "member_function",
+        "belongs_to_class": "IterMut",
+        "name": "next_back",
+        "original_signature": "fn next_back(&mut self) -> Option<Self::Item>"
+      },
+      {
+        "id": "Leaf_IterMut_len",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.IterMut.len",
+        "node_subtype": "member_function",
+        "belongs_to_class": "IterMut",
+        "name": "len",
+        "original_signature": "fn len(&self) -> usize"
+      },
+      {
+        "id": "Leaf_Object_index",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.index",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "index",
+        "original_signature": "fn index(&self, index: &str) -> &JsonValue"
+      },
+      {
+        "id": "Leaf_Object_index",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.index",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "index",
+        "original_signature": "fn index(&self, index: String) -> &JsonValue"
+      },
+      {
+        "id": "Leaf_Object_index",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.index",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "index",
+        "original_signature": "fn index(&self, index: &String) -> &JsonValue"
+      },
+      {
+        "id": "Leaf_Object_index_mut",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.index_mut",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "index_mut",
+        "original_signature": "fn index_mut(&mut self, index: &str) -> &mut JsonValue"
+      },
+      {
+        "id": "Leaf_Object_index_mut",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.index_mut",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "index_mut",
+        "original_signature": "fn index_mut(&mut self, index: String) -> &mut JsonValue"
+      },
+      {
+        "id": "Leaf_Object_index_mut",
+        "parent_intermediate": "Intermediate_object",
+        "ir_reference": "classes.Object.index_mut",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Object",
+        "name": "index_mut",
+        "original_signature": "fn index_mut(&mut self, index: &String) -> &mut JsonValue"
+      },
+      {
+        "id": "Leaf_exponentiate_f64",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "functions.exponentiate_f64",
+        "node_subtype": "standalone_function",
+        "name": "exponentiate_f64",
+        "original_signature": "fn exponentiate_f64(n: f64, e: i16) -> f64"
+      },
+      {
+        "id": "Leaf_exponentiate_f32",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "functions.exponentiate_f32",
+        "node_subtype": "standalone_function",
+        "name": "exponentiate_f32",
+        "original_signature": "fn exponentiate_f32(n: f32, e: i16) -> f32"
+      },
+      {
+        "id": "Leaf_decimal_power",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "functions.decimal_power",
+        "node_subtype": "standalone_function",
+        "name": "decimal_power",
+        "original_signature": "fn decimal_power(mut e: u16) -> u64"
+      },
+      {
+        "id": "Leaf_Number_from_parts_unchecked",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.from_parts_unchecked",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "from_parts_unchecked",
+        "original_signature": "pub unsafe fn from_parts_unchecked(positive: bool, mantissa: u64, exponent: i16) -> Self"
+      },
+      {
+        "id": "Leaf_Number_from_parts",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.from_parts",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "from_parts",
+        "original_signature": "pub fn from_parts(positive: bool, mut mantissa: u64, mut exponent: i16) -> Self"
+      },
+      {
+        "id": "Leaf_Number_as_parts",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.as_parts",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "as_parts",
+        "original_signature": "pub fn as_parts(&self) -> (bool, u64, i16)"
+      },
+      {
+        "id": "Leaf_Number_is_sign_positive",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.is_sign_positive",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "is_sign_positive",
+        "original_signature": "pub fn is_sign_positive(&self) -> bool"
+      },
+      {
+        "id": "Leaf_Number_is_zero",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.is_zero",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "is_zero",
+        "original_signature": "pub fn is_zero(&self) -> bool"
+      },
+      {
+        "id": "Leaf_Number_is_nan",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.is_nan",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "is_nan",
+        "original_signature": "pub fn is_nan(&self) -> bool"
+      },
+      {
+        "id": "Leaf_Number_is_empty",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.is_empty",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "is_empty",
+        "original_signature": "pub fn is_empty(&self) -> bool"
+      },
+      {
+        "id": "Leaf_Number_as_fixed_point_u64",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.as_fixed_point_u64",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "as_fixed_point_u64",
+        "original_signature": "pub fn as_fixed_point_u64(&self, point: u16) -> Option<u64>"
+      },
+      {
+        "id": "Leaf_Number_as_fixed_point_i64",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.as_fixed_point_i64",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "as_fixed_point_i64",
+        "original_signature": "pub fn as_fixed_point_i64(&self, point: u16) -> Option<i64>"
+      },
+      {
+        "id": "Leaf_Number_eq",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &Number) -> bool"
+      },
+      {
+        "id": "Leaf_Number_fmt",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.fmt",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "fmt",
+        "original_signature": "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result"
+      },
+      {
+        "id": "Leaf_f64_from",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.f64.from",
+        "node_subtype": "member_function",
+        "belongs_to_class": "f64",
+        "name": "from",
+        "original_signature": "fn from(num: Number) -> f64"
+      },
+      {
+        "id": "Leaf_f32_from",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.f32.from",
+        "node_subtype": "member_function",
+        "belongs_to_class": "f32",
+        "name": "from",
+        "original_signature": "fn from(num: Number) -> f32"
+      },
+      {
+        "id": "Leaf_Number_from",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.from",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "from",
+        "original_signature": "fn from(float: f64) -> Number"
+      },
+      {
+        "id": "Leaf_Number_from",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.from",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "from",
+        "original_signature": "fn from(float: f32) -> Number"
+      },
+      {
+        "id": "Leaf_Number_eq",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &f64) -> bool"
+      },
+      {
+        "id": "Leaf_Number_eq",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &f32) -> bool"
+      },
+      {
+        "id": "Leaf_f64_eq",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.f64.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "f64",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &Number) -> bool"
+      },
+      {
+        "id": "Leaf_f32_eq",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.f32.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "f32",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &Number) -> bool"
+      },
+      {
+        "id": "Leaf_NumberOutOfScope_from",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.NumberOutOfScope.from",
+        "node_subtype": "member_function",
+        "belongs_to_class": "NumberOutOfScope",
+        "name": "from",
+        "original_signature": "fn from(_: Infallible) -> NumberOutOfScope"
+      },
+      {
+        "id": "Leaf_NumberOutOfScope_from",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.NumberOutOfScope.from",
+        "node_subtype": "member_function",
+        "belongs_to_class": "NumberOutOfScope",
+        "name": "from",
+        "original_signature": "fn from(_: TryFromIntError) -> NumberOutOfScope"
+      },
+      {
+        "id": "Leaf_Number_neg",
+        "parent_intermediate": "Intermediate_number",
+        "ir_reference": "classes.Number.neg",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Number",
+        "name": "neg",
+        "original_signature": "fn neg(self) -> Number"
+      },
+      {
+        "id": "Leaf_Short_from_slice",
+        "parent_intermediate": "Intermediate_short",
+        "ir_reference": "classes.Short.from_slice",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Short",
+        "name": "from_slice",
+        "original_signature": "pub unsafe fn from_slice(slice: &str) -> Self"
+      },
+      {
+        "id": "Leaf_Short_as_str",
+        "parent_intermediate": "Intermediate_short",
+        "ir_reference": "classes.Short.as_str",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Short",
+        "name": "as_str",
+        "original_signature": "pub fn as_str(&self) -> &str"
+      },
+      {
+        "id": "Leaf_Short_eq",
+        "parent_intermediate": "Intermediate_short",
+        "ir_reference": "classes.Short.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Short",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &Short) -> bool"
+      },
+      {
+        "id": "Leaf_Short_fmt",
+        "parent_intermediate": "Intermediate_short",
+        "ir_reference": "classes.Short.fmt",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Short",
+        "name": "fmt",
+        "original_signature": "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result"
+      },
+      {
+        "id": "Leaf_Short_fmt",
+        "parent_intermediate": "Intermediate_short",
+        "ir_reference": "classes.Short.fmt",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Short",
+        "name": "fmt",
+        "original_signature": "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result"
+      },
+      {
+        "id": "Leaf_Short_deref",
+        "parent_intermediate": "Intermediate_short",
+        "ir_reference": "classes.Short.deref",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Short",
+        "name": "deref",
+        "original_signature": "fn deref(&self) -> &str"
+      },
+      {
+        "id": "Leaf_String_from",
+        "parent_intermediate": "Intermediate_short",
+        "ir_reference": "classes.String.from",
+        "node_subtype": "member_function",
+        "belongs_to_class": "String",
+        "name": "from",
+        "original_signature": "fn from(short: Short) -> String"
+      },
+      {
+        "id": "Leaf_Short_eq",
+        "parent_intermediate": "Intermediate_short",
+        "ir_reference": "classes.Short.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Short",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &str) -> bool"
+      },
+      {
+        "id": "Leaf_str_eq",
+        "parent_intermediate": "Intermediate_short",
+        "ir_reference": "classes.str.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "str",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &Short) -> bool"
+      },
+      {
+        "id": "Leaf_Short_eq",
+        "parent_intermediate": "Intermediate_short",
+        "ir_reference": "classes.Short.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Short",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &String) -> bool"
+      },
+      {
+        "id": "Leaf_String_eq",
+        "parent_intermediate": "Intermediate_short",
+        "ir_reference": "classes.String.eq",
+        "node_subtype": "member_function",
+        "belongs_to_class": "String",
+        "name": "eq",
+        "original_signature": "fn eq(&self, other: &Short) -> bool"
+      },
+      {
+        "id": "Leaf_parse",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "functions.parse",
+        "node_subtype": "standalone_function",
+        "name": "parse",
+        "original_signature": "pub fn parse(source: &str) -> Result<JsonValue>"
+      },
+      {
+        "id": "Leaf_it_should_parse_escaped_forward_slashes_with_quotes",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "functions.it_should_parse_escaped_forward_slashes_with_quotes",
+        "node_subtype": "standalone_function",
+        "name": "it_should_parse_escaped_forward_slashes_with_quotes",
+        "original_signature": "fn it_should_parse_escaped_forward_slashes_with_quotes()"
+      },
+      {
+        "id": "Leaf_it_should_parse_escaped_quotes",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "functions.it_should_parse_escaped_quotes",
+        "node_subtype": "standalone_function",
+        "name": "it_should_parse_escaped_quotes",
+        "original_signature": "fn it_should_parse_escaped_quotes()"
+      },
+      {
+        "id": "Leaf_it_should_parse_basic_json_values",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "functions.it_should_parse_basic_json_values",
+        "node_subtype": "standalone_function",
+        "name": "it_should_parse_basic_json_values",
+        "original_signature": "fn it_should_parse_basic_json_values()"
+      },
+      {
+        "id": "Leaf_it_should_parse_json_arrays",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "functions.it_should_parse_json_arrays",
+        "node_subtype": "standalone_function",
+        "name": "it_should_parse_json_arrays",
+        "original_signature": "fn it_should_parse_json_arrays()"
+      },
+      {
+        "id": "Leaf_it_should_parse_json_nested_object",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "functions.it_should_parse_json_nested_object",
+        "node_subtype": "standalone_function",
+        "name": "it_should_parse_json_nested_object",
+        "original_signature": "fn it_should_parse_json_nested_object()"
+      },
+      {
+        "id": "Leaf_it_should_parse_json_complex_object",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "functions.it_should_parse_json_complex_object",
+        "node_subtype": "standalone_function",
+        "name": "it_should_parse_json_complex_object",
+        "original_signature": "fn it_should_parse_json_complex_object()"
+      },
+      {
+        "id": "Leaf_Parser_new",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "classes.Parser.new",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Parser",
+        "name": "new",
+        "original_signature": "pub fn new(source: &'a str) -> Self"
+      },
+      {
+        "id": "Leaf_Parser_is_eof",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "classes.Parser.is_eof",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Parser",
+        "name": "is_eof",
+        "original_signature": "fn is_eof(&mut self) -> bool"
+      },
+      {
+        "id": "Leaf_Parser_read_byte",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "classes.Parser.read_byte",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Parser",
+        "name": "read_byte",
+        "original_signature": "fn read_byte(&mut self) -> u8"
+      },
+      {
+        "id": "Leaf_Parser_bump",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "classes.Parser.bump",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Parser",
+        "name": "bump",
+        "original_signature": "fn bump(&mut self)"
+      },
+      {
+        "id": "Leaf_Parser_unexpected_character",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "classes.Parser.unexpected_character",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Parser",
+        "name": "unexpected_character",
+        "original_signature": "fn unexpected_character<T: Sized>(&mut self) -> Result<T>"
+      },
+      {
+        "id": "Leaf_Parser_read_hexdec_digit",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "classes.Parser.read_hexdec_digit",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Parser",
+        "name": "read_hexdec_digit",
+        "original_signature": "fn read_hexdec_digit(&mut self) -> Result<u16>"
+      },
+      {
+        "id": "Leaf_Parser_read_hexdec_codepoint",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "classes.Parser.read_hexdec_codepoint",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Parser",
+        "name": "read_hexdec_codepoint",
+        "original_signature": "fn read_hexdec_codepoint(&mut self) -> Result<u16>"
+      },
+      {
+        "id": "Leaf_Parser_read_codepoint",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "classes.Parser.read_codepoint",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Parser",
+        "name": "read_codepoint",
+        "original_signature": "fn read_codepoint(&mut self) -> Result<()>"
+      },
+      {
+        "id": "Leaf_Parser_read_complex_string",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "classes.Parser.read_complex_string",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Parser",
+        "name": "read_complex_string",
+        "original_signature": "fn read_complex_string<'b>(&mut self, start: usize) -> Result<&'b str>"
+      },
+      {
+        "id": "Leaf_Parser_read_big_number",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "classes.Parser.read_big_number",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Parser",
+        "name": "read_big_number",
+        "original_signature": "fn read_big_number(&mut self, mut num: u64) -> Result<Number>"
+      },
+      {
+        "id": "Leaf_Parser_expect_exponent",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "classes.Parser.expect_exponent",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Parser",
+        "name": "expect_exponent",
+        "original_signature": "fn expect_exponent(&mut self, num: u64, big_e: i16) -> Result<Number>"
+      },
+      {
+        "id": "Leaf_Parser_parse",
+        "parent_intermediate": "Intermediate_parser",
+        "ir_reference": "classes.Parser.parse",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Parser",
+        "name": "parse",
+        "original_signature": "fn parse(&mut self) -> Result<JsonValue>"
+      },
+      {
+        "id": "Leaf_Error_wrong_type",
+        "parent_intermediate": "Intermediate_error",
+        "ir_reference": "classes.Error.wrong_type",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Error",
+        "name": "wrong_type",
+        "original_signature": "pub fn wrong_type(expected: &str) -> Self"
+      },
+      {
+        "id": "Leaf_Error_fmt",
+        "parent_intermediate": "Intermediate_error",
+        "ir_reference": "classes.Error.fmt",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Error",
+        "name": "fmt",
+        "original_signature": "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result"
+      },
+      {
+        "id": "Leaf_Error_description",
+        "parent_intermediate": "Intermediate_error",
+        "ir_reference": "classes.Error.description",
+        "node_subtype": "member_function",
+        "belongs_to_class": "Error",
+        "name": "description",
+        "original_signature": "fn description(&self) -> &str"
+      },
+      {
+        "id": "Leaf_extend_from_slice",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "functions.extend_from_slice",
+        "node_subtype": "standalone_function",
+        "name": "extend_from_slice",
+        "original_signature": "fn extend_from_slice(dst: &mut Vec<u8>, src: &[u8])"
+      },
+      {
+        "id": "Leaf_should_not_panic_on_bad_bytes",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "functions.should_not_panic_on_bad_bytes",
+        "node_subtype": "standalone_function",
+        "name": "should_not_panic_on_bad_bytes",
+        "original_signature": "fn should_not_panic_on_bad_bytes()"
+      },
+      {
+        "id": "Leaf_should_not_panic_on_bad_bytes_2",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "functions.should_not_panic_on_bad_bytes_2",
+        "node_subtype": "standalone_function",
+        "name": "should_not_panic_on_bad_bytes_2",
+        "original_signature": "fn should_not_panic_on_bad_bytes_2()"
+      },
+      {
+        "id": "Leaf_DumpGenerator_new",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.DumpGenerator.new",
+        "node_subtype": "member_function",
+        "belongs_to_class": "DumpGenerator",
+        "name": "new",
+        "original_signature": "pub fn new() -> Self"
+      },
+      {
+        "id": "Leaf_DumpGenerator_consume",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.DumpGenerator.consume",
+        "node_subtype": "member_function",
+        "belongs_to_class": "DumpGenerator",
+        "name": "consume",
+        "original_signature": "pub fn consume(self) -> String"
+      },
+      {
+        "id": "Leaf_DumpGenerator_write",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.DumpGenerator.write",
+        "node_subtype": "member_function",
+        "belongs_to_class": "DumpGenerator",
+        "name": "write",
+        "original_signature": "fn write(&mut self, slice: &[u8]) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_DumpGenerator_write_char",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.DumpGenerator.write_char",
+        "node_subtype": "member_function",
+        "belongs_to_class": "DumpGenerator",
+        "name": "write_char",
+        "original_signature": "fn write_char(&mut self, ch: u8) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_DumpGenerator_get_writer",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.DumpGenerator.get_writer",
+        "node_subtype": "member_function",
+        "belongs_to_class": "DumpGenerator",
+        "name": "get_writer",
+        "original_signature": "fn get_writer(&mut self) -> &mut Vec<u8>"
+      },
+      {
+        "id": "Leaf_DumpGenerator_write_min",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.DumpGenerator.write_min",
+        "node_subtype": "member_function",
+        "belongs_to_class": "DumpGenerator",
+        "name": "write_min",
+        "original_signature": "fn write_min(&mut self, _: &[u8], min: u8) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_PrettyGenerator_new",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyGenerator.new",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyGenerator",
+        "name": "new",
+        "original_signature": "pub fn new(spaces: u16) -> Self"
+      },
+      {
+        "id": "Leaf_PrettyGenerator_consume",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyGenerator.consume",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyGenerator",
+        "name": "consume",
+        "original_signature": "pub fn consume(self) -> String"
+      },
+      {
+        "id": "Leaf_PrettyGenerator_write",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyGenerator.write",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyGenerator",
+        "name": "write",
+        "original_signature": "fn write(&mut self, slice: &[u8]) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_PrettyGenerator_write_char",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyGenerator.write_char",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyGenerator",
+        "name": "write_char",
+        "original_signature": "fn write_char(&mut self, ch: u8) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_PrettyGenerator_get_writer",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyGenerator.get_writer",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyGenerator",
+        "name": "get_writer",
+        "original_signature": "fn get_writer(&mut self) -> &mut Vec<u8>"
+      },
+      {
+        "id": "Leaf_PrettyGenerator_write_min",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyGenerator.write_min",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyGenerator",
+        "name": "write_min",
+        "original_signature": "fn write_min(&mut self, slice: &[u8], _: u8) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_PrettyGenerator_new_line",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyGenerator.new_line",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyGenerator",
+        "name": "new_line",
+        "original_signature": "fn new_line(&mut self) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_PrettyGenerator_indent",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyGenerator.indent",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyGenerator",
+        "name": "indent",
+        "original_signature": "fn indent(&mut self)"
+      },
+      {
+        "id": "Leaf_PrettyGenerator_dedent",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyGenerator.dedent",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyGenerator",
+        "name": "dedent",
+        "original_signature": "fn dedent(&mut self)"
+      },
+      {
+        "id": "Leaf_WriterGenerator_new",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.WriterGenerator.new",
+        "node_subtype": "member_function",
+        "belongs_to_class": "WriterGenerator",
+        "name": "new",
+        "original_signature": "pub fn new(writer: &'a mut W) -> Self"
+      },
+      {
+        "id": "Leaf_WriterGenerator_get_writer",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.WriterGenerator.get_writer",
+        "node_subtype": "member_function",
+        "belongs_to_class": "WriterGenerator",
+        "name": "get_writer",
+        "original_signature": "fn get_writer(&mut self) -> &mut W"
+      },
+      {
+        "id": "Leaf_WriterGenerator_write_min",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.WriterGenerator.write_min",
+        "node_subtype": "member_function",
+        "belongs_to_class": "WriterGenerator",
+        "name": "write_min",
+        "original_signature": "fn write_min(&mut self, _: &[u8], min: u8) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_PrettyWriterGenerator_new",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyWriterGenerator.new",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyWriterGenerator",
+        "name": "new",
+        "original_signature": "pub fn new(writer: &'a mut W, spaces: u16) -> Self"
+      },
+      {
+        "id": "Leaf_PrettyWriterGenerator_get_writer",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyWriterGenerator.get_writer",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyWriterGenerator",
+        "name": "get_writer",
+        "original_signature": "fn get_writer(&mut self) -> &mut W"
+      },
+      {
+        "id": "Leaf_PrettyWriterGenerator_write_min",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyWriterGenerator.write_min",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyWriterGenerator",
+        "name": "write_min",
+        "original_signature": "fn write_min(&mut self, slice: &[u8], _: u8) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_PrettyWriterGenerator_new_line",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyWriterGenerator.new_line",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyWriterGenerator",
+        "name": "new_line",
+        "original_signature": "fn new_line(&mut self) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_PrettyWriterGenerator_indent",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyWriterGenerator.indent",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyWriterGenerator",
+        "name": "indent",
+        "original_signature": "fn indent(&mut self)"
+      },
+      {
+        "id": "Leaf_PrettyWriterGenerator_dedent",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "classes.PrettyWriterGenerator.dedent",
+        "node_subtype": "member_function",
+        "belongs_to_class": "PrettyWriterGenerator",
+        "name": "dedent",
+        "original_signature": "fn dedent(&mut self)"
+      },
+      {
+        "id": "Leaf_trait_Generator_write",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "traits.Generator.write",
+        "node_subtype": "trait_method",
+        "belongs_to_class": "Generator",
+        "name": "write",
+        "original_signature": "fn write(&mut self, slice: &[u8]) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_trait_Generator_write_char",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "traits.Generator.write_char",
+        "node_subtype": "trait_method",
+        "belongs_to_class": "Generator",
+        "name": "write_char",
+        "original_signature": "fn write_char(&mut self, ch: u8) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_trait_Generator_new_line",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "traits.Generator.new_line",
+        "node_subtype": "trait_method",
+        "belongs_to_class": "Generator",
+        "name": "new_line",
+        "original_signature": "fn new_line(&mut self) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_trait_Generator_indent",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "traits.Generator.indent",
+        "node_subtype": "trait_method",
+        "belongs_to_class": "Generator",
+        "name": "indent",
+        "original_signature": "fn indent(&mut self)"
+      },
+      {
+        "id": "Leaf_trait_Generator_dedent",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "traits.Generator.dedent",
+        "node_subtype": "trait_method",
+        "belongs_to_class": "Generator",
+        "name": "dedent",
+        "original_signature": "fn dedent(&mut self)"
+      },
+      {
+        "id": "Leaf_trait_Generator_write_string_complex",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "traits.Generator.write_string_complex",
+        "node_subtype": "trait_method",
+        "belongs_to_class": "Generator",
+        "name": "write_string_complex",
+        "original_signature": "fn write_string_complex(&mut self, string: &str, mut start: usize) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_trait_Generator_write_string",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "traits.Generator.write_string",
+        "node_subtype": "trait_method",
+        "belongs_to_class": "Generator",
+        "name": "write_string",
+        "original_signature": "fn write_string(&mut self, string: &str) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_trait_Generator_write_number",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "traits.Generator.write_number",
+        "node_subtype": "trait_method",
+        "belongs_to_class": "Generator",
+        "name": "write_number",
+        "original_signature": "fn write_number(&mut self, num: &Number) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_trait_Generator_write_object",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "traits.Generator.write_object",
+        "node_subtype": "trait_method",
+        "belongs_to_class": "Generator",
+        "name": "write_object",
+        "original_signature": "fn write_object(&mut self, object: &Object) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_trait_Generator_write_json",
+        "parent_intermediate": "Intermediate_codegen",
+        "ir_reference": "traits.Generator.write_json",
+        "node_subtype": "trait_method",
+        "belongs_to_class": "Generator",
+        "name": "write_json",
+        "original_signature": "fn write_json(&mut self, json: &JsonValue) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_get_cached_power_by_index",
+        "parent_intermediate": "Intermediate_diyfp",
+        "ir_reference": "functions.get_cached_power_by_index",
+        "node_subtype": "standalone_function",
+        "name": "get_cached_power_by_index",
+        "original_signature": "fn get_cached_power_by_index(index: usize) -> DiyFp"
+      },
+      {
+        "id": "Leaf_get_cached_power",
+        "parent_intermediate": "Intermediate_diyfp",
+        "ir_reference": "functions.get_cached_power",
+        "node_subtype": "standalone_function",
+        "name": "get_cached_power",
+        "original_signature": "pub fn get_cached_power(e: isize) -> (DiyFp, isize)"
+      },
+      {
+        "id": "Leaf_DiyFp_new",
+        "parent_intermediate": "Intermediate_diyfp",
+        "ir_reference": "classes.DiyFp.new",
+        "node_subtype": "member_function",
+        "belongs_to_class": "DiyFp",
+        "name": "new",
+        "original_signature": "pub fn new(f: u64, e: isize) -> Self"
+      },
+      {
+        "id": "Leaf_DiyFp_from_f64",
+        "parent_intermediate": "Intermediate_diyfp",
+        "ir_reference": "classes.DiyFp.from_f64",
+        "node_subtype": "member_function",
+        "belongs_to_class": "DiyFp",
+        "name": "from_f64",
+        "original_signature": "pub unsafe fn from_f64(d: f64) -> Self"
+      },
+      {
+        "id": "Leaf_DiyFp_normalize",
+        "parent_intermediate": "Intermediate_diyfp",
+        "ir_reference": "classes.DiyFp.normalize",
+        "node_subtype": "member_function",
+        "belongs_to_class": "DiyFp",
+        "name": "normalize",
+        "original_signature": "pub fn normalize(self) -> DiyFp"
+      },
+      {
+        "id": "Leaf_DiyFp_normalize_boundary",
+        "parent_intermediate": "Intermediate_diyfp",
+        "ir_reference": "classes.DiyFp.normalize_boundary",
+        "node_subtype": "member_function",
+        "belongs_to_class": "DiyFp",
+        "name": "normalize_boundary",
+        "original_signature": "pub fn normalize_boundary(self) -> DiyFp"
+      },
+      {
+        "id": "Leaf_DiyFp_normalized_boundaries",
+        "parent_intermediate": "Intermediate_diyfp",
+        "ir_reference": "classes.DiyFp.normalized_boundaries",
+        "node_subtype": "member_function",
+        "belongs_to_class": "DiyFp",
+        "name": "normalized_boundaries",
+        "original_signature": "pub fn normalized_boundaries(self) -> (DiyFp, DiyFp)"
+      },
+      {
+        "id": "Leaf_DiyFp_sub",
+        "parent_intermediate": "Intermediate_diyfp",
+        "ir_reference": "classes.DiyFp.sub",
+        "node_subtype": "member_function",
+        "belongs_to_class": "DiyFp",
+        "name": "sub",
+        "original_signature": "fn sub(self, rhs: DiyFp) -> DiyFp"
+      },
+      {
+        "id": "Leaf_DiyFp_mul",
+        "parent_intermediate": "Intermediate_diyfp",
+        "ir_reference": "classes.DiyFp.mul",
+        "node_subtype": "member_function",
+        "belongs_to_class": "DiyFp",
+        "name": "mul",
+        "original_signature": "fn mul(self, rhs: DiyFp) -> DiyFp"
+      },
+      {
+        "id": "Leaf_grisu_round",
+        "parent_intermediate": "Intermediate_grisu2",
+        "ir_reference": "functions.grisu_round",
+        "node_subtype": "standalone_function",
+        "name": "grisu_round",
+        "original_signature": "unsafe fn grisu_round(buffer: &mut u64, delta: u64, mut rest: u64, ten_kappa: u64, wp_w: u64)"
+      },
+      {
+        "id": "Leaf_count_decimal_digit32",
+        "parent_intermediate": "Intermediate_grisu2",
+        "ir_reference": "functions.count_decimal_digit32",
+        "node_subtype": "standalone_function",
+        "name": "count_decimal_digit32",
+        "original_signature": "fn count_decimal_digit32(n: u32) -> i16"
+      },
+      {
+        "id": "Leaf_digit_gen",
+        "parent_intermediate": "Intermediate_grisu2",
+        "ir_reference": "functions.digit_gen",
+        "node_subtype": "standalone_function",
+        "name": "digit_gen",
+        "original_signature": "unsafe fn digit_gen(w: DiyFp, mp: DiyFp, mut delta: u64, mut k: i16) -> (u64, i16)"
+      },
+      {
+        "id": "Leaf_convert",
+        "parent_intermediate": "Intermediate_grisu2",
+        "ir_reference": "functions.convert",
+        "node_subtype": "standalone_function",
+        "name": "convert",
+        "original_signature": "pub fn convert(float: f64) -> (u64, i16)"
+      },
+      {
+        "id": "Leaf_write_num",
+        "parent_intermediate": "Intermediate_print_dec",
+        "ir_reference": "functions.write_num",
+        "node_subtype": "standalone_function",
+        "name": "write_num",
+        "original_signature": "unsafe fn write_num(n: &mut u64, curr: &mut isize, buf_ptr: *mut u8, lut_ptr: *const u8)"
+      },
+      {
+        "id": "Leaf_write",
+        "parent_intermediate": "Intermediate_print_dec",
+        "ir_reference": "functions.write",
+        "node_subtype": "standalone_function",
+        "name": "write",
+        "original_signature": "pub unsafe fn write<W: io::Write>(wr: &mut W, positive: bool, mut n: u64, exponent: i16) -> io::Result<()>"
+      },
+      {
+        "id": "Leaf_safe_abs",
+        "parent_intermediate": "Intermediate_print_dec",
+        "ir_reference": "functions.safe_abs",
+        "node_subtype": "standalone_function",
+        "name": "safe_abs",
+        "original_signature": "fn safe_abs(x : i16) -> u16"
+      },
+      {
+        "id": "Leaf_from",
+        "parent_intermediate": "Intermediate_lib",
+        "ir_reference": "functions.from",
+        "node_subtype": "standalone_function",
+        "name": "from",
+        "original_signature": "pub fn from<T>(value: T) -> JsonValue where T: Into<JsonValue>"
+      },
+      {
+        "id": "Leaf_stringify",
+        "parent_intermediate": "Intermediate_lib",
+        "ir_reference": "functions.stringify",
+        "node_subtype": "standalone_function",
+        "name": "stringify",
+        "original_signature": "pub fn stringify<T>(root: T) -> String where T: Into<JsonValue>"
+      },
+      {
+        "id": "Leaf_stringify_pretty",
+        "parent_intermediate": "Intermediate_lib",
+        "ir_reference": "functions.stringify_pretty",
+        "node_subtype": "standalone_function",
+        "name": "stringify_pretty",
+        "original_signature": "pub fn stringify_pretty<T>(root: T, spaces: u16) -> String where T: Into<JsonValue>"
+      }
+    ]
+  },
+  "edges": {
+    "inter_module_edges": [
+      {
+        "source": "Root_05",
+        "target": "Root_01",
+        "relation_type": "data_flow",
+        "description": "The public API functions (from, stringify, stringify_pretty) take ownership of input values via Into<JsonValue> and produce JsonValue instances. stringify and stringify_pretty then call dump/pretty on the resulting JsonValue, which delegates to the serialization layer. This represents a data flow where external types are converted into the core data model.",
+        "evidence": "IR shows: standalone_functions.from calls 'value.into' (Into<JsonValue> trait). stringify calls 'root.into' then 'root.dump'. stringify_pretty calls 'root.into' then 'root.pretty'. The dump/pretty methods are defined on JsonValue in value/mod.rs."
+      },
+      {
+        "source": "Root_05",
+        "target": "Root_02",
+        "relation_type": "data_flow",
+        "description": "The public parse function is re-exported from the parser module. The crate root declares 'pub use parser::parse' as a re-export, making the parsing functionality available at the crate level.",
+        "evidence": "IR shows: lib.rs re_exports include 'parser::parse' aliased as 'parse'. The parser module is declared as 'mod parser;' (private module) with selective re-export."
+      },
+      {
+        "source": "Root_02",
+        "target": "Root_01",
+        "relation_type": "data_flow",
+        "description": "The parser creates and populates JsonValue instances during parsing. It constructs JsonValue::Array, JsonValue::Object (via Object::with_capacity and Object::new), JsonValue::Number (via Number::from_parts_unchecked), and JsonValue::Boolean. The parser takes ownership of the parsed data and returns it as a Result<JsonValue>.",
+        "evidence": "IR shows: parser.rs Parser::parse() control_flow includes 'JsonValue::Array', 'Vec::new', 'Object::with_capacity', 'Object::new', 'JsonValue::Object', 'JsonValue::Number', 'JsonValue::Boolean'. The public parse() function returns Result<JsonValue>."
+      },
+      {
+        "source": "Root_03",
+        "target": "Root_01",
+        "relation_type": "data_flow",
+        "description": "The serialization engine reads JsonValue instances to produce JSON text output. The Generator trait's write_json method dispatches on JsonValue variants, calling write_string for Short/String, write_number for Number, write_object for Object, and recursively processing Array elements. This is a read-only traversal of the core data model.",
+        "evidence": "IR shows: codegen.rs Generator::write_json control_flow dispatches on 'short.as_str', 'self.write_string', 'self.write_number', 'self.write_object', and iterates 'array.iter'. Object::dump() calls 'DumpGenerator::new().write_object(self)'. JsonValue::dump() calls 'DumpGenerator::new().write_json(self)'."
+      },
+      {
+        "source": "Root_01",
+        "target": "Root_04",
+        "relation_type": "data_flow",
+        "description": "The Number type in the core data model depends on the utility layer for float-to-decimal conversion. Number::from(f64) calls grisu2::convert to decompose the float, and Number's Display implementation calls print_dec::write for formatting. The utility layer provides the low-level number formatting primitives.",
+        "evidence": "IR shows: number.rs Number::from(f64) control_flow includes 'grisu2::convert'. Number::fmt (Display) control_flow includes 'print_dec::write'. The number module imports 'crate::util::grisu2' and 'crate::util::print_dec'."
+      },
+      {
+        "source": "Root_03",
+        "target": "Root_04",
+        "relation_type": "data_flow",
+        "description": "The serialization engine uses the utility layer for number formatting. The Generator trait's write_number method calls print_dec::write to format Number instances into the output buffer. This is a shared dependency on the number formatting infrastructure.",
+        "evidence": "IR shows: codegen.rs Generator::write_number control_flow includes 'print_dec::write'. The codegen module imports 'crate::util::print_dec'."
+      }
+    ],
+    "intra_module_edges": [
+      {
+        "source": "Intermediate_value",
+        "target": "Intermediate_object",
+        "parent_root": "Root_01",
+        "relation_type": "execution_order",
+        "description": "JsonValue::Object variant delegates to Object methods for object operations. JsonValue::dump() for Object variant calls Object::dump(). JsonValue::insert/remove/has_key/entries all delegate to the underlying Object instance.",
+        "evidence": "IR shows: value/mod.rs JsonValue::dump() calls 'gen.write_json(self)' which dispatches to write_object for Object variant. Object::dump() is defined in object.rs. JsonValue::insert calls 'object.insert'. JsonValue::entries calls 'object.iter'."
+      },
+      {
+        "source": "Intermediate_value",
+        "target": "Intermediate_number",
+        "parent_root": "Root_01",
+        "relation_type": "execution_order",
+        "description": "JsonValue::Number variant delegates to Number methods for numeric operations. as_number() extracts the Number, as_f64/as_f32 convert via Number's Into implementations, as_fixed_point_u64/i64 delegate to Number's methods.",
+        "evidence": "IR shows: value/mod.rs JsonValue::as_f64 calls 'value.into' where value is a Number. JsonValue::as_fixed_point_u64 calls 'value.as_fixed_point_u64'. Number is defined in number.rs with From<Number> for f64/f64."
+      },
+      {
+        "source": "Intermediate_value",
+        "target": "Intermediate_short",
+        "parent_root": "Root_01",
+        "relation_type": "execution_order",
+        "description": "JsonValue::Short variant uses the Short struct for inline string storage. The From<&str> implementation in implements.rs checks string length and creates either Short or String variant accordingly.",
+        "evidence": "IR shows: implements.rs JsonValue::From<&'a str> control_flow checks 'val.len' and conditionally creates 'JsonValue::Short' via 'Short::from_slice' or 'JsonValue::String' via 'val.into'. Short is defined in short.rs."
+      },
+      {
+        "source": "Intermediate_value",
+        "target": "Intermediate_implements",
+        "parent_root": "Root_01",
+        "relation_type": "execution_order",
+        "description": "The From and PartialEq trait implementations in the implements submodule are called when converting external types to JsonValue or comparing JsonValue with strings. These are essential for the type conversion API.",
+        "evidence": "IR shows: value/mod.rs declares 'mod implements;' as a submodule. The implements.rs file contains From implementations for &str, Option<T>, Vec<T>, &[T], HashMap, BTreeMap, and PartialEq implementations for string comparisons."
+      },
+      {
+        "source": "Intermediate_object",
+        "target": "Intermediate_short",
+        "parent_root": "Root_01",
+        "relation_type": "execution_order",
+        "description": "The Object's Key struct uses a similar inline storage optimization pattern as Short. Keys are stored in a stack buffer for small strings (KEY_BUF_LEN) and heap-allocated for larger ones, mirroring the Short optimization strategy.",
+        "evidence": "IR shows: object.rs Key struct has 'buf: [u8; KEY_BUF_LEN]' for inline storage. Key::attach copies key bytes either inline or to heap. Short in short.rs has 'value: [u8; MAX_LEN]' for inline storage. Both use ptr::copy_nonoverlapping for raw memory operations."
+      },
+      {
+        "source": "Intermediate_parser",
+        "target": "Intermediate_error",
+        "parent_root": "Root_02",
+        "relation_type": "execution_order",
+        "description": "The parser returns Result<JsonValue> which uses Error as the error type. When parsing fails, the parser creates Error variants (UnexpectedCharacter, UnexpectedEndOfJson, ExceededDepthLimit) via the unexpected_character method or direct construction.",
+        "evidence": "IR shows: parser.rs Parser::parse() returns Result<JsonValue>. The public parse() function signature is 'pub fn parse(source: &str) -> Result<JsonValue>'. Error is defined in error.rs and re-exported via lib.rs. Parser::unexpected_character returns Result<T> and constructs Error::UnexpectedCharacter."
+      },
+      {
+        "source": "Intermediate_codegen",
+        "target": "Intermediate_value",
+        "parent_root": "Root_03",
+        "relation_type": "execution_order",
+        "description": "The Generator trait's write_json method dispatches on JsonValue variants to produce appropriate JSON output. It handles Null, Boolean, Short/String (via write_string), Number (via write_number), Array (recursive iteration), and Object (via write_object).",
+        "evidence": "IR shows: codegen.rs Generator::write_json control_flow dispatches on 'self.write' (for Null/Boolean literals), 'self.write_string', 'short.as_str', 'self.write_number', 'self.write_char' (for array brackets), 'self.write_object'. The method takes 'json: &JsonValue' as parameter."
+      },
+      {
+        "source": "Intermediate_util",
+        "target": "Intermediate_diyfp",
+        "parent_root": "Root_04",
+        "relation_type": "execution_order",
+        "description": "The util module re-exports the diyfp submodule, making DiyFp available to grisu2 and number modules. DiyFp provides the foundational floating point representation used by Grisu2.",
+        "evidence": "IR shows: util/mod.rs declares 'pub mod diyfp;'. grisu2.rs imports 'crate::util::diyfp::{ self, DiyFp }'. diyfp.rs defines the DiyFp struct and its methods."
+      },
+      {
+        "source": "Intermediate_util",
+        "target": "Intermediate_grisu2",
+        "parent_root": "Root_04",
+        "relation_type": "execution_order",
+        "description": "The util module re-exports the grisu2 submodule. Grisu2 implements the float-to-decimal conversion algorithm using DiyFp for high-precision arithmetic.",
+        "evidence": "IR shows: util/mod.rs declares 'pub mod grisu2;'. grisu2.rs defines the convert function that is called by number.rs Number::from(f64)."
+      },
+      {
+        "source": "Intermediate_util",
+        "target": "Intermediate_print_dec",
+        "parent_root": "Root_04",
+        "relation_type": "execution_order",
+        "description": "The util module re-exports the print_dec submodule. print_dec provides the low-level decimal number writing function used by both Number's Display implementation and codegen's write_number.",
+        "evidence": "IR shows: util/mod.rs declares 'pub mod print_dec;'. print_dec.rs defines the write function. number.rs imports 'crate::util::print_dec'. codegen.rs imports 'crate::util::print_dec'."
+      },
+      {
+        "source": "Intermediate_grisu2",
+        "target": "Intermediate_diyfp",
+        "parent_root": "Root_04",
+        "relation_type": "execution_order",
+        "description": "The Grisu2 algorithm uses DiyFp for high-precision floating point operations. digit_gen creates DiyFp instances and performs arithmetic on them. The convert function calls DiyFp::from_f64 and normalized_boundaries.",
+        "evidence": "IR shows: grisu2.rs digit_gen control_flow includes 'DiyFp::new'. convert control_flow includes 'DiyFp::from_f64', 'v.normalized_boundaries', 'diyfp::get_cached_power', 'v.normalize'. The function signature takes f64 and returns (u64, i16)."
+      }
+    ]
+  }
+}
