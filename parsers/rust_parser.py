@@ -136,8 +136,19 @@ class RustParser:
         if rel_parts and rel_parts[-1] == "mod": rel_parts.pop()
         if rel_parts: module_path += "::" + "::".join(rel_parts)
 
+        # 新增精准判定是否属于测试作用域 (集成测试或内部测试目录)
+        # 兼容 Linux/Windows 路径分隔符
+        normalized_path = file_path.replace("\\", "/")
+        is_test_file = "tests/" in normalized_path or normalized_path.startswith("tests/")
+
         self.result = {
-            "metadata": {"language": "rust", "file_path": file_path, "module_path": module_path, "ast_health": "degraded" if tree.root_node.has_error else "healthy"},
+            "metadata": {
+                "language": "rust", 
+                "file_path": file_path, 
+                "module_path": module_path, 
+                "ast_health": "degraded" if tree.root_node.has_error else "healthy",
+                "is_test_file": is_test_file  # 新增的物理文件级测试标记
+            },
             "dependencies": {"uses": [], "sub_modules": [], "re_exports": []},
             "macros": [], "global_states": [], "type_aliases": [], "types": [],
             "traits": [], "impl_blocks": [], "standalone_functions": []
@@ -388,14 +399,21 @@ class RustParser:
             "methods": methods
         })
 
-    # ==========================================
+# ==========================================
     # ⚙️ 核心：统一微观函数分析引擎 (Function Engine)
     # ==========================================
     def _analyze_function_node(self, node, known_globals: set) -> dict:
         name = self._get_text(node.child_by_field_name('name'))
         
+        # 提取完整物理行号 (Tree-sitter row 是从 0 开始的，加 1 转为人类可读行号)
+        start_line = node.start_point[0] + 1
+        end_line = node.end_point[0] + 1
+        
+        # 获取完整源代码文本 (包含了头顶的 #[test] 标签)
         full_text = self._get_text(node)
         body_node = node.child_by_field_name('body')
+        
+        # 严格分离签名和具体内容
         signature = full_text[:full_text.rfind(self._get_text(body_node))].strip() if body_node else full_text
         
         is_unsafe = self._is_unsafe(node)
@@ -407,32 +425,21 @@ class RustParser:
         if params_node:
             for p in params_node.children:
                 if p.type == 'self_parameter':
-                    # 处理花里胡哨的 self 接收器
                     type_node = p.child_by_field_name('type')
                     if type_node:
-                        # 场景 A: 显式类型标注 (如 self: Box<Self>, self: Pin<&mut Self>)
                         t_text = self._get_text(type_node)
-                        if "&mut " in t_text: 
-                            mutates_borrows.append("self")
-                        elif "&" not in t_text: 
-                            takes_ownership.append("self")
+                        if "&mut " in t_text: mutates_borrows.append("self")
+                        elif "&" not in t_text: takes_ownership.append("self")
                     else:
-                        # 场景 B: 常规语法糖 (如 self, mut self, &self, &'a mut self)
                         p_text = self._get_text(p)
-                        if "&" in p_text and "mut " in p_text: 
-                            mutates_borrows.append("self")
-                        elif "&" not in p_text: 
-                            takes_ownership.append("self")
+                        if "&" in p_text and "mut " in p_text: mutates_borrows.append("self")
+                        elif "&" not in p_text: takes_ownership.append("self")
                             
                 elif p.type == 'parameter':
                     pat = self._get_text(p.child_by_field_name('pattern'))
                     typ = self._get_text(p.child_by_field_name('type'))
-                    # 兼容类似 arg: Pin<&mut T> 或 arg: &mut T
-                    if typ.startswith('&mut ') or "&mut " in typ: 
-                        mutates_borrows.append(pat)
-                    # 只要类型签名里没有 &, 统统视为按值传递 (Move 语义拿走所有权)
-                    elif not typ.startswith('&') and "&" not in typ: 
-                        takes_ownership.append(pat)
+                    if typ.startswith('&mut ') or "&mut " in typ: mutates_borrows.append(pat)
+                    elif not typ.startswith('&') and "&" not in typ: takes_ownership.append(pat)
 
         # --- 控制流与全局变量探测 ---
         direct_calls, macro_invocations, error_propagation = [], [], []
@@ -443,8 +450,6 @@ class RustParser:
             stack = [body_node]
             while stack:
                 curr = stack.pop()
-                
-                # 原有的 call_expression, macro_invocation, try_expression, closure 逻辑保持不变
                 if curr.type in ('call_expression', 'method_invocation'):
                     func_name_node = curr.child_by_field_name('function')
                     if not func_name_node: func_name_node = curr.child_by_field_name('name')
@@ -457,16 +462,11 @@ class RustParser:
                     macro_name_node = curr.child_by_field_name('macro')
                     if macro_name_node:
                         raw_macro_name = self._get_text(macro_name_node)
-                        # 兼容带有命名空间的宏调用，比如 std::panic!，剥离出核心名字 panic
                         clean_macro_name = raw_macro_name.split('::')[-1]                         
                         macro_invocations.append(f"{raw_macro_name}!")                        
-                        # 精准狙击控制流突变宏
                         ERROR_MACROS = {
-                            # 标准库：致命崩溃/未实现
                             'panic', 'unreachable', 'todo', 'unimplemented',
-                            # 标准库：断言失败导致崩溃
                             'assert', 'assert_eq', 'assert_ne', 'debug_assert', 'debug_assert_eq',
-                            # 生态标准 (anyhow / eyre / custom)：提早抛出 Err
                             'bail', 'ensure', 'abort'
                         }                        
                         if clean_macro_name in ERROR_MACROS:
@@ -474,37 +474,23 @@ class RustParser:
                         
                 elif curr.type == 'try_expression':
                     error_propagation.append("?")
-                    
                 elif curr.type == 'closure_expression':
                     has_closures = True
-
-                # 【新增核心逻辑】：全局变量读写嗅探雷达
                 elif curr.type == 'identifier':
                     ident_name = self._get_text(curr)
                     if ident_name in known_globals:
-                        # 命中全局变量！现在判断它是被读还是被写
                         is_write = False
                         parent = curr.parent
-                        
-                        # 向上嗅探 AST，直到遇到语句块边界
                         while parent and parent.type not in ('function_item', 'block'):
-                            # 如果它在赋值表达式里
                             if parent.type == 'assignment_expression':
                                 left_node = parent.child_by_field_name('left')
-                                # 并且它属于赋值等号的左边 (LHS) -> 判定为写操作！
                                 if left_node and ident_name in self._get_text(left_node):
                                     is_write = True
                                     break
                             parent = parent.parent
-                            
-                        if is_write:
-                            writes_globals.append(ident_name)
-                        else:
-                            reads_globals.append(ident_name)
-
-                # 逆序压栈
-                for child in reversed(curr.children): 
-                    stack.append(child)
+                        if is_write: writes_globals.append(ident_name)
+                        else: reads_globals.append(ident_name)
+                for child in reversed(curr.children): stack.append(child)
 
         return {
             "name": name,
@@ -514,6 +500,12 @@ class RustParser:
             "is_unsafe": is_unsafe,
             "is_async": is_async,
             "compile_guards": self._get_compile_guards(node),
+            
+            # 注入物理定位与源码文本，为 Phase 3 提供支持
+            "start_line": start_line,
+            "end_line": end_line,
+            "body": full_text,  
+            
             "data_flow": {
                 "takes_ownership": takes_ownership,
                 "mutates_borrows": mutates_borrows,

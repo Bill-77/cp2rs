@@ -62,7 +62,7 @@ PROMPT_2A_ARCHITECT_C = """
   "nodes": {
     "root_nodes": [
       {
-        "id": "Root_01",
+        "id": "Root_DomainName",
         "semantic_name": "宏观业务模块名称",
         "description": "..."
       }
@@ -171,7 +171,7 @@ PROMPT_2A_ARCHITECT_CPP = """
   "nodes": {
     "root_nodes": [
       {
-        "id": "Root_01",
+        "id": "Root_DomainName",
         "semantic_name": "宏观业务模块名称",
         "description": "..."
       }
@@ -260,7 +260,6 @@ PROMPT_2A_ARCHITECT_RUST = """
 
 2. [Domain-Centric] 抽象根节点 (Root Clustering):
    - 观察所有中间节点，根据 Rust 的 `mod` 层级和 `re_exports` 映射，向上聚合成代表顶层业务子系统的 Root 模块（例如将网络层、引擎层隔离）。
-   - 为该 Root 模块分配 ID (如 `Root_01`)，并生成高维度的宏观业务描述。
 
 3. [Wiring] 严谨连线 (Rigorous Edge Injection):
    - 跨模块边 (inter_module_edges)：基于 `dependencies` (尤其是 `re_exports`)、`traits` 的多态实现 (`impl_blocks` 的 `trait_name`)，推演 Root 模块间的耦合关系。关系类型为 `data_flow`。
@@ -285,7 +284,7 @@ PROMPT_2A_ARCHITECT_RUST = """
   "nodes": {
     "root_nodes": [
       {
-        "id": "Root_01", 
+        "id": "Root_DomainName", 
         "semantic_name": "宏观业务模块名称", 
         "description": "..."
       }

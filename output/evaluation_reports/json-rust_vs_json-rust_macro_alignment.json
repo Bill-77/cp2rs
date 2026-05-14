@@ -1,0 +1,91 @@
+{
+  "macro_alignment_score": 100,
+  "aligned_functional_domains": [
+    {
+      "domain_name": "Core Data Model Layer",
+      "mapping_topology": "1-to-1",
+      "source_nodes": [
+        "Root_01"
+      ],
+      "target_nodes": [
+        "Root_01"
+      ],
+      "confidence": "High",
+      "justification": "Both repositories contain identical JsonValue enum with 7 variants, custom Object implementation with inline key optimization, Number type with Grisu2-based float conversion, Short string optimization, and all From/PartialEq trait implementations. The internal module structure (value/mod.rs, implements.rs, object.rs, number.rs, short.rs) is perfectly preserved.",
+      "evidence_signatures": [
+        "pub fn dump(&self) -> String -> pub fn dump(&self) -> String",
+        "pub fn insert(&mut self, key: &str, value: JsonValue) -> pub fn insert(&mut self, key: &str, value: JsonValue)",
+        "pub fn as_f64(&self) -> Option<f64> -> pub fn as_f64(&self) -> Option<f64>"
+      ]
+    },
+    {
+      "domain_name": "Parsing Engine",
+      "mapping_topology": "1-to-1",
+      "source_nodes": [
+        "Root_02"
+      ],
+      "target_nodes": [
+        "Root_02"
+      ],
+      "confidence": "High",
+      "justification": "Both repositories contain identical Parser struct with raw pointer-based buffer management, the same public parse() function signature, identical Error enum with 5 variants, and the same set of parser methods (read_byte, bump, read_complex_string, read_big_number, etc.).",
+      "evidence_signatures": [
+        "pub fn parse(source: &str) -> Result<JsonValue> -> pub fn parse(source: &str) -> Result<JsonValue>",
+        "fn read_complex_string<'b>(&mut self, start: usize) -> Result<&'b str> -> fn read_complex_string<'b>(&mut self, start: usize) -> Result<&'b str>",
+        "pub fn wrong_type(expected: &str) -> Self -> pub fn wrong_type(expected: &str) -> Self"
+      ]
+    },
+    {
+      "domain_name": "Serialization Engine",
+      "mapping_topology": "1-to-1",
+      "source_nodes": [
+        "Root_03"
+      ],
+      "target_nodes": [
+        "Root_03"
+      ],
+      "confidence": "High",
+      "justification": "Both repositories contain identical Generator trait with the same 9 trait methods, and all four generator implementations (DumpGenerator, PrettyGenerator, WriterGenerator, PrettyWriterGenerator) with identical method signatures and behavior.",
+      "evidence_signatures": [
+        "fn write_json(&mut self, json: &JsonValue) -> io::Result<()> -> fn write_json(&mut self, json: &JsonValue) -> io::Result<()>",
+        "pub fn new(spaces: u16) -> Self -> pub fn new(spaces: u16) -> Self",
+        "fn write_string(&mut self, string: &str) -> io::Result<()> -> fn write_string(&mut self, string: &str) -> io::Result<()>"
+      ]
+    },
+    {
+      "domain_name": "Number Formatting Utilities",
+      "mapping_topology": "1-to-1",
+      "source_nodes": [
+        "Root_04"
+      ],
+      "target_nodes": [
+        "Root_04"
+      ],
+      "confidence": "High",
+      "justification": "Both repositories contain identical DiyFp struct with the same 8 methods, identical Grisu2 algorithm implementation (convert, digit_gen, grisu_round), and identical print_dec module with the same unsafe write function and lookup tables.",
+      "evidence_signatures": [
+        "pub fn convert(float: f64) -> (u64, i16) -> pub fn convert(float: f64) -> (u64, i16)",
+        "pub unsafe fn from_f64(d: f64) -> Self -> pub unsafe fn from_f64(d: f64) -> Self",
+        "pub unsafe fn write<W: io::Write>(wr: &mut W, positive: bool, mut n: u64, exponent: i16) -> io::Result<()> -> pub unsafe fn write<W: io::Write>(wr: &mut W, positive: bool, mut n: u64, exponent: i16) -> io::Result<()>"
+      ]
+    },
+    {
+      "domain_name": "Public API Surface",
+      "mapping_topology": "1-to-1",
+      "source_nodes": [
+        "Root_05"
+      ],
+      "target_nodes": [
+        "Root_05"
+      ],
+      "confidence": "High",
+      "justification": "Both repositories contain identical public API with the same re-exports (Error, JsonValue, Null, JsonError, JsonResult, parse), identical top-level functions (from, stringify, stringify_pretty), and identical macro exports (array!, object!, value!).",
+      "evidence_signatures": [
+        "pub fn from<T>(value: T) -> JsonValue where T: Into<JsonValue> -> pub fn from<T>(value: T) -> JsonValue where T: Into<JsonValue>",
+        "pub fn stringify<T>(root: T) -> String where T: Into<JsonValue> -> pub fn stringify<T>(root: T) -> String where T: Into<JsonValue>",
+        "pub fn stringify_pretty<T>(root: T, spaces: u16) -> String where T: Into<JsonValue> -> pub fn stringify_pretty<T>(root: T, spaces: u16) -> String where T: Into<JsonValue>"
+      ]
+    }
+  ],
+  "unmapped_source_nodes": []
+}

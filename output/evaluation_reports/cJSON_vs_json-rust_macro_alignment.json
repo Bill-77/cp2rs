@@ -1,9 +1,9 @@
 {
-  "macro_alignment_score": 75,
+  "macro_alignment_score": 65,
   "aligned_functional_domains": [
     {
-      "domain_name": "Core JSON Data Model Representation",
-      "mapping_topology": "1-to-1",
+      "domain_name": "Core JSON Data Model and Type System",
+      "mapping_topology": "1-to-N",
       "source_nodes": [
         "Root_CoreLibrary"
       ],
@@ -11,166 +11,119 @@
         "Root_01"
       ],
       "confidence": "High",
-      "justification": "Both represent JSON values as a discriminated union. Source uses C struct with type enum (cJSON struct with type field), target uses Rust enum (JsonValue with Null/Boolean/Number/String/Array/Object variants). Both provide type creation functions (cJSON_CreateNull/True/False/Bool/Number/String/Array/Object → JsonValue::new_object/new_array and From implementations). Both support type checking (cJSON_IsString/IsNumber/IsArray/IsObject → JsonValue::is_string/is_number/is_array/is_object). The target adds Short string optimization and custom Number type with Grisu2 conversion, which are Rust-idiomatic improvements over the C version's simple char* and double representation.",
+      "justification": "The C cJSON struct (with type enum, value union, linked list children) maps to Rust's algebraic JsonValue enum with specialized types (Object, Number, Short). The Rust version uses enum variants instead of a type-tagged struct, and separates concerns into dedicated files (value, object, number, short). The short string optimization in Rust replaces C's raw char* strings. Both provide equivalent creation, access, and manipulation APIs.",
       "evidence_signatures": [
-        "cJSON_CreateNull(void) → JsonValue::Null variant (via From implementations)",
-        "cJSON_CreateNumber(double num) → Number::from(f64) → JsonValue::Number",
-        "cJSON_CreateString(const char *string) → JsonValue::Short (for small strings) or JsonValue::String",
-        "cJSON_CreateArray(void) → JsonValue::new_array()",
-        "cJSON_CreateObject(void) → JsonValue::new_object()",
-        "cJSON_IsString/IsNumber/IsArray/IsObject → JsonValue::is_string/is_number/is_array/is_object"
+        "cJSON_CreateObject(void) -> JsonValue::new_object() / Object::new()",
+        "cJSON_CreateArray(void) -> JsonValue::new_array()",
+        "cJSON_CreateNumber(double num) -> JsonValue::Number(Number::from(f64))",
+        "cJSON_CreateString(const char *string) -> JsonValue::from(&str)",
+        "cJSON_GetObjectItem(object, string) -> JsonValue::index(&str) / Object::get(key)",
+        "cJSON_GetArrayItem(array, index) -> JsonValue::index(usize)"
       ]
     },
     {
       "domain_name": "JSON Parsing Engine",
       "mapping_topology": "1-to-1",
       "source_nodes": [
-        "Intermediate_cJSON_c"
+        "Root_CoreLibrary"
       ],
       "target_nodes": [
         "Root_02"
       ],
       "confidence": "High",
-      "justification": "Both implement recursive descent parsers for JSON text. Source uses static functions (parse_value, parse_array, parse_object, parse_string, parse_number) with a parse_buffer state struct. Target uses Parser struct with raw pointer-based buffer scanning. Both handle string escaping (parse_hex4/utf16_literal_to_utf8 → read_hexdec_codepoint/read_codepoint), number parsing (parse_number → read_big_number/expect_exponent), and whitespace skipping (buffer_skip_whitespace → Parser::bump). The public API is cJSON_Parse → parse(). Both return error information (global_error → Error enum).",
+      "justification": "Both have dedicated parsing subsystems. C's parse_value/parse_array/parse_object/parse_string/parse_number map directly to Rust's Parser::parse() with internal methods. Both handle UTF-8, escape sequences, number parsing, and nested structures. The Rust version uses raw pointer-based buffer scanning similar to C's approach for performance. Error handling differs (C uses global_error pointer, Rust uses Result<JsonValue> with Error enum).",
       "evidence_signatures": [
-        "cJSON_Parse(const char *value) → parse(source: &str) -> Result<JsonValue>",
-        "parse_value(cJSON *item, parse_buffer *buffer) → Parser::parse(&mut self) -> Result<JsonValue>",
-        "parse_string(cJSON *item, parse_buffer *buffer) → Parser::read_complex_string/read_codepoint",
-        "parse_number(cJSON *item, parse_buffer *buffer) → Parser::read_big_number/expect_exponent",
-        "parse_hex4(const unsigned char *input) → Parser::read_hexdec_codepoint",
-        "buffer_skip_whitespace(parse_buffer *buffer) → Parser::bump()"
+        "cJSON_Parse(const char *value) -> parse(source: &str) -> Result<JsonValue>",
+        "parse_value(item, buffer) -> Parser::parse() -> Result<JsonValue>",
+        "parse_string(item, buffer) -> Parser::read_complex_string() / read_codepoint()",
+        "parse_number(item, buffer) -> Parser::read_big_number() / expect_exponent()",
+        "parse_hex4(input) -> Parser::read_hexdec_codepoint()"
       ]
     },
     {
       "domain_name": "JSON Serialization Engine",
       "mapping_topology": "1-to-N",
       "source_nodes": [
-        "Intermediate_cJSON_c"
+        "Root_CoreLibrary"
       ],
       "target_nodes": [
         "Root_03"
       ],
       "confidence": "High",
-      "justification": "Both serialize JsonValue/cJSON structures to JSON text. Source uses static functions (print_value, print_array, print_object, print_string, print_number) with a printbuffer state. Target uses the Generator trait pattern with four implementations: DumpGenerator (compact String), PrettyGenerator (indented String), WriterGenerator (compact io::Write), PrettyWriterGenerator (indented io::Write). Source's cJSON_Print → DumpGenerator (compact), cJSON_PrintBuffered → PrettyGenerator (formatted). Target adds io::Write variants which are Rust-idiomatic. Both handle string escaping (print_string_ptr → write_string_complex with ESCAPED lookup table) and number formatting (print_number → write_number → print_dec::write).",
+      "justification": "C's print functions (print_value/print_array/print_object/print_string/print_number) map to Rust's Generator trait pattern. C has 4 print modes (Print, PrintUnformatted, PrintBuffered, PrintPreallocated) which map to Rust's 4 Generator implementations (DumpGenerator, PrettyGenerator, WriterGenerator, PrettyWriterGenerator). Rust uses a trait-based approach for extensibility, while C uses function parameters (format flag, prebuffer size). Both handle string escaping and recursive serialization.",
       "evidence_signatures": [
-        "cJSON_Print(const cJSON *item) → DumpGenerator::new().write_json(json).consume()",
-        "cJSON_PrintUnformatted(const cJSON *item) → DumpGenerator::new().write_json(json).consume()",
-        "cJSON_PrintBuffered(const cJSON *item, int prebuffer, cJSON_bool fmt) → PrettyGenerator::new(spaces).write_json(json).consume()",
-        "print_value(const cJSON *item, printbuffer *buffer) → Generator::write_json(&mut self, json: &JsonValue)",
-        "print_string_ptr(const unsigned char *input, printbuffer *buffer) → Generator::write_string(&mut self, string: &str)",
-        "print_number(const cJSON *item, printbuffer *buffer) → Generator::write_number(&mut self, num: &Number)"
+        "cJSON_Print(item) -> DumpGenerator::new().write_json(json).consume() / stringify()",
+        "cJSON_PrintBuffered(item, prebuffer, fmt) -> PrettyGenerator::new(spaces).write_json(json).consume() / stringify_pretty()",
+        "cJSON_PrintUnformatted(item) -> DumpGenerator (compact mode)",
+        "print_string_ptr(input, buffer) -> Generator::write_string(string)",
+        "print_number(item, buffer) -> Generator::write_number(num) -> print_dec::write()"
       ]
     },
     {
-      "domain_name": "Number Formatting Infrastructure",
-      "mapping_topology": "1-to-1",
+      "domain_name": "Number Formatting and Conversion",
+      "mapping_topology": "1-to-N",
       "source_nodes": [
-        "Intermediate_cJSON_c"
+        "Root_CoreLibrary"
       ],
       "target_nodes": [
         "Root_04"
       ],
-      "confidence": "High",
-      "justification": "Both implement float-to-decimal conversion for JSON number serialization. Source uses a simpler approach with sprintf-based formatting in print_number. Target uses the advanced Grisu2 algorithm with DiyFp (Do-It-Yourself Floating Point) for high-precision conversion. The target's approach is more sophisticated and efficient, representing a Rust-idiomatic improvement. Both handle the core task of converting floating point numbers to their decimal string representation for JSON output.",
+      "confidence": "Medium",
+      "justification": "Both handle number parsing and formatting, but Rust uses a significantly more sophisticated approach. C's simple print_number/parse_number with get_decimal_point maps to Rust's Grisu2 algorithm with DiyFp high-precision arithmetic. Rust provides richer numeric conversion (as_f64, as_i64, as_fixed_point_u64, etc.) compared to C's basic double access. The functional equivalence is maintained despite different implementation strategies.",
       "evidence_signatures": [
-        "print_number(const cJSON *item, printbuffer *buffer) → Generator::write_number → print_dec::write",
-        "parse_number(cJSON *item, parse_buffer *buffer) → Parser::read_big_number/expect_exponent",
-        "compare_double(double a, double b) → Number::eq(&self, other: &f64)",
-        "cJSON_SetNumberHelper(cJSON *object, double number) → Number::from(f64) → JsonValue::Number"
+        "print_number(item, buffer) -> Generator::write_number(num) -> print_dec::write()",
+        "parse_number(item, buffer) -> Parser::read_big_number() / expect_exponent()",
+        "compare_double(a, b) -> Number::eq(&f64) / PartialEq implementations",
+        "cJSON_SetNumberHelper(object, number) -> Number::from(f64) / JsonValue::as_f64()"
       ]
     },
     {
-      "domain_name": "Memory Management Strategy",
+      "domain_name": "Memory and Resource Management",
       "mapping_topology": "1-to-1",
       "source_nodes": [
-        "Intermediate_cJSON_c"
+        "Root_CoreLibrary"
       ],
       "target_nodes": [
         "Root_01"
       ],
       "confidence": "Medium",
-      "justification": "Both manage memory for JSON values, but through fundamentally different paradigms. Source uses configurable memory hooks (internal_malloc/internal_free/internal_realloc via cJSON_InitHooks) for explicit allocation control. Target leverages Rust's ownership model with inline optimizations: Short struct for small strings (stack allocation), Object's inline key buffer (KEY_BUF_LEN), and Vec-based dynamic storage. The target's approach is more idiomatic for Rust, eliminating the need for explicit memory management hooks while achieving similar performance through compile-time optimizations.",
+      "justification": "C uses configurable memory hooks (internal_malloc/free/realloc, cJSON_InitHooks) for allocation, while Rust relies on its ownership model and allocator. The Rust version implements short string optimization (Short struct) and inline key storage (Object's Key struct) which are performance optimizations not present in C. The functional equivalence is in resource lifecycle management, though the mechanisms differ fundamentally due to language paradigms.",
       "evidence_signatures": [
-        "cJSON_InitHooks(cJSON_Hooks* hooks) → Rust ownership model (no equivalent needed)",
-        "internal_malloc(size_t size) → Vec::new(), Box::new() (Rust allocator)",
-        "cJSON_New_Item(const internal_hooks *hooks) → JsonValue::Null (default variant)",
-        "cJSON_Delete(cJSON *item) → Drop trait (automatic cleanup)",
-        "cJSON_strdup(const unsigned char* string, const internal_hooks *hooks) → Short::from_slice (inline optimization)"
-      ]
-    },
-    {
-      "domain_name": "Public API Surface",
-      "mapping_topology": "1-to-1",
-      "source_nodes": [
-        "Intermediate_cJSON_h"
-      ],
-      "target_nodes": [
-        "Root_05"
-      ],
-      "confidence": "High",
-      "justification": "Both expose a public API for JSON operations. Source uses a C header file (cJSON.h) declaring all public functions. Target uses lib.rs as the crate root with re-exports and convenience functions. Both provide: parsing (cJSON_Parse → parse()), serialization (cJSON_Print → stringify(), cJSON_PrintBuffered → stringify_pretty()), and type conversion (From implementations in target, direct creation functions in source). The target adds ergonomic macros (array!, object!, value!) which are Rust-idiomatic.",
-      "evidence_signatures": [
-        "cJSON_Parse(const char *value) → parse(source: &str) -> Result<JsonValue>",
-        "cJSON_Print(const cJSON *item) → stringify(root: T) -> String where T: Into<JsonValue>",
-        "cJSON_PrintBuffered(const cJSON *item, int prebuffer, cJSON_bool fmt) → stringify_pretty(root: T, spaces: u16) -> String",
-        "cJSON_CreateObject/Array/String/Number → From trait implementations + array!/object! macros"
-      ]
-    },
-    {
-      "domain_name": "Testing and Fuzzing Infrastructure",
-      "mapping_topology": "1-to-1",
-      "source_nodes": [
-        "Root_TestingAndFuzzing"
-      ],
-      "target_nodes": [
-        "Root_02",
-        "Root_03"
-      ],
-      "confidence": "Medium",
-      "justification": "Both include testing code that exercises parsing and serialization. Source has dedicated test files (test.c for demonstration, fuzz_main.c/afl.c/cjson_read_fuzzer.c for fuzzing). Target embeds tests directly in source files (it_should_parse_* functions in parser.rs, should_not_panic_on_bad_bytes in codegen.rs). The target lacks dedicated fuzzing harnesses (no equivalent to AFL/libFuzzer harnesses), but includes unit tests that cover similar functionality. The testing approach differs significantly due to language conventions (C's separate test files vs Rust's inline #[test] functions).",
-      "evidence_signatures": [
-        "create_objects() in test.c → it_should_parse_basic_json_values/it_should_parse_json_arrays in parser.rs",
-        "LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) → No direct equivalent (fuzzing missing)",
-        "read_file/parse/print loop in afl.c → it_should_parse_json_complex_object in parser.rs"
+        "cJSON_New_Item(hooks) -> JsonValue::new_object() / JsonValue::new_array() (allocation via Rust allocator)",
+        "cJSON_Delete(item) -> Drop trait (implicit deallocation)",
+        "cJSON_strdup(string, hooks) -> Short::from_slice() / String::from()",
+        "cJSON_InitHooks(hooks) -> (no equivalent - Rust uses global allocator)"
       ]
     }
   ],
   "unmapped_source_nodes": [
     {
       "node_id": "Root_UtilsLibrary",
-      "reason": "The entire JSON Utility Library (JSON Pointer RFC 6901, JSON Patch RFC 6902, JSON Merge Patch RFC 7386, and object sorting) has NO equivalent in the target Rust library. This is a significant functional gap. Source functions like cJSONUtils_GetPointer, cJSONUtils_ApplyPatches, cJSONUtils_GeneratePatches, cJSONUtils_MergePatch, cJSONUtils_GenerateMergePatch, and cJSONUtils_SortObject have no corresponding implementations in the target. This represents a major missing feature domain that would need to be implemented for feature parity."
+      "reason": "The entire JSON Utility Library (JSON Pointer RFC 6901, JSON Patch RFC 6902, JSON Merge Patch RFC 7386, object sorting) has no equivalent in the target Rust codebase. Functions like cJSONUtils_GetPointer, cJSONUtils_ApplyPatches, cJSONUtils_MergePatch, cJSONUtils_SortObject, and all their supporting functions are completely absent from the target RPG."
     },
     {
-      "node_id": "Intermediate_cJSON_Utils_c",
-      "reason": "All utility functions (JSON Pointer navigation, JSON Patch application/generation, JSON Merge Patch application/generation, object sorting) are missing from the target. Key missing functions include: cJSONUtils_GetPointer, cJSONUtils_FindPointerFromObjectTo, cJSONUtils_ApplyPatches, cJSONUtils_GeneratePatches, cJSONUtils_MergePatch, cJSONUtils_GenerateMergePatch, cJSONUtils_SortObject, and their case-sensitive variants."
+      "node_id": "Root_TestingAndFuzzing",
+      "reason": "The testing and fuzzing infrastructure (test.c demonstration, fuzz_main.c harness, AFL harness, cjson_read_fuzzer.c) has no equivalent in the target Rust codebase. While the parser module contains some inline tests (it_should_parse_* functions), there is no dedicated test file, fuzzing harness, or AFL integration visible in the target RPG."
+    },
+    {
+      "node_id": "Intermediate_cJSON_h",
+      "reason": "The public API header file (cJSON.h) has no direct equivalent. In Rust, the public API is defined through pub declarations and re-exports in lib.rs and mod.rs files, not through a separate header file. The functional content (type definitions, function declarations) is distributed across the Rust modules, but the concept of a standalone header file is absent due to Rust's module system."
     },
     {
       "node_id": "Intermediate_cJSON_Utils_h",
-      "reason": "The public API declarations for all utility functions are missing. No equivalent header/module exists in the target for JSON Pointer, Patch, Merge Patch, or sorting operations."
-    },
-    {
-      "node_id": "Intermediate_fuzz_main_c",
-      "reason": "The libFuzzer-compatible fuzzing harness entry point (main function that reads files and calls LLVMFuzzerTestOneInput) is missing from the target. While the target has unit tests, it lacks dedicated fuzzing infrastructure for automated vulnerability discovery."
-    },
-    {
-      "node_id": "Intermediate_afl_c",
-      "reason": "The AFL-specific fuzzing harness that exercises parsing and all print functions in a loop is missing. The target has no equivalent AFL or libFuzzer harness for continuous fuzzing."
-    },
-    {
-      "node_id": "Intermediate_cjson_read_fuzzer_c",
-      "reason": "The LLVMFuzzerTestOneInput function that serves as the fuzzer target for cJSON parsing is missing. No equivalent fuzz target function exists in the target library."
+      "reason": "Similar to cJSON.h, the utility header file has no equivalent because the entire utility library is missing from the target. Even if it existed, Rust would use module declarations rather than header files."
     },
     {
       "node_id": "Leaf_cJSON_Minify",
-      "reason": "The JSON minification function (cJSON_Minify) that removes whitespace and comments from JSON text is missing from the target. No equivalent minify/compact function exists."
+      "reason": "The JSON minification function (cJSON_Minify) which removes whitespace and comments from JSON text has no equivalent in the target Rust codebase."
     },
     {
       "node_id": "Leaf_cJSON_Compare",
-      "reason": "The deep comparison function for cJSON structures is missing. While the target has PartialEq implementations, cJSON_Compare provides explicit case-sensitive comparison control that may not be fully covered by the target's trait implementations."
+      "reason": "The deep comparison function (cJSON_Compare) has no direct equivalent. While Rust implements PartialEq for JsonValue, the C version provides case-sensitive comparison options and recursive structural comparison that may not be fully replicated."
     },
     {
       "node_id": "Leaf_cJSON_GetErrorPtr",
-      "reason": "The error pointer retrieval function for getting the position of a parse error is missing. The target's Error enum provides error types but no equivalent position tracking mechanism."
+      "reason": "The global error pointer accessor has no equivalent. Rust uses Result<JsonValue> with Error enum for error handling instead of a global error state."
     }
   ]
 }

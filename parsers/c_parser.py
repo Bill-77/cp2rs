@@ -19,12 +19,17 @@ class CParser:
 
         self.source_code = source_code
         
+        # 新增精准判定是否属于测试作用域
+        normalized_path = file_path.replace("\\", "/")
+        is_test_file = "tests/" in normalized_path or normalized_path.startswith("tests/")
+
         # Schema 3.1 核心骨架
         self.result = {
             "metadata": {
                 "language": "c",
                 "file_path": file_path,
-                "file_type": "header" if file_path.endswith('.h') else "source"
+                "file_type": "header" if file_path.endswith('.h') else "source",
+                "is_test_file": is_test_file  # 新增的物理文件级测试标记
             },
             "dependencies": {"system_includes": [], "local_includes": []},
             "macros": [],
@@ -344,6 +349,11 @@ class CParser:
         is_static, _, _, attrs = self._extract_attributes_and_modifiers(node)
         signature = self.source_code[node.start_byte:params_node.end_byte if params_node else decl.end_byte].decode('utf-8')
 
+        # 新增：提取物理行号和完整源码
+        start_line = node.start_point[0] + 1
+        end_line = node.end_point[0] + 1
+        full_text = self._get_text(node)
+
         func_info = {
             "name": name,
             "doc_comment": self._get_doc_comment(node),
@@ -352,7 +362,12 @@ class CParser:
             "is_static": is_static,
             "is_variadic": is_variadic,
             "attributes": attrs,
-            "compile_guards": compile_guards or []
+            "compile_guards": compile_guards or [],
+
+            # 注入物理定位与源码文本，为 Phase 3 提供支持
+            "start_line": start_line,
+            "end_line": end_line,
+            "body": full_text
         }
 
         # 如果有函数体，启动大杀器：Def-Use 数据流与作用域引擎！
@@ -371,10 +386,8 @@ class CParser:
                 "indirect_calls": list(analyzer.indirect_calls),
                 "has_unstructured_jumps": analyzer.has_unstructured_jumps
             }
-            # 【此处新增】：将解析错误探针加入输出字典
+            # 将解析错误探针加入输出字典
             func_info["has_parse_errors"] = analyzer.has_parse_errors
-
-            func_info["body"] = self._get_text(body_node)
 
         self.result["functions"].append(func_info)
 

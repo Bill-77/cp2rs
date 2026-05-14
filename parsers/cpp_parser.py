@@ -125,6 +125,10 @@ class _CppFileWorker:
         self.tree = parser.parse(self.source_code)
         self.scope_tracker = ScopeTracker()
 
+        # 新增精准判定是否属于测试作用域
+        normalized_path = file_path.replace("\\", "/")
+        is_test_file = "tests/" in normalized_path or normalized_path.startswith("tests/")
+
         # 2. Schema 4.5 终极版初始骨架
         self.schema = {
             "metadata": {
@@ -134,7 +138,8 @@ class _CppFileWorker:
                 "file_type": "source" if file_path.endswith(('.cpp', '.cc', '.cxx', '.c')) else "header",
                 "companion_header": None,
                 "ast_health": "healthy",
-                "error_node_count": 0
+                "error_node_count": 0,
+                "is_test_file": is_test_file # 新增的物理文件级测试标记
             },
             "dependencies": {"local_includes": []},
             "namespaces": [],
@@ -147,7 +152,7 @@ class _CppFileWorker:
 
         # 核心架构设计：逻辑类收纳盒 (Class Registry)
         # 为什么需要它？在 .cpp 文件中遇到 A::func() 时，当前文件可能根本没有 class A 的定义。
-        # 我们用这个字典按 FQN 临时存放所有的 class 对象，最后统一塞入 self.schema["classes"]
+        # 用这个字典按 FQN 临时存放所有的 class 对象，最后统一塞入 self.schema["classes"]
         self._class_registry: Dict[str, dict] = {}
 
     def _get_text(self, node: tree_sitter.Node) -> str:
@@ -444,16 +449,13 @@ class _CppFileWorker:
                 if child.type in ('function_declarator', 'reference_declarator', 'pointer_declarator'):
                     declarator_node = child
                     break
-        if not declarator_node:
-            return
+        if not declarator_node: return
 
-# ========================================================
-        # 【新增】：在继续下钻之前，先把函数的参数列表提取出来
-        # 原因：参数本质上也是局部变量，绝不能作为外部依赖连线！
-        # ========================================================
+        # 在继续下钻之前，先把函数的参数列表提取出来
+        # 原因：参数本质上也是局部变量，不能作为外部依赖连线
         parameters = set()
         
-        # 【精准修复】：必须先剥去返回值的指针/引用外衣，找到真正的 function_declarator
+        # 必须先剥去返回值的指针/引用外衣，找到真正的 function_declarator
         func_decl_node = declarator_node
         while func_decl_node and func_decl_node.type in ('pointer_declarator', 'reference_declarator'):
             func_decl_node = func_decl_node.child_by_field_name('declarator')
@@ -470,15 +472,12 @@ class _CppFileWorker:
                             p_decl = p_decl.child_by_field_name('declarator')
                         if p_decl and p_decl.type == 'identifier':
                             parameters.add(self._get_text(p_decl))
-        # ========================================================
 
         curr = declarator_node
         while curr and curr.type not in ('identifier', 'scoped_identifier', 'qualified_identifier', 'field_identifier', 'operator_name', 'destructor_name'):
             curr_child = curr.child_by_field_name('declarator')
-            if curr_child:
-                curr = curr_child
-            else:
-                break
+            if curr_child: curr = curr_child
+            else: break
         
         raw_name = self._get_text(curr) if curr else "unknown_func"
         
@@ -488,8 +487,7 @@ class _CppFileWorker:
         # 3. 提取脱水签名 (剥离函数体)
         signature = ""
         for child in node.children:
-            if child.type == 'compound_statement':
-                break
+            if child.type == 'compound_statement': break
             signature += self._get_text(child) + " "
         signature = re.sub(r'\s+', ' ', signature).strip() # 压缩空格
 
@@ -507,17 +505,24 @@ class _CppFileWorker:
             # 类内定义
             target_class_fqn = self.scope_tracker.get_current_fqn()
 
+        # 新增：提取物理行号和完整源码 (C++ 函数声明甚至契约都需要保留源码)
+        start_line = node.start_point[0] + 1
+        end_line = node.end_point[0] + 1
+        full_text = self._get_text(node)
+
         # 5. 组装 Schema 数据 (严格遵守 Schema 4.5 减法原则)
         func_data = {
             "name": func_name_only,
             "signature": signature,
             "is_out_of_line_definition": is_out_of_line,
             "has_body": has_body,
-            "is_extern_c": is_extern_c
+            "is_extern_c": is_extern_c,
+            
+            # 注入物理定位与源码文本
+            "start_line": start_line,
+            "end_line": end_line,
+            "body": full_text
         }
-
-        if has_body or is_contract:
-            func_data["location"] = {"start_line": node.start_point[0] + 1, "end_line": node.end_point[0] + 1}
 
         # 6. 数据流引擎挂载 (仅有 body 时挂载，空数据将在 finalize 阶段剥离)
         if has_body:
