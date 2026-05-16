@@ -2,7 +2,7 @@ import os
 from openai import OpenAI
 
 class LLMClient:
-    def __init__(self, api_key=None, model="deepseek-chat"):
+    def __init__(self, api_key=None, model="deepseek-v4-flash"):
         """
         初始化 DeepSeek LLM 客户端。
         推荐设置环境变量 DEEPSEEK_API_KEY。
@@ -17,7 +17,7 @@ class LLMClient:
         # DeepSeek API 的官方 Base URL
         self.client = OpenAI(
             api_key=self.api_key,
-            base_url="https://api.deepseek.com/v1"
+            base_url="https://api.deepseek.com"
         )
 
     def chat_completion(self, messages, temperature=0.1):

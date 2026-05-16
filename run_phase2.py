@@ -46,7 +46,7 @@ def process_single_repo(filename, llm_client):
 
         rpg_path = os.path.join(RPG_OUTPUT_DIR, f"{repo_name}_rpg.json")
         with open(rpg_path, 'w', encoding='utf-8') as f:
-            json.dump(results["rpg_graph"], f, ensure_ascii=False, indent=2)
+            json.dump(rpg_data, f, ensure_ascii=False, indent=2)
                         
         safe_print(f"🎉 [{repo_name}]RPG 图谱生成成功！产物已保存。")
         

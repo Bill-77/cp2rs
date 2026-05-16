@@ -1,83 +1,74 @@
 import os
+import sys
+import json
 import argparse
-from phase3_evaluator.macro_alignment import evaluate_macro_alignment
-from phase3_evaluator.micro_correctness import evaluate_micro_correctness
+from rpg_builder.llm_client import LLMClient
+from phase3_evaluator.funnel_aligner import FunnelAligner
+from phase3_evaluator.metric_calculator_3a import MetricCalculator3A
 
-# 配置路径
-RPG_OUTPUT_DIR = "output/rpg_graphs"
-REPORT_OUTPUT_DIR = "output/evaluation_reports"
-PARSED_OUTPUT_DIR = "output/parsed_repos"
+def check_file_exists(filepath: str) -> bool:
+    """检查文件是否存在，并给予带颜色的错误提示"""
+    if not os.path.exists(filepath):
+        print(f"❌ 致命错误: 找不到必要的数据文件 -> {filepath}")
+        return False
+    return True
 
 def main():
-    parser = argparse.ArgumentParser(description="CP2RS Phase 3: 跨语言等价性评测总控")
-    
-    # 基础参数 (适用于所有场景)
-    parser.add_argument("--source", type=str, required=True, help="源仓库的 RPG (如: cJSON_rpg.json)")
-    parser.add_argument("--target", type=str, required=True, help="翻译结果的 RPG (如: trans_rpg.json)")
-    
-    # 标杆测试专属参数 (可选)
-    parser.add_argument("--answer_rpg", type=str, help="答案仓库的 RPG (如: json-rust_rpg.json)")
-    parser.add_argument("--answer_repo_dir", type=str, help="答案仓库的物理根目录 (如: data/rust_repos/json-rust)")
-    parser.add_argument("--target_schema", type=str, help="翻译结果的阶段一 Schema (如: trans_parsed.json)")
-    parser.add_argument("--target_repo_dir", type=str, help="翻译结果的物理根目录，用于运行 cargo test")
+    # 1. 设置命令行参数解析
+    parser = argparse.ArgumentParser(description="CP2RS Phase 3: 架构对齐与微观测试引擎")
+    parser.add_argument("--src", type=str, required=True, help="源仓库的名称 (例如: cjson)")
+    parser.add_argument("--tgt", type=str, required=True, help="目标仓库的名称 (例如: rust_json)")
+    parser.add_argument("--model", type=str, default="deepseek-chat", help="指定调用的大模型，默认 deepseek-chat")
     
     args = parser.parse_args()
-
-    source_path = os.path.join(RPG_OUTPUT_DIR, args.source)
-    target_path = os.path.join(RPG_OUTPUT_DIR, args.target)
-
-    if not os.path.exists(source_path) or not os.path.exists(target_path):
-        print("❌ 找不到源端或目标端的 RPG 图谱文件！")
-        return
-
-    print("=" * 60)
-    print("⚖️  CP2RS Phase 3: 指标评估裁决引擎已启动")
-    print("=" * 60)
-
-    # ---------------------------------------------------------
-    # 指标一 宏观功能点对齐度 (Source VS Target)
-    # ---------------------------------------------------------
-    report_name_1 = f"{args.source.replace('_rpg.json', '')}_vs_{args.target.replace('_rpg.json', '')}_macro_alignment.json"
-    report_path_1 = os.path.join(REPORT_OUTPUT_DIR, report_name_1)
     
-    print("\n[1/2] 正在评估翻译仓库与源仓库的宏观架构对齐度...")
-    evaluate_macro_alignment(source_path, target_path, report_path_1)
+    print(f"🚀 CP2RS Phase 3 启动 | 正在评测: [{args.src}] ➡️  [{args.tgt}]")
 
-    # ---------------------------------------------------------
-    # 检测是否进入标杆测试模式
-    # ---------------------------------------------------------
-    if not args.answer_rpg:
-        print("\n🏁 检测到未传入答案仓库参数。以非标杆模式运行，Phase 3 评估结束。")
-        return
+    # 2. 自动构建动态路径
+    base_parsed_dir = os.path.join("output", "parsed_repos")
+    base_rpg_dir = os.path.join("output", "rpg_graphs")
 
-    # 校验标杆测试所需的完整参数
-    if not all([args.answer_repo_dir, args.target_schema, args.target_repo_dir]):
-        print("❌ 标杆模式下，缺少必要的路径参数 (--answer_repo_dir, --target_schema, --target_repo_dir)")
-        return
+    src_db_path = os.path.join(base_parsed_dir, f"{args.src}_parsed.json")
+    tgt_db_path = os.path.join(base_parsed_dir, f"{args.tgt}_parsed.json")
+    src_rpg_path = os.path.join(base_rpg_dir, f"{args.src}_rpg.json")
+    tgt_rpg_path = os.path.join(base_rpg_dir, f"{args.tgt}_rpg.json")
 
-    answer_rpg_path = os.path.join(RPG_OUTPUT_DIR, args.answer_rpg)
-    target_schema_path = os.path.join(PARSED_OUTPUT_DIR, args.target_schema)
+    # 3. 严格的安全校验
+    paths_to_check = [src_db_path, tgt_db_path, src_rpg_path, tgt_rpg_path]
+    if not all(check_file_exists(p) for p in paths_to_check):
+        print("\n💡 提示: 请确认 Phase 1 和 Phase 2 已正确生成了上述仓库的 schema 和 rpg 文件。")
+        sys.exit(1)
 
-    # ---------------------------------------------------------
-    # 获取 Rust 🆚 Rust 的映射考卷 (Target VS Answer)
-    # ---------------------------------------------------------
-    report_name_2 = f"{args.target.replace('_rpg.json', '')}_vs_{args.answer_rpg.replace('_rpg.json', '')}_macro_alignment.json"
-    report_path_2 = os.path.join(REPORT_OUTPUT_DIR, report_name_2)
+    # 4. 初始化引擎
+    try:
+        llm_client = LLMClient(model=args.model)
+        aligner = FunnelAligner(llm_client)
+    except ValueError as e:
+        print(f"\n❌ 初始化失败: {e}")
+        sys.exit(1)
+
+    # 5.1 执行 3A 对齐流水线
+    print("\n" + "="*50)
+    report = aligner.run_alignment(src_rpg_path, tgt_rpg_path, src_db_path, tgt_db_path)
+    print("="*50)
+
+    # 5.2 运行量化打分引擎
+    calculator = MetricCalculator3A()
+    report = calculator.calculate_scores(report, src_rpg_path, tgt_rpg_path, src_db_path, tgt_db_path)   
+    print("="*50)
+
+    # 6. 结果动态落盘
+    output_dir = os.path.join("output", "eval_reports")
+    os.makedirs(output_dir, exist_ok=True)
     
-    print("\n[2/2] 标杆模式开启！正在获取翻译仓库与答案仓库的底层映射...")
-    # 复用 3A 的 Prompt，直接让两个 Rust 仓库碰一碰，找到目标函数和答案函数的对应关系
-    evaluate_macro_alignment(target_path, answer_rpg_path, report_path_2)
-
-    # ---------------------------------------------------------
-    # 指标二 微观函数正确度 (沙盒处决)
-    # ---------------------------------------------------------
-    print("\n🚀 正在启动微观函数沙盒测试...")
-    evaluate_micro_correctness(
-        target_vs_answer_report=report_path_2,
-        answer_repo_dir=args.answer_repo_dir,
-        target_schema_path=target_schema_path,
-        target_repo_dir=args.target_repo_dir
-    )
+    # 文件名也会自动根据仓库名生成
+    report_filename = f"3A_alignment_{args.src}_vs_{args.tgt}.json"
+    report_path = os.path.join(output_dir, report_filename)
+    
+    with open(report_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2, ensure_ascii=False)
+        
+    print(f"\n✅ 3A 对齐报告已成功保存至: {report_path}")
 
 if __name__ == "__main__":
     main()

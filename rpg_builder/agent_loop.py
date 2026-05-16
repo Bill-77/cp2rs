@@ -35,78 +35,78 @@ def clean_and_parse_json(json_str):
             
         return json.loads(target_str)
 
-def auto_mount_leaf_nodes(rpg_data, full_ir):
-    """
-    【索引挂载机制】
-    作为 Phase 3 评估指标的纯粹路由指针。
-    剔除所有大模型脑补或正则生成的语义描述，只保留阶段一 schema 的原生物理标识与签名。
-    """
-    if "nodes" not in rpg_data:
-        rpg_data["nodes"] = {}
+# def auto_mount_leaf_nodes(rpg_data, full_ir):
+#     """
+#     【索引挂载机制】
+#     作为 Phase 3 评估指标的纯粹路由指针。
+#     剔除所有大模型脑补或正则生成的语义描述，只保留阶段一 schema 的原生物理标识与签名。
+#     """
+#     if "nodes" not in rpg_data:
+#         rpg_data["nodes"] = {}
     
-    # 初始化/覆盖 leaf_nodes
-    rpg_data["nodes"]["leaf_nodes"] = []
+#     # 初始化/覆盖 leaf_nodes
+#     rpg_data["nodes"]["leaf_nodes"] = []
     
-    inter_nodes = rpg_data["nodes"].get("intermediate_nodes", [])
+#     inter_nodes = rpg_data["nodes"].get("intermediate_nodes", [])
 
-    for inter_node in inter_nodes:
-        file_path = inter_node.get("file_path")
-        if not file_path:
-            continue
+#     for inter_node in inter_nodes:
+#         file_path = inter_node.get("file_path")
+#         if not file_path:
+#             continue
 
-        # 从完整 IR 中获取该文件的 AST 数据
-        file_ast = full_ir.get("files", {}).get(file_path, {})
-        inter_id = inter_node.get("id", "Unknown_Inter")
+#         # 从完整 IR 中获取该文件的 AST 数据
+#         file_ast = full_ir.get("files", {}).get(file_path, {})
+#         inter_id = inter_node.get("id", "Unknown_Inter")
 
-        # 1. 挂载独立函数 (C / C++ standalone / Rust standalone)
-        standalone_funcs = file_ast.get("functions", []) + file_ast.get("standalone_functions", [])
-        for func in standalone_funcs:
-            func_name = func.get("name", "unnamed")
-            rpg_data["nodes"]["leaf_nodes"].append({
-                "id": f"Leaf_{func_name}",
-                "parent_intermediate": inter_id,
-                "ir_reference": f"functions.{func_name}",
-                "node_subtype": "standalone_function",
-                "name": func_name,
-                "original_signature": func.get("signature", "")
-            })
+#         # 1. 挂载独立函数 (C / C++ standalone / Rust standalone)
+#         standalone_funcs = file_ast.get("functions", []) + file_ast.get("standalone_functions", [])
+#         for func in standalone_funcs:
+#             func_name = func.get("name", "unnamed")
+#             rpg_data["nodes"]["leaf_nodes"].append({
+#                 "id": f"Leaf_{func_name}",
+#                 "parent_intermediate": inter_id,
+#                 "ir_reference": f"functions.{func_name}",
+#                 "node_subtype": "standalone_function",
+#                 "name": func_name,
+#                 "original_signature": func.get("signature", "")
+#             })
 
-        # 2. 挂载类/结构体方法 (C++ classes / Rust impl_blocks)
-        class_blocks = file_ast.get("classes", []) + file_ast.get("impl_blocks", [])
-        for cls in class_blocks:
-            target_name = cls.get("name") or cls.get("target_type") or "UnknownClass"
-            for method in cls.get("methods", []):
-                method_name = method.get("name", "unnamed")
-                rpg_data["nodes"]["leaf_nodes"].append({
-                    "id": f"Leaf_{target_name}_{method_name}",
-                    "parent_intermediate": inter_id,
-                    "ir_reference": f"classes.{target_name}.{method_name}",
-                    "node_subtype": "member_function",
-                    "belongs_to_class": target_name,
-                    "name": method_name,
-                    "original_signature": method.get("signature", "")
-                })
+#         # 2. 挂载类/结构体方法 (C++ classes / Rust impl_blocks)
+#         class_blocks = file_ast.get("classes", []) + file_ast.get("impl_blocks", [])
+#         for cls in class_blocks:
+#             target_name = cls.get("name") or cls.get("target_type") or "UnknownClass"
+#             for method in cls.get("methods", []):
+#                 method_name = method.get("name", "unnamed")
+#                 rpg_data["nodes"]["leaf_nodes"].append({
+#                     "id": f"Leaf_{target_name}_{method_name}",
+#                     "parent_intermediate": inter_id,
+#                     "ir_reference": f"classes.{target_name}.{method_name}",
+#                     "node_subtype": "member_function",
+#                     "belongs_to_class": target_name,
+#                     "name": method_name,
+#                     "original_signature": method.get("signature", "")
+#                 })
 
-        # 3. 挂载 Trait 实现方法 (Rust 特有)
-        for trt in file_ast.get("traits", []):
-            trait_name = trt.get("name", "UnknownTrait")
-            for method in trt.get("provided_methods", []):
-                method_name = method.get("name", "unnamed")
-                rpg_data["nodes"]["leaf_nodes"].append({
-                    "id": f"Leaf_trait_{trait_name}_{method_name}",
-                    "parent_intermediate": inter_id,
-                    "ir_reference": f"traits.{trait_name}.{method_name}",
-                    "node_subtype": "trait_method",
-                    "belongs_to_class": trait_name,
-                    "name": method_name,
-                    "original_signature": method.get("signature", "")
-                })
+#         # 3. 挂载 Trait 实现方法 (Rust 特有)
+#         for trt in file_ast.get("traits", []):
+#             trait_name = trt.get("name", "UnknownTrait")
+#             for method in trt.get("provided_methods", []):
+#                 method_name = method.get("name", "unnamed")
+#                 rpg_data["nodes"]["leaf_nodes"].append({
+#                     "id": f"Leaf_trait_{trait_name}_{method_name}",
+#                     "parent_intermediate": inter_id,
+#                     "ir_reference": f"traits.{trait_name}.{method_name}",
+#                     "node_subtype": "trait_method",
+#                     "belongs_to_class": trait_name,
+#                     "name": method_name,
+#                     "original_signature": method.get("signature", "")
+#                 })
 
-    return rpg_data
+#     return rpg_data
 
 def phase_two_agent_workflow(full_ir, prompt_2a, llm_client, repo_name=""):
     """
-    执行完整的阶段二工作流：先动态生成 RPG 图谱，再降维生成功能清单。
+    执行完整的阶段二工作流：动态生成 RPG 图谱。
     """
     prefix = f"[{repo_name}] " if repo_name else ""
     
@@ -186,22 +186,29 @@ def phase_two_agent_workflow(full_ir, prompt_2a, llm_client, repo_name=""):
     except Exception as e:
         print(f"{prefix}   ⚠️ [架构修正警告] JSON 解析失败，跳过自环清理: {e}")
 
+    # # === 解析大模型输出的图谱，并执行核心增强：自动挂载 Leaf Nodes ===
+    # try:
+    #     rpg_data = clean_and_parse_json(rpg_json_str) 
+        
+    #     # 【自动挂载机制核心触发】：在这里用 Python 将底层的 AST 函数全量塞进图谱里！
+    #     rpg_data = auto_mount_leaf_nodes(rpg_data, full_ir)
+    #     print(f"{prefix}   🔗 [自动挂载] 已成功将原生函数的 AST 数据结构挂载至中间节点！")
+        
+    # except Exception as e:
+    #     print("\n" + "="*60)
+    #     print("❌ [调试拦截] RPG 图谱 (Step 2A) JSON 解析失败！")
+    #     print(f"报错信息: {e}")
+    #     print("-" * 60)
+    #     print("【提取出的 <output> 字符串原文 (用 repr 显示排版)】:")
+    #     print(repr(rpg_json_str))
+    #     print("="*60 + "\n")
+    #     raise e
+
     # === 解析大模型输出的图谱，并执行核心增强：自动挂载 Leaf Nodes ===
     try:
-        rpg_data = clean_and_parse_json(rpg_json_str) 
-        
-        # 【自动挂载机制核心触发】：在这里用 Python 将底层的 AST 函数全量塞进图谱里！
-        rpg_data = auto_mount_leaf_nodes(rpg_data, full_ir)
-        print(f"{prefix}   🔗 [自动挂载] 已成功将原生函数的 AST 数据结构挂载至中间节点！")
-        
+        rpg_data = clean_and_parse_json(rpg_json_str)
+        print(f"{prefix}   🔗 [架构生成] RPG 图谱解析完毕，准备落盘 (Leaf Nodes 已精简)！")
     except Exception as e:
-        print("\n" + "="*60)
-        print("❌ [调试拦截] RPG 图谱 (Step 2A) JSON 解析失败！")
-        print(f"报错信息: {e}")
-        print("-" * 60)
-        print("【提取出的 <output> 字符串原文 (用 repr 显示排版)】:")
-        print(repr(rpg_json_str))
-        print("="*60 + "\n")
-        raise e
+        print(f"{prefix}   ❌ [致命错误] 图谱 JSON 解析彻底失败: {e}")
 
     return rpg_data

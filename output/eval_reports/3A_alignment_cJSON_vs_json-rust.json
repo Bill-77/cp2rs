@@ -1,0 +1,276 @@
+{
+  "macro_alignment_score": 22.26,
+  "aligned_modules": [
+    {
+      "src_module": "Root_CoreLibrary",
+      "tgt_module": "Root_CoreTypes,Root_Parsing,Root_Codegen,Root_PublicAPI",
+      "justification": "Source Root_CoreLibrary provides JSON parsing, serialization, and object creation/manipulation as a monolithic module. Target splits these responsibilities across Root_CoreTypes (data types), Root_Parsing (parsing engine), Root_Codegen (serialization engine), and Root_PublicAPI (public facade with convenience functions). The topological edges confirm this: Source's core module is the foundation for all other modules, while Target's Root_Parsing and Root_Codegen both depend on Root_CoreTypes, and Root_PublicAPI re-exports and ties together all three internal modules. The semantic descriptions of parsing (cJSON_Parse vs Parser), serialization (cJSON_Print vs DumpGenerator/PrettyGenerator), and object manipulation (cJSON_AddItemToObject vs JsonValue construction) align precisely across the split.",
+      "aligned_functions": [
+        {
+          "src_uuid": "cJSON.c::cJSON_GetStringValue",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_str",
+          "confidence": "High",
+          "reason": "两者均检查是否为字符串类型，若是则返回字符串指针/引用，否则返回 NULL/None。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_GetNumberValue",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_f64",
+          "confidence": "High",
+          "reason": "两者均检查是否为数字类型，若是则返回 double/f64 值，否则返回 NAN/None。"
+        },
+        {
+          "src_uuid": "cJSON.c::parse_number",
+          "tgt_uuid": "src/parser.rs::Parser::read_big_number",
+          "confidence": "Medium",
+          "reason": "两者均解析数字字符串为内部数字表示，C 使用 strtod 和临时缓冲区，Rust 使用逐字符解析和 checked_mul/add。"
+        },
+        {
+          "src_uuid": "cJSON.c::print_number",
+          "tgt_uuid": "src/util/print_dec.rs::write",
+          "confidence": "Medium",
+          "reason": "两者均将数字转换为字符串，C 使用 sprintf 和 locale 处理，Rust 使用 Grisu2 算法和 LUT 高效格式化。"
+        },
+        {
+          "src_uuid": "cJSON.c::parse_hex4",
+          "tgt_uuid": "src/parser.rs::Parser::read_hexdec_codepoint",
+          "confidence": "High",
+          "reason": "两者均解析4位十六进制数字为无符号整数，逻辑完全一致。"
+        },
+        {
+          "src_uuid": "cJSON.c::utf16_literal_to_utf8",
+          "tgt_uuid": "src/parser.rs::Parser::read_codepoint",
+          "confidence": "Medium",
+          "reason": "两者均将 \\uXXXX 转义序列转换为 UTF-8 字节，处理代理对逻辑等价。"
+        },
+        {
+          "src_uuid": "cJSON.c::parse_string",
+          "tgt_uuid": "src/parser.rs::Parser::read_complex_string",
+          "confidence": "Medium",
+          "reason": "两者均解析 JSON 字符串，处理转义序列和 UTF-16 代理对，C 使用 goto fail 模式，Rust 使用 Result。"
+        },
+        {
+          "src_uuid": "cJSON.c::parse_value",
+          "tgt_uuid": "src/parser.rs::Parser::parse",
+          "confidence": "Medium",
+          "reason": "两者均为 JSON 值解析入口，C 使用 switch 判断类型，Rust 使用 match 和递归/栈解析。"
+        },
+        {
+          "src_uuid": "cJSON.c::parse_array",
+          "tgt_uuid": "src/parser.rs::Parser::parse",
+          "confidence": "Medium",
+          "reason": "parse_array 解析 JSON 数组，C 使用链表，Rust 使用 Vec 和栈，逻辑等价。"
+        },
+        {
+          "src_uuid": "cJSON.c::parse_object",
+          "tgt_uuid": "src/parser.rs::Parser::parse",
+          "confidence": "Medium",
+          "reason": "parse_object 解析 JSON 对象，C 使用链表，Rust 使用 Object 和栈，逻辑等价。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_ParseWithOpts",
+          "tgt_uuid": "src/parser.rs::parse",
+          "confidence": "Medium",
+          "reason": "两者均为 JSON 解析入口，C 处理 null 终止和长度，Rust 处理 &str 切片。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_ParseWithLengthOpts",
+          "tgt_uuid": "src/parser.rs::parse",
+          "confidence": "Medium",
+          "reason": "两者均为带长度参数的 JSON 解析入口，C 使用 parse_buffer，Rust 使用 Parser 结构体。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_Parse",
+          "tgt_uuid": "src/parser.rs::parse",
+          "confidence": "High",
+          "reason": "两者均为最简单的 JSON 解析入口，C 调用 cJSON_ParseWithOpts，Rust 调用 Parser::parse。"
+        },
+        {
+          "src_uuid": "cJSON.c::print",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::dump",
+          "confidence": "Medium",
+          "reason": "两者均为内部序列化函数，C 使用 printbuffer，Rust 使用 DumpGenerator，功能等价。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_Print",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::dump",
+          "confidence": "High",
+          "reason": "两者均返回格式化 JSON 字符串，C 调用 print(true)，Rust 调用 DumpGenerator。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_PrintUnformatted",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::dump",
+          "confidence": "High",
+          "reason": "两者均返回非格式化 JSON 字符串，C 调用 print(false)，Rust 调用 DumpGenerator。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_GetArraySize",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::len",
+          "confidence": "High",
+          "reason": "两者均返回数组长度，C 遍历链表计数，Rust 返回 Vec::len()。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_GetArrayItem",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index",
+          "confidence": "High",
+          "reason": "两者均按索引获取数组元素，C 返回 NULL 表示越界，Rust 返回 &NULL。"
+        },
+        {
+          "src_uuid": "cJSON.c::get_object_item",
+          "tgt_uuid": "src/object.rs::Object::get",
+          "confidence": "High",
+          "reason": "两者均按名称查找对象成员，C 使用链表遍历和 strcmp，Rust 使用哈希树查找。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_GetObjectItem",
+          "tgt_uuid": "src/object.rs::Object::get",
+          "confidence": "High",
+          "reason": "两者均按名称（大小写不敏感）获取对象成员，C 调用 get_object_item(false)，Rust 调用 Object::get。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_HasObjectItem",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::has_key",
+          "confidence": "High",
+          "reason": "两者均检查对象是否包含指定键，C 返回 1/0，Rust 返回 bool。"
+        },
+        {
+          "src_uuid": "cJSON.c::add_item_to_array",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::push",
+          "confidence": "Medium",
+          "reason": "两者均向数组添加元素，C 操作链表，Rust 操作 Vec。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_AddItemToArray",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::push",
+          "confidence": "High",
+          "reason": "两者均为公开 API 向数组添加元素，C 返回 bool，Rust 返回 Result。"
+        },
+        {
+          "src_uuid": "cJSON.c::add_item_to_object",
+          "tgt_uuid": "src/object.rs::Object::insert",
+          "confidence": "Medium",
+          "reason": "两者均向对象添加键值对，C 处理字符串复制和类型标志，Rust 处理哈希和树插入。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_AddItemToObject",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::insert",
+          "confidence": "High",
+          "reason": "两者均为公开 API 向对象添加键值对，C 返回 bool，Rust 返回 Result。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_DetachItemFromArray",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove",
+          "confidence": "Medium",
+          "reason": "两者均从数组中移除元素，C 分离节点，Rust 使用 Vec::remove。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_DetachItemFromObject",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::remove",
+          "confidence": "Medium",
+          "reason": "两者均从对象中移除键值对，C 分离节点，Rust 重建对象。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_CreateNumber",
+          "tgt_uuid": "src/number.rs::Number::from",
+          "confidence": "Medium",
+          "reason": "两者均从 double/f64 创建数字，C 直接赋值，Rust 使用 Grisu2 算法转换为 mantissa+exponent。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_CreateString",
+          "tgt_uuid": "src/value/implements.rs::JsonValue::from",
+          "confidence": "Medium",
+          "reason": "两者均从字符串创建 JSON 值，C 复制字符串，Rust 根据长度选择 Short 或 String。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_CreateArray",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::new_array",
+          "confidence": "High",
+          "reason": "两者均创建空数组，C 设置类型标志，Rust 返回 JsonValue::Array(Vec::new())。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_CreateObject",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::new_object",
+          "confidence": "High",
+          "reason": "两者均创建空对象，C 设置类型标志，Rust 返回 JsonValue::Object(Object::new())。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_Duplicate_rec",
+          "tgt_uuid": "src/object.rs::Object::clone",
+          "confidence": "Medium",
+          "reason": "两者均递归复制 JSON 结构，C 复制节点和子节点，Rust 克隆 Vec 并修复指针。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_IsBool",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_boolean",
+          "confidence": "High",
+          "reason": "两者均检查是否为布尔类型，C 检查位标志，Rust 使用 match。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_IsNull",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_null",
+          "confidence": "High",
+          "reason": "两者均检查是否为 null，C 检查类型标志，Rust 使用 match。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_IsNumber",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_number",
+          "confidence": "High",
+          "reason": "两者均检查是否为数字类型，C 检查类型标志，Rust 使用 match。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_IsString",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_string",
+          "confidence": "High",
+          "reason": "两者均检查是否为字符串类型，C 检查类型标志，Rust 使用 match。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_IsArray",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_array",
+          "confidence": "High",
+          "reason": "两者均检查是否为数组类型，C 检查类型标志，Rust 使用 match。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_IsObject",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_object",
+          "confidence": "High",
+          "reason": "两者均检查是否为对象类型，C 检查类型标志，Rust 使用 match。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_Compare",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::eq",
+          "confidence": "Medium",
+          "reason": "两者均比较两个 JSON 值，C 递归比较所有字段，Rust 使用 PartialEq trait。"
+        }
+      ]
+    }
+  ],
+  "quantitative_metrics": {
+    "atomic_base_data": {
+      "total_source_modules": "4 - Source 仓库的宏观模块(Root)总数",
+      "aligned_source_modules": "1 - 成功在 Target 中找到对齐映射的 Source 模块数",
+      "total_target_modules": "4 - Target 仓库的宏观模块(Root)总数",
+      "aligned_target_modules": "4 - 实际参与了架构对齐的 Target 模块数",
+      "total_source_functions": "246 - Source 对齐模块下包含的真实函数总量",
+      "total_target_functions": "216 - Target 对齐模块下包含的真实函数总量",
+      "aligned_function_pairs": "39 - 通过微观校验，成功对齐的等价函数对数量",
+      "union_functions": "423 - 两个仓库对齐模块下函数的去重并集总数",
+      "total_source_loc": "2895 - Source 对齐模块的总代码行数 (Lines of Code)",
+      "total_target_loc": "2247 - Target 对齐模块的总代码行数 (Lines of Code)",
+      "source_orphan_functions": "207 - Source 中被时代淘汰或未被翻译的孤儿函数量",
+      "target_native_functions": "177 - Target 中独创的、无 C 源码对应的原生函数量",
+      "target_unsafe_functions": "31 - Target 核心模块中带有 unsafe 标记或代码块的函数量",
+      "high_confidence_alignments": "21 - 被大模型评估为 High 确信度的微观对齐函数量\n"
+    },
+    "derived_ratio_metrics": {
+      "source_macro_coverage_rate": "25.00% ( 1 / 4 ) - 对齐的 Source 核心模块数 / Source 仓库总模块数",
+      "source_micro_coverage_rate": "15.85% ( 39 / 246 ) - 成功对齐的函数对数量 / Source 核心模块下的函数总量",
+      "functional_overlap_ratio_iou": "9.22% ( 39 / 423 ) - 对齐的函数量 / (Source函数总量 + Target函数总量 - 对齐函数量)",
+      "architecture_fragmentation_index": "4.0 - Target 对齐模块数 / Source 对齐模块数",
+      "api_bloat_ratio": "0.88x ( 216 / 246 functions ) - Target 对齐模块总函数量 / Source 对齐模块总函数量",
+      "code_volume_loc_bloat_ratio": "0.78x ( 2247 / 2895 lines ) - Target 核心模块总代码行数(LOC) / Source 核心模块总代码行数(LOC)",
+      "source_orphan_rate": "84.15% ( 207 / 246 ) - Source 中未被翻译的函数量 / Source 总函数量",
+      "target_native_rate": "81.94% ( 177 / 216 ) - Target 中无对应C源码的独创函数量 / Target 总函数量",
+      "target_unsafe_dependency_rate": "14.35% ( 31 / 216 ) - Target 中带有 unsafe 标记或代码块的函数量 / Target 总函数量",
+      "micro_alignment_confidence_rate": "53.85% ( 21 / 39 ) - 大模型标记为High确信度的对齐数量 / 总共对齐的函数对数量"
+    }
+  }
+}
