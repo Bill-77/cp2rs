@@ -1,4 +1,4 @@
-PROMPT_MACRO_ALIGNMENT = """
+PROMPT_MACRO_ALIGNMENT = r"""
 # Role & Objective
 你是一个世界顶级的跨语言代码仓库重构与架构等价性评估专家（C/C++ to Rust）。
 你的核心任务是执行“宏观架构拓扑对齐 (Macro Architectural Topology Alignment)”。
@@ -65,6 +65,7 @@ PROMPT_MICRO_ALIGNMENT = """
 请注意：
 1. **千万不要**输出`<thinking>`的内容
 2. 只输出 JSON 数据，不要输出 Markdown 的 ```json 标记。
+3. **JSON 安全转义**：在撰写 `reason` 字段时，如果必须提到代码中的反斜杠或 Unicode 字符（例如 \ u 或 \ x），**你必须使用双反斜杠进行安全转义（例如写成 \\u 或 \\x），绝对禁止在 JSON 值中输出非法的单反斜杠转义，否则会导致解析崩溃！**
 
 输出格式要求：
 
@@ -78,4 +79,34 @@ PROMPT_MICRO_ALIGNMENT = """
   }}
 ]
 </output>
+"""
+
+# 战略透视 Prompt
+PROMPT_STRATEGY_ANALYSIS = """
+# Role & Objective
+你是一位顶级的 Rust 架构师与代码重构专家。
+你的任务是对比【机器自动翻译生成的 Rust 代码 (Target)】与【人类专家手写的 Rust 代码 (Answer)】，并输出一份深度的“战略透视报告 (Strategy Analysis)”。
+
+# Context: The 3A Alignment Data
+以下是我们通过底层的架构与源码对齐引擎，提取出的 Target 与 Answer 之间的微观对齐映射关系，以及两者全局的量化指标数据：
+
+[Target vs Answer 3A 量化指标]
+{quantitative_metrics}
+
+[Target vs Answer 核心架构对齐映射]
+{aligned_modules_summary}
+
+# Workflow: Strategic Evaluation
+请仔细分析上述数据，并在脑海中思考以下问题：
+1. **架构分歧 (Architectural Divergence)**：从模块的碎片化指数和映射关系来看，机器翻译 (Target) 是否优先保持了原始 C/C++ 的文件结构？人类专家 (Answer) 是否进行了更大胆、更符合 Rust 习惯的模块拆分？
+2. **特性利用率与惯用语 (Idiomatic Rust & Feature Utilization)**：从接口膨胀率、原生函数率 (Native Rate) 和 Unsafe 依赖率来看，机器翻译是否在“用 Rust 语法写 C 代码”（强行裸奔）？人类是否充分利用了 Enum, Trait, 迭代器和生命周期管理？
+
+# Output Constraints
+请直接输出合法的 JSON 字符串，严格遵守以下 Schema。不要输出 Markdown 代码块标记，不要输出任何多余的解释文字。
+
+{{
+  "architecture_strategy_diff": "分析机器与人类在模块拆分、目录组织和架构解耦上的策略差异（约150字）",
+  "idiomatic_rust_utilization": "分析两者在 Rust 高级特性（如所有权、Trait、错误处理）使用上的差距，特别要结合 Unsafe 率和接口膨胀率进行点评（约150字）",
+  "overall_translation_verdict": "基于以上数据，给出一个最终的定性结论：Target 代码是属于'机械式逐行机翻'、'带安全检查的C代码'，还是'接近人类水平的重构'？（一句话总结）"
+}}
 """

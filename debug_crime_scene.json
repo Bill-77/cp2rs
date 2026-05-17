@@ -1,0 +1,437 @@
+<output>
+[
+  {
+    "src_uuid": "src/short.rs::Short::from_slice",
+    "tgt_uuid": "src/short.rs::Short::from_slice",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/short.rs::Short::as_str",
+    "tgt_uuid": "src/short.rs::Short::as_str",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/short.rs::Short::eq",
+    "tgt_uuid": "src/short.rs::Short::eq",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/short.rs::Short::fmt",
+    "tgt_uuid": "src/short.rs::Short::fmt",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/short.rs::Short::deref",
+    "tgt_uuid": "src/short.rs::Short::deref",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/short.rs::String::from",
+    "tgt_uuid": "src/short.rs::String::from",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/short.rs::str::eq",
+    "tgt_uuid": "src/short.rs::str::eq",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/short.rs::String::eq",
+    "tgt_uuid": "src/short.rs::String::eq",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/util/diyfp.rs::get_cached_power_by_index",
+    "tgt_uuid": "src/util/diyfp.rs::get_cached_power_by_index",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/util/diyfp.rs::get_cached_power",
+    "tgt_uuid": "src/util/diyfp.rs::get_cached_power",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/util/diyfp.rs::DiyFp::new",
+    "tgt_uuid": "src/util/diyfp.rs::DiyFp::new",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/util/diyfp.rs::DiyFp::from_f64",
+    "tgt_uuid": "src/util/diyfp.rs::DiyFp::from_f64",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/util/diyfp.rs::DiyFp::normalize",
+    "tgt_uuid": "src/util/diyfp.rs::DiyFp::normalize",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/util/diyfp.rs::DiyFp::normalize_boundary",
+    "tgt_uuid": "src/util/diyfp.rs::DiyFp::normalize_boundary",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/util/diyfp.rs::DiyFp::normalized_boundaries",
+    "tgt_uuid": "src/util/diyfp.rs::DiyFp::normalized_boundaries",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/util/diyfp.rs::DiyFp::sub",
+    "tgt_uuid": "src/util/diyfp.rs::DiyFp::sub",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/util/diyfp.rs::DiyFp::mul",
+    "tgt_uuid": "src/util/diyfp.rs::DiyFp::mul",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/util/grisu2.rs::grisu_round",
+    "tgt_uuid": "src/util/grisu2.rs::grisu_round",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/util/grisu2.rs::count_decimal_digit32",
+    "tgt_uuid": "src/util/grisu2.rs::count_decimal_digit32",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/util/grisu2.rs::digit_gen",
+    "tgt_uuid": "src/util/grisu2.rs::digit_gen",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/error.rs::Error::wrong_type",
+    "tgt_uuid": "src/error.rs::Error::wrong_type",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/error.rs::Error::fmt",
+    "tgt_uuid": "src/error.rs::Error::fmt",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/error.rs::Error::description",
+    "tgt_uuid": "src/error.rs::Error::description",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::exponentiate_f64",
+    "tgt_uuid": "src/number.rs::exponentiate_f64",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::exponentiate_f32",
+    "tgt_uuid": "src/number.rs::exponentiate_f32",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::decimal_power",
+    "tgt_uuid": "src/number.rs::decimal_power",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::Number::from_parts_unchecked",
+    "tgt_uuid": "src/number.rs::Number::from_parts_unchecked",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::Number::from_parts",
+    "tgt_uuid": "src/number.rs::Number::from_parts",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::Number::as_parts",
+    "tgt_uuid": "src/number.rs::Number::as_parts",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::Number::is_sign_positive",
+    "tgt_uuid": "src/number.rs::Number::is_sign_positive",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::Number::is_zero",
+    "tgt_uuid": "src/number.rs::Number::is_zero",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::Number::is_nan",
+    "tgt_uuid": "src/number.rs::Number::is_nan",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::Number::is_empty",
+    "tgt_uuid": "src/number.rs::Number::is_empty",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::Number::as_fixed_point_u64",
+    "tgt_uuid": "src/number.rs::Number::as_fixed_point_u64",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::Number::as_fixed_point_i64",
+    "tgt_uuid": "src/number.rs::Number::as_fixed_point_i64",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::Number::eq",
+    "tgt_uuid": "src/number.rs::Number::eq",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::Number::fmt",
+    "tgt_uuid": "src/number.rs::Number::fmt",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::f64::from",
+    "tgt_uuid": "src/number.rs::f64::from",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::f32::from",
+    "tgt_uuid": "src/number.rs::f32::from",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::Number::from",
+    "tgt_uuid": "src/number.rs::Number::from",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::f64::eq",
+    "tgt_uuid": "src/number.rs::f64::eq",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::f32::eq",
+    "tgt_uuid": "src/number.rs::f32::eq",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::NumberOutOfScope::from",
+    "tgt_uuid": "src/number.rs::NumberOutOfScope::from",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/number.rs::Number::neg",
+    "tgt_uuid": "src/number.rs::Number::neg",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::hash_key",
+    "tgt_uuid": "src/object.rs::hash_key",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Key::new",
+    "tgt_uuid": "src/object.rs::Key::new",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Key::as_bytes",
+    "tgt_uuid": "src/object.rs::Key::as_bytes",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Key::as_str",
+    "tgt_uuid": "src/object.rs::Key::as_str",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Key::attach",
+    "tgt_uuid": "src/object.rs::Key::attach",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Key::fix_ptr",
+    "tgt_uuid": "src/object.rs::Key::fix_ptr",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Key::drop",
+    "tgt_uuid": "src/object.rs::Key::drop",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Key::clone",
+    "tgt_uuid": "src/object.rs::Key::clone",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Node::fmt",
+    "tgt_uuid": "src/object.rs::Node::fmt",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Node::eq",
+    "tgt_uuid": "src/object.rs::Node::eq",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Node::new",
+    "tgt_uuid": "src/object.rs::Node::new",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::new",
+    "tgt_uuid": "src/object.rs::Object::new",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::with_capacity",
+    "tgt_uuid": "src/object.rs::Object::with_capacity",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::node_at_index_mut",
+    "tgt_uuid": "src/object.rs::Object::node_at_index_mut",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::add_node",
+    "tgt_uuid": "src/object.rs::Object::add_node",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::insert",
+    "tgt_uuid": "src/object.rs::Object::insert",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::insert_index",
+    "tgt_uuid": "src/object.rs::Object::insert_index",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::override_at",
+    "tgt_uuid": "src/object.rs::Object::override_at",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::override_last",
+    "tgt_uuid": "src/object.rs::Object::override_last",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::get",
+    "tgt_uuid": "src/object.rs::Object::get",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::get_mut",
+    "tgt_uuid": "src/object.rs::Object::get_mut",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::remove",
+    "tgt_uuid": "src/object.rs::Object::remove",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::len",
+    "tgt_uuid": "src/object.rs::Object::len",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::is_empty",
+    "tgt_uuid": "src/object.rs::Object::is_empty",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::clear",
+    "tgt_uuid": "src/object.rs::Object::clear",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::iter",
+    "tgt_uuid": "src/object.rs::Object::iter",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::iter_mut",
+    "tgt_uuid": "src/object.rs::Object::iter_mut",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::dump",
+    "tgt_uuid": "src/object.rs::Object::dump",
+    "confidence": "High",
+    "reason": "源代码完全一致，函数签名和实现相同"
+  },
+  {
+    "src_uuid": "src/object.rs::Object::pretty",
+    "

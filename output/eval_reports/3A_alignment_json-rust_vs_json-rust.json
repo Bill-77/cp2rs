@@ -1,0 +1,1233 @@
+{
+  "macro_alignment_score": 100.0,
+  "aligned_modules": [
+    {
+      "src_module": "Root_CoreTypes",
+      "src_module_description": "[Root_CoreTypes] 核心数据类型系统: 包含仓库的所有基础数据类型：JsonValue 枚举、Object (有序哈希表)、Number (紧凑浮点)、Short (短字符串优化) 以及 Error 枚举。还包含底层数学工具 (diyfp, grisu2, print_dec)。几乎所有上层模块都依赖此 Root。",
+      "tgt_module": "Root_CoreTypes",
+      "tgt_module_description": "[Root_CoreTypes] 核心数据类型系统: 包含仓库的所有基础数据类型：JsonValue 枚举、Object (有序哈希表)、Number (紧凑浮点)、Short (短字符串优化) 以及 Error 枚举。还包含底层数学工具 (diyfp, grisu2, print_dec)。几乎所有上层模块都依赖此 Root。",
+      "justification": "Source和Target的Root_CoreTypes模块语义完全一致，均为基础数据类型系统和数学工具，且拓扑边显示两者均被Parsing、Codegen、PublicAPI依赖，核心类型也反向依赖Codegen。完全等价。",
+      "aligned_functions": [
+        {
+          "src_uuid": "src/util/diyfp.rs::get_cached_power_by_index",
+          "tgt_uuid": "src/util/diyfp.rs::get_cached_power_by_index",
+          "confidence": "High",
+          "reason": "代码完全相同，使用相同的静态数组和索引返回DiyFp"
+        },
+        {
+          "src_uuid": "src/util/diyfp.rs::get_cached_power",
+          "tgt_uuid": "src/util/diyfp.rs::get_cached_power",
+          "confidence": "High",
+          "reason": "代码完全相同，通过相同的浮点计算和位运算获取缓存幂"
+        },
+        {
+          "src_uuid": "src/util/diyfp.rs::DiyFp::new",
+          "tgt_uuid": "src/util/diyfp.rs::DiyFp::new",
+          "confidence": "High",
+          "reason": "代码完全相同，直接构造DiyFp结构体"
+        },
+        {
+          "src_uuid": "src/util/diyfp.rs::DiyFp::from_f64",
+          "tgt_uuid": "src/util/diyfp.rs::DiyFp::from_f64",
+          "confidence": "High",
+          "reason": "代码完全相同，通过transmute和位运算从f64解析DiyFp"
+        },
+        {
+          "src_uuid": "src/util/diyfp.rs::DiyFp::normalize",
+          "tgt_uuid": "src/util/diyfp.rs::DiyFp::normalize",
+          "confidence": "High",
+          "reason": "代码完全相同，循环左移直到最高位为1"
+        },
+        {
+          "src_uuid": "src/util/diyfp.rs::DiyFp::normalize_boundary",
+          "tgt_uuid": "src/util/diyfp.rs::DiyFp::normalize_boundary",
+          "confidence": "High",
+          "reason": "代码完全相同，移位并调整指数以适应边界条件"
+        },
+        {
+          "src_uuid": "src/util/diyfp.rs::DiyFp::normalized_boundaries",
+          "tgt_uuid": "src/util/diyfp.rs::DiyFp::normalized_boundaries",
+          "confidence": "High",
+          "reason": "代码完全相同，计算高低边界并对齐指数"
+        },
+        {
+          "src_uuid": "src/util/diyfp.rs::DiyFp::sub",
+          "tgt_uuid": "src/util/diyfp.rs::DiyFp::sub",
+          "confidence": "High",
+          "reason": "代码完全相同，执行尾数相减，指数不变"
+        },
+        {
+          "src_uuid": "src/util/diyfp.rs::DiyFp::mul",
+          "tgt_uuid": "src/util/diyfp.rs::DiyFp::mul",
+          "confidence": "High",
+          "reason": "代码完全相同，使用32位分解乘法并舍入"
+        },
+        {
+          "src_uuid": "src/error.rs::Error::wrong_type",
+          "tgt_uuid": "src/error.rs::Error::wrong_type",
+          "confidence": "High",
+          "reason": "代码完全相同，直接构造WrongType变体"
+        },
+        {
+          "src_uuid": "src/error.rs::Error::fmt",
+          "tgt_uuid": "src/error.rs::Error::fmt",
+          "confidence": "High",
+          "reason": "代码完全相同，通过match格式化错误信息"
+        },
+        {
+          "src_uuid": "src/error.rs::Error::description",
+          "tgt_uuid": "src/error.rs::Error::description",
+          "confidence": "High",
+          "reason": "代码完全相同，返回静态字符串描述"
+        },
+        {
+          "src_uuid": "src/object.rs::hash_key",
+          "tgt_uuid": "src/object.rs::hash_key",
+          "confidence": "High",
+          "reason": "代码完全相同，使用Fowler-Noll-Vo哈希算法"
+        },
+        {
+          "src_uuid": "src/object.rs::Key::new",
+          "tgt_uuid": "src/object.rs::Key::new",
+          "confidence": "High",
+          "reason": "代码完全相同，初始化Key结构体字段"
+        },
+        {
+          "src_uuid": "src/object.rs::Key::as_bytes",
+          "tgt_uuid": "src/object.rs::Key::as_bytes",
+          "confidence": "High",
+          "reason": "代码完全相同，通过原始指针构造字节切片"
+        },
+        {
+          "src_uuid": "src/object.rs::Key::as_str",
+          "tgt_uuid": "src/object.rs::Key::as_str",
+          "confidence": "High",
+          "reason": "代码完全相同，将字节切片转为字符串"
+        },
+        {
+          "src_uuid": "src/object.rs::Key::attach",
+          "tgt_uuid": "src/object.rs::Key::attach",
+          "confidence": "High",
+          "reason": "代码完全相同，根据长度选择栈或堆存储并复制键数据"
+        },
+        {
+          "src_uuid": "src/object.rs::Key::fix_ptr",
+          "tgt_uuid": "src/object.rs::Key::fix_ptr",
+          "confidence": "High",
+          "reason": "代码完全相同，短键时重置指针到栈缓冲区"
+        },
+        {
+          "src_uuid": "src/object.rs::Key::drop",
+          "tgt_uuid": "src/object.rs::Key::drop",
+          "confidence": "High",
+          "reason": "代码完全相同，长键时通过Vec::from_raw_parts释放堆内存"
+        },
+        {
+          "src_uuid": "src/object.rs::Key::clone",
+          "tgt_uuid": "src/object.rs::Key::clone",
+          "confidence": "High",
+          "reason": "代码完全相同，根据长度选择深拷贝或浅拷贝"
+        },
+        {
+          "src_uuid": "src/object.rs::Node::fmt",
+          "tgt_uuid": "src/object.rs::Node::fmt",
+          "confidence": "High",
+          "reason": "源码完全一致，使用相同的fmt::Debug格式化逻辑"
+        },
+        {
+          "src_uuid": "src/object.rs::Node::eq",
+          "tgt_uuid": "src/object.rs::Node::eq",
+          "confidence": "High",
+          "reason": "源码完全一致，比较hash、字节和value"
+        },
+        {
+          "src_uuid": "src/object.rs::Node::new",
+          "tgt_uuid": "src/object.rs::Node::new",
+          "confidence": "High",
+          "reason": "源码完全一致，构造Node结构体"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::new",
+          "tgt_uuid": "src/object.rs::Object::new",
+          "confidence": "High",
+          "reason": "源码完全一致，创建空Object"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::with_capacity",
+          "tgt_uuid": "src/object.rs::Object::with_capacity",
+          "confidence": "High",
+          "reason": "源码完全一致，预分配容量"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::node_at_index_mut",
+          "tgt_uuid": "src/object.rs::Object::node_at_index_mut",
+          "confidence": "High",
+          "reason": "源码完全一致，获取可变裸指针"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::add_node",
+          "tgt_uuid": "src/object.rs::Object::add_node",
+          "confidence": "High",
+          "reason": "源码完全一致，内部添加节点逻辑"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::insert",
+          "tgt_uuid": "src/object.rs::Object::insert",
+          "confidence": "High",
+          "reason": "源码完全一致，代理调用insert_index"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::insert_index",
+          "tgt_uuid": "src/object.rs::Object::insert_index",
+          "confidence": "High",
+          "reason": "源码完全一致，二叉树插入逻辑"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::override_at",
+          "tgt_uuid": "src/object.rs::Object::override_at",
+          "confidence": "High",
+          "reason": "源码完全一致，按索引覆盖value"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::override_last",
+          "tgt_uuid": "src/object.rs::Object::override_last",
+          "confidence": "High",
+          "reason": "源码完全一致，覆盖最后一个节点的value"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::get",
+          "tgt_uuid": "src/object.rs::Object::get",
+          "confidence": "High",
+          "reason": "源码完全一致，不可变查找"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::get_mut",
+          "tgt_uuid": "src/object.rs::Object::get_mut",
+          "confidence": "High",
+          "reason": "源码完全一致，可变查找"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::remove",
+          "tgt_uuid": "src/object.rs::Object::remove",
+          "confidence": "High",
+          "reason": "源码完全一致，重建Object删除节点"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::len",
+          "tgt_uuid": "src/object.rs::Object::len",
+          "confidence": "High",
+          "reason": "源码完全一致，返回store长度"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::is_empty",
+          "tgt_uuid": "src/object.rs::Object::is_empty",
+          "confidence": "High",
+          "reason": "源码完全一致，检查store是否为空"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::clear",
+          "tgt_uuid": "src/object.rs::Object::clear",
+          "confidence": "High",
+          "reason": "源码完全一致，清空store"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::iter",
+          "tgt_uuid": "src/object.rs::Object::iter",
+          "confidence": "High",
+          "reason": "源码完全一致，生成Iter迭代器"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::iter_mut",
+          "tgt_uuid": "src/object.rs::Object::iter_mut",
+          "confidence": "High",
+          "reason": "源码完全一致，生成IterMut迭代器"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::dump",
+          "tgt_uuid": "src/object.rs::Object::dump",
+          "confidence": "High",
+          "reason": "源码完全一致，序列化为JSON字符串"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::pretty",
+          "tgt_uuid": "src/object.rs::Object::pretty",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::clone",
+          "tgt_uuid": "src/object.rs::Object::clone",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::from_iter",
+          "tgt_uuid": "src/object.rs::Object::from_iter",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::eq",
+          "tgt_uuid": "src/object.rs::Object::eq",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/object.rs::Iter::empty",
+          "tgt_uuid": "src/object.rs::Iter::empty",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/object.rs::Iter::next",
+          "tgt_uuid": "src/object.rs::Iter::next",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/object.rs::Iter::next_back",
+          "tgt_uuid": "src/object.rs::Iter::next_back",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/object.rs::Iter::len",
+          "tgt_uuid": "src/object.rs::Iter::len",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/object.rs::IterMut::empty",
+          "tgt_uuid": "src/object.rs::IterMut::empty",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/object.rs::IterMut::next",
+          "tgt_uuid": "src/object.rs::IterMut::next",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/object.rs::IterMut::next_back",
+          "tgt_uuid": "src/object.rs::IterMut::next_back",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/object.rs::IterMut::len",
+          "tgt_uuid": "src/object.rs::IterMut::len",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::index",
+          "tgt_uuid": "src/object.rs::Object::index",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/object.rs::Object::index_mut",
+          "tgt_uuid": "src/object.rs::Object::index_mut",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/util/grisu2.rs::grisu_round",
+          "tgt_uuid": "src/util/grisu2.rs::grisu_round",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/util/grisu2.rs::count_decimal_digit32",
+          "tgt_uuid": "src/util/grisu2.rs::count_decimal_digit32",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/util/grisu2.rs::digit_gen",
+          "tgt_uuid": "src/util/grisu2.rs::digit_gen",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/util/grisu2.rs::convert",
+          "tgt_uuid": "src/util/grisu2.rs::convert",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/util/print_dec.rs::write_num",
+          "tgt_uuid": "src/util/print_dec.rs::write_num",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/util/print_dec.rs::write",
+          "tgt_uuid": "src/util/print_dec.rs::write",
+          "confidence": "High",
+          "reason": "函数签名和逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/util/print_dec.rs::safe_abs",
+          "tgt_uuid": "src/util/print_dec.rs::safe_abs",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::exponentiate_f64",
+          "tgt_uuid": "src/number.rs::exponentiate_f64",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::exponentiate_f32",
+          "tgt_uuid": "src/number.rs::exponentiate_f32",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::decimal_power",
+          "tgt_uuid": "src/number.rs::decimal_power",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::Number::from_parts_unchecked",
+          "tgt_uuid": "src/number.rs::Number::from_parts_unchecked",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::Number::from_parts",
+          "tgt_uuid": "src/number.rs::Number::from_parts",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::Number::as_parts",
+          "tgt_uuid": "src/number.rs::Number::as_parts",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::Number::is_sign_positive",
+          "tgt_uuid": "src/number.rs::Number::is_sign_positive",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::Number::is_zero",
+          "tgt_uuid": "src/number.rs::Number::is_zero",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::Number::is_nan",
+          "tgt_uuid": "src/number.rs::Number::is_nan",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::Number::is_empty",
+          "tgt_uuid": "src/number.rs::Number::is_empty",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::Number::as_fixed_point_u64",
+          "tgt_uuid": "src/number.rs::Number::as_fixed_point_u64",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::Number::as_fixed_point_i64",
+          "tgt_uuid": "src/number.rs::Number::as_fixed_point_i64",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::Number::eq",
+          "tgt_uuid": "src/number.rs::Number::eq",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::Number::fmt",
+          "tgt_uuid": "src/number.rs::Number::fmt",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::f64::from",
+          "tgt_uuid": "src/number.rs::f64::from",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::f32::from",
+          "tgt_uuid": "src/number.rs::f32::from",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::Number::from",
+          "tgt_uuid": "src/number.rs::Number::from",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::f64::eq",
+          "tgt_uuid": "src/number.rs::f64::eq",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::f32::eq",
+          "tgt_uuid": "src/number.rs::f32::eq",
+          "confidence": "High",
+          "reason": "Same function, identical source code"
+        },
+        {
+          "src_uuid": "src/number.rs::NumberOutOfScope::from",
+          "tgt_uuid": "src/number.rs::NumberOutOfScope::from",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：fn from(_: TryFromIntError) -> NumberOutOfScope { NumberOutOfScope }"
+        },
+        {
+          "src_uuid": "src/number.rs::Number::neg",
+          "tgt_uuid": "src/number.rs::Number::neg",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：fn neg(self) -> Number { ... }"
+        },
+        {
+          "src_uuid": "src/value/implements.rs::JsonValue::from",
+          "tgt_uuid": "src/value/implements.rs::JsonValue::from",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：fn from(val: BTreeMap<K, V>) -> JsonValue { JsonValue::Object(...) }"
+        },
+        {
+          "src_uuid": "src/value/implements.rs::JsonValue::eq",
+          "tgt_uuid": "src/value/implements.rs::JsonValue::eq",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：fn eq(&self, other: &str) -> bool { ... }"
+        },
+        {
+          "src_uuid": "src/value/implements.rs::&'a str::eq",
+          "tgt_uuid": "src/value/implements.rs::&'a str::eq",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：fn eq(&self, other: &JsonValue) -> bool { ... }"
+        },
+        {
+          "src_uuid": "src/value/implements.rs::str::eq",
+          "tgt_uuid": "src/value/implements.rs::str::eq",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：fn eq(&self, other: &JsonValue) -> bool { ... }"
+        },
+        {
+          "src_uuid": "src/short.rs::Short::from_slice",
+          "tgt_uuid": "src/short.rs::Short::from_slice",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：pub unsafe fn from_slice(slice: &str) -> Self { ... }"
+        },
+        {
+          "src_uuid": "src/short.rs::Short::as_str",
+          "tgt_uuid": "src/short.rs::Short::as_str",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：pub fn as_str(&self) -> &str { ... }"
+        },
+        {
+          "src_uuid": "src/short.rs::Short::eq",
+          "tgt_uuid": "src/short.rs::Short::eq",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：fn eq(&self, other: &String) -> bool { ... }"
+        },
+        {
+          "src_uuid": "src/short.rs::Short::fmt",
+          "tgt_uuid": "src/short.rs::Short::fmt",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { ... }"
+        },
+        {
+          "src_uuid": "src/short.rs::Short::deref",
+          "tgt_uuid": "src/short.rs::Short::deref",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：fn deref(&self) -> &str { self.as_str() }"
+        },
+        {
+          "src_uuid": "src/short.rs::String::from",
+          "tgt_uuid": "src/short.rs::String::from",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：fn from(short: Short) -> String { String::from(short.as_str()) }"
+        },
+        {
+          "src_uuid": "src/short.rs::str::eq",
+          "tgt_uuid": "src/short.rs::str::eq",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：fn eq(&self, other: &Short) -> bool { other.as_str().eq(self) }"
+        },
+        {
+          "src_uuid": "src/short.rs::String::eq",
+          "tgt_uuid": "src/short.rs::String::eq",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：fn eq(&self, other: &Short) -> bool { other.as_str().eq(self) }"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::eq",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::eq",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：fn eq(&self, other: &Self) -> bool { ... }"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::fmt",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::fmt",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { ... }"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::new_object",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::new_object",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：pub fn new_object() -> JsonValue { JsonValue::Object(Object::new()) }"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::new_array",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::new_array",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：pub fn new_array() -> JsonValue { JsonValue::Array(Vec::new()) }"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::dump",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::dump",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：pub fn dump(&self) -> String { ... }"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::pretty",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::pretty",
+          "confidence": "High",
+          "reason": "Source与Target中该函数代码完全相同：pub fn pretty(&self, spaces: u16) -> String { ... }"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::to_writer",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::to_writer",
+          "confidence": "High",
+          "reason": "Source和Target的函数签名、实现完全一致，均创建WriterGenerator并调用write_json。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::write",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::write",
+          "confidence": "High",
+          "reason": "Source和Target的函数签名、实现完全一致，均创建WriterGenerator并返回io::Result。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::write_pretty",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::write_pretty",
+          "confidence": "High",
+          "reason": "Source和Target的函数签名、实现完全一致，均创建PrettyWriterGenerator并调用write_json。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::is_string",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_string",
+          "confidence": "High",
+          "reason": "Source和Target的match体完全一致，均匹配Short/String返回true。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::is_number",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_number",
+          "confidence": "High",
+          "reason": "Source和Target的match体完全一致，均匹配Number返回true。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::is_boolean",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_boolean",
+          "confidence": "High",
+          "reason": "Source和Target的match体完全一致，均匹配Boolean返回true。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::is_null",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_null",
+          "confidence": "High",
+          "reason": "Source和Target的match体完全一致，均匹配Null返回true。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::is_object",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_object",
+          "confidence": "High",
+          "reason": "Source和Target的match体完全一致，均匹配Object返回true。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::is_array",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_array",
+          "confidence": "High",
+          "reason": "Source和Target的match体完全一致，均匹配Array返回true。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::is_empty",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_empty",
+          "confidence": "High",
+          "reason": "Source和Target的match体完全一致，各变体is_empty判定逻辑相同。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_str",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_str",
+          "confidence": "High",
+          "reason": "Source和Target的match体完全一致，均返回Short/String的引用。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_number",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_number",
+          "confidence": "High",
+          "reason": "Source和Target的match体完全一致，均返回Number的Option。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_f64",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_f64",
+          "confidence": "High",
+          "reason": "Source和Target的实现完全一致，均通过as_number().map(|value| value.into())转换。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_f32",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_f32",
+          "confidence": "High",
+          "reason": "Source和Target的实现完全一致，均通过as_number().map(|value| value.into())转换。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_u64",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_u64",
+          "confidence": "High",
+          "reason": "Source和Target的实现完全一致，均调用as_number().and_then(|value| value.try_into().ok())。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_u32",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_u32",
+          "confidence": "High",
+          "reason": "Source和Target的实现完全一致，均通过as_u64()和number_to_unsigned!宏。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_u16",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_u16",
+          "confidence": "High",
+          "reason": "Source和Target的实现完全一致，均通过as_u64()和number_to_unsigned!宏。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_u8",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_u8",
+          "confidence": "High",
+          "reason": "Source和Target的实现完全一致，均通过as_u64()和number_to_unsigned!宏。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_usize",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_usize",
+          "confidence": "High",
+          "reason": "Source和Target的实现完全一致，均通过as_u64()和number_to_unsigned!宏。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_i64",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_i64",
+          "confidence": "High",
+          "reason": "Source和Target的实现完全一致，均调用as_number().and_then(|value| value.try_into().ok())。"
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_i32",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_i32",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: self.as_i64().and_then(|value| number_to_signed!(i32, value, i64))."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_i16",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_i16",
+          "confidence": "High",
+          "reason": "Source and Target have identical code."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_i8",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_i8",
+          "confidence": "High",
+          "reason": "Source and Target have identical code."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_isize",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_isize",
+          "confidence": "High",
+          "reason": "Source and Target have identical code."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_bool",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_bool",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: match on Boolean variant."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_fixed_point_u64",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_fixed_point_u64",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: delegates to Number::as_fixed_point_u64."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::as_fixed_point_i64",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_fixed_point_i64",
+          "confidence": "High",
+          "reason": "Source and Target have identical code."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::take",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::take",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: mem::replace(self, JsonValue::Null)."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::take_string",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::take_string",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: swap, match on Short/String, restore if not."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::push",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::push",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: match Array, push value, return Ok or Err."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::pop",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::pop",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: match Array, pop or Null."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::contains",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::contains",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: match Array, any equality check."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::has_key",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::has_key",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: match Object, get key is_some."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::len",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::len",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: match Array/Object len, else 0."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::members",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::members",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: match Array iter, else empty slice iter."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::members_mut",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::members_mut",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: match Array iter_mut, else empty slice iter_mut."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::entries",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::entries",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: match Object iter, else Entries::empty()."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::entries_mut",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::entries_mut",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: match Object iter_mut, else EntriesMut::empty()."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::insert",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::insert",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: match Object, insert key/value, return Ok or Err."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::remove",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::remove",
+          "confidence": "High",
+          "reason": "Source and Target have identical code: match Object, remove key, unwrap_or Null."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::array_remove",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove",
+          "confidence": "High",
+          "reason": "Source and Target have identical implementation, same function signature and logic."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::clear",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::clear",
+          "confidence": "High",
+          "reason": "Identical implementation."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::index",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index",
+          "confidence": "High",
+          "reason": "Identical implementation."
+        },
+        {
+          "src_uuid": "src/value/mod.rs::JsonValue::index_mut",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index_mut",
+          "confidence": "High",
+          "reason": "Identical implementation."
+        }
+      ]
+    },
+    {
+      "src_module": "Root_Parsing",
+      "src_module_description": "[Root_Parsing] JSON 解析引擎: 提供 JSON 字符串到 JsonValue 的解析能力。核心是 parser 模块，包含 Parser 结构体和相关宏，实现标准 JSON 以及部分扩展 (如十六进制 escapes、大数) 的解析。使用 ? 进行错误传播，最终返回 Result<JsonValue>。",
+      "tgt_module": "Root_Parsing",
+      "tgt_module_description": "[Root_Parsing] JSON 解析引擎: 提供 JSON 字符串到 JsonValue 的解析能力。核心是 parser 模块，包含 Parser 结构体和相关宏，实现标准 JSON 以及部分扩展 (如十六进制 escapes、大数) 的解析。使用 ? 进行错误传播，最终返回 Result<JsonValue>。",
+      "justification": "两个模块均为JSON解析引擎，依赖CoreTypes，被PublicAPI依赖，语义和拓扑完全一致。",
+      "aligned_functions": [
+        {
+          "src_uuid": "src/parser.rs::parse",
+          "tgt_uuid": "src/parser.rs::parse",
+          "confidence": "High",
+          "reason": "源码和目标代码完全相同，函数签名和实现一致，均调用了Parser::new(source).parse()"
+        },
+        {
+          "src_uuid": "src/parser.rs::it_should_parse_escaped_forward_slashes_with_quotes",
+          "tgt_uuid": "src/parser.rs::it_should_parse_escaped_forward_slashes_with_quotes",
+          "confidence": "High",
+          "reason": "测试函数完全一致，逻辑和断言均相同"
+        },
+        {
+          "src_uuid": "src/parser.rs::it_should_parse_escaped_quotes",
+          "tgt_uuid": "src/parser.rs::it_should_parse_escaped_quotes",
+          "confidence": "High",
+          "reason": "测试函数完全一致，输入字符串和断言均相同"
+        },
+        {
+          "src_uuid": "src/parser.rs::it_should_parse_basic_json_values",
+          "tgt_uuid": "src/parser.rs::it_should_parse_basic_json_values",
+          "confidence": "High",
+          "reason": "测试函数完全一致，预期对象构建和断言相同"
+        },
+        {
+          "src_uuid": "src/parser.rs::it_should_parse_json_arrays",
+          "tgt_uuid": "src/parser.rs::it_should_parse_json_arrays",
+          "confidence": "High",
+          "reason": "测试函数完全一致，数组构建和断言相同"
+        },
+        {
+          "src_uuid": "src/parser.rs::it_should_parse_json_nested_object",
+          "tgt_uuid": "src/parser.rs::it_should_parse_json_nested_object",
+          "confidence": "High",
+          "reason": "测试函数完全一致，嵌套对象结构和断言相同"
+        },
+        {
+          "src_uuid": "src/parser.rs::it_should_parse_json_complex_object",
+          "tgt_uuid": "src/parser.rs::it_should_parse_json_complex_object",
+          "confidence": "High",
+          "reason": "测试函数完全一致，复杂嵌套对象和断言相同"
+        },
+        {
+          "src_uuid": "src/parser.rs::Parser::new",
+          "tgt_uuid": "src/parser.rs::Parser::new",
+          "confidence": "High",
+          "reason": "构造函数完全一致，初始化字段相同"
+        },
+        {
+          "src_uuid": "src/parser.rs::Parser::is_eof",
+          "tgt_uuid": "src/parser.rs::Parser::is_eof",
+          "confidence": "High",
+          "reason": "函数实现完全一致，判断条件均为 self.index == self.length"
+        },
+        {
+          "src_uuid": "src/parser.rs::Parser::read_byte",
+          "tgt_uuid": "src/parser.rs::Parser::read_byte",
+          "confidence": "High",
+          "reason": "函数实现完全一致，使用unsafe指针读取字节"
+        },
+        {
+          "src_uuid": "src/parser.rs::Parser::bump",
+          "tgt_uuid": "src/parser.rs::Parser::bump",
+          "confidence": "High",
+          "reason": "函数实现完全一致，均使用wrapping_add(1)"
+        },
+        {
+          "src_uuid": "src/parser.rs::Parser::unexpected_character",
+          "tgt_uuid": "src/parser.rs::Parser::unexpected_character",
+          "confidence": "High",
+          "reason": "函数实现完全一致，错误信息构建逻辑相同"
+        },
+        {
+          "src_uuid": "src/parser.rs::Parser::read_hexdec_digit",
+          "tgt_uuid": "src/parser.rs::Parser::read_hexdec_digit",
+          "confidence": "High",
+          "reason": "函数实现完全一致，十六进制数字转换逻辑相同"
+        },
+        {
+          "src_uuid": "src/parser.rs::Parser::read_hexdec_codepoint",
+          "tgt_uuid": "src/parser.rs::Parser::read_hexdec_codepoint",
+          "confidence": "High",
+          "reason": "函数实现完全一致，拼接四位十六进制数字逻辑相同"
+        },
+        {
+          "src_uuid": "src/parser.rs::Parser::read_codepoint",
+          "tgt_uuid": "src/parser.rs::Parser::read_codepoint",
+          "confidence": "High",
+          "reason": "函数实现完全一致，处理Unicode码点和代理对逻辑相同"
+        },
+        {
+          "src_uuid": "src/parser.rs::Parser::read_complex_string",
+          "tgt_uuid": "src/parser.rs::Parser::read_complex_string",
+          "confidence": "High",
+          "reason": "函数实现完全一致，缓冲区操作和字符串切片构造逻辑相同"
+        },
+        {
+          "src_uuid": "src/parser.rs::Parser::read_big_number",
+          "tgt_uuid": "src/parser.rs::Parser::read_big_number",
+          "confidence": "High",
+          "reason": "函数实现完全一致，大数解析和指数处理逻辑相同"
+        },
+        {
+          "src_uuid": "src/parser.rs::Parser::expect_exponent",
+          "tgt_uuid": "src/parser.rs::Parser::expect_exponent",
+          "confidence": "High",
+          "reason": "函数实现完全一致，指数符号和数字解析逻辑相同"
+        },
+        {
+          "src_uuid": "src/parser.rs::Parser::parse",
+          "tgt_uuid": "src/parser.rs::Parser::parse",
+          "confidence": "High",
+          "reason": "函数实现完全一致，主解析循环和栈操作逻辑相同"
+        }
+      ]
+    },
+    {
+      "src_module": "Root_Codegen",
+      "src_module_description": "[Root_Codegen] JSON 代码生成引擎: 提供 JsonValue 到字符串或任意 io::Write 目标的序列化能力。定义 Generator trait 以及四种实现：DumpGenerator (紧凑)、PrettyGenerator (美化)、WriterGenerator (写入任意 writer)、PrettyWriterGenerator。",
+      "tgt_module": "Root_Codegen",
+      "tgt_module_description": "[Root_Codegen] JSON 代码生成引擎: 提供 JsonValue 到字符串或任意 io::Write 目标的序列化能力。定义 Generator trait 以及四种实现：DumpGenerator (紧凑)、PrettyGenerator (美化)、WriterGenerator (写入任意 writer)、PrettyWriterGenerator。",
+      "justification": "两个模块均为JSON代码生成引擎，依赖CoreTypes且被CoreTypes反向调用，也被PublicAPI依赖，完全对齐。",
+      "aligned_functions": [
+        {
+          "src_uuid": "src/codegen.rs::extend_from_slice",
+          "tgt_uuid": "src/codegen.rs::extend_from_slice",
+          "confidence": "High",
+          "reason": "函数签名、变量名、unsafe块中ptr::copy_nonoverlapping和set_len逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::should_not_panic_on_bad_bytes",
+          "tgt_uuid": "src/codegen.rs::should_not_panic_on_bad_bytes",
+          "confidence": "High",
+          "reason": "测试函数，构造数据、unsafe创建字符串、调用write_string完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::should_not_panic_on_bad_bytes_2",
+          "tgt_uuid": "src/codegen.rs::should_not_panic_on_bad_bytes_2",
+          "confidence": "High",
+          "reason": "测试函数，字节数组、unsafe字符串、调用write_string完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::DumpGenerator::new",
+          "tgt_uuid": "src/codegen.rs::DumpGenerator::new",
+          "confidence": "High",
+          "reason": "构造函数，code字段初始化Vec::with_capacity(1024)完全相同"
+        },
+        {
+          "src_uuid": "src/codegen.rs::DumpGenerator::consume",
+          "tgt_uuid": "src/codegen.rs::DumpGenerator::consume",
+          "confidence": "High",
+          "reason": "方法签名、unsafe from_utf8_unchecked和注释完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::DumpGenerator::write",
+          "tgt_uuid": "src/codegen.rs::DumpGenerator::write",
+          "confidence": "High",
+          "reason": "调用extend_from_slice，参数及返回类型完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::DumpGenerator::write_char",
+          "tgt_uuid": "src/codegen.rs::DumpGenerator::write_char",
+          "confidence": "High",
+          "reason": "self.code.push(ch)完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::DumpGenerator::get_writer",
+          "tgt_uuid": "src/codegen.rs::DumpGenerator::get_writer",
+          "confidence": "High",
+          "reason": "返回&mut self.code完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::DumpGenerator::write_min",
+          "tgt_uuid": "src/codegen.rs::DumpGenerator::write_min",
+          "confidence": "High",
+          "reason": "忽略slice，push min，逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyGenerator::new",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::new",
+          "confidence": "High",
+          "reason": "构造函数字段初始化完全相同，包括code、dent、spaces_per_indent"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyGenerator::consume",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::consume",
+          "confidence": "High",
+          "reason": "unsafe from_utf8_unchecked完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyGenerator::write",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::write",
+          "confidence": "High",
+          "reason": "调用extend_from_slice，参数及返回完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyGenerator::write_char",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::write_char",
+          "confidence": "High",
+          "reason": "self.code.push(ch)完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyGenerator::get_writer",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::get_writer",
+          "confidence": "High",
+          "reason": "返回&mut self.code完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyGenerator::write_min",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::write_min",
+          "confidence": "High",
+          "reason": "调用extend_from_slice，忽略min参数，逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyGenerator::new_line",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::new_line",
+          "confidence": "High",
+          "reason": "push换行符，循环添加空格，计算逻辑完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyGenerator::indent",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::indent",
+          "confidence": "High",
+          "reason": "self.dent += 1完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyGenerator::dedent",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::dedent",
+          "confidence": "High",
+          "reason": "self.dent -= 1完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::WriterGenerator::new",
+          "tgt_uuid": "src/codegen.rs::WriterGenerator::new",
+          "confidence": "High",
+          "reason": "构造函数，writer字段赋值完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::WriterGenerator::get_writer",
+          "tgt_uuid": "src/codegen.rs::WriterGenerator::get_writer",
+          "confidence": "High",
+          "reason": "返回&mut self.writer完全一致"
+        },
+        {
+          "src_uuid": "src/codegen.rs::WriterGenerator::write_min",
+          "tgt_uuid": "src/codegen.rs::WriterGenerator::write_min",
+          "confidence": "High",
+          "reason": "函数体完全相同：均调用 writer.write_all(&[min])"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyWriterGenerator::new",
+          "tgt_uuid": "src/codegen.rs::PrettyWriterGenerator::new",
+          "confidence": "High",
+          "reason": "构造函数完全一致：初始化 writer、dent、spaces_per_indent"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyWriterGenerator::get_writer",
+          "tgt_uuid": "src/codegen.rs::PrettyWriterGenerator::get_writer",
+          "confidence": "High",
+          "reason": "函数体完全相同：返回 &mut self.writer"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyWriterGenerator::write_min",
+          "tgt_uuid": "src/codegen.rs::PrettyWriterGenerator::write_min",
+          "confidence": "High",
+          "reason": "函数体完全相同：调用 self.writer.write_all(slice)"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyWriterGenerator::new_line",
+          "tgt_uuid": "src/codegen.rs::PrettyWriterGenerator::new_line",
+          "confidence": "High",
+          "reason": "函数体完全相同：写入换行符并缩进空格"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyWriterGenerator::indent",
+          "tgt_uuid": "src/codegen.rs::PrettyWriterGenerator::indent",
+          "confidence": "High",
+          "reason": "函数体完全相同：self.dent += 1"
+        },
+        {
+          "src_uuid": "src/codegen.rs::PrettyWriterGenerator::dedent",
+          "tgt_uuid": "src/codegen.rs::PrettyWriterGenerator::dedent",
+          "confidence": "High",
+          "reason": "函数体完全相同：self.dent -= 1"
+        }
+      ]
+    },
+    {
+      "src_module": "Root_PublicAPI",
+      "src_module_description": "[Root_PublicAPI] 公开 API 层: crate 根模块，重导出所有公开类型 (JsonValue, Error, parse 等)，并提供便捷顶层函数 (from, stringify, stringify_pretty) 以及宏 (array, object, value)。用户通常通过此层访问仓库功能。",
+      "tgt_module": "Root_PublicAPI",
+      "tgt_module_description": "[Root_PublicAPI] 公开 API 层: crate 根模块，重导出所有公开类型 (JsonValue, Error, parse 等)，并提供便捷顶层函数 (from, stringify, stringify_pretty) 以及宏 (array, object, value)。用户通常通过此层访问仓库功能。",
+      "justification": "两个模块均为公开API层，重导出核心类型和解析生成功能，依赖Parsing、Codegen、CoreTypes，语义和拓扑完全一致。",
+      "aligned_functions": [
+        {
+          "src_uuid": "src/lib.rs::from",
+          "tgt_uuid": "src/lib.rs::from",
+          "confidence": "High",
+          "reason": "源码完全相同，都是调用Into特质将value转换为JsonValue"
+        },
+        {
+          "src_uuid": "src/lib.rs::stringify",
+          "tgt_uuid": "src/lib.rs::stringify",
+          "confidence": "High",
+          "reason": "源码完全相同，都是通过Into转为JsonValue后调用dump()"
+        },
+        {
+          "src_uuid": "src/lib.rs::stringify_pretty",
+          "tgt_uuid": "src/lib.rs::stringify_pretty",
+          "confidence": "High",
+          "reason": "源码完全相同，都是通过Into转为JsonValue后调用pretty(spaces)"
+        }
+      ]
+    }
+  ],
+  "unaligned_modules": {
+    "source_unaligned": [],
+    "target_unaligned": []
+  },
+  "quantitative_metrics": {
+    "atomic_base_data": {
+      "total_source_modules": "4 - Source 仓库的宏观模块(Root)总数",
+      "aligned_source_modules": "4 - 成功在 Target 中找到对齐映射的 Source 模块数",
+      "total_target_modules": "4 - Target 仓库的宏观模块(Root)总数",
+      "aligned_target_modules": "4 - 实际参与了架构对齐的 Target 模块数",
+      "total_source_functions": "193 - Source 对齐模块下包含的真实函数总量",
+      "total_target_functions": "193 - Target 对齐模块下包含的真实函数总量",
+      "aligned_function_pairs": "193 - 通过微观校验，成功对齐的等价函数对数量",
+      "union_functions": "193 - 两个仓库对齐模块下函数的去重并集总数",
+      "total_source_loc": "2096 - Source 对齐模块的总代码行数 (Lines of Code)",
+      "total_target_loc": "2096 - Target 对齐模块的总代码行数 (Lines of Code)",
+      "source_orphan_functions": "0 - Source 中被时代淘汰或未被翻译的孤儿函数量",
+      "target_native_functions": "0 - Target 中独创的、无 C 源码对应的原生函数量",
+      "target_unsafe_functions": "30 - Target 核心模块中带有 unsafe 标记或代码块的函数量",
+      "high_confidence_alignments": "193 - 被大模型评估为 High 确信度的微观对齐函数量"
+    },
+    "derived_ratio_metrics": {
+      "source_macro_coverage_rate": "100.00% ( 4 / 4 ) - 对齐的 Source 核心模块数 / Source 仓库总模块数",
+      "source_micro_coverage_rate": "100.00% ( 193 / 193 ) - 成功对齐的函数对数量 / Source 核心模块下的函数总量",
+      "functional_overlap_ratio_iou": "100.00% ( 193 / 193 ) - 对齐的函数量 / (Source函数总量 + Target函数总量 - 对齐函数量)",
+      "architecture_fragmentation_index": "1.0 - Target 对齐模块数 / Source 对齐模块数",
+      "api_bloat_ratio": "1.00x ( 193 / 193 functions ) - Target 对齐模块总函数量 / Source 对齐模块总函数量",
+      "code_volume_loc_bloat_ratio": "1.00x ( 2096 / 2096 lines ) - Target 核心模块总代码行数(LOC) / Source 核心模块总代码行数(LOC)",
+      "source_orphan_rate": "0.00% ( 0 / 193 ) - Source 中未被翻译的函数量 / Source 总函数量",
+      "target_native_rate": "0.00% ( 0 / 193 ) - Target 中无对应C源码的独创函数量 / Target 总函数量",
+      "target_unsafe_dependency_rate": "15.54% ( 30 / 193 ) - Target 中带有 unsafe 标记或代码块的函数量 / Target 总函数量",
+      "micro_alignment_confidence_rate": "100.00% ( 193 / 193 ) - 大模型标记为High确信度的对齐数量 / 总共对齐的函数对数量"
+    }
+  }
+}

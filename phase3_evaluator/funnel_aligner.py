@@ -1,5 +1,6 @@
 import json
 import re
+import time
 from rpg_builder.llm_client import LLMClient
 from .prompts import PROMPT_MACRO_ALIGNMENT, PROMPT_MICRO_ALIGNMENT
 
@@ -12,8 +13,8 @@ class FunnelAligner:
     def __init__(self, llm_client: LLMClient):
         self.llm = llm_client
 
-    def _extract_json_from_reply(self, reply: str) -> list:
-        """防御性 JSON 解析：优先提取 <output> 标签，Fallback 到 Markdown 标记"""
+    def _extract_json_from_reply(self, reply: str):
+        """防御性 JSON 解析：正则暴洗不合法转义，彻底阻断空弹欺骗"""
         reply = reply.strip()
         json_str = ""
 
@@ -22,8 +23,8 @@ class FunnelAligner:
         if output_pattern:
             json_str = output_pattern.group(1)
         else:
-            # 2. 防御2 (Fallback)：如果大模型忘记写标签，尝试找 Markdown
-            regex_pattern = r'```(?:json)?\s*(\[.*?\]|\{.*?\})\s*```'
+            # 2. 防御2 (Fallback)：使用 \x60 规避 UI 渲染截断
+            regex_pattern = r'\x60\x60\x60(?:json)?\s*(\[.*?\]|\{.*?\})\s*\x60\x60\x60'
             json_pattern = re.search(regex_pattern, reply, re.DOTALL)
             if json_pattern:
                 json_str = json_pattern.group(1)
@@ -36,21 +37,42 @@ class FunnelAligner:
                 else:
                     json_str = reply
 
-        # 尝试反序列化
+        json_str = json_str.strip()
+        # 使用 \x60 进行字符串切片清理，\x60 是反引号的 ASCII 码，常用于 Markdown 代码块，能有效规避大模型输出中的 UI 截断问题
+        if json_str.startswith('\x60\x60\x60json'): json_str = json_str[7:]
+        if json_str.startswith('\x60\x60\x60'): json_str = json_str[3:]
+        if json_str.endswith('\x60\x60\x60'): json_str = json_str[:-3]
+        json_str = json_str.strip()
+
+        # 🛡️ 核心修复 1：暴力清洗不合法的 JSON 转义字符
+        # 修复大模型乱写的 \uXXXX (如果 \u 后面不是 4 位合法十六进制，就把它转义为 \\u)：只匹配前面没有反斜杠的 \u
+        json_str = re.sub(r'(?<!\\)\\u(?![0-9a-fA-F]{4})', r'\\\\u', json_str)
+        # 修复独立的非法反斜杠 (不在 JSON 官方合法转义集 \" \\ \/ \b \f \n \r \t 里的且只匹配前面没有反斜杠的 \)
+        json_str = re.sub(r'(?<!\\)\\([^"\\/bfnrtu])', r'\\\\\\1', json_str)
+
         try:
-            # 额外清理：有时候大模型在 <output> 里还多加了 ```json 
-            json_str = json_str.strip()
-            if json_str.startswith('```json'):
-                json_str = json_str[7:]
-            if json_str.startswith('```'):
-                json_str = json_str[3:]
-            if json_str.endswith('```'):
-                json_str = json_str[:-3]
-                
-            return json.loads(json_str.strip())
+            # 开启 strict=False 允许部分控制字符的宽容解析
+            return json.loads(json_str, strict=False)
         except json.JSONDecodeError as e:
-            print(f"⚠️ LLM 返回 JSON 解析失败: {e}\n原始返回内容:\n{reply}")
-            return []
+            print(f"         ⚠️ JSON 解析失败 (已被拦截，将触发重试): {e}")
+
+            # ==========================================
+            # 提取报错位置前后 40 个字符，看看大模型到底写了什么导致json的提取失败
+            err_pos = e.pos
+            start_pos = max(0, err_pos - 40)
+            end_pos = min(len(json_str), err_pos + 40)
+            crime_scene = json_str[start_pos:end_pos]
+            print(f"         🚨 [案发现场截取] -> ...{crime_scene}...")
+            
+            # 为了方便完整查看，把这批次的脏数据完整写到本地文件
+            with open("debug_crime_scene.json", "w", encoding="utf-8") as df:
+                df.write(json_str)
+            print("         📝 [完整脏数据] 已保存至当前目录的 debug_crime_scene.json 文件中。")
+            # ==========================================
+            
+            # 核心修复 2：失败必须返回 None，绝不能返回 []
+            # 这样外层的 while/for 循环才能判定 batch_success = False 并触发重新请求
+            return None
             
     # ==========================================
     # 🎯 重构点 1：融入架构拓扑边 (Edges)
@@ -96,15 +118,13 @@ class FunnelAligner:
     # ==========================================
     def _fetch_functions_by_root(self, root_ids_str, rpg, parsed_db) -> list:
         """
-        顺藤摸瓜：解析 Root ID (支持逗号分隔的1对N) -> 通过 parent_root 找到文件名 -> 去 DB 提取所有函数。
+        提取函数体：解析 Root ID (支持逗号分隔的1对N) -> 通过 parent_root 找到文件名 -> 去 DB 提取所有函数。
         """
-        results = []
         if not root_ids_str: 
-            return results
+            return []
             
         # 1. 解析可能由逗号分隔的 root_ids (完美支持 1-to-N 和 N-to-M 映射)
         root_ids = [r.strip() for r in root_ids_str.split(',')]
-        
         file_paths = []
         
         # 2. 遍历中间节点，通过 parent_root 字段逆向查找它属于哪个 Root
@@ -112,7 +132,8 @@ class FunnelAligner:
             if inter.get("parent_root") in root_ids:
                 file_paths.append(inter.get("file_path"))
                 
-        # 3. 去重文件名，拿着它们直接去 Phase 1 Database 里“进货”
+        # 3. 去重文件名，拿着它们去 Phase 1 Database 里提取函数体，并去重函数
+        unique_funcs = {}
         for f_path in set(file_paths):
             file_data = parsed_db.get("files", {}).get(f_path)
             if not file_data: 
@@ -121,29 +142,33 @@ class FunnelAligner:
             # 提取扁平函数 (C 语言或独立函数)
             for func in file_data.get("functions", []) + file_data.get("standalone_functions", []):
                 if func.get("body"):
-                    # 动态生成绝对唯一的 UUID，包含文件名以防重名
-                    func_uuid = f"{f_path}::{func.get('name')}"
-                    results.append({"uuid": func_uuid, "signature": func.get("signature", ""), "body": func.get("body")})
+                    uid = f"{f_path}::{func.get('name')}"
+                    unique_funcs[uid] = {"uuid": uid, "signature": func.get("signature", ""), "body": func.get("body")}
                     
             # 提取类成员函数 (C++)
             for cls in file_data.get("classes", []):
                 for method in cls.get("methods", []):
                     if method.get("body"):
-                        func_uuid = f"{f_path}::{cls.get('name')}::{method.get('name')}"
-                        results.append({"uuid": func_uuid, "signature": method.get("signature", ""), "body": method.get("body")})
+                        uid = f"{f_path}::{cls.get('name')}::{method.get('name')}"
+                        unique_funcs[uid] = {"uuid": uid, "signature": method.get("signature", ""), "body": method.get("body")}
             
             # 提取 Impl 成员函数 (Rust)
             for impl in file_data.get("impl_blocks", []):
                 for method in impl.get("methods", []):
                     if method.get("body"):
-                        func_uuid = f"{f_path}::{impl.get('target_type')}::{method.get('name')}"
-                        results.append({"uuid": func_uuid, "signature": method.get("signature", ""), "body": method.get("body")})
+                        uid = f"{f_path}::{impl.get('target_type')}::{method.get('name')}"
+                        unique_funcs[uid] = {"uuid": uid, "signature": method.get("signature", ""), "body": method.get("body")}
                         
-        return results
+        # 返回去重后的纯净函数列表
+        return list(unique_funcs.values())
 
-    def _micro_align_functions(self, src_funcs, tgt_funcs) -> list:
-        # [此方法保持不变，直接投喂组装好的代码块给 LLM]
-        if not src_funcs or not tgt_funcs: return []
+    def _micro_align_functions(self, src_funcs, tgt_funcs, batch_size=20) -> list:
+        """
+        第二重漏斗：微观对齐。
+        强制启用分批(Batching)与阻断式重试，避免 Token 爆炸和静默失败。
+        """
+        if not src_funcs or not tgt_funcs:
+            return []
 
         def _build_code_blocks(funcs):
             blocks = []
@@ -151,14 +176,58 @@ class FunnelAligner:
                 blocks.append(f"====== [UUID: {f['uuid']}] ======\n{f['body']}\n")
             return "\n".join(blocks)
 
-        prompt_content = PROMPT_MICRO_ALIGNMENT.format(
-            src_code_blocks=_build_code_blocks(src_funcs),
-            tgt_code_blocks=_build_code_blocks(tgt_funcs)
-        )
+        # 目标端作为全量知识库，不进行切分
+        tgt_code_str = _build_code_blocks(tgt_funcs)
         
-        messages = [{"role": "user", "content": prompt_content}]
-        reply = self.llm.chat_completion(messages, temperature=0.1)
-        return self._extract_json_from_reply(reply)
+        all_aligned_mappings = []
+        total_batches = (len(src_funcs) + batch_size - 1) // batch_size
+
+        # 将 Source 源码进行分批
+        for i in range(0, len(src_funcs), batch_size):
+            batch_num = (i // batch_size) + 1
+            src_batch = src_funcs[i:i+batch_size]
+            src_code_str = _build_code_blocks(src_batch)
+            
+            prompt_content = PROMPT_MICRO_ALIGNMENT.format(
+                src_code_blocks=src_code_str,
+                tgt_code_blocks=tgt_code_str
+            )
+            
+            messages = [{"role": "user", "content": prompt_content}]
+            
+            max_retries = 3
+            batch_success = False
+            
+            for attempt in range(max_retries):
+                print(f"      - [微观对齐] 正在处理第 {batch_num}/{total_batches} 批次 ({len(src_batch)} 个 Source 函数) - 尝试 {attempt + 1}/{max_retries}...")
+                
+                try:
+                    reply = self.llm.chat_completion(messages, temperature=0.1)
+                    
+                    if not reply or not reply.strip():
+                        print("         ⚠️ 警告：大模型返回空字符串，准备重试...")
+                        time.sleep(2)
+                        continue
+                        
+                    parsed_json = self._extract_json_from_reply(reply)
+                    
+                    # 只有当解析成功并返回了 list 时才算通过 (避开 None)
+                    if isinstance(parsed_json, list):
+                        all_aligned_mappings.extend(parsed_json)
+                        batch_success = True
+                        break
+                    else:
+                        print("         ⚠️ 警告：JSON 提取结果不合法，准备重试...")
+                        time.sleep(2)
+                        
+                except Exception as e:
+                    print(f"         ❌ 调用或网络异常: {e}")
+                    time.sleep(3)
+            
+            if not batch_success:
+                print(f"      🚨 放弃批次 {batch_num}：已达到最大重试次数，部分对齐数据可能丢失。")
+
+        return all_aligned_mappings
 
     def run_alignment(self, src_rpg_path, tgt_rpg_path, src_db_path, tgt_db_path):
         print("🔍 [Phase 3A] 启动双重漏斗对齐引擎...")
