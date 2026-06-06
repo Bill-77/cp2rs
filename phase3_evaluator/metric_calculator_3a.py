@@ -9,6 +9,12 @@ class MetricCalculator3A:
     def __init__(self):
         pass
 
+    def _split_target_uuids(self, tgt_uuid: str) -> list:
+        """拆分模型输出的 Target UUID，支持一个 Source 对应多个 Target。"""
+        if not tgt_uuid:
+            return []
+        return [item.strip() for item in str(tgt_uuid).split(",") if item.strip()]
+
     def _extract_unique_functions(self, file_path: str, file_data: dict) -> list:
         """核心修复：通过动态构建 UUID，彻底消除 functions 与 standalone_functions 的重复计数"""
         unique_funcs = {}
@@ -125,6 +131,8 @@ class MetricCalculator3A:
         total_src_funcs, total_tgt_funcs = 0, 0
         total_src_loc, total_tgt_loc = 0, 0
         total_unsafe_funcs = 0
+        unique_aligned_src_funcs = set()
+        unique_aligned_tgt_funcs = set()
 
         # 2. 遍历已对齐模块并注入语义描述
         original_aligned_modules = alignment_report.get("aligned_modules", [])
@@ -148,6 +156,11 @@ class MetricCalculator3A:
                 
             total_aligned_funcs += len(funcs)
             high_confidence_funcs += sum(1 for f in funcs if f.get("confidence", "").upper() == "HIGH")
+            for func in funcs:
+                src_uuid = func.get("src_uuid")
+                if src_uuid:
+                    unique_aligned_src_funcs.add(src_uuid)
+                unique_aligned_tgt_funcs.update(self._split_target_uuids(func.get("tgt_uuid", "")))
             
             src_stats = self._extract_module_statistics(mod["src_module"], src_rpg, src_db, is_target=False)
             tgt_stats = self._extract_module_statistics(mod["tgt_module"], tgt_rpg, tgt_db, is_target=True)
@@ -189,8 +202,11 @@ class MetricCalculator3A:
 
         # 4. 计算指标
         # 🥇 核心评分组件 (Macro & Micro)
+        unique_aligned_src_count = len(unique_aligned_src_funcs)
+        unique_aligned_tgt_count = len(unique_aligned_tgt_funcs)
         macro_coverage = len(aligned_src_roots) / src_total_roots if src_total_roots > 0 else 0
         micro_coverage = total_aligned_funcs / total_src_funcs if total_src_funcs > 0 else 0
+        source_unique_coverage = unique_aligned_src_count / total_src_funcs if total_src_funcs > 0 else 0
         macro_score = (macro_coverage * 70) + (micro_coverage * 30)
 
         # 🥈 深度透视参考指标
@@ -200,16 +216,21 @@ class MetricCalculator3A:
         # 2. 功能重合度 (Jaccard Index / IoU) 
         union_funcs = (total_src_funcs + total_tgt_funcs) - total_aligned_funcs
         functional_overlap_ratio = total_aligned_funcs / union_funcs if union_funcs > 0 else 0
+        unique_union_funcs = (total_src_funcs + total_tgt_funcs) - min(unique_aligned_src_count, unique_aligned_tgt_count)
+        unique_functional_overlap_ratio = min(unique_aligned_src_count, unique_aligned_tgt_count) / unique_union_funcs if unique_union_funcs > 0 else 0
         
         # 3. 体积膨胀率 (API 个数 vs LOC 行数)
         api_bloat_ratio = total_tgt_funcs / total_src_funcs if total_src_funcs > 0 else 0
         loc_bloat_ratio = total_tgt_loc / total_src_loc if total_src_loc > 0 else 0
         
         # 4. 孤儿与原生率
-        source_orphan_count = total_src_funcs - total_aligned_funcs
-        target_native_count = total_tgt_funcs - total_aligned_funcs
+        source_orphan_count = total_src_funcs - unique_aligned_src_count
+        target_native_count = total_tgt_funcs - unique_aligned_tgt_count
         source_orphan_rate = source_orphan_count / total_src_funcs if total_src_funcs > 0 else 0
         target_native_rate = target_native_count / total_tgt_funcs if total_tgt_funcs > 0 else 0
+        target_unique_participation_rate = unique_aligned_tgt_count / total_tgt_funcs if total_tgt_funcs > 0 else 0
+        mapping_compression_ratio = unique_aligned_src_count / unique_aligned_tgt_count if unique_aligned_tgt_count > 0 else 0
+        target_reuse_factor = total_aligned_funcs / unique_aligned_tgt_count if unique_aligned_tgt_count > 0 else 0
         
         # 5. 质量指标 (Unsafe 率 & 置信度)
         unsafe_rate = total_unsafe_funcs / total_tgt_funcs if total_tgt_funcs > 0 else 0
@@ -225,19 +246,27 @@ class MetricCalculator3A:
                 "total_source_functions": f"{total_src_funcs} - Source 对齐模块下包含的真实函数总量",
                 "total_target_functions": f"{total_tgt_funcs} - Target 对齐模块下包含的真实函数总量",
                 "aligned_function_pairs": f"{total_aligned_funcs} - 通过微观校验，成功对齐的等价函数对数量",
+                "unique_aligned_source_functions": f"{unique_aligned_src_count} - 去重后的已对齐 Source 函数量（按 src_uuid 去重）",
+                "unique_aligned_target_functions": f"{unique_aligned_tgt_count} - 去重后的参与对齐 Target 函数量（按 tgt_uuid 去重，支持逗号分隔的一对多映射）",
                 "union_functions": f"{union_funcs} - 两个仓库对齐模块下函数的去重并集总数",
+                "unique_union_functions": f"{unique_union_funcs} - 基于去重函数参与量估算的 Source/Target 函数并集总数",
                 "total_source_loc": f"{total_src_loc} - Source 对齐模块的总代码行数 (Lines of Code)",
                 "total_target_loc": f"{total_tgt_loc} - Target 对齐模块的总代码行数 (Lines of Code)",
-                "source_orphan_functions": f"{source_orphan_count} - Source 中被时代淘汰或未被翻译的孤儿函数量",
-                "target_native_functions": f"{target_native_count} - Target 中独创的、无 C 源码对应的原生函数量",
+                "source_orphan_functions": f"{source_orphan_count} - Source 中未找到 Target 对应的孤儿函数量（基于 unique_aligned_source_functions）",
+                "target_native_functions": f"{target_native_count} - Target 中无 Source 对应的原生函数量（基于 unique_aligned_target_functions）",
                 "target_unsafe_functions": f"{total_unsafe_funcs} - Target 核心模块中带有 unsafe 标记或代码块的函数量",
                 "high_confidence_alignments": f"{high_confidence_funcs} - 被大模型评估为 High 确信度的微观对齐函数量"
             },
             "derived_ratio_metrics": {
                 "source_macro_coverage_rate": f"{macro_coverage * 100:.2f}% ( {len(aligned_src_roots)} / {src_total_roots} ) - 对齐的 Source 核心模块数 / Source 仓库总模块数",
                 "source_micro_coverage_rate": f"{micro_coverage * 100:.2f}% ( {total_aligned_funcs} / {total_src_funcs} ) - 成功对齐的函数对数量 / Source 核心模块下的函数总量",
+                "source_unique_micro_coverage_rate": f"{source_unique_coverage * 100:.2f}% ( {unique_aligned_src_count} / {total_src_funcs} ) - 去重后的已对齐 Source 函数量 / Source 核心模块下的函数总量",
+                "target_unique_participation_rate": f"{target_unique_participation_rate * 100:.2f}% ( {unique_aligned_tgt_count} / {total_tgt_funcs} ) - 去重后的参与对齐 Target 函数量 / Target 核心模块下的函数总量",
                 "functional_overlap_ratio_iou": f"{functional_overlap_ratio * 100:.2f}% ( {total_aligned_funcs} / {union_funcs} ) - 对齐的函数量 / (Source函数总量 + Target函数总量 - 对齐函数量)",
+                "unique_functional_overlap_ratio_iou": f"{unique_functional_overlap_ratio * 100:.2f}% ( {min(unique_aligned_src_count, unique_aligned_tgt_count)} / {unique_union_funcs} ) - 基于去重函数参与量估算的功能重合度",
                 "architecture_fragmentation_index": f"{fragmentation_index:.1f} - Target 对齐模块数 / Source 对齐模块数",
+                "mapping_compression_ratio": f"{mapping_compression_ratio:.2f}x ( {unique_aligned_src_count} / {unique_aligned_tgt_count} unique functions ) - 去重 Source 对齐函数数 / 去重 Target 参与函数数，>1 表示 Target 用更少函数承接更多 Source 语义",
+                "target_reuse_factor": f"{target_reuse_factor:.2f}x ( {total_aligned_funcs} / {unique_aligned_tgt_count} ) - 对齐 pair 数 / 去重 Target 参与函数数，反映 Target 函数被多个 Source 函数复用的程度",
                 "api_bloat_ratio": f"{api_bloat_ratio:.2f}x ( {total_tgt_funcs} / {total_src_funcs} functions ) - Target 对齐模块总函数量 / Source 对齐模块总函数量",
                 "code_volume_loc_bloat_ratio": f"{loc_bloat_ratio:.2f}x ( {total_tgt_loc} / {total_src_loc} lines ) - Target 核心模块总代码行数(LOC) / Source 核心模块总代码行数(LOC)",
                 "source_orphan_rate": f"{source_orphan_rate * 100:.2f}% ( {source_orphan_count} / {total_src_funcs} ) - Source 中未被翻译的函数量 / Source 总函数量",

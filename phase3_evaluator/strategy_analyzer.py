@@ -4,16 +4,16 @@ from .prompts import PROMPT_STRATEGY_ANALYSIS
 
 class StrategyAnalyzer:
     """
-    CP2RS Phase 3: 战略透视分析器 (仅在场景二触发)
+    CP2RS Phase 3: 翻译策略分析器 (仅在场景二触发)
     用于对比 Target 与 Answer 之间的翻译策略差异。
     """
     def __init__(self, llm_client: LLMClient):
         self.llm = llm_client
 
     def generate_strategy_report(self, tgt_ans_report_path: str) -> dict:
-        """读取 Tgt vs Ans 的 3A 报告，生成战略透视报告"""
+        """读取 Tgt vs Ans 的 3A 报告，生成翻译分析报告"""
         print("\n" + "="*50)
-        print("🧠 [Phase 3 Strategy] 启动目标与人类标杆的战略透视对比分析...")
+        print("🧠 [Phase 3 Strategy] 启动目标与人类标杆的翻译对比分析...")
         
         with open(tgt_ans_report_path, 'r', encoding='utf-8') as f:
             report_data = json.load(f)

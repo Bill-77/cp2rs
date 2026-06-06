@@ -1,222 +1,252 @@
 {
-  "macro_alignment_score": 26.55,
+  "macro_alignment_score": 27.84,
   "aligned_modules": [
     {
       "src_module": "Root_CoreLibrary",
       "src_module_description": "[Root_CoreLibrary] cJSON 核心库: 提供 JSON 解析、序列化、对象创建与操作的核心功能，包含公共头文件和实现文件。",
-      "tgt_module": "Root_CoreTypes, Root_Parsing, Root_Codegen, Root_PublicAPI",
+      "tgt_module": "Root_CoreTypes,Root_Parsing,Root_Codegen,Root_PublicAPI",
       "tgt_module_description": "[Root_CoreTypes] 核心数据类型系统: 包含仓库的所有基础数据类型：JsonValue 枚举、Object (有序哈希表)、Number (紧凑浮点)、Short (短字符串优化) 以及 Error 枚举。还包含底层数学工具 (diyfp, grisu2, print_dec)。几乎所有上层模块都依赖此 Root。\n[Root_Parsing] JSON 解析引擎: 提供 JSON 字符串到 JsonValue 的解析能力。核心是 parser 模块，包含 Parser 结构体和相关宏，实现标准 JSON 以及部分扩展 (如十六进制 escapes、大数) 的解析。使用 ? 进行错误传播，最终返回 Result<JsonValue>。\n[Root_Codegen] JSON 代码生成引擎: 提供 JsonValue 到字符串或任意 io::Write 目标的序列化能力。定义 Generator trait 以及四种实现：DumpGenerator (紧凑)、PrettyGenerator (美化)、WriterGenerator (写入任意 writer)、PrettyWriterGenerator。\n[Root_PublicAPI] 公开 API 层: crate 根模块，重导出所有公开类型 (JsonValue, Error, parse 等)，并提供便捷顶层函数 (from, stringify, stringify_pretty) 以及宏 (array, object, value)。用户通常通过此层访问仓库功能。",
-      "justification": "Source的Root_CoreLibrary提供JSON解析、序列化、对象操作核心功能，对应Target中分别负责数据类型(Root_CoreTypes)、解析(Root_Parsing)、代码生成(Root_Codegen)以及公共API重导出(Root_PublicAPI)的模块。拓扑上，Source中CoreLibrary被其他模块依赖，类似Target中CoreTypes被Parsing和Codegen依赖，且PublicAPI依赖于Parsing、Codegen和CoreTypes，整体体现了底层核心功能的分层。由于Target将核心功能拆分为更细粒度的模块，因此映射关系为1-to-N。",
+      "justification": "Source的CoreLibrary集成了JSON核心类型、解析、序列化和公共API，而Target将这些功能拆分为CoreTypes（数据类型系统）、Parsing（解析引擎）、Codegen（代码生成器）和PublicAPI（顶层重导出与便捷函数）。Target中Parsing和Codegen均依赖CoreTypes，且CoreTypes反向调用Codegen，与Source中cJSON.c内部调用关系一致；PublicAPI重导出所有功能，相当于cJSON.h的Rust等价物。因此CoreLibrary整体映射到这四模块。",
       "aligned_functions": [
         {
           "src_uuid": "cJSON.c::cJSON_GetStringValue",
           "tgt_uuid": "src/value/mod.rs::JsonValue::as_str",
           "confidence": "High",
-          "reason": "Both functions retrieve the string value from a JSON item. C returns the `valuestring` pointer (or NULL if not a string), Rust returns `Some(&str)` via pattern matching on `Short` or `String` variants (or `None`). The logic is equivalent: check type, return string content or null/None."
+          "reason": "Both functions check if the JSON value is a string and return the string pointer (C) or Option<&str> (Rust)."
         },
         {
           "src_uuid": "cJSON.c::cJSON_GetNumberValue",
           "tgt_uuid": "src/value/mod.rs::JsonValue::as_f64",
           "confidence": "High",
-          "reason": "Both functions retrieve the numeric value as a double. C returns `valuedouble` or NaN if not a number, Rust returns `Some(f64)` via `as_number().map(|v| v.into())` or `None`. The semantic difference (NaN vs None) is a language idiom; the core intent of extracting the f64 representation is identical."
+          "reason": "Both functions check if the JSON value is a number and return the double value (C returns NAN if not number, Rust returns None)."
         },
         {
-          "src_uuid": "cJSON.c::print_number",
-          "tgt_uuid": "src/number.rs::Number::fmt",
-          "confidence": "Medium",
-          "reason": "Both functions convert a numeric value into its string representation for output. C's `print_number` uses `sprintf` with locale-aware decimal point replacement, while Rust's `Number::fmt` uses `print_dec::write` (Grisu2 algorithm). The underlying purpose—serializing a number to a string—aligns, though the exact formatting algorithms differ."
+          "src_uuid": "cJSON.c::parse_hex4",
+          "tgt_uuid": "src/parser.rs::Parser::read_hexdec_codepoint",
+          "confidence": "High",
+          "reason": "Both functions parse exactly 4 hexadecimal digits (0-9, A-F, a-f) and return the combined unsigned integer value. The C function uses a loop with shift and add; the Rust function composes the four calls to read_hexdec_digit with shifts and OR. Logic is identical."
+        },
+        {
+          "src_uuid": "cJSON.c::utf16_literal_to_utf8",
+          "tgt_uuid": "src/parser.rs::Parser::read_codepoint",
+          "confidence": "High",
+          "reason": "Both handle \\uXXXX JSON escape sequences, including surrogate pairs (\\uXXXX\\uXXXX). They decode the hex codepoints, combine surrogate pairs into a single Unicode code point, and encode it into UTF-8 bytes. The C function writes to an output pointer, while the Rust function appends to a buffer; the core logic is equivalent."
+        },
+        {
+          "src_uuid": "cJSON.c::parse_string",
+          "tgt_uuid": "src/parser.rs::Parser::read_complex_string",
+          "confidence": "High",
+          "reason": "Both functions parse a JSON string literal, handling escape sequences (\\b, \\f, \\n, \\r, \\t, \\\", \\\\, \\/) and \\uXXXX Unicode escapes. They scan the input, build the decoded string in a buffer, and return the result. The C function uses a loop with a switch on the second character; the Rust function uses a similar loop with a match on the escaped character, delegating \\u to read_codepoint."
         },
         {
           "src_uuid": "cJSON.c::parse_value",
-          "tgt_uuid": "src/parser.rs::parse",
+          "tgt_uuid": "src/parser.rs::Parser::parse",
           "confidence": "High",
-          "reason": "Both are the main entry point for parsing a JSON value, dispatching based on the first character."
+          "reason": "Both are the top-level dispatch for parsing a JSON value. They check the first character to determine the value type: null, false, true, string (double quote), number (digit or minus), array (\\u005b), object (\\u007b). Each dispatches to the appropriate sub-parser. The C function calls parse_string, parse_number, parse_array, parse_object; the Rust function uses inline logic with macros but the same decision tree."
         },
         {
           "src_uuid": "cJSON.c::cJSON_Parse",
           "tgt_uuid": "src/parser.rs::parse",
           "confidence": "High",
-          "reason": "cJSON_Parse is the public parsing API, equivalent to `parse` in the Rust library."
+          "reason": "Both are the public entry point for parsing a JSON string without extra options. cJSON_Parse simply calls cJSON_ParseWithOpts with default null terminated and no return_parse_end. The Rust parse function takes &str and returns Result<JsonValue>. They provide the same core functionality: parse a JSON string into a value."
         },
         {
-          "src_uuid": "cJSON.c::cJSON_PrintUnformatted",
-          "tgt_uuid": "src/lib.rs::stringify",
-          "confidence": "High",
-          "reason": "Both produce a compact JSON string without extra whitespace."
+          "src_uuid": "cJSON.c::cJSON_ParseWithOpts",
+          "tgt_uuid": "src/parser.rs::parse",
+          "confidence": "Medium",
+          "reason": "cJSON_ParseWithOpts allows extra options like require_null_terminated and return_parse_end. The Rust parse does not expose these options, but the underlying parsing logic is the same. The C function also handles BOM skipping and whitespace skipping before parsing; the Rust parse (via skip_utf8_bom? not shown) also skips leading whitespace (implicitly via expect_byte_ignore_whitespace). Considering the core functionality matches, but parameter differences exist, confidence is Medium."
         },
         {
           "src_uuid": "cJSON.c::cJSON_Print",
-          "tgt_uuid": "src/lib.rs::stringify_pretty",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::pretty",
           "confidence": "High",
-          "reason": "Both produce a formatted JSON string (with indentation). cJSON_Print defaults to formatted output."
+          "reason": "Both produce a formatted (pretty-printed) JSON string. cJSON_Print generates output with indentation (format=true), while JsonValue::pretty takes a spaces parameter to control indentation level. The underlying algorithm for printing values, escaping strings, and handling arrays/objects is equivalent."
         },
         {
-          "src_uuid": "cJSON.c::parse_string",
-          "tgt_uuid": "src/parser.rs::read_complex_string",
+          "src_uuid": "cJSON.c::cJSON_PrintUnformatted",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::dump",
           "confidence": "High",
-          "reason": "Both handle JSON string parsing including escape sequences and UTF-16 literals."
-        },
-        {
-          "src_uuid": "cJSON.c::parse_hex4",
-          "tgt_uuid": "src/parser.rs::read_hexdec_codepoint",
-          "confidence": "High",
-          "reason": "Both read exactly four hexadecimal digits and return their numeric value (0-65535)."
-        },
-        {
-          "src_uuid": "cJSON.c::utf16_literal_to_utf8",
-          "tgt_uuid": "src/parser.rs::read_codepoint",
-          "confidence": "High",
-          "reason": "Both decode a JSON \\uXXXX escape, handling surrogate pairs and encoding the result into UTF-8."
+          "reason": "Both produce a compact (unformatted) JSON string without extra whitespace or indentation. cJSON_PrintUnformatted uses format=false. JsonValue::dump always produces compact output. The serialization logic for all value types (null, bool, number, string, array, object) is functionally identical."
         },
         {
           "src_uuid": "cJSON.c::cJSON_GetArraySize",
           "tgt_uuid": "src/value/mod.rs::JsonValue::len",
-          "confidence": "Medium",
-          "reason": "C函数遍历链表计算数组长度返回int，Rust方法返回数组Vec的长度usize，逻辑等价。"
+          "confidence": "High",
+          "reason": "cJSON_GetArraySize 通过遍历链表计算数组长度，JsonValue::len 返回 Vec 的 len()，两者功能等价，均返回元素个数。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
           "tgt_uuid": "src/object.rs::Object::get",
-          "confidence": "Medium",
-          "reason": "C函数区分大小写查找对象键并返回节点，Rust方法通过哈希和字节比较返回Option，语义一致。"
+          "confidence": "High",
+          "reason": "cJSON_GetObjectItemCaseSensitive 通过区分大小写的键查找对象中的值，Object::get 使用哈希和字节比较实现区分大小写的键查找，返回 Option<&JsonValue>，逻辑等价。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_HasObjectItem",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::has_key",
+          "confidence": "High",
+          "reason": "cJSON_HasObjectItem 检查对象中是否存在指定键，返回布尔值；JsonValue::has_key 内部调用 Object::get 并判断 is_some，功能相同。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_AddItemToArray",
           "tgt_uuid": "src/value/mod.rs::JsonValue::push",
           "confidence": "Medium",
-          "reason": "C函数将项添加到数组末尾并返回成功标志，Rust方法将值推入Vec并返回Result，操作逻辑相同。"
+          "reason": "cJSON_AddItemToArray 将元素追加到数组末尾，JsonValue::push 对 Array 变体执行 vec.push()，但返回值类型不同（bool vs Result），基本逻辑等价。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_AddItemToObject",
-          "tgt_uuid": "src/value/mod.rs::JsonValue::insert",
+          "tgt_uuid": "src/object.rs::Object::insert",
           "confidence": "Medium",
-          "reason": "C函数向对象添加键值对（复制键），Rust方法通过Object::insert实现相同功能，均返回成功标志。"
+          "reason": "cJSON_AddItemToObject 向对象插入键值对（非 const 键），Object::insert 执行类似操作，但返回类型不同（bool vs ()），且 Rust 的键始终是 owned。"
         },
         {
-          "src_uuid": "cJSON.c::cJSON_PrintPreallocated",
-          "tgt_uuid": "src/value/mod.rs::JsonValue::write",
+          "src_uuid": "cJSON.c::cJSON_AddItemToObjectCS",
+          "tgt_uuid": "src/object.rs::Object::insert",
           "confidence": "Medium",
-          "reason": "C函数将JSON序列化到预分配缓冲区，Rust方法将JSON写入任意Writer（如Vec<u8>），核心均为输出序列化结果。"
+          "reason": "cJSON_AddItemToObjectCS 使用 const 键插入，Object::insert 不区分 const，内部处理类似，功能对应。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_AddTrueToObject",
           "tgt_uuid": "src/object.rs::Object::insert",
           "confidence": "Medium",
-          "reason": "cJSON_AddTrueToObject 创建 true 项并添加到对象，对应 Rust 中 Object::insert 插入 JsonValue::Bool(true)。"
+          "reason": "C函数创建cJSON_TRUE并添加到对象; Rust的Object::insert通过键插入JsonValue::Boolean(true)，二者均实现向对象添加布尔值true的功能。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_AddFalseToObject",
           "tgt_uuid": "src/object.rs::Object::insert",
           "confidence": "Medium",
-          "reason": "cJSON_AddFalseToObject 创建 false 项并添加，对应 Object::insert 插入 false。"
+          "reason": "C函数创建cJSON_FALSE并添加到对象; Rust的Object::insert通过键插入JsonValue::Boolean(false)，二者均实现向对象添加布尔值false的功能。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_AddBoolToObject",
           "tgt_uuid": "src/object.rs::Object::insert",
           "confidence": "Medium",
-          "reason": "cJSON_AddBoolToObject 根据 boolean 参数创建 true/false 并添加，对应 Object::insert 插入相应的 bool。"
+          "reason": "C函数根据参数boolean创建cJSON_TRUE/FALSE并添加到对象; Rust的Object::insert通过键插入对应的JsonValue::Boolean，逻辑等价。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_AddNumberToObject",
           "tgt_uuid": "src/object.rs::Object::insert",
           "confidence": "Medium",
-          "reason": "cJSON_AddNumberToObject 创建数字项并添加，对应 Object::insert 插入 JsonValue::Number。"
+          "reason": "C函数创建cJSON_Number并添加到对象; Rust的Object::insert通过键插入JsonValue::Number，二者均实现向对象添加数字值。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_AddStringToObject",
           "tgt_uuid": "src/object.rs::Object::insert",
           "confidence": "Medium",
-          "reason": "cJSON_AddStringToObject 创建字符串项并添加，对应 Object::insert 插入 JsonValue::String。"
+          "reason": "C函数创建cJSON_String并添加到对象; Rust的Object::insert通过键插入JsonValue::String，二者均实现向对象添加字符串值。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_AddObjectToObject",
           "tgt_uuid": "src/object.rs::Object::insert",
           "confidence": "Medium",
-          "reason": "cJSON_AddObjectToObject 创建空对象项并添加，对应 Object::insert 插入 JsonValue::Object(Object::new())。"
+          "reason": "C函数创建cJSON_Object并添加到对象; Rust的Object::insert通过键插入JsonValue::Object，二者均实现向对象添加空对象子项。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_AddArrayToObject",
           "tgt_uuid": "src/object.rs::Object::insert",
           "confidence": "Medium",
-          "reason": "cJSON_AddArrayToObject 创建空数组项并添加，对应 Object::insert 插入 JsonValue::Array(Vec::new())。"
+          "reason": "C函数创建cJSON_Array并添加到对象; Rust的Object::insert通过键插入JsonValue::Array，二者均实现向对象添加空数组子项。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_DetachItemFromObject",
+          "tgt_uuid": "src/object.rs::Object::remove",
+          "confidence": "High",
+          "reason": "C函数通过键从对象中分离并返回子项; Rust的Object::remove通过键移除并返回对应的JsonValue，二者逻辑等价。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive",
+          "tgt_uuid": "src/object.rs::Object::remove",
+          "confidence": "High",
+          "reason": "C函数区分大小写地从对象中分离项; Rust的Object::remove默认基于字节比较（区分大小写），功能等价。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_DeleteItemFromObject",
           "tgt_uuid": "src/object.rs::Object::remove",
           "confidence": "High",
-          "reason": "两者均从对象中删除指定键的条目。cJSON 使用 detach+delete，Rust 的 remove 直接删除并返回。"
+          "reason": "C函数分离并删除对象中的项; Rust的Object::remove移除并返回项（调用者可以丢弃），效果一致。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_DeleteItemFromObjectCaseSensitive",
           "tgt_uuid": "src/object.rs::Object::remove",
           "confidence": "High",
-          "reason": "大小写敏感版本，同样使用 remove，Rust 的键比较默认大小写敏感。"
-        },
-        {
-          "src_uuid": "cJSON.c::cJSON_DeleteItemFromArray",
-          "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove",
-          "confidence": "High",
-          "reason": "两者均从数组中删除指定索引的元素。cJSON 的 delete 通过 detach+delete，Rust 的 array_remove 直接移除并返回。"
+          "reason": "C函数区分大小写地删除对象中的项; Rust的Object::remove区分大小写，功能等价。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_ReplaceItemInObject",
           "tgt_uuid": "src/object.rs::Object::insert",
           "confidence": "High",
-          "reason": "cJSON_ReplaceItemInObject 替换对象中的项，等价于 Rust 中 Object::insert 覆盖已有键。"
+          "reason": "C函数替换对象中键对应的项（先查找再替换）; Rust的Object::insert在键已存在时直接覆盖值，二者语义一致。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_DetachItemFromArray",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove",
+          "confidence": "High",
+          "reason": "C函数按索引从数组中分离并返回项; Rust的JsonValue::array_remove按索引移除并返回元素，逻辑等价。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_DeleteItemFromArray",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove",
+          "confidence": "High",
+          "reason": "C函数按索引从数组中分离并删除项; Rust的JsonValue::array_remove移除并返回元素（调用者可以丢弃），效果一致。"
+        },
+        {
+          "src_uuid": "cJSON.c::cJSON_ReplaceItemInObjectCaseSensitive",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::insert",
+          "confidence": "High",
+          "reason": "cJSON_ReplaceItemInObjectCaseSensitive替换对象中指定键的值，与JsonValue::insert当键存在时替换功能等价。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_CreateArray",
           "tgt_uuid": "src/value/mod.rs::JsonValue::new_array",
           "confidence": "High",
-          "reason": "Both functions create an empty JSON array."
+          "reason": "cJSON_CreateArray创建空数组，与JsonValue::new_array()功能相同。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_CreateObject",
           "tgt_uuid": "src/value/mod.rs::JsonValue::new_object",
           "confidence": "High",
-          "reason": "Both functions create an empty JSON object."
+          "reason": "cJSON_CreateObject创建空对象，与JsonValue::new_object()功能相同。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_IsBool",
           "tgt_uuid": "src/value/mod.rs::JsonValue::is_boolean",
           "confidence": "High",
-          "reason": "cJSON_IsBool检查item是否为布尔类型（true或false），对应JsonValue的is_boolean方法，两者都是检查值是否为布尔。"
+          "reason": "C函数检查type字段是否包含cJSON_True或cJSON_False，Rust函数通过匹配JsonValue::Boolean变体返回true，语义等价。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_IsNull",
           "tgt_uuid": "src/value/mod.rs::JsonValue::is_null",
           "confidence": "High",
-          "reason": "cJSON_IsNull检查item是否为null，对应JsonValue的is_null方法。"
+          "reason": "C函数检查type值为cJSON_NULL，Rust函数匹配JsonValue::Null变体，语义等价。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_IsNumber",
           "tgt_uuid": "src/value/mod.rs::JsonValue::is_number",
           "confidence": "High",
-          "reason": "cJSON_IsNumber检查item是否为数字，对应JsonValue的is_number方法。"
+          "reason": "C函数检查type值为cJSON_Number，Rust函数匹配JsonValue::Number变体，语义等价。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_IsString",
           "tgt_uuid": "src/value/mod.rs::JsonValue::is_string",
           "confidence": "High",
-          "reason": "cJSON_IsString检查item是否为字符串，对应JsonValue的is_string方法。"
+          "reason": "C函数检查type值为cJSON_String，Rust函数匹配JsonValue::Short或JsonValue::String变体，语义等价。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_IsArray",
           "tgt_uuid": "src/value/mod.rs::JsonValue::is_array",
           "confidence": "High",
-          "reason": "cJSON_IsArray检查item是否为数组，对应JsonValue的is_array方法。"
+          "reason": "C函数检查type值为cJSON_Array，Rust函数匹配JsonValue::Array变体，语义等价。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_IsObject",
           "tgt_uuid": "src/value/mod.rs::JsonValue::is_object",
           "confidence": "High",
-          "reason": "cJSON_IsObject检查item是否为对象，对应JsonValue的is_object方法。"
+          "reason": "C函数检查type值为cJSON_Object，Rust函数匹配JsonValue::Object变体，语义等价。"
         },
         {
           "src_uuid": "cJSON.c::cJSON_Compare",
           "tgt_uuid": "src/value/mod.rs::JsonValue::eq",
           "confidence": "High",
-          "reason": "cJSON_Compare递归比较两个cJSON值是否相等，JsonValue的PartialEq实现同样递归比较所有变体（包括数组和对象），逻辑等价。"
+          "reason": "C函数递归比较两JSON节点（含类型、值、数组/对象子元素），Rust的PartialEq实现同样递归比较所有变体及内部结构，逻辑等价。"
         }
       ]
     }
@@ -246,26 +276,34 @@
       "aligned_target_modules": "4 - 实际参与了架构对齐的 Target 模块数",
       "total_source_functions": "116 - Source 对齐模块下包含的真实函数总量",
       "total_target_functions": "193 - Target 对齐模块下包含的真实函数总量",
-      "aligned_function_pairs": "35 - 通过微观校验，成功对齐的等价函数对数量",
-      "union_functions": "274 - 两个仓库对齐模块下函数的去重并集总数",
+      "aligned_function_pairs": "40 - 通过微观校验，成功对齐的等价函数对数量",
+      "unique_aligned_source_functions": "40 - 去重后的已对齐 Source 函数量（按 src_uuid 去重）",
+      "unique_aligned_target_functions": "26 - 去重后的参与对齐 Target 函数量（按 tgt_uuid 去重，支持逗号分隔的一对多映射）",
+      "union_functions": "269 - 两个仓库对齐模块下函数的去重并集总数",
+      "unique_union_functions": "283 - 基于去重函数参与量估算的 Source/Target 函数并集总数",
       "total_source_loc": "2888 - Source 对齐模块的总代码行数 (Lines of Code)",
       "total_target_loc": "2096 - Target 对齐模块的总代码行数 (Lines of Code)",
-      "source_orphan_functions": "81 - Source 中被时代淘汰或未被翻译的孤儿函数量",
-      "target_native_functions": "158 - Target 中独创的、无 C 源码对应的原生函数量",
+      "source_orphan_functions": "76 - Source 中未找到 Target 对应的孤儿函数量（基于 unique_aligned_source_functions）",
+      "target_native_functions": "167 - Target 中无 Source 对应的原生函数量（基于 unique_aligned_target_functions）",
       "target_unsafe_functions": "30 - Target 核心模块中带有 unsafe 标记或代码块的函数量",
-      "high_confidence_alignments": "22 - 被大模型评估为 High 确信度的微观对齐函数量"
+      "high_confidence_alignments": "29 - 被大模型评估为 High 确信度的微观对齐函数量"
     },
     "derived_ratio_metrics": {
       "source_macro_coverage_rate": "25.00% ( 1 / 4 ) - 对齐的 Source 核心模块数 / Source 仓库总模块数",
-      "source_micro_coverage_rate": "30.17% ( 35 / 116 ) - 成功对齐的函数对数量 / Source 核心模块下的函数总量",
-      "functional_overlap_ratio_iou": "12.77% ( 35 / 274 ) - 对齐的函数量 / (Source函数总量 + Target函数总量 - 对齐函数量)",
+      "source_micro_coverage_rate": "34.48% ( 40 / 116 ) - 成功对齐的函数对数量 / Source 核心模块下的函数总量",
+      "source_unique_micro_coverage_rate": "34.48% ( 40 / 116 ) - 去重后的已对齐 Source 函数量 / Source 核心模块下的函数总量",
+      "target_unique_participation_rate": "13.47% ( 26 / 193 ) - 去重后的参与对齐 Target 函数量 / Target 核心模块下的函数总量",
+      "functional_overlap_ratio_iou": "14.87% ( 40 / 269 ) - 对齐的函数量 / (Source函数总量 + Target函数总量 - 对齐函数量)",
+      "unique_functional_overlap_ratio_iou": "9.19% ( 26 / 283 ) - 基于去重函数参与量估算的功能重合度",
       "architecture_fragmentation_index": "4.0 - Target 对齐模块数 / Source 对齐模块数",
+      "mapping_compression_ratio": "1.54x ( 40 / 26 unique functions ) - 去重 Source 对齐函数数 / 去重 Target 参与函数数，>1 表示 Target 用更少函数承接更多 Source 语义",
+      "target_reuse_factor": "1.54x ( 40 / 26 ) - 对齐 pair 数 / 去重 Target 参与函数数，反映 Target 函数被多个 Source 函数复用的程度",
       "api_bloat_ratio": "1.66x ( 193 / 116 functions ) - Target 对齐模块总函数量 / Source 对齐模块总函数量",
       "code_volume_loc_bloat_ratio": "0.73x ( 2096 / 2888 lines ) - Target 核心模块总代码行数(LOC) / Source 核心模块总代码行数(LOC)",
-      "source_orphan_rate": "69.83% ( 81 / 116 ) - Source 中未被翻译的函数量 / Source 总函数量",
-      "target_native_rate": "81.87% ( 158 / 193 ) - Target 中无对应C源码的独创函数量 / Target 总函数量",
+      "source_orphan_rate": "65.52% ( 76 / 116 ) - Source 中未被翻译的函数量 / Source 总函数量",
+      "target_native_rate": "86.53% ( 167 / 193 ) - Target 中无对应C源码的独创函数量 / Target 总函数量",
       "target_unsafe_dependency_rate": "15.54% ( 30 / 193 ) - Target 中带有 unsafe 标记或代码块的函数量 / Target 总函数量",
-      "micro_alignment_confidence_rate": "62.86% ( 22 / 35 ) - 大模型标记为High确信度的对齐数量 / 总共对齐的函数对数量"
+      "micro_alignment_confidence_rate": "72.50% ( 29 / 40 ) - 大模型标记为High确信度的对齐数量 / 总共对齐的函数对数量"
     }
   }
 }

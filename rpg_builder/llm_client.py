@@ -20,20 +20,21 @@ class LLMClient:
             base_url="https://api.deepseek.com"
         )
 
-    def chat_completion(self, messages, temperature=0.1):
+    def chat_completion(self, messages, temperature=0.1, model=None):
         """
         调用 DeepSeek API 进行对话。
         
         Args:
             messages: 消息列表，格式为 [{"role": "system", "content": "..."}, {"role": "user", "content": "..."}]
             temperature: 采样温度。架构推演需要极高的逻辑严密性和 JSON 格式稳定性，建议保持在 0.1 以下。
-            
+            model: 模型名称，可选。
+
         Returns:
             str: 模型返回的文本内容
         """
         try:
             response = self.client.chat.completions.create(
-                model=self.model,
+                model=model or self.model,
                 messages=messages,
                 temperature=temperature,
                 # 模型能返回的最大长度

@@ -79,28 +79,74 @@ class FunnelAligner:
     # ==========================================
     def _macro_align_modules(self, src_rpg, tgt_rpg) -> list:
         def _build_architecture_summary(rpg):
-            summaries = ["[模块定义 (Root Nodes)]"]
+            nodes = rpg.get("nodes", {})
+            root_nodes = nodes.get("root_nodes", [])
+            intermediate_nodes = nodes.get("intermediate_nodes", [])
+
+            root_to_intermediates = {root.get("id"): [] for root in root_nodes if root.get("id")}
+            orphan_intermediates = []
+            for inter in intermediate_nodes:
+                parent_root = inter.get("parent_root")
+                if parent_root in root_to_intermediates:
+                    root_to_intermediates[parent_root].append(inter)
+                else:
+                    orphan_intermediates.append(inter)
+
+            summaries = ["[模块定义 (Root Nodes + 下属文件)]"]
             # 1. 提取 Root 及其包含的文件 (Intermediate)
-            for root in rpg["nodes"].get("root_nodes", []):
-                # 假设 root 包含了它拥有的 intermediate 节点 ID 列表
-                contained_files = root.get("intermediate_ids", [])
-                summaries.append(f"模块 ID: {root['id']}")
+            for root in root_nodes:
+                root_id = root.get("id", "UnknownRoot")
+                contained_files = sorted(
+                    root_to_intermediates.get(root_id, []),
+                    key=lambda item: item.get("file_path", "")
+                )
+                summaries.append(f"模块 ID: {root_id}")
                 summaries.append(f"  - 语义名称: {root.get('semantic_name', '')}")
                 summaries.append(f"  - 详细描述: {root.get('description', '')}")
                 summaries.append(f"  - 包含文件数: {len(contained_files)} 个")
+                for inter in contained_files:
+                    inter_id = inter.get("id", "UnknownIntermediate")
+                    file_path = inter.get("file_path", "")
+                    semantic_name = inter.get("semantic_name", "")
+                    description = inter.get("description", "")
+                    summaries.append(f"    * {inter_id} | {file_path} | {semantic_name}: {description}")
+
+            if orphan_intermediates:
+                summaries.append("\n[未挂载到已知 Root 的 Intermediate 节点]")
+                for inter in orphan_intermediates:
+                    summaries.append(
+                        f"  - {inter.get('id', 'UnknownIntermediate')} | "
+                        f"parent_root={inter.get('parent_root', '')} | "
+                        f"{inter.get('file_path', '')}"
+                    )
             
             # 2. 提取拓扑边 (Edges) - 这对架构理解至关重要！
-            summaries.append("\n[模块间数据流与调用拓扑 (Edges)]")
+            summaries.append("\n[模块间数据流与调用拓扑 (Inter-Root Edges)]")
             
             # 正确解析 RPG 的 edges 字典结构
             edges_dict = rpg.get("edges", {})
             inter_edges = edges_dict.get("inter_module_edges", [])
             
+            if not inter_edges:
+                summaries.append("  - 无显式模块间边")
             for edge in inter_edges:
                 source = edge.get("source", "Unknown")
                 target = edge.get("target", "Unknown")
                 desc = edge.get("description", "依赖")
-                summaries.append(f"  - {source} ---> {target} (关系: {desc})")
+                evidence = edge.get("evidence", "")
+                summaries.append(f"  - {source} ---> {target} (关系: {desc}; 证据: {evidence})")
+
+            summaries.append("\n[模块内文件执行拓扑 (Intra-Root Intermediate Edges)]")
+            intra_edges = edges_dict.get("intra_module_edges", [])
+            if not intra_edges:
+                summaries.append("  - 无显式模块内边")
+            for edge in intra_edges:
+                source = edge.get("source", "Unknown")
+                target = edge.get("target", "Unknown")
+                relation_type = edge.get("relation_type", "dependency")
+                desc = edge.get("description", "依赖")
+                evidence = edge.get("evidence", "")
+                summaries.append(f"  - {source} ---> {target} ({relation_type}: {desc}; 证据: {evidence})")
             
             return "\n".join(summaries)
 
