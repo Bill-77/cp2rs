@@ -1,0 +1,1066 @@
+{
+  "status": "passed",
+  "events": [
+    {
+      "id": "test_parse_handle_null",
+      "operation": "op_parse_invalid_inputs",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse",
+        "cJSON.c::cJSON_ParseWithOpts"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/parser.rs::parse"
+      ],
+      "alignment_validation": {
+        "operation": "op_parse_invalid_inputs",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Parse",
+            "tgt_uuid": "src/parser.rs::parse"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_ParseWithOpts",
+            "tgt_uuid": "src/parser.rs::parse"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Parse",
+          "cJSON.c::cJSON_ParseWithOpts"
+        ],
+        "covered_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "medium",
+      "expected": {
+        "observable_behavior": "json::parse returns Err for empty and unterminated input"
+      }
+    },
+    {
+      "id": "test_parse_handle_empty_string",
+      "operation": "op_parse_invalid_inputs",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse",
+        "cJSON.c::cJSON_ParseWithOpts"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/parser.rs::parse"
+      ],
+      "alignment_validation": {
+        "operation": "op_parse_invalid_inputs",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Parse",
+            "tgt_uuid": "src/parser.rs::parse"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_ParseWithOpts",
+            "tgt_uuid": "src/parser.rs::parse"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Parse",
+          "cJSON.c::cJSON_ParseWithOpts"
+        ],
+        "covered_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "medium",
+      "expected": {
+        "observable_behavior": "json::parse of empty string returns Err"
+      }
+    },
+    {
+      "id": "test_parse_require_null",
+      "operation": "op_parse_invalid_inputs",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse",
+        "cJSON.c::cJSON_ParseWithOpts"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/parser.rs::parse"
+      ],
+      "alignment_validation": {
+        "operation": "op_parse_invalid_inputs",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Parse",
+            "tgt_uuid": "src/parser.rs::parse"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_ParseWithOpts",
+            "tgt_uuid": "src/parser.rs::parse"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Parse",
+          "cJSON.c::cJSON_ParseWithOpts"
+        ],
+        "covered_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "medium",
+      "expected": {
+        "observable_behavior": "json::parse returns Err for trailing data"
+      }
+    },
+    {
+      "id": "test_create_object_add_bool",
+      "operation": "op_create_object_add_bool",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_AddBoolToObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/object.rs::Object::insert",
+        "src/object.rs::Object::get"
+      ],
+      "alignment_validation": {
+        "operation": "op_create_object_add_bool",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddBoolToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+            "tgt_uuid": "src/object.rs::Object::get"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddBoolToObject",
+          "cJSON.c::cJSON_CreateObject",
+          "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::get",
+          "src/object.rs::Object::insert",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "retrieved keys are boolean true and false"
+      }
+    },
+    {
+      "id": "test_create_object_add_number",
+      "operation": "op_create_object_add_number",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_AddNumberToObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/object.rs::Object::insert",
+        "src/object.rs::Object::get"
+      ],
+      "alignment_validation": {
+        "operation": "op_create_object_add_number",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddNumberToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+            "tgt_uuid": "src/object.rs::Object::get"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddNumberToObject",
+          "cJSON.c::cJSON_CreateObject",
+          "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::get",
+          "src/object.rs::Object::insert",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "retrieved key is number with value 42"
+      }
+    },
+    {
+      "id": "test_create_object_add_string",
+      "operation": "op_create_object_add_string",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_AddStringToObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/object.rs::Object::insert",
+        "src/object.rs::Object::get"
+      ],
+      "alignment_validation": {
+        "operation": "op_create_object_add_string",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddStringToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+            "tgt_uuid": "src/object.rs::Object::get"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddStringToObject",
+          "cJSON.c::cJSON_CreateObject",
+          "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::get",
+          "src/object.rs::Object::insert",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "retrieved key is string 'Hello World!'"
+      }
+    },
+    {
+      "id": "test_create_object_add_true_false",
+      "operation": "op_create_object_add_true_false",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_AddTrueToObject",
+        "cJSON.c::cJSON_AddFalseToObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/object.rs::Object::insert",
+        "src/object.rs::Object::insert",
+        "src/object.rs::Object::get"
+      ],
+      "alignment_validation": {
+        "operation": "op_create_object_add_true_false",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddTrueToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddFalseToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+            "tgt_uuid": "src/object.rs::Object::get"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddFalseToObject",
+          "cJSON.c::cJSON_AddTrueToObject",
+          "cJSON.c::cJSON_CreateObject",
+          "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::get",
+          "src/object.rs::Object::insert",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "retrieved keys are boolean true and false"
+      }
+    },
+    {
+      "id": "test_create_object_add_array_object",
+      "operation": "op_create_object_add_array_and_object",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_AddArrayToObject",
+        "cJSON.c::cJSON_AddObjectToObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/object.rs::Object::insert",
+        "src/object.rs::Object::insert",
+        "src/object.rs::Object::get"
+      ],
+      "alignment_validation": {
+        "operation": "op_create_object_add_array_and_object",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddArrayToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddObjectToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+            "tgt_uuid": "src/object.rs::Object::get"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddArrayToObject",
+          "cJSON.c::cJSON_AddObjectToObject",
+          "cJSON.c::cJSON_CreateObject",
+          "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::get",
+          "src/object.rs::Object::insert",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "retrieved keys are array and object"
+      }
+    },
+    {
+      "id": "test_array_add_and_detach",
+      "operation": "op_array_add_and_detach",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateArray",
+        "cJSON.c::cJSON_AddItemToArray",
+        "cJSON.c::cJSON_DetachItemFromArray",
+        "cJSON.c::cJSON_GetArraySize"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_array",
+        "src/value/mod.rs::JsonValue::push",
+        "src/value/mod.rs::JsonValue::array_remove",
+        "src/value/mod.rs::JsonValue::len"
+      ],
+      "alignment_validation": {
+        "operation": "op_array_add_and_detach",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_array"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::push"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DetachItemFromArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetArraySize",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_CreateArray",
+          "cJSON.c::cJSON_DetachItemFromArray",
+          "cJSON.c::cJSON_GetArraySize"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::array_remove",
+          "src/value/mod.rs::JsonValue::len",
+          "src/value/mod.rs::JsonValue::new_array",
+          "src/value/mod.rs::JsonValue::push"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "array length decreases and removed element is correct"
+      }
+    },
+    {
+      "id": "test_delete_from_array",
+      "operation": "op_delete_from_array",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse",
+        "cJSON.c::cJSON_AddArrayToObject",
+        "cJSON.c::cJSON_AddItemToArray",
+        "cJSON.c::cJSON_DeleteItemFromArray",
+        "cJSON.c::cJSON_PrintUnformatted"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/object.rs::Object::insert",
+        "src/value/mod.rs::JsonValue::push",
+        "src/value/mod.rs::JsonValue::array_remove",
+        "src/value/mod.rs::JsonValue::dump"
+      ],
+      "alignment_validation": {
+        "operation": "op_delete_from_array",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Parse",
+            "tgt_uuid": "src/parser.rs::parse"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddArrayToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::push"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DeleteItemFromArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_PrintUnformatted",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::dump"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddArrayToObject",
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_DeleteItemFromArray",
+          "cJSON.c::cJSON_Parse",
+          "cJSON.c::cJSON_PrintUnformatted"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::insert",
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::array_remove",
+          "src/value/mod.rs::JsonValue::dump",
+          "src/value/mod.rs::JsonValue::push"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_fixture",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "dump matches expected strings after each mutation"
+      }
+    },
+    {
+      "id": "test_get_string_value",
+      "operation": "op_get_string_value",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_GetStringValue"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::as_str"
+      ],
+      "alignment_validation": {
+        "operation": "op_get_string_value",
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_GetStringValue",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::as_str"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_GetStringValue"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::as_str"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "as_str returns Some for string, None for number"
+      }
+    },
+    {
+      "id": "test_get_number_value",
+      "operation": "op_get_number_value",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_GetNumberValue"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::as_f64"
+      ],
+      "alignment_validation": {
+        "operation": "op_get_number_value",
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_GetNumberValue",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::as_f64"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_GetNumberValue"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::as_f64"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "as_f64 returns Some for number, None for string"
+      }
+    },
+    {
+      "id": "test_typecheck_functions",
+      "operation": "op_typecheck",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_IsArray",
+        "cJSON.c::cJSON_IsBool",
+        "cJSON.c::cJSON_IsNull",
+        "cJSON.c::cJSON_IsNumber",
+        "cJSON.c::cJSON_IsObject",
+        "cJSON.c::cJSON_IsString"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::is_array",
+        "src/value/mod.rs::JsonValue::is_boolean",
+        "src/value/mod.rs::JsonValue::is_null",
+        "src/value/mod.rs::JsonValue::is_number",
+        "src/value/mod.rs::JsonValue::is_object",
+        "src/value/mod.rs::JsonValue::is_string"
+      ],
+      "alignment_validation": {
+        "operation": "op_typecheck",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_IsArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_array"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsBool",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_boolean"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsNull",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_null"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsNumber",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_number"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsString",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_string"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_IsArray",
+          "cJSON.c::cJSON_IsBool",
+          "cJSON.c::cJSON_IsNull",
+          "cJSON.c::cJSON_IsNumber",
+          "cJSON.c::cJSON_IsObject",
+          "cJSON.c::cJSON_IsString"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::is_array",
+          "src/value/mod.rs::JsonValue::is_boolean",
+          "src/value/mod.rs::JsonValue::is_null",
+          "src/value/mod.rs::JsonValue::is_number",
+          "src/value/mod.rs::JsonValue::is_object",
+          "src/value/mod.rs::JsonValue::is_string"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "each is_* returns true only for matching type"
+      }
+    },
+    {
+      "id": "test_replace_item_in_object",
+      "operation": "op_replace_item_in_object",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_AddItemToObject",
+        "cJSON.c::cJSON_ReplaceItemInObject"
+      ],
+      "target_functions": [
+        "src/object.rs::Object::insert",
+        "src/object.rs::Object::insert",
+        "src/object.rs::Object::get"
+      ],
+      "alignment_validation": {
+        "operation": "op_replace_item_in_object",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_ReplaceItemInObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_ReplaceItemInObject"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::insert"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/object.rs::Object::get"
+        ]
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "after replacement, key is still 'child' and value is new number"
+      }
+    },
+    {
+      "id": "test_add_item_to_object_cs",
+      "operation": "op_add_item_to_object_cs",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_AddItemToObjectCS"
+      ],
+      "target_functions": [
+        "src/object.rs::Object::insert"
+      ],
+      "alignment_validation": {
+        "operation": "op_add_item_to_object_cs",
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObjectCS",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddItemToObjectCS"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::insert"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "retrieved key is number with value 42"
+      }
+    },
+    {
+      "id": "test_delete_item_from_object",
+      "operation": "op_delete_item_from_object",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_DeleteItemFromObject",
+        "cJSON.c::cJSON_DeleteItemFromObjectCaseSensitive"
+      ],
+      "target_functions": [
+        "src/object.rs::Object::remove",
+        "src/object.rs::Object::remove"
+      ],
+      "alignment_validation": {
+        "operation": "op_delete_item_from_object",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_DeleteItemFromObject",
+            "tgt_uuid": "src/object.rs::Object::remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DeleteItemFromObjectCaseSensitive",
+            "tgt_uuid": "src/object.rs::Object::remove"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_DeleteItemFromObject",
+          "cJSON.c::cJSON_DeleteItemFromObjectCaseSensitive"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::remove"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "after deletion, key retrieval returns None"
+      }
+    },
+    {
+      "id": "test_has_object_item",
+      "operation": "op_has_object_item",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_HasObjectItem"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::has_key"
+      ],
+      "alignment_validation": {
+        "operation": "op_has_object_item",
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_HasObjectItem",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::has_key"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_HasObjectItem"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::has_key"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "has_key returns correct boolean based on key existence and value type"
+      }
+    },
+    {
+      "id": "test_print_pretty",
+      "operation": "op_print_pretty",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "alignment_validation": {
+        "operation": "op_print_pretty",
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Print",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "pretty returns formatted JSON string with newlines and indentation"
+      }
+    },
+    {
+      "id": "test_detach_item_from_object",
+      "operation": "op_detach_item_from_object",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_DetachItemFromObject",
+        "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive"
+      ],
+      "target_functions": [
+        "src/object.rs::Object::remove",
+        "src/object.rs::Object::remove"
+      ],
+      "alignment_validation": {
+        "operation": "op_detach_item_from_object",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_DetachItemFromObject",
+            "tgt_uuid": "src/object.rs::Object::remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive",
+            "tgt_uuid": "src/object.rs::Object::remove"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_DetachItemFromObject",
+          "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::remove"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "remove returns Some(value) for existing key; after removal key not found. Also missing key returns None."
+      }
+    },
+    {
+      "id": "test_detach_item_from_object_null_checks",
+      "operation": "op_detach_item_from_object",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_DetachItemFromObject",
+        "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive"
+      ],
+      "target_functions": [
+        "src/object.rs::Object::remove",
+        "src/object.rs::Object::remove"
+      ],
+      "alignment_validation": {
+        "operation": "op_detach_item_from_object",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_DetachItemFromObject",
+            "tgt_uuid": "src/object.rs::Object::remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive",
+            "tgt_uuid": "src/object.rs::Object::remove"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_DetachItemFromObject",
+          "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::remove"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "remove returns None for missing key, empty key, and on empty object"
+      }
+    },
+    {
+      "id": "test_replace_item_in_object_case_sensitive",
+      "operation": "op_replace_item_in_object_case_sensitive",
+      "status": "passed",
+      "source_functions": [
+        "cJSON.c::cJSON_ReplaceItemInObjectCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "alignment_validation": {
+        "operation": "op_replace_item_in_object_case_sensitive",
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_ReplaceItemInObjectCaseSensitive",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::insert"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_ReplaceItemInObjectCaseSensitive"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::insert"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "expected": {
+        "observable_behavior": "JsonValue::insert on object with existing key replaces value Ok(); on non-object (Null) returns Err"
+      }
+    }
+  ],
+  "summary": {
+    "generated_test_file": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_codex/work/latest/target_repo/tests/cp2rs_3b_public.rs",
+    "target_worktree": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_codex/work/latest/target_repo",
+    "command": [
+      "cargo",
+      "test",
+      "--test",
+      "cp2rs_3b_public"
+    ],
+    "started_at": "2026-06-11T12:57:49.859170Z",
+    "returncode": 0,
+    "executed": 21,
+    "passed": 21,
+    "failed": 0,
+    "infrastructure_failures": 0,
+    "semantic_failures": 0,
+    "parsed_test_statuses": {
+      "test_array_add_and_detach": "passed",
+      "test_add_item_to_object_cs": "passed",
+      "test_create_object_add_array_object": "passed",
+      "test_create_object_add_bool": "passed",
+      "test_create_object_add_number": "passed",
+      "test_create_object_add_string": "passed",
+      "test_create_object_add_true_false": "passed",
+      "test_delete_from_array": "passed",
+      "test_delete_item_from_object": "passed",
+      "test_detach_item_from_object": "passed",
+      "test_detach_item_from_object_null_checks": "passed",
+      "test_get_number_value": "passed",
+      "test_get_string_value": "passed",
+      "test_has_object_item": "passed",
+      "test_parse_handle_empty_string": "passed",
+      "test_parse_handle_null": "passed",
+      "test_print_pretty": "passed",
+      "test_parse_require_null": "passed",
+      "test_replace_item_in_object": "passed",
+      "test_replace_item_in_object_case_sensitive": "passed",
+      "test_typecheck_functions": "passed"
+    },
+    "stdout_tail": "\nrunning 21 tests\ntest test_array_add_and_detach ... ok\ntest test_add_item_to_object_cs ... ok\ntest test_create_object_add_array_object ... ok\ntest test_create_object_add_bool ... ok\ntest test_create_object_add_number ... ok\ntest test_create_object_add_string ... ok\ntest test_create_object_add_true_false ... ok\ntest test_delete_from_array ... ok\ntest test_delete_item_from_object ... ok\ntest test_detach_item_from_object ... ok\ntest test_detach_item_from_object_null_checks ... ok\ntest test_get_number_value ... ok\ntest test_get_string_value ... ok\ntest test_has_object_item ... ok\ntest test_parse_handle_empty_string ... ok\ntest test_parse_handle_null ... ok\ntest test_print_pretty ... ok\ntest test_parse_require_null ... ok\ntest test_replace_item_in_object ... ok\ntest test_replace_item_in_object_case_sensitive ... ok\ntest test_typecheck_functions ... ok\n\ntest result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+    "stderr_tail": "   Compiling json v0.12.4 (/home/yptang/cp2rs/output/phase3_3b/cJSON_vs_json-rust_3b_v4_codex/work/latest/target_repo)\nwarning: unnecessary parentheses around match arm expression\n   --> src/parser.rs:433:30\n    |\n433 |             b'0' ..= b'9' => (ch - b'0'),\n    |                              ^         ^\n    |\n    = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default\nhelp: remove these parentheses\n    |\n433 -             b'0' ..= b'9' => (ch - b'0'),\n433 +             b'0' ..= b'9' => ch - b'0',\n    |\n\nwarning: unnecessary parentheses around match arm expression\n   --> src/parser.rs:434:30\n    |\n434 |             b'a' ..= b'f' => (ch + 10 - b'a'),\n    |                              ^              ^\n    |\nhelp: remove these parentheses\n    |\n434 -             b'a' ..= b'f' => (ch + 10 - b'a'),\n434 +             b'a' ..= b'f' => ch + 10 - b'a',\n    |\n\nwarning: unnecessary parentheses around match arm expression\n   --> src/parser.rs:435:30\n    |\n435 |             b'A' ..= b'F' => (ch + 10 - b'A'),\n    |                              ^              ^\n    |\nhelp: remove these parentheses\n    |\n435 -             b'A' ..= b'F' => (ch + 10 - b'A'),\n435 +             b'A' ..= b'F' => ch + 10 - b'A',\n    |\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/value/mod.rs:451:20\n    |\n451 |     pub fn members(&self) -> Members {\n    |                    ^^^^^     ^^^^^^^ the same lifetime is hidden here\n    |                    |\n    |                    the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\n    = note: `#[warn(mismatched_lifetime_syntaxes)]` on by default\nhelp: use `'_` for type paths\n    |\n451 |     pub fn members(&self) -> Members<'_> {\n    |                                     ++++\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/value/mod.rs:462:24\n    |\n462 |     pub fn members_mut(&mut self) -> MembersMut {\n    |                        ^^^^^^^^^     ^^^^^^^^^^ the same lifetime is hidden here\n    |                        |\n    |                        the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n462 |     pub fn members_mut(&mut self) -> MembersMut<'_> {\n    |                                                ++++\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/value/mod.rs:494:20\n    |\n494 |     pub fn entries(&self) -> Entries {\n    |                    ^^^^^     ^^^^^^^ the same lifetime is hidden here\n    |                    |\n    |                    the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n494 |     pub fn entries(&self) -> Entries<'_> {\n    |                                     ++++\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/value/mod.rs:506:24\n    |\n506 |     pub fn entries_mut(&mut self) -> EntriesMut {\n    |                        ^^^^^^^^^     ^^^^^^^^^^ the same lifetime is hidden here\n    |                        |\n    |                        the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n506 |     pub fn entries_mut(&mut self) -> EntriesMut<'_> {\n    |                                                ++++\n\nwarning: unnecessary transmute\n  --> src/util/diyfp.rs:53:22\n   |\n53 |         let u: u64 = mem::transmute(d);\n   |                      ^^^^^^^^^^^^^^^^^\n   |\n   = note: `#[warn(unnecessary_transmutes)]` on by default\nhelp: replace this with\n   |\n53 -         let u: u64 = mem::transmute(d);\n53 +         let u: u64 = f64::to_bits(d);\n   |\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/object.rs:498:17\n    |\n498 |     pub fn iter(&self) -> Iter {\n    |                 ^^^^^     ^^^^ the same lifetime is hidden here\n    |                 |\n    |                 the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n498 |     pub fn iter(&self) -> Iter<'_> {\n    |                               ++++\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/object.rs:505:21\n    |\n505 |     pub fn iter_mut(&mut self) -> IterMut {\n    |                     ^^^^^^^^^     ^^^^^^^ the same lifetime is hidden here\n    |                     |\n    |                     the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n505 |     pub fn iter_mut(&mut self) -> IterMut<'_> {\n    |                                          ++++\n\nwarning: `json` (lib) generated 10 warnings (run `cargo fix --lib -p json` to apply 10 suggestions)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.64s\n     Running tests/cp2rs_3b_public.rs (target/debug/deps/cp2rs_3b_public-3485394119a1af66)\n"
+  }
+}

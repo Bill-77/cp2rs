@@ -1,0 +1,31 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "stage": "schema_validation",
+      "status": "failed",
+      "errors": [
+        "rust_test_harness must define one #[test] fn for every trace_events[].id; missing tests: ['parse_null_input']",
+        "public_operations target_functions declares src/object.rs::Object::get, but rust_test_harness does not appear to call/use `get`",
+        "rust_test_harness appears to use target public API names not declared in public_operations.*.target_functions: ['contains']"
+      ],
+      "warnings": []
+    },
+    {
+      "attempt": 2,
+      "stage": "schema_validation",
+      "status": "failed",
+      "errors": [
+        "rust_test_harness appears to use target public API names not declared in public_operations.*.target_functions: ['contains']"
+      ],
+      "warnings": []
+    },
+    {
+      "attempt": 3,
+      "stage": "schema_validation",
+      "status": "passed",
+      "errors": [],
+      "warnings": []
+    }
+  ]
+}

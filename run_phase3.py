@@ -7,6 +7,7 @@ from phase3_evaluator.funnel_aligner import FunnelAligner
 from phase3_evaluator.metric_calculator_3a import MetricCalculator3A
 from phase3_evaluator.static_analyzer import StaticAnalyzer
 from phase3_evaluator.strategy_analyzer import StrategyAnalyzer
+from phase3_evaluator.trace_replay_3b import TraceReplay3B
 
 def normalize_output_suffix(output_suffix: str) -> str:
     """标准化报告文件后缀，避免命令行传参时纠结下划线。"""
@@ -21,6 +22,43 @@ def get_eval_report_paths(out_prefix: str, output_suffix: str = ""):
     path_3a = os.path.join(output_dir, f"3A_alignment_{out_prefix}{suffix}.json")
     path_3c = os.path.join(output_dir, f"3C_static_{out_prefix}{suffix}.json")
     return output_dir, path_3a, path_3c
+
+def get_eval_report_path_3b(out_prefix: str, output_suffix: str = ""):
+    output_dir = os.path.join("output", "eval_reports")
+    suffix = normalize_output_suffix(output_suffix)
+    return os.path.join(output_dir, f"3B_correctness_{out_prefix}{suffix}.json")
+
+def get_phase3b_artifact_dir(out_prefix: str, output_suffix: str = ""):
+    suffix = normalize_output_suffix(output_suffix)
+    return os.path.join("output", "phase3_3b", f"{out_prefix}{suffix}")
+
+def find_repo_path(repo_name: str):
+    """按仓库名在 Phase 1 默认输入目录中查找原始源码仓库。"""
+    base_dirs = ["data/cc_repos", "data/rust_repos"]
+    for base_dir in base_dirs:
+        exact_path = os.path.join(base_dir, repo_name)
+        if os.path.isdir(exact_path):
+            return exact_path
+
+    repo_name_lower = repo_name.lower()
+    for base_dir in base_dirs:
+        if not os.path.isdir(base_dir):
+            continue
+        for child in os.listdir(base_dir):
+            child_path = os.path.join(base_dir, child)
+            if os.path.isdir(child_path) and child.lower() == repo_name_lower:
+                return child_path
+    return None
+
+def resolve_path(default_path: str, override_path: str = None) -> str:
+    """命令行显式路径优先，否则使用默认路径。"""
+    return override_path or default_path
+
+def has_phase3b_adapter(src_name: str, tgt_name: str, explicit_adapter: str = None) -> bool:
+    """判断 3B auto 模式是否能复用已有 adapter。"""
+    if explicit_adapter:
+        return os.path.exists(explicit_adapter)
+    return TraceReplay3B.has_reusable_default_adapter(src_name, tgt_name)
 
 def check_file_exists(filepath: str) -> bool:
     """检查文件是否存在，并给予带颜色的错误提示"""
@@ -40,13 +78,25 @@ def run_evaluation_pipeline(
     out_prefix,
     phases,
     three_a_mode="run",
+    three_b_mode="run",
+    three_b_layer="public",
+    three_b_adapter=None,
+    three_b_adapter_mode="existing",
+    three_b_synthesis_attempts=2,
+    three_b_replay_repair_attempts=1,
+    three_b_agent_iterations=2,
+    three_b_agent_batch_size=5,
+    three_b_alignment_report=None,
+    src_repo_path_override=None,
+    tgt_repo_path_override=None,
     output_suffix=""
 ):
-    """通用的评估流水线，按命令行指定执行 3A/3C。"""
+    """通用的评估流水线，按命令行指定执行 3A/3B/3C。"""
     print(f"\n🚀 启动评估子流水线: [{src_name}] ➡️  [{tgt_name}]")
     
     # 提前构造输出路径
     output_dir, path_3a, path_3c = get_eval_report_paths(out_prefix, output_suffix)
+    path_3b = get_eval_report_path_3b(out_prefix, output_suffix)
     os.makedirs(output_dir, exist_ok=True)
     
     # ==========================================
@@ -88,6 +138,52 @@ def run_evaluation_pipeline(
             print(f"✅ 3A 对齐报告已保存至: {path_3a}")
 
     # ==========================================
+    # 2.5. 跑 3B Trace Replay Public-First
+    # ==========================================
+    if "3b" not in phases:
+        print("   -> ⏭️  按参数跳过 3B Trace Replay 正确性测试。")
+    else:
+        alignment_path_3b = three_b_alignment_report or path_3a
+        if not os.path.exists(alignment_path_3b) and "3a" not in phases and output_suffix:
+            _, base_path_3a, _ = get_eval_report_paths(out_prefix, "")
+            if os.path.exists(base_path_3a):
+                alignment_path_3b = base_path_3a
+                print(f"   -> ♻️ 3B 未找到同后缀 3A 报告，改用基础 3A 报告: {alignment_path_3b}")
+        if not os.path.exists(alignment_path_3b):
+            raise FileNotFoundError(f"3B 需要已有 3A 对齐报告，请先运行 3A 或使用正确后缀: {path_3a}")
+
+        src_repo_path = src_repo_path_override or find_repo_path(src_name)
+        tgt_repo_path = tgt_repo_path_override or find_repo_path(tgt_name)
+        artifacts_dir = get_phase3b_artifact_dir(out_prefix, output_suffix)
+
+        evaluator_3b = TraceReplay3B(
+            src_name=src_name,
+            tgt_name=tgt_name,
+            src_repo_path=src_repo_path,
+            tgt_repo_path=tgt_repo_path,
+            alignment_report_path=alignment_path_3b,
+            src_db_path=src_db_path,
+            tgt_db_path=tgt_db_path,
+            adapter_path=three_b_adapter,
+            adapter_mode=three_b_adapter_mode,
+            synthesis_attempts=three_b_synthesis_attempts,
+            replay_repair_attempts=three_b_replay_repair_attempts,
+            agent_iterations=three_b_agent_iterations,
+            agent_batch_size=three_b_agent_batch_size,
+            llm_client=llm_client,
+        )
+        report_3b = evaluator_3b.run(
+            mode=three_b_mode,
+            layer=three_b_layer,
+            artifacts_dir=artifacts_dir,
+        )
+
+        with open(path_3b, 'w', encoding='utf-8') as f:
+            json.dump(report_3b, f, indent=2, ensure_ascii=False)
+        print(f"✅ 3B Trace Replay 报告已保存至: {path_3b}")
+        print(f"   -> 3B 中间产物目录: {artifacts_dir}")
+
+    # ==========================================
     # 3. 跑 3C 静态全仓分析
     # ==========================================
     if "3c" not in phases:
@@ -100,7 +196,7 @@ def run_evaluation_pipeline(
             json.dump(report_3c, f, indent=2, ensure_ascii=False)
         print(f"✅ 3C 静态报告已保存至: {path_3c}")
 
-    return path_3a, path_3c
+    return path_3a, path_3b, path_3c
 
 def main():
     parser = argparse.ArgumentParser(description="CP2RS Phase 3: 架构对齐与静态指标引擎")
@@ -108,10 +204,46 @@ def main():
     parser.add_argument("--tgt", type=str, required=True, help="目标仓库的名称 (例如: rust_json)")
     parser.add_argument("--ans", type=str, required=False, help="人类专家 Answer Rust 仓库名 (提供此参数将触发场景二)")
     parser.add_argument("--model", type=str, default="deepseek-v4-flash", help="指定调用的大模型，默认使用 deepseek-v4-flash")
-    parser.add_argument("--phases", nargs="+", choices=["3a", "3c"], default=["3a", "3c"],
-                        help="指定本次执行哪些部分，例如: --phases 3c 或 --phases 3a 3c")
+    parser.add_argument("--phases", nargs="+", choices=["3a", "3b", "3c"], default=["3a", "3c"],
+                        help="指定本次执行哪些部分，例如: --phases 3b 或 --phases 3a 3b 3c")
     parser.add_argument("--three-a-mode", choices=["run", "reuse", "require-cache"], default=None,
                         help="控制 3A 执行策略: run=强制重新调用大模型并覆盖报告; reuse=有缓存则复用、无缓存则重跑; require-cache=必须有缓存，否则失败")
+    parser.add_argument("--three-b-mode", choices=["inventory", "record", "replay", "run"], default="run",
+                        help="控制 3B 执行策略: inventory=只发现测试; record=生成 trace; replay/run=生成并执行 target replay")
+    parser.add_argument("--three-b-layer", choices=["public", "function", "both"], default="public",
+                        help="控制 3B 粒度: public=默认只测公开行为; function/both=保留函数边界诊断入口")
+    parser.add_argument("--three-b-adapter", type=str, default=None,
+                        help="指定 3B adapter JSON；不指定时会尝试内置 adapter 或报告 adapter_missing")
+    parser.add_argument("--three-b-adapter-mode", choices=["existing", "auto", "synthesize", "prompt-only"], default="existing",
+                        help="控制 3B adapter 来源: existing=使用已有/默认adapter; auto=有adapter则复用、否则LLM生成; synthesize=显式调用LLM生成; prompt-only=只生成LLM上下文与提示词")
+    parser.add_argument("--three-b-synthesis-attempts", type=int, default=2,
+                        help="3B LLM adapter synthesis 最大尝试次数，包括初始生成和修复，默认 2")
+    parser.add_argument("--three-b-replay-repair-attempts", type=int, default=1,
+                        help="3B LLM adapter 通过 schema 后，如 target replay 发生编译/API 基础设施失败，额外允许的修复次数，默认 1")
+    parser.add_argument("--three-b-agent-iterations", type=int, default=2,
+                        help="3B LLM agent 覆盖扩展迭代次数；replay 通过但仍有 adapter_missing 时自动补齐并重跑，默认 2")
+    parser.add_argument("--three-b-agent-batch-size", type=int, default=5,
+                        help="3B LLM agent 每轮定向补齐的 adapter_missing source 函数数，默认 5")
+    parser.add_argument("--three-b-alignment-report", type=str, default=None,
+                        help="显式指定 3B 使用的 3A 对齐报告路径；用于非默认目录/任意仓库输入")
+    parser.add_argument("--src-repo-path", type=str, default=None,
+                        help="显式指定 src 原始仓库路径；不指定时按仓库名在 data/cc_repos 与 data/rust_repos 中查找")
+    parser.add_argument("--tgt-repo-path", type=str, default=None,
+                        help="显式指定 tgt 原始仓库路径；不指定时按仓库名在 data/cc_repos 与 data/rust_repos 中查找")
+    parser.add_argument("--ans-repo-path", type=str, default=None,
+                        help="显式指定 ans 原始仓库路径；仅场景二使用")
+    parser.add_argument("--src-db-path", type=str, default=None,
+                        help="显式指定 src parsed DB 路径；不指定时使用 output/parsed_repos/{src}_parsed.json")
+    parser.add_argument("--tgt-db-path", type=str, default=None,
+                        help="显式指定 tgt parsed DB 路径；不指定时使用 output/parsed_repos/{tgt}_parsed.json")
+    parser.add_argument("--ans-db-path", type=str, default=None,
+                        help="显式指定 ans parsed DB 路径；仅场景二使用")
+    parser.add_argument("--src-rpg-path", type=str, default=None,
+                        help="显式指定 src RPG 路径；仅执行 3A 时需要")
+    parser.add_argument("--tgt-rpg-path", type=str, default=None,
+                        help="显式指定 tgt RPG 路径；仅执行 3A 时需要")
+    parser.add_argument("--ans-rpg-path", type=str, default=None,
+                        help="显式指定 ans RPG 路径；仅场景二执行 3A 时需要")
     parser.add_argument("--reuse-3a", action="store_true", help="兼容旧参数，等价于 --three-a-mode reuse")
     parser.add_argument("--output-suffix", type=str, default="",
                         help="给输出报告文件名追加后缀，便于对比实验且不覆盖旧报告，例如: --output-suffix funnelfix")
@@ -121,19 +253,25 @@ def main():
     three_a_mode = args.three_a_mode or ("reuse" if args.reuse_3a else "run")
 
     # 路径构造辅助函数
-    def get_paths(repo_name):
-        db_path = os.path.join("output", "parsed_repos", f"{repo_name}_parsed.json")
-        rpg_path = os.path.join("output", "rpg_graphs", f"{repo_name}_rpg.json")
+    def get_paths(repo_name, db_override=None, rpg_override=None):
+        db_path = resolve_path(os.path.join("output", "parsed_repos", f"{repo_name}_parsed.json"), db_override)
+        rpg_path = resolve_path(os.path.join("output", "rpg_graphs", f"{repo_name}_rpg.json"), rpg_override)
         return rpg_path, db_path
 
-    src_rpg_path, src_db_path = get_paths(args.src)
-    tgt_rpg_path, tgt_db_path = get_paths(args.tgt)
+    src_rpg_path, src_db_path = get_paths(args.src, args.src_db_path, args.src_rpg_path)
+    tgt_rpg_path, tgt_db_path = get_paths(args.tgt, args.tgt_db_path, args.tgt_rpg_path)
 
     # 校验必要文件
-    paths_to_check = [src_db_path, tgt_db_path, src_rpg_path, tgt_rpg_path]
+    paths_to_check = []
+    if phases.intersection({"3a", "3b", "3c"}):
+        paths_to_check.extend([src_db_path, tgt_db_path])
+    if "3a" in phases:
+        paths_to_check.extend([src_rpg_path, tgt_rpg_path])
     if args.ans:
-        ans_rpg_path, ans_db_path = get_paths(args.ans)
-        paths_to_check.extend([ans_db_path, ans_rpg_path])
+        ans_rpg_path, ans_db_path = get_paths(args.ans, args.ans_db_path, args.ans_rpg_path)
+        paths_to_check.append(ans_db_path)
+        if "3a" in phases:
+            paths_to_check.append(ans_rpg_path)
 
     if not all(check_file_exists(p) for p in paths_to_check):
         print("\n💡 提示: 请确认 Phase 1 和 Phase 2 已正确生成了上述仓库的 schema 和 rpg 文件。")
@@ -152,6 +290,13 @@ def main():
             needs_llm = not has_cached_3a(f"{args.src}_vs_{args.tgt}")
             if args.ans:
                 needs_llm = needs_llm or not has_cached_3a(f"{args.tgt}_vs_{args.ans}")
+    if "3b" in phases:
+        if args.three_b_adapter_mode == "synthesize":
+            needs_llm = True
+        elif args.three_b_adapter_mode == "auto":
+            needs_llm = not has_phase3b_adapter(args.src, args.tgt, args.three_b_adapter)
+            if args.ans:
+                needs_llm = needs_llm or not has_phase3b_adapter(args.tgt, args.ans, args.three_b_adapter)
 
     llm_client = None
     if needs_llm:
@@ -166,7 +311,7 @@ def main():
     print("="*60)
     mode_text = "场景一 (无标杆仓库)" if not args.ans else f"场景二 (引入标杆仓库 [{args.ans}])"
     print(f"🛠️  运行模式: {mode_text}")
-    print(f"📌 执行阶段: {', '.join(sorted(phases))} | 3A策略: {three_a_mode} | 输出后缀: {normalize_output_suffix(args.output_suffix) or '(无)'}")
+    print(f"📌 执行阶段: {', '.join(sorted(phases))} | 3A策略: {three_a_mode} | 3B策略: {args.three_b_mode}/{args.three_b_layer}/{args.three_b_adapter_mode} | 3B生成尝试: {args.three_b_synthesis_attempts} | 3B replay修复: {args.three_b_replay_repair_attempts} | 3B agent迭代: {args.three_b_agent_iterations} | 3B agent批量: {args.three_b_agent_batch_size} | 输出后缀: {normalize_output_suffix(args.output_suffix) or '(无)'}")
     print("="*60)
 
     try:
@@ -181,6 +326,17 @@ def main():
             f"{args.src}_vs_{args.tgt}",
             phases=phases,
             three_a_mode=three_a_mode,
+            three_b_mode=args.three_b_mode,
+            three_b_layer=args.three_b_layer,
+            three_b_adapter=args.three_b_adapter,
+            three_b_adapter_mode=args.three_b_adapter_mode,
+            three_b_synthesis_attempts=args.three_b_synthesis_attempts,
+            three_b_replay_repair_attempts=args.three_b_replay_repair_attempts,
+            three_b_agent_iterations=args.three_b_agent_iterations,
+            three_b_agent_batch_size=args.three_b_agent_batch_size,
+            three_b_alignment_report=args.three_b_alignment_report,
+            src_repo_path_override=args.src_repo_path,
+            tgt_repo_path_override=args.tgt_repo_path,
             output_suffix=args.output_suffix
         )
 
@@ -188,7 +344,7 @@ def main():
         # 任务 2: 触发场景二 (Target vs Answer + 战略透视)
         # ---------------------------------------------------------
         if args.ans:
-            tgt_ans_3a_path, _ = run_evaluation_pipeline(
+            tgt_ans_3a_path, _, _ = run_evaluation_pipeline(
                 args.tgt, args.ans, 
                 tgt_rpg_path, ans_rpg_path, 
                 tgt_db_path, ans_db_path, 
@@ -196,6 +352,16 @@ def main():
                 f"{args.tgt}_vs_{args.ans}",
                 phases=phases,
                 three_a_mode=three_a_mode,
+                three_b_mode=args.three_b_mode,
+                three_b_layer=args.three_b_layer,
+                three_b_adapter=args.three_b_adapter,
+                three_b_adapter_mode=args.three_b_adapter_mode,
+                three_b_synthesis_attempts=args.three_b_synthesis_attempts,
+                three_b_replay_repair_attempts=args.three_b_replay_repair_attempts,
+                three_b_agent_iterations=args.three_b_agent_iterations,
+                three_b_agent_batch_size=args.three_b_agent_batch_size,
+                src_repo_path_override=args.tgt_repo_path,
+                tgt_repo_path_override=args.ans_repo_path,
                 output_suffix=args.output_suffix
             )
             

@@ -1,0 +1,749 @@
+{
+  "evaluation_type": "Phase 3B - Trace Replay Public-First",
+  "schema_version": "3b.report.v4",
+  "source_repository": "cJSON",
+  "target_repository": "json-rust",
+  "mode": "run",
+  "layer": "public",
+  "framework_contract": {
+    "summary": "3B fixed framework executes repository-specific behavior recipes. The framework does not infer observable behavior by itself; operation recipes must be provided by an adapter generator or a handcrafted adapter.",
+    "fixed_framework_components": [
+      {
+        "name": "test_inventory",
+        "responsibility": "Discover source test files/frameworks and record which tests call 3A public aligned source functions."
+      },
+      {
+        "name": "alignment_scope_filter",
+        "responsibility": "Load 3A atomic alignments, classify public-eligible pairs, and keep private/internal pairs out of the default L1 score."
+      },
+      {
+        "name": "operation_alignment_validation",
+        "responsibility": "Check each adapter operation against 3A atomic pairs, classify fully_aligned/partial_alignment/missing_alignment, and record one-to-one/one-to-many/many-to-one/many-to-many operation shape."
+      },
+      {
+        "name": "replay_runner",
+        "responsibility": "Generate target-side replay harness from the selected replay generator, run target tests, and classify semantic vs infrastructure failures."
+      },
+      {
+        "name": "agent_coverage_loop",
+        "responsibility": "In LLM synthesize/auto mode, observe replay and adapter coverage gaps, ask the LLM to expand the adapter, then revalidate and replay automatically."
+      },
+      {
+        "name": "metrics_and_reporting",
+        "responsibility": "Compute pass rates, coverage, adapter gaps, skipped private/internal counts, and write layered artifacts under output/."
+      }
+    ],
+    "repo_specific_generated_components": [
+      {
+        "name": "effective_adapter",
+        "artifact": "artifact_paths.effective_adapter",
+        "responsibility": "Declare operations, source_functions, target_functions, normalization notes, recorder, and replay generator."
+      },
+      {
+        "name": "operation_set",
+        "count": 28,
+        "responsibility": "Represent behavior scenarios derived from 3A alignments plus source test evidence."
+      },
+      {
+        "name": "trace_corpus",
+        "artifact": "artifact_paths.trace_corpus",
+        "responsibility": "Materialize replayable behavior cases from source tests/fixtures through the adapter recorder."
+      },
+      {
+        "name": "target_replay_harness",
+        "artifact": "artifact_paths.generated_test_file",
+        "responsibility": "Executable target assertions generated from operation recipes by the replay generator."
+      }
+    ],
+    "current_generation_status": "llm_synthesized_agent_expanded_v1",
+    "synthesis_attempts_limit": 5,
+    "replay_repair_attempts_limit": 3,
+    "agent_coverage_iterations_limit": 6,
+    "agent_coverage_batch_size": 5,
+    "repair_policy": "In synthesize/auto mode, schema-invalid adapters can be sent back to the LLM for repair. If target replay fails before semantic comparison, cargo/build feedback can be sent back for harness repair using the separate replay_repair_attempts budget. After replay succeeds, agent coverage iterations can ask the LLM to add missing source-tested public aligned functions and replay again. Semantic failures are not repaired by LLM because they may indicate real target behavior mismatch.",
+    "automation_boundary": "The fixed framework is generic over inventory, alignment validation, artifact writing, and replay execution. Repository-specific semantics live in the effective_adapter. For arbitrary C/C++ -> Rust public replay, adapter_mode=auto reuses a repository adapter when present and otherwise asks the LLM to generate adapter_declared trace events and a rust_inline_harness. adapter_mode=synthesize always asks the LLM. Specialized handcrafted adapters/replay generators remain optional baselines."
+  },
+  "artifact_paths": {
+    "effective_adapter": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_user_b5/effective_adapter.json",
+    "test_inventory": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_user_b5/test_inventory.json",
+    "trace_corpus": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_user_b5/trace_corpus.json",
+    "replay_result": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_user_b5/replay_result.json",
+    "work_dir": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_user_b5/work/latest",
+    "generated_test_file": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_user_b5/work/latest/target_repo/tests/cp2rs_3b_public.rs",
+    "adapter_synthesis_context": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_user_b5/adapter_synthesis_context.json",
+    "adapter_synthesis_prompt": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_user_b5/adapter_synthesis_prompt.md",
+    "adapter_synthesis_raw_response": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_user_b5/adapter_synthesis_raw_response.txt",
+    "synthesized_adapter": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_user_b5/synthesized_adapter.json",
+    "adapter_synthesis_attempts": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_user_b5/adapter_synthesis_attempts.json"
+  },
+  "automation_readiness": {
+    "status": "ready",
+    "summary": "3B public replay is automated and passed for the current source-tested public scope.",
+    "positive_evidence": [
+      "all_executed_public_replay_events_passed",
+      "at_least_one_3a_atomic_pair_replay_covered",
+      "no_semantic_replay_failures",
+      "no_replay_infrastructure_failures"
+    ],
+    "blocking_reasons": [],
+    "review_items": [],
+    "coverage_gaps": [],
+    "scorecard": {
+      "public_replay_pass_rate": {
+        "value": "100.00%",
+        "raw_fraction": "28 / 28",
+        "numerator": "public_replay_passed",
+        "denominator": "public_replay_executed",
+        "description": "public replay 通过的 trace event 数 / public replay 实际执行的 trace event 数"
+      },
+      "aligned_source_public_trace_coverage": {
+        "value": "100.00%",
+        "raw_fraction": "35 / 35",
+        "numerator": "traced_public_source_functions",
+        "denominator": "public_source_functions_with_src_tests",
+        "description": "adapter trace 覆盖且通过 3A 对齐验证的 source 函数数 / 有 src 测试证据的 public eligible source 函数数"
+      },
+      "aligned_target_public_replay_coverage": {
+        "value": "100.00%",
+        "raw_fraction": "21 / 21",
+        "numerator": "replayed_public_target_functions",
+        "denominator": "public_target_functions_in_src_test_scope",
+        "description": "adapter replay 触达且通过 3A 对齐验证的 target 函数数 / 有 src 测试证据范围内的 public target 函数数"
+      },
+      "adapter_missing_rate": {
+        "value": "0.00%",
+        "raw_fraction": "0 / 35",
+        "numerator": "adapter_missing_count",
+        "denominator": "public_source_functions_with_src_tests",
+        "description": "有 src 测试证据但 adapter 没有 replay recipe 的 source 函数数 / 有 src 测试证据的 public eligible source 函数数"
+      },
+      "covered_aligned_pairs": 35,
+      "executed_events": 28,
+      "passed_events": 28
+    },
+    "interpretation": {
+      "ready": "All generated public replay events passed with no known review or coverage gaps in the current source-tested public scope.",
+      "partial": "Replay passed, but results only cover the adapter-expressed subset of source-tested public aligned behavior.",
+      "review_required": "Replay outcomes need human review because oracle confidence, warnings, or semantic failures prevent automatic judgment.",
+      "not_ready": "Replay did not execute or infrastructure/schema prerequisites failed."
+    }
+  },
+  "adapter": {
+    "schema_version": "3b.adapter.v1",
+    "name": "llm_synthesized_cJSON_to_json-rust_public_v1",
+    "status": "loaded",
+    "adapter_role": "repo_specific_behavior_recipe",
+    "generation_status": "llm_synthesized_agent_expanded_v1",
+    "resolution": "",
+    "generation_inputs": [
+      "output/eval_reports/3A_alignment_cJSON_vs_json-rust.json",
+      "data/cc_repos/cJSON",
+      "output/parsed_repos/cJSON_parsed.json",
+      "output/parsed_repos/json-rust_parsed.json"
+    ],
+    "recorder": "adapter_declared_trace_events_v1",
+    "replay_generator": "rust_inline_harness_v1",
+    "validation_warnings": [],
+    "harness_api_audit": {
+      "status": "audited",
+      "heuristic": "Identifier-level Rust harness audit. This is not receiver-aware Rust name resolution; mentioned_but_not_declared is an audit signal, while declared_but_not_mentioned is treated as a stronger adapter consistency problem during LLM synthesis.",
+      "declared_target_functions": [
+        "src/lib.rs::from",
+        "src/object.rs::Object::get",
+        "src/object.rs::Object::insert",
+        "src/object.rs::Object::remove",
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::array_remove",
+        "src/value/mod.rs::JsonValue::as_bool",
+        "src/value/mod.rs::JsonValue::as_f64",
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::dump",
+        "src/value/mod.rs::JsonValue::has_key",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::is_array",
+        "src/value/mod.rs::JsonValue::is_boolean",
+        "src/value/mod.rs::JsonValue::is_null",
+        "src/value/mod.rs::JsonValue::is_number",
+        "src/value/mod.rs::JsonValue::is_object",
+        "src/value/mod.rs::JsonValue::is_string",
+        "src/value/mod.rs::JsonValue::len",
+        "src/value/mod.rs::JsonValue::new_array",
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/value/mod.rs::JsonValue::pretty",
+        "src/value/mod.rs::JsonValue::push"
+      ],
+      "declared_target_api_names": [
+        "array_remove",
+        "as_bool",
+        "as_f64",
+        "as_str",
+        "dump",
+        "from",
+        "get",
+        "has_key",
+        "insert",
+        "is_array",
+        "is_boolean",
+        "is_null",
+        "is_number",
+        "is_object",
+        "is_string",
+        "len",
+        "new_array",
+        "new_object",
+        "parse",
+        "pretty",
+        "push",
+        "remove"
+      ],
+      "mentioned_target_api_names": [
+        "array_remove",
+        "as_bool",
+        "as_f64",
+        "as_str",
+        "dump",
+        "from",
+        "get",
+        "has_key",
+        "insert",
+        "is_array",
+        "is_boolean",
+        "is_null",
+        "is_number",
+        "is_object",
+        "is_string",
+        "len",
+        "new_array",
+        "new_object",
+        "parse",
+        "pretty",
+        "push",
+        "remove"
+      ],
+      "declared_but_not_mentioned": [],
+      "mentioned_but_not_declared": [],
+      "mentioned_target_api_uuids_by_name": {
+        "array_remove": [
+          "src/value/mod.rs::JsonValue::array_remove"
+        ],
+        "as_bool": [
+          "src/value/mod.rs::JsonValue::as_bool"
+        ],
+        "as_f64": [
+          "src/value/mod.rs::JsonValue::as_f64"
+        ],
+        "as_str": [
+          "src/short.rs::Short::as_str",
+          "src/value/mod.rs::JsonValue::as_str"
+        ],
+        "dump": [
+          "src/object.rs::Object::dump",
+          "src/value/mod.rs::JsonValue::dump"
+        ],
+        "from": [
+          "src/lib.rs::from"
+        ],
+        "get": [
+          "src/object.rs::Object::get"
+        ],
+        "has_key": [
+          "src/value/mod.rs::JsonValue::has_key"
+        ],
+        "insert": [
+          "src/object.rs::Object::insert",
+          "src/value/mod.rs::JsonValue::insert"
+        ],
+        "is_array": [
+          "src/value/mod.rs::JsonValue::is_array"
+        ],
+        "is_boolean": [
+          "src/value/mod.rs::JsonValue::is_boolean"
+        ],
+        "is_null": [
+          "src/value/mod.rs::JsonValue::is_null"
+        ],
+        "is_number": [
+          "src/value/mod.rs::JsonValue::is_number"
+        ],
+        "is_object": [
+          "src/value/mod.rs::JsonValue::is_object"
+        ],
+        "is_string": [
+          "src/value/mod.rs::JsonValue::is_string"
+        ],
+        "len": [
+          "src/object.rs::Object::len",
+          "src/value/mod.rs::JsonValue::len"
+        ],
+        "new_array": [
+          "src/value/mod.rs::JsonValue::new_array"
+        ],
+        "new_object": [
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "parse": [
+          "src/parser.rs::parse"
+        ],
+        "pretty": [
+          "src/object.rs::Object::pretty",
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "push": [
+          "src/value/mod.rs::JsonValue::push"
+        ],
+        "remove": [
+          "src/object.rs::Object::remove",
+          "src/value/mod.rs::JsonValue::remove"
+        ]
+      }
+    },
+    "path": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_user_b5/synthesized_adapter.json"
+  },
+  "test_inventory_summary": {
+    "test_files": 24,
+    "test_cases": 162,
+    "aligned_test_cases": 62,
+    "build_targets": 26,
+    "framework_files": {
+      "cmake_ctest": 2,
+      "unity": 21
+    },
+    "device_required_files": 0
+  },
+  "public_behavior": {
+    "status": "passed",
+    "trace_summary": {
+      "events": 28,
+      "traced_source_functions": 35,
+      "traced_target_functions": 23,
+      "traced_source_function_ids": [
+        "cJSON.c::cJSON_AddArrayToObject",
+        "cJSON.c::cJSON_AddBoolToObject",
+        "cJSON.c::cJSON_AddFalseToObject",
+        "cJSON.c::cJSON_AddItemToArray",
+        "cJSON.c::cJSON_AddItemToObject",
+        "cJSON.c::cJSON_AddItemToObjectCS",
+        "cJSON.c::cJSON_AddNumberToObject",
+        "cJSON.c::cJSON_AddObjectToObject",
+        "cJSON.c::cJSON_AddStringToObject",
+        "cJSON.c::cJSON_AddTrueToObject",
+        "cJSON.c::cJSON_CreateArray",
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_DeleteItemFromArray",
+        "cJSON.c::cJSON_DeleteItemFromObject",
+        "cJSON.c::cJSON_DeleteItemFromObjectCaseSensitive",
+        "cJSON.c::cJSON_DetachItemFromArray",
+        "cJSON.c::cJSON_DetachItemFromObject",
+        "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive",
+        "cJSON.c::cJSON_GetArraySize",
+        "cJSON.c::cJSON_GetNumberValue",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+        "cJSON.c::cJSON_GetStringValue",
+        "cJSON.c::cJSON_HasObjectItem",
+        "cJSON.c::cJSON_IsArray",
+        "cJSON.c::cJSON_IsBool",
+        "cJSON.c::cJSON_IsNull",
+        "cJSON.c::cJSON_IsNumber",
+        "cJSON.c::cJSON_IsObject",
+        "cJSON.c::cJSON_IsString",
+        "cJSON.c::cJSON_Parse",
+        "cJSON.c::cJSON_ParseWithOpts",
+        "cJSON.c::cJSON_Print",
+        "cJSON.c::cJSON_PrintUnformatted",
+        "cJSON.c::cJSON_ReplaceItemInObject",
+        "cJSON.c::cJSON_ReplaceItemInObjectCaseSensitive"
+      ],
+      "traced_target_function_ids": [
+        "src/lib.rs::from",
+        "src/object.rs::Object::get",
+        "src/object.rs::Object::insert",
+        "src/object.rs::Object::remove",
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::array_remove",
+        "src/value/mod.rs::JsonValue::as_bool",
+        "src/value/mod.rs::JsonValue::as_f64",
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::dump",
+        "src/value/mod.rs::JsonValue::has_key",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::is_array",
+        "src/value/mod.rs::JsonValue::is_boolean",
+        "src/value/mod.rs::JsonValue::is_null",
+        "src/value/mod.rs::JsonValue::is_number",
+        "src/value/mod.rs::JsonValue::is_object",
+        "src/value/mod.rs::JsonValue::is_string",
+        "src/value/mod.rs::JsonValue::len",
+        "src/value/mod.rs::JsonValue::new_array",
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/value/mod.rs::JsonValue::pretty",
+        "src/value/mod.rs::JsonValue::push"
+      ],
+      "validated_aligned_source_functions": 35,
+      "validated_aligned_target_functions": 21,
+      "validated_aligned_source_function_ids": [
+        "cJSON.c::cJSON_AddArrayToObject",
+        "cJSON.c::cJSON_AddBoolToObject",
+        "cJSON.c::cJSON_AddFalseToObject",
+        "cJSON.c::cJSON_AddItemToArray",
+        "cJSON.c::cJSON_AddItemToObject",
+        "cJSON.c::cJSON_AddItemToObjectCS",
+        "cJSON.c::cJSON_AddNumberToObject",
+        "cJSON.c::cJSON_AddObjectToObject",
+        "cJSON.c::cJSON_AddStringToObject",
+        "cJSON.c::cJSON_AddTrueToObject",
+        "cJSON.c::cJSON_CreateArray",
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_DeleteItemFromArray",
+        "cJSON.c::cJSON_DeleteItemFromObject",
+        "cJSON.c::cJSON_DeleteItemFromObjectCaseSensitive",
+        "cJSON.c::cJSON_DetachItemFromArray",
+        "cJSON.c::cJSON_DetachItemFromObject",
+        "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive",
+        "cJSON.c::cJSON_GetArraySize",
+        "cJSON.c::cJSON_GetNumberValue",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+        "cJSON.c::cJSON_GetStringValue",
+        "cJSON.c::cJSON_HasObjectItem",
+        "cJSON.c::cJSON_IsArray",
+        "cJSON.c::cJSON_IsBool",
+        "cJSON.c::cJSON_IsNull",
+        "cJSON.c::cJSON_IsNumber",
+        "cJSON.c::cJSON_IsObject",
+        "cJSON.c::cJSON_IsString",
+        "cJSON.c::cJSON_Parse",
+        "cJSON.c::cJSON_ParseWithOpts",
+        "cJSON.c::cJSON_Print",
+        "cJSON.c::cJSON_PrintUnformatted",
+        "cJSON.c::cJSON_ReplaceItemInObject",
+        "cJSON.c::cJSON_ReplaceItemInObjectCaseSensitive"
+      ],
+      "validated_aligned_target_function_ids": [
+        "src/object.rs::Object::get",
+        "src/object.rs::Object::insert",
+        "src/object.rs::Object::remove",
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::array_remove",
+        "src/value/mod.rs::JsonValue::as_f64",
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::dump",
+        "src/value/mod.rs::JsonValue::has_key",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::is_array",
+        "src/value/mod.rs::JsonValue::is_boolean",
+        "src/value/mod.rs::JsonValue::is_null",
+        "src/value/mod.rs::JsonValue::is_number",
+        "src/value/mod.rs::JsonValue::is_object",
+        "src/value/mod.rs::JsonValue::is_string",
+        "src/value/mod.rs::JsonValue::len",
+        "src/value/mod.rs::JsonValue::new_array",
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/value/mod.rs::JsonValue::pretty",
+        "src/value/mod.rs::JsonValue::push"
+      ],
+      "covered_aligned_pairs": 35,
+      "alignment_status_counts": {
+        "fully_aligned": 28
+      },
+      "mapping_shape_counts": {
+        "one_to_one": 15,
+        "many_to_many": 12,
+        "many_to_one": 1
+      },
+      "support_target_functions": [
+        "src/lib.rs::from",
+        "src/value/mod.rs::JsonValue::as_bool",
+        "src/value/mod.rs::JsonValue::new_object"
+      ]
+    },
+    "replay_summary": {
+      "generated_test_file": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_user_b5/work/latest/target_repo/tests/cp2rs_3b_public.rs",
+      "target_worktree": "output/phase3_3b/cJSON_vs_json-rust_3b_v4_user_b5/work/latest/target_repo",
+      "command": [
+        "cargo",
+        "test",
+        "--test",
+        "cp2rs_3b_public"
+      ],
+      "started_at": "2026-06-11T13:26:45.971945Z",
+      "returncode": 0,
+      "executed": 28,
+      "passed": 28,
+      "failed": 0,
+      "infrastructure_failures": 0,
+      "semantic_failures": 0,
+      "parsed_test_statuses": {
+        "tests::test_circular_reference_detection": "passed",
+        "test_circular_reference_detection": "passed",
+        "tests::test_create_and_add_array": "passed",
+        "test_create_and_add_array": "passed",
+        "tests::test_create_and_add_bool": "passed",
+        "test_create_and_add_bool": "passed",
+        "tests::test_create_and_add_number": "passed",
+        "test_create_and_add_number": "passed",
+        "tests::test_create_and_add_object": "passed",
+        "test_create_and_add_object": "passed",
+        "tests::test_create_and_add_false": "passed",
+        "test_create_and_add_false": "passed",
+        "tests::test_create_and_add_string": "passed",
+        "test_create_and_add_string": "passed",
+        "tests::test_create_and_add_true": "passed",
+        "test_create_and_add_true": "passed",
+        "tests::test_create_array_reference": "passed",
+        "test_create_array_reference": "passed",
+        "tests::test_create_object_reference": "passed",
+        "test_create_object_reference": "passed",
+        "tests::test_delete_item_from_array": "passed",
+        "test_delete_item_from_array": "passed",
+        "tests::test_delete_item_from_object": "passed",
+        "test_delete_item_from_object": "passed",
+        "tests::test_delete_item_from_object_case_sensitive": "passed",
+        "test_delete_item_from_object_case_sensitive": "passed",
+        "tests::test_detach_item_from_object": "passed",
+        "test_detach_item_from_object": "passed",
+        "tests::test_detach_item_from_object_case_sensitive": "passed",
+        "test_detach_item_from_object_case_sensitive": "passed",
+        "tests::test_get_number_value": "passed",
+        "test_get_number_value": "passed",
+        "tests::test_get_string_value": "passed",
+        "test_get_string_value": "passed",
+        "tests::test_has_object_item": "passed",
+        "test_has_object_item": "passed",
+        "tests::test_parse_invalid": "passed",
+        "test_parse_invalid": "passed",
+        "tests::test_parse_opts_empty_string": "passed",
+        "test_parse_opts_empty_string": "passed",
+        "tests::test_parse_opts_handle_null": "passed",
+        "test_parse_opts_handle_null": "passed",
+        "tests::test_parse_opts_incomplete_json": "passed",
+        "test_parse_opts_incomplete_json": "passed",
+        "tests::test_parse_opts_require_null_terminated": "passed",
+        "test_parse_opts_require_null_terminated": "passed",
+        "tests::test_parse_valid": "passed",
+        "test_parse_valid": "passed",
+        "tests::test_print": "passed",
+        "test_print": "passed",
+        "tests::test_replace_item_in_object": "passed",
+        "test_replace_item_in_object": "passed",
+        "tests::test_replace_item_in_object_case_sensitive": "passed",
+        "test_replace_item_in_object_case_sensitive": "passed",
+        "tests::test_typecheck_functions": "passed",
+        "test_typecheck_functions": "passed"
+      }
+    },
+    "semantic_failures": [],
+    "semantic_failure_reviews": [],
+    "infrastructure_failures": [],
+    "scope": {
+      "source_functions_with_src_test_evidence": [
+        "cJSON.c::cJSON_AddArrayToObject",
+        "cJSON.c::cJSON_AddBoolToObject",
+        "cJSON.c::cJSON_AddFalseToObject",
+        "cJSON.c::cJSON_AddItemToArray",
+        "cJSON.c::cJSON_AddItemToObject",
+        "cJSON.c::cJSON_AddItemToObjectCS",
+        "cJSON.c::cJSON_AddNumberToObject",
+        "cJSON.c::cJSON_AddObjectToObject",
+        "cJSON.c::cJSON_AddStringToObject",
+        "cJSON.c::cJSON_AddTrueToObject",
+        "cJSON.c::cJSON_CreateArray",
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_DeleteItemFromArray",
+        "cJSON.c::cJSON_DeleteItemFromObject",
+        "cJSON.c::cJSON_DeleteItemFromObjectCaseSensitive",
+        "cJSON.c::cJSON_DetachItemFromArray",
+        "cJSON.c::cJSON_DetachItemFromObject",
+        "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive",
+        "cJSON.c::cJSON_GetArraySize",
+        "cJSON.c::cJSON_GetNumberValue",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+        "cJSON.c::cJSON_GetStringValue",
+        "cJSON.c::cJSON_HasObjectItem",
+        "cJSON.c::cJSON_IsArray",
+        "cJSON.c::cJSON_IsBool",
+        "cJSON.c::cJSON_IsNull",
+        "cJSON.c::cJSON_IsNumber",
+        "cJSON.c::cJSON_IsObject",
+        "cJSON.c::cJSON_IsString",
+        "cJSON.c::cJSON_Parse",
+        "cJSON.c::cJSON_ParseWithOpts",
+        "cJSON.c::cJSON_Print",
+        "cJSON.c::cJSON_PrintUnformatted",
+        "cJSON.c::cJSON_ReplaceItemInObject",
+        "cJSON.c::cJSON_ReplaceItemInObjectCaseSensitive"
+      ],
+      "target_functions_in_src_test_scope": [
+        "src/object.rs::Object::get",
+        "src/object.rs::Object::insert",
+        "src/object.rs::Object::remove",
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::array_remove",
+        "src/value/mod.rs::JsonValue::as_f64",
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::dump",
+        "src/value/mod.rs::JsonValue::has_key",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::is_array",
+        "src/value/mod.rs::JsonValue::is_boolean",
+        "src/value/mod.rs::JsonValue::is_null",
+        "src/value/mod.rs::JsonValue::is_number",
+        "src/value/mod.rs::JsonValue::is_object",
+        "src/value/mod.rs::JsonValue::is_string",
+        "src/value/mod.rs::JsonValue::len",
+        "src/value/mod.rs::JsonValue::new_array",
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/value/mod.rs::JsonValue::pretty",
+        "src/value/mod.rs::JsonValue::push"
+      ],
+      "excluded_no_src_test_count": 0,
+      "excluded_no_src_test": [],
+      "adapter_missing_source_function_count": 0,
+      "adapter_missing_source_functions": []
+    },
+    "operation_alignment_summary": {
+      "alignment_status_counts": {
+        "fully_aligned": 28
+      },
+      "mapping_shape_counts": {
+        "one_to_one": 15,
+        "many_to_many": 12,
+        "many_to_one": 1
+      },
+      "covered_aligned_pairs": 35,
+      "support_target_functions": [
+        "src/lib.rs::from",
+        "src/value/mod.rs::JsonValue::as_bool",
+        "src/value/mod.rs::JsonValue::new_object"
+      ]
+    }
+  },
+  "function_boundary": {
+    "status": "skipped_by_default",
+    "reason": "public_first_layer_selected",
+    "skipped_private_internal_count": 5,
+    "skipped_private_internal": [
+      {
+        "src_uuid": "cJSON.c::parse_hex4",
+        "tgt_uuid": "src/parser.rs::Parser::read_hexdec_codepoint",
+        "reason": "source_private_internal_api",
+        "source_public": false,
+        "target_public": false,
+        "target_public_flags": [
+          {
+            "tgt_uuid": "src/parser.rs::Parser::read_hexdec_codepoint",
+            "is_public": false
+          }
+        ]
+      },
+      {
+        "src_uuid": "cJSON.c::utf16_literal_to_utf8",
+        "tgt_uuid": "src/parser.rs::Parser::read_codepoint",
+        "reason": "source_private_internal_api",
+        "source_public": false,
+        "target_public": false,
+        "target_public_flags": [
+          {
+            "tgt_uuid": "src/parser.rs::Parser::read_codepoint",
+            "is_public": false
+          }
+        ]
+      },
+      {
+        "src_uuid": "cJSON.c::parse_string",
+        "tgt_uuid": "src/parser.rs::Parser::read_complex_string",
+        "reason": "source_private_internal_api",
+        "source_public": false,
+        "target_public": false,
+        "target_public_flags": [
+          {
+            "tgt_uuid": "src/parser.rs::Parser::read_complex_string",
+            "is_public": false
+          }
+        ]
+      },
+      {
+        "src_uuid": "cJSON.c::parse_value",
+        "tgt_uuid": "src/parser.rs::Parser::parse",
+        "reason": "source_private_internal_api",
+        "source_public": false,
+        "target_public": false,
+        "target_public_flags": [
+          {
+            "tgt_uuid": "src/parser.rs::Parser::parse",
+            "is_public": false
+          }
+        ]
+      },
+      {
+        "src_uuid": "cJSON.c::cJSON_Compare",
+        "tgt_uuid": "src/value/mod.rs::JsonValue::eq",
+        "reason": "target_private_internal_api",
+        "source_public": true,
+        "target_public": false,
+        "target_public_flags": [
+          {
+            "tgt_uuid": "src/value/mod.rs::JsonValue::eq",
+            "is_public": false
+          }
+        ]
+      }
+    ]
+  },
+  "metrics": {
+    "atomic_counts": {
+      "public_replay_executed": 28,
+      "public_replay_passed": 28,
+      "public_replay_failed": 0,
+      "semantic_failures": 0,
+      "semantic_failures_requiring_oracle_review": 0,
+      "target_semantic_failure_candidates": 0,
+      "infrastructure_failures": 0,
+      "public_eligible_source_functions": 35,
+      "public_eligible_target_functions": 21,
+      "public_source_functions_with_src_tests": 35,
+      "public_target_functions_in_src_test_scope": 21,
+      "public_source_functions_excluded_no_src_test": 0,
+      "traced_public_source_functions": 35,
+      "replayed_public_target_functions": 21,
+      "trace_operations_fully_aligned": 28,
+      "trace_operations_partial_alignment": 0,
+      "trace_operations_missing_alignment": 0,
+      "trace_operations_one_to_one": 15,
+      "trace_operations_one_to_many": 0,
+      "trace_operations_many_to_one": 1,
+      "trace_operations_many_to_many": 12,
+      "covered_aligned_pairs": 35,
+      "adapter_missing_count": 0,
+      "skipped_private_internal_count": 5
+    },
+    "derived_ratio_metrics": {
+      "public_replay_pass_rate": {
+        "value": "100.00%",
+        "raw_fraction": "28 / 28",
+        "numerator": "public_replay_passed",
+        "denominator": "public_replay_executed",
+        "description": "public replay 通过的 trace event 数 / public replay 实际执行的 trace event 数"
+      },
+      "aligned_source_public_trace_coverage": {
+        "value": "100.00%",
+        "raw_fraction": "35 / 35",
+        "numerator": "traced_public_source_functions",
+        "denominator": "public_source_functions_with_src_tests",
+        "description": "adapter trace 覆盖且通过 3A 对齐验证的 source 函数数 / 有 src 测试证据的 public eligible source 函数数"
+      },
+      "aligned_target_public_replay_coverage": {
+        "value": "100.00%",
+        "raw_fraction": "21 / 21",
+        "numerator": "replayed_public_target_functions",
+        "denominator": "public_target_functions_in_src_test_scope",
+        "description": "adapter replay 触达且通过 3A 对齐验证的 target 函数数 / 有 src 测试证据范围内的 public target 函数数"
+      },
+      "adapter_missing_rate": {
+        "value": "0.00%",
+        "raw_fraction": "0 / 35",
+        "numerator": "adapter_missing_count",
+        "denominator": "public_source_functions_with_src_tests",
+        "description": "有 src 测试证据但 adapter 没有 replay recipe 的 source 函数数 / 有 src 测试证据的 public eligible source 函数数"
+      }
+    }
+  }
+}

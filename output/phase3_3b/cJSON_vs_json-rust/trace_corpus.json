@@ -1,0 +1,2095 @@
+{
+  "schema_version": "3b.trace_corpus.v2",
+  "status": "recorded",
+  "recording_strategy": "adapter_declared_trace_events_v1",
+  "note": "Trace events were declared by the effective adapter generated from source test evidence.",
+  "events": [
+    {
+      "id": "parse_valid_object_type_checks",
+      "layer": "public_behavior",
+      "operation": "parse_and_type_checks",
+      "evidence": "tests/misc_tests.c - typecheck_functions_should_check_type",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse",
+        "cJSON.c::cJSON_IsArray",
+        "cJSON.c::cJSON_IsBool",
+        "cJSON.c::cJSON_IsNull",
+        "cJSON.c::cJSON_IsNumber",
+        "cJSON.c::cJSON_IsObject",
+        "cJSON.c::cJSON_IsString"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::is_array",
+        "src/value/mod.rs::JsonValue::is_boolean",
+        "src/value/mod.rs::JsonValue::is_null",
+        "src/value/mod.rs::JsonValue::is_number",
+        "src/value/mod.rs::JsonValue::is_object",
+        "src/value/mod.rs::JsonValue::is_string"
+      ],
+      "operation_metadata": {
+        "description": "Parse JSON strings and verify type predicates.",
+        "normalization": "Map cJSON type tests to target JsonValue type methods.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Parse '{\"a\": true}' and check it is an object, not array, not null, not number, not string, not boolean."
+      },
+      "expected": {
+        "observable_behavior": "Parsed value is_object() == true, is_array() == false, is_null() == false, is_number() == false, is_string() == false, is_boolean() == false."
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "parse_and_type_checks",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Parse",
+            "tgt_uuid": "src/parser.rs::parse"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_array"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsBool",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_boolean"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsNull",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_null"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsNumber",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_number"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsString",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_string"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_IsArray",
+          "cJSON.c::cJSON_IsBool",
+          "cJSON.c::cJSON_IsNull",
+          "cJSON.c::cJSON_IsNumber",
+          "cJSON.c::cJSON_IsObject",
+          "cJSON.c::cJSON_IsString",
+          "cJSON.c::cJSON_Parse"
+        ],
+        "covered_target_functions": [
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::is_array",
+          "src/value/mod.rs::JsonValue::is_boolean",
+          "src/value/mod.rs::JsonValue::is_null",
+          "src/value/mod.rs::JsonValue::is_number",
+          "src/value/mod.rs::JsonValue::is_object",
+          "src/value/mod.rs::JsonValue::is_string"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "parse_invalid_returns_err",
+      "layer": "public_behavior",
+      "operation": "parse_and_type_checks",
+      "evidence": "tests/parse_examples.c - file_test6_should_not_be_parsed",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse",
+        "cJSON.c::cJSON_IsArray",
+        "cJSON.c::cJSON_IsBool",
+        "cJSON.c::cJSON_IsNull",
+        "cJSON.c::cJSON_IsNumber",
+        "cJSON.c::cJSON_IsObject",
+        "cJSON.c::cJSON_IsString"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::is_array",
+        "src/value/mod.rs::JsonValue::is_boolean",
+        "src/value/mod.rs::JsonValue::is_null",
+        "src/value/mod.rs::JsonValue::is_number",
+        "src/value/mod.rs::JsonValue::is_object",
+        "src/value/mod.rs::JsonValue::is_string"
+      ],
+      "operation_metadata": {
+        "description": "Parse JSON strings and verify type predicates.",
+        "normalization": "Map cJSON type tests to target JsonValue type methods.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Parse an invalid JSON string 'not json' and expect error."
+      },
+      "expected": {
+        "observable_behavior": "parse returns Err."
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "parse_and_type_checks",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Parse",
+            "tgt_uuid": "src/parser.rs::parse"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_array"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsBool",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_boolean"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsNull",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_null"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsNumber",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_number"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_IsString",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_string"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_IsArray",
+          "cJSON.c::cJSON_IsBool",
+          "cJSON.c::cJSON_IsNull",
+          "cJSON.c::cJSON_IsNumber",
+          "cJSON.c::cJSON_IsObject",
+          "cJSON.c::cJSON_IsString",
+          "cJSON.c::cJSON_Parse"
+        ],
+        "covered_target_functions": [
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::is_array",
+          "src/value/mod.rs::JsonValue::is_boolean",
+          "src/value/mod.rs::JsonValue::is_null",
+          "src/value/mod.rs::JsonValue::is_number",
+          "src/value/mod.rs::JsonValue::is_object",
+          "src/value/mod.rs::JsonValue::is_string"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "parse_empty_string",
+      "layer": "public_behavior",
+      "operation": "parse_with_options",
+      "evidence": "tests/parse_with_opts.c - parse_with_opts_should_handle_empty_strings",
+      "source_functions": [
+        "cJSON.c::cJSON_ParseWithOpts"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "operation_metadata": {
+        "description": "Parse with options (null input, empty string, incomplete, require null).",
+        "normalization": "cJSON_ParseWithOpts with require_null_terminated maps to parse (which requires full valid JSON). NULL input and empty strings should produce error. Target parse returns Result, so we check Err for invalid input.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Parse empty string and expect error."
+      },
+      "expected": {
+        "observable_behavior": "parse(\"\") returns Err."
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "parse_with_options",
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_ParseWithOpts",
+            "tgt_uuid": "src/parser.rs::parse"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_ParseWithOpts"
+        ],
+        "covered_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "parse_incomplete_json",
+      "layer": "public_behavior",
+      "operation": "parse_with_options",
+      "evidence": "tests/parse_with_opts.c - parse_with_opts_should_handle_incomplete_json",
+      "source_functions": [
+        "cJSON.c::cJSON_ParseWithOpts"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "operation_metadata": {
+        "description": "Parse with options (null input, empty string, incomplete, require null).",
+        "normalization": "cJSON_ParseWithOpts with require_null_terminated maps to parse (which requires full valid JSON). NULL input and empty strings should produce error. Target parse returns Result, so we check Err for invalid input.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Parse incomplete JSON '{ \"name\": ' and expect error."
+      },
+      "expected": {
+        "observable_behavior": "parse(\"{ \\\"name\\\": \") returns Err."
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "parse_with_options",
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_ParseWithOpts",
+            "tgt_uuid": "src/parser.rs::parse"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_ParseWithOpts"
+        ],
+        "covered_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "parse_require_null_terminated",
+      "layer": "public_behavior",
+      "operation": "parse_with_options",
+      "evidence": "tests/parse_with_opts.c - parse_with_opts_should_require_null_if_requested",
+      "source_functions": [
+        "cJSON.c::cJSON_ParseWithOpts"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "operation_metadata": {
+        "description": "Parse with options (null input, empty string, incomplete, require null).",
+        "normalization": "cJSON_ParseWithOpts with require_null_terminated maps to parse (which requires full valid JSON). NULL input and empty strings should produce error. Target parse returns Result, so we check Err for invalid input.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Parse \"{}x\" with require_null_terminated (equivalent to parse) and expect error because trailing chars."
+      },
+      "expected": {
+        "observable_behavior": "parse(\"{}x\") returns Err."
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "parse_with_options",
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_ParseWithOpts",
+            "tgt_uuid": "src/parser.rs::parse"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_ParseWithOpts"
+        ],
+        "covered_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "get_string_value",
+      "layer": "public_behavior",
+      "operation": "parse_and_get_values",
+      "evidence": "tests/misc_tests.c - cjson_get_string_value_should_get_a_string",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse",
+        "cJSON.c::cJSON_GetStringValue",
+        "cJSON.c::cJSON_GetNumberValue",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+        "cJSON.c::cJSON_HasObjectItem"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::as_f64",
+        "src/object.rs::Object::get",
+        "src/value/mod.rs::JsonValue::has_key"
+      ],
+      "operation_metadata": {
+        "description": "Parse JSON and retrieve string and number values.",
+        "normalization": "cJSON_GetStringValue returns char*; target as_str returns Option<&str>. cJSON_GetNumberValue returns double; target as_f64 returns Option<f64>. cJSON_GetObjectItemCaseSensitive returns cJSON*; target Object::get returns Option<&JsonValue>. cJSON_HasObjectItem returns bool; target has_key returns bool.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Parse '\"test\"' and call as_str, expect Some(\"test\")."
+      },
+      "expected": {
+        "observable_behavior": "parsed.as_str() == Some(\"test\")"
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "parse_and_get_values",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Parse",
+            "tgt_uuid": "src/parser.rs::parse"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetStringValue",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::as_str"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetNumberValue",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::as_f64"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+            "tgt_uuid": "src/object.rs::Object::get"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_HasObjectItem",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::has_key"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_GetNumberValue",
+          "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+          "cJSON.c::cJSON_GetStringValue",
+          "cJSON.c::cJSON_HasObjectItem",
+          "cJSON.c::cJSON_Parse"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::get",
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::as_f64",
+          "src/value/mod.rs::JsonValue::as_str",
+          "src/value/mod.rs::JsonValue::has_key"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "get_number_value",
+      "layer": "public_behavior",
+      "operation": "parse_and_get_values",
+      "evidence": "tests/misc_tests.c - cjson_get_number_value_should_get_a_number",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse",
+        "cJSON.c::cJSON_GetStringValue",
+        "cJSON.c::cJSON_GetNumberValue",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+        "cJSON.c::cJSON_HasObjectItem"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::as_f64",
+        "src/object.rs::Object::get",
+        "src/value/mod.rs::JsonValue::has_key"
+      ],
+      "operation_metadata": {
+        "description": "Parse JSON and retrieve string and number values.",
+        "normalization": "cJSON_GetStringValue returns char*; target as_str returns Option<&str>. cJSON_GetNumberValue returns double; target as_f64 returns Option<f64>. cJSON_GetObjectItemCaseSensitive returns cJSON*; target Object::get returns Option<&JsonValue>. cJSON_HasObjectItem returns bool; target has_key returns bool.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Parse '1' and call as_f64, expect Some(1.0)."
+      },
+      "expected": {
+        "observable_behavior": "parsed.as_f64() == Some(1.0)"
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "parse_and_get_values",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Parse",
+            "tgt_uuid": "src/parser.rs::parse"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetStringValue",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::as_str"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetNumberValue",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::as_f64"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+            "tgt_uuid": "src/object.rs::Object::get"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_HasObjectItem",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::has_key"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_GetNumberValue",
+          "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+          "cJSON.c::cJSON_GetStringValue",
+          "cJSON.c::cJSON_HasObjectItem",
+          "cJSON.c::cJSON_Parse"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::get",
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::as_f64",
+          "src/value/mod.rs::JsonValue::as_str",
+          "src/value/mod.rs::JsonValue::has_key"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "get_object_item_case_sensitive",
+      "layer": "public_behavior",
+      "operation": "parse_and_get_values",
+      "evidence": "tests/misc_tests.c - cjson_get_object_item_case_sensitive_should_get_object_items",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse",
+        "cJSON.c::cJSON_GetStringValue",
+        "cJSON.c::cJSON_GetNumberValue",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+        "cJSON.c::cJSON_HasObjectItem"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::as_f64",
+        "src/object.rs::Object::get",
+        "src/value/mod.rs::JsonValue::has_key"
+      ],
+      "operation_metadata": {
+        "description": "Parse JSON and retrieve string and number values.",
+        "normalization": "cJSON_GetStringValue returns char*; target as_str returns Option<&str>. cJSON_GetNumberValue returns double; target as_f64 returns Option<f64>. cJSON_GetObjectItemCaseSensitive returns cJSON*; target Object::get returns Option<&JsonValue>. cJSON_HasObjectItem returns bool; target has_key returns bool.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Parse '{\"one\":1, \"Two\":2, \"tHree\":3}' and retrieve items case-sensitive."
+      },
+      "expected": {
+        "observable_behavior": "object[\"one\"].as_f64() == Some(1.0); object[\"Two\"].as_f64() == Some(2.0); object[\"tHree\"].as_f64() == Some(3.0); object[\"One\"].is_null() == true"
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "parse_and_get_values",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Parse",
+            "tgt_uuid": "src/parser.rs::parse"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetStringValue",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::as_str"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetNumberValue",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::as_f64"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+            "tgt_uuid": "src/object.rs::Object::get"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_HasObjectItem",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::has_key"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_GetNumberValue",
+          "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+          "cJSON.c::cJSON_GetStringValue",
+          "cJSON.c::cJSON_HasObjectItem",
+          "cJSON.c::cJSON_Parse"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::get",
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::as_f64",
+          "src/value/mod.rs::JsonValue::as_str",
+          "src/value/mod.rs::JsonValue::has_key"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "has_object_item",
+      "layer": "public_behavior",
+      "operation": "parse_and_get_values",
+      "evidence": "tests/misc_tests.c - cjson_get_object_item_case_sensitive_should_get_object_items (implied has)",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse",
+        "cJSON.c::cJSON_GetStringValue",
+        "cJSON.c::cJSON_GetNumberValue",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+        "cJSON.c::cJSON_HasObjectItem"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::as_f64",
+        "src/object.rs::Object::get",
+        "src/value/mod.rs::JsonValue::has_key"
+      ],
+      "operation_metadata": {
+        "description": "Parse JSON and retrieve string and number values.",
+        "normalization": "cJSON_GetStringValue returns char*; target as_str returns Option<&str>. cJSON_GetNumberValue returns double; target as_f64 returns Option<f64>. cJSON_GetObjectItemCaseSensitive returns cJSON*; target Object::get returns Option<&JsonValue>. cJSON_HasObjectItem returns bool; target has_key returns bool.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Check has_key for existing and missing keys."
+      },
+      "expected": {
+        "observable_behavior": "object.has_key(\"one\") == true; object.has_key(\"One\") == false"
+      },
+      "oracle_source": "source_test_property",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "parse_and_get_values",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Parse",
+            "tgt_uuid": "src/parser.rs::parse"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetStringValue",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::as_str"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetNumberValue",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::as_f64"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+            "tgt_uuid": "src/object.rs::Object::get"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_HasObjectItem",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::has_key"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_GetNumberValue",
+          "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+          "cJSON.c::cJSON_GetStringValue",
+          "cJSON.c::cJSON_HasObjectItem",
+          "cJSON.c::cJSON_Parse"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::get",
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::as_f64",
+          "src/value/mod.rs::JsonValue::as_str",
+          "src/value/mod.rs::JsonValue::has_key"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "add_bool_to_object",
+      "layer": "public_behavior",
+      "operation": "build_object_with_add_helpers",
+      "evidence": "tests/cjson_add.c - cjson_add_bool_should_add_bool",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_AddBoolToObject",
+        "cJSON.c::cJSON_AddTrueToObject",
+        "cJSON.c::cJSON_AddFalseToObject",
+        "cJSON.c::cJSON_AddNumberToObject",
+        "cJSON.c::cJSON_AddStringToObject",
+        "cJSON.c::cJSON_AddObjectToObject",
+        "cJSON.c::cJSON_AddArrayToObject",
+        "cJSON.c::cJSON_AddItemToObject",
+        "cJSON.c::cJSON_AddItemToObjectCS"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/object.rs::Object::insert",
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "operation_metadata": {
+        "description": "Create an object and add items using helper functions.",
+        "normalization": "cJSON_Add*ToObject create and attach items; target uses Object::insert or JsonValue::insert (which internally uses Object::insert). For reference-style adds (cJSON_AddItemToObjectCS), target insert replaces existing key. Boolean and null helpers map to inserting a JsonValue::Boolean or JsonValue::Null.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Create object, insert true and false as boolean values."
+      },
+      "expected": {
+        "observable_behavior": "object[\"true\"] == JsonValue::Boolean(true); object[\"false\"] == JsonValue::Boolean(false)"
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "build_object_with_add_helpers",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddBoolToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddTrueToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddFalseToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddNumberToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddStringToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddObjectToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddArrayToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObjectCS",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddArrayToObject",
+          "cJSON.c::cJSON_AddBoolToObject",
+          "cJSON.c::cJSON_AddFalseToObject",
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_AddItemToObjectCS",
+          "cJSON.c::cJSON_AddNumberToObject",
+          "cJSON.c::cJSON_AddObjectToObject",
+          "cJSON.c::cJSON_AddStringToObject",
+          "cJSON.c::cJSON_AddTrueToObject",
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::insert",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/value/mod.rs::JsonValue::insert"
+        ]
+      }
+    },
+    {
+      "id": "add_number_to_object",
+      "layer": "public_behavior",
+      "operation": "build_object_with_add_helpers",
+      "evidence": "tests/cjson_add.c - cjson_add_number_should_add_number",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_AddBoolToObject",
+        "cJSON.c::cJSON_AddTrueToObject",
+        "cJSON.c::cJSON_AddFalseToObject",
+        "cJSON.c::cJSON_AddNumberToObject",
+        "cJSON.c::cJSON_AddStringToObject",
+        "cJSON.c::cJSON_AddObjectToObject",
+        "cJSON.c::cJSON_AddArrayToObject",
+        "cJSON.c::cJSON_AddItemToObject",
+        "cJSON.c::cJSON_AddItemToObjectCS"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/object.rs::Object::insert",
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "operation_metadata": {
+        "description": "Create an object and add items using helper functions.",
+        "normalization": "cJSON_Add*ToObject create and attach items; target uses Object::insert or JsonValue::insert (which internally uses Object::insert). For reference-style adds (cJSON_AddItemToObjectCS), target insert replaces existing key. Boolean and null helpers map to inserting a JsonValue::Boolean or JsonValue::Null.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Create object, insert number 42."
+      },
+      "expected": {
+        "observable_behavior": "object[\"number\"].as_f64() == Some(42.0)"
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "build_object_with_add_helpers",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddBoolToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddTrueToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddFalseToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddNumberToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddStringToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddObjectToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddArrayToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObjectCS",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddArrayToObject",
+          "cJSON.c::cJSON_AddBoolToObject",
+          "cJSON.c::cJSON_AddFalseToObject",
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_AddItemToObjectCS",
+          "cJSON.c::cJSON_AddNumberToObject",
+          "cJSON.c::cJSON_AddObjectToObject",
+          "cJSON.c::cJSON_AddStringToObject",
+          "cJSON.c::cJSON_AddTrueToObject",
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::insert",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/value/mod.rs::JsonValue::insert"
+        ]
+      }
+    },
+    {
+      "id": "add_string_to_object",
+      "layer": "public_behavior",
+      "operation": "build_object_with_add_helpers",
+      "evidence": "tests/cjson_add.c - cjson_add_string_should_add_string",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_AddBoolToObject",
+        "cJSON.c::cJSON_AddTrueToObject",
+        "cJSON.c::cJSON_AddFalseToObject",
+        "cJSON.c::cJSON_AddNumberToObject",
+        "cJSON.c::cJSON_AddStringToObject",
+        "cJSON.c::cJSON_AddObjectToObject",
+        "cJSON.c::cJSON_AddArrayToObject",
+        "cJSON.c::cJSON_AddItemToObject",
+        "cJSON.c::cJSON_AddItemToObjectCS"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/object.rs::Object::insert",
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "operation_metadata": {
+        "description": "Create an object and add items using helper functions.",
+        "normalization": "cJSON_Add*ToObject create and attach items; target uses Object::insert or JsonValue::insert (which internally uses Object::insert). For reference-style adds (cJSON_AddItemToObjectCS), target insert replaces existing key. Boolean and null helpers map to inserting a JsonValue::Boolean or JsonValue::Null.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Create object, insert string \"Hello World!\"."
+      },
+      "expected": {
+        "observable_behavior": "object[\"string\"].as_str() == Some(\"Hello World!\")"
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "build_object_with_add_helpers",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddBoolToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddTrueToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddFalseToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddNumberToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddStringToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddObjectToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddArrayToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObjectCS",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddArrayToObject",
+          "cJSON.c::cJSON_AddBoolToObject",
+          "cJSON.c::cJSON_AddFalseToObject",
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_AddItemToObjectCS",
+          "cJSON.c::cJSON_AddNumberToObject",
+          "cJSON.c::cJSON_AddObjectToObject",
+          "cJSON.c::cJSON_AddStringToObject",
+          "cJSON.c::cJSON_AddTrueToObject",
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::insert",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/value/mod.rs::JsonValue::insert"
+        ]
+      }
+    },
+    {
+      "id": "add_object_to_object",
+      "layer": "public_behavior",
+      "operation": "build_object_with_add_helpers",
+      "evidence": "tests/cjson_add.c - cJSON_add_object_should_add_object",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_AddBoolToObject",
+        "cJSON.c::cJSON_AddTrueToObject",
+        "cJSON.c::cJSON_AddFalseToObject",
+        "cJSON.c::cJSON_AddNumberToObject",
+        "cJSON.c::cJSON_AddStringToObject",
+        "cJSON.c::cJSON_AddObjectToObject",
+        "cJSON.c::cJSON_AddArrayToObject",
+        "cJSON.c::cJSON_AddItemToObject",
+        "cJSON.c::cJSON_AddItemToObjectCS"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/object.rs::Object::insert",
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "operation_metadata": {
+        "description": "Create an object and add items using helper functions.",
+        "normalization": "cJSON_Add*ToObject create and attach items; target uses Object::insert or JsonValue::insert (which internally uses Object::insert). For reference-style adds (cJSON_AddItemToObjectCS), target insert replaces existing key. Boolean and null helpers map to inserting a JsonValue::Boolean or JsonValue::Null.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Create object, insert a nested object."
+      },
+      "expected": {
+        "observable_behavior": "object[\"obj\"].is_object() == true"
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "build_object_with_add_helpers",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddBoolToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddTrueToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddFalseToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddNumberToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddStringToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddObjectToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddArrayToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObjectCS",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddArrayToObject",
+          "cJSON.c::cJSON_AddBoolToObject",
+          "cJSON.c::cJSON_AddFalseToObject",
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_AddItemToObjectCS",
+          "cJSON.c::cJSON_AddNumberToObject",
+          "cJSON.c::cJSON_AddObjectToObject",
+          "cJSON.c::cJSON_AddStringToObject",
+          "cJSON.c::cJSON_AddTrueToObject",
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::insert",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/value/mod.rs::JsonValue::insert"
+        ]
+      }
+    },
+    {
+      "id": "add_array_to_object",
+      "layer": "public_behavior",
+      "operation": "build_object_with_add_helpers",
+      "evidence": "tests/cjson_add.c - cJSON_add_array_should_add_array",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_AddBoolToObject",
+        "cJSON.c::cJSON_AddTrueToObject",
+        "cJSON.c::cJSON_AddFalseToObject",
+        "cJSON.c::cJSON_AddNumberToObject",
+        "cJSON.c::cJSON_AddStringToObject",
+        "cJSON.c::cJSON_AddObjectToObject",
+        "cJSON.c::cJSON_AddArrayToObject",
+        "cJSON.c::cJSON_AddItemToObject",
+        "cJSON.c::cJSON_AddItemToObjectCS"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/object.rs::Object::insert",
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "operation_metadata": {
+        "description": "Create an object and add items using helper functions.",
+        "normalization": "cJSON_Add*ToObject create and attach items; target uses Object::insert or JsonValue::insert (which internally uses Object::insert). For reference-style adds (cJSON_AddItemToObjectCS), target insert replaces existing key. Boolean and null helpers map to inserting a JsonValue::Boolean or JsonValue::Null.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Create object, insert an empty array."
+      },
+      "expected": {
+        "observable_behavior": "object[\"arr\"].is_array() == true"
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "build_object_with_add_helpers",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddBoolToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddTrueToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddFalseToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddNumberToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddStringToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddObjectToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddArrayToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObjectCS",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddArrayToObject",
+          "cJSON.c::cJSON_AddBoolToObject",
+          "cJSON.c::cJSON_AddFalseToObject",
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_AddItemToObjectCS",
+          "cJSON.c::cJSON_AddNumberToObject",
+          "cJSON.c::cJSON_AddObjectToObject",
+          "cJSON.c::cJSON_AddStringToObject",
+          "cJSON.c::cJSON_AddTrueToObject",
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::insert",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/value/mod.rs::JsonValue::insert"
+        ]
+      }
+    },
+    {
+      "id": "add_item_to_object",
+      "layer": "public_behavior",
+      "operation": "build_object_with_add_helpers",
+      "evidence": "tests/readme_examples.c - create_monitor_should_create_a_monitor",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_AddBoolToObject",
+        "cJSON.c::cJSON_AddTrueToObject",
+        "cJSON.c::cJSON_AddFalseToObject",
+        "cJSON.c::cJSON_AddNumberToObject",
+        "cJSON.c::cJSON_AddStringToObject",
+        "cJSON.c::cJSON_AddObjectToObject",
+        "cJSON.c::cJSON_AddArrayToObject",
+        "cJSON.c::cJSON_AddItemToObject",
+        "cJSON.c::cJSON_AddItemToObjectCS"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/object.rs::Object::insert",
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "operation_metadata": {
+        "description": "Create an object and add items using helper functions.",
+        "normalization": "cJSON_Add*ToObject create and attach items; target uses Object::insert or JsonValue::insert (which internally uses Object::insert). For reference-style adds (cJSON_AddItemToObjectCS), target insert replaces existing key. Boolean and null helpers map to inserting a JsonValue::Boolean or JsonValue::Null.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Create object, add string via AddItemToObject equivalent using insert."
+      },
+      "expected": {
+        "observable_behavior": "object[\"name\"].as_str() == Some(\"Awesome 4K\")"
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "build_object_with_add_helpers",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddBoolToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddTrueToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddFalseToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddNumberToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddStringToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddObjectToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddArrayToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObjectCS",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddArrayToObject",
+          "cJSON.c::cJSON_AddBoolToObject",
+          "cJSON.c::cJSON_AddFalseToObject",
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_AddItemToObjectCS",
+          "cJSON.c::cJSON_AddNumberToObject",
+          "cJSON.c::cJSON_AddObjectToObject",
+          "cJSON.c::cJSON_AddStringToObject",
+          "cJSON.c::cJSON_AddTrueToObject",
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::insert",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/value/mod.rs::JsonValue::insert"
+        ]
+      }
+    },
+    {
+      "id": "add_item_to_object_cs",
+      "layer": "public_behavior",
+      "operation": "build_object_with_add_helpers",
+      "evidence": "tests/misc_tests.c - cjson_create_object_reference_should_create_an_object_reference",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_AddBoolToObject",
+        "cJSON.c::cJSON_AddTrueToObject",
+        "cJSON.c::cJSON_AddFalseToObject",
+        "cJSON.c::cJSON_AddNumberToObject",
+        "cJSON.c::cJSON_AddStringToObject",
+        "cJSON.c::cJSON_AddObjectToObject",
+        "cJSON.c::cJSON_AddArrayToObject",
+        "cJSON.c::cJSON_AddItemToObject",
+        "cJSON.c::cJSON_AddItemToObjectCS"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/object.rs::Object::insert",
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "operation_metadata": {
+        "description": "Create an object and add items using helper functions.",
+        "normalization": "cJSON_Add*ToObject create and attach items; target uses Object::insert or JsonValue::insert (which internally uses Object::insert). For reference-style adds (cJSON_AddItemToObjectCS), target insert replaces existing key. Boolean and null helpers map to inserting a JsonValue::Boolean or JsonValue::Null.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Create object, add number via AddItemToObjectCS (reference) – target insert overwrites same key."
+      },
+      "expected": {
+        "observable_behavior": "object[\"number\"].as_f64() == Some(42.0)"
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "build_object_with_add_helpers",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddBoolToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddTrueToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddFalseToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddNumberToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddStringToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddObjectToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddArrayToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToObjectCS",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddArrayToObject",
+          "cJSON.c::cJSON_AddBoolToObject",
+          "cJSON.c::cJSON_AddFalseToObject",
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_AddItemToObjectCS",
+          "cJSON.c::cJSON_AddNumberToObject",
+          "cJSON.c::cJSON_AddObjectToObject",
+          "cJSON.c::cJSON_AddStringToObject",
+          "cJSON.c::cJSON_AddTrueToObject",
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::insert",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/value/mod.rs::JsonValue::insert"
+        ]
+      }
+    },
+    {
+      "id": "create_array_push_items",
+      "layer": "public_behavior",
+      "operation": "array_operations",
+      "evidence": "tests/misc_tests.c - cjson_replace_item_via_pointer_should_replace_items",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateArray",
+        "cJSON.c::cJSON_AddItemToArray",
+        "cJSON.c::cJSON_GetArraySize",
+        "cJSON.c::cJSON_DeleteItemFromArray",
+        "cJSON.c::cJSON_DetachItemFromArray",
+        "cJSON.c::cJSON_PrintUnformatted"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_array",
+        "src/value/mod.rs::JsonValue::push",
+        "src/value/mod.rs::JsonValue::len",
+        "src/value/mod.rs::JsonValue::array_remove",
+        "src/value/mod.rs::JsonValue::dump"
+      ],
+      "operation_metadata": {
+        "description": "Create arrays, add items, get size, remove items.",
+        "normalization": "cJSON_AddItemToArray transfers ownership; target push moves value. cJSON_GetArraySize returns int; target len returns usize. Both delete/detach map to array_remove (detach returns removed, delete discards). PrintUnformatted maps to dump.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Create array, push three null values (converted from JsonValue::Null)."
+      },
+      "expected": {
+        "observable_behavior": "array.len() == 3; all elements are Null"
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "array_operations",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_array"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::push"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetArraySize",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DeleteItemFromArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DetachItemFromArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_PrintUnformatted",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::dump"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_CreateArray",
+          "cJSON.c::cJSON_DeleteItemFromArray",
+          "cJSON.c::cJSON_DetachItemFromArray",
+          "cJSON.c::cJSON_GetArraySize",
+          "cJSON.c::cJSON_PrintUnformatted"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::array_remove",
+          "src/value/mod.rs::JsonValue::dump",
+          "src/value/mod.rs::JsonValue::len",
+          "src/value/mod.rs::JsonValue::new_array",
+          "src/value/mod.rs::JsonValue::push"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "get_array_size",
+      "layer": "public_behavior",
+      "operation": "array_operations",
+      "evidence": "tests/misc_tests.c - cjson_replace_item_via_pointer_should_replace_items (has len check)",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateArray",
+        "cJSON.c::cJSON_AddItemToArray",
+        "cJSON.c::cJSON_GetArraySize",
+        "cJSON.c::cJSON_DeleteItemFromArray",
+        "cJSON.c::cJSON_DetachItemFromArray",
+        "cJSON.c::cJSON_PrintUnformatted"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_array",
+        "src/value/mod.rs::JsonValue::push",
+        "src/value/mod.rs::JsonValue::len",
+        "src/value/mod.rs::JsonValue::array_remove",
+        "src/value/mod.rs::JsonValue::dump"
+      ],
+      "operation_metadata": {
+        "description": "Create arrays, add items, get size, remove items.",
+        "normalization": "cJSON_AddItemToArray transfers ownership; target push moves value. cJSON_GetArraySize returns int; target len returns usize. Both delete/detach map to array_remove (detach returns removed, delete discards). PrintUnformatted maps to dump.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Get length of array after pushes."
+      },
+      "expected": {
+        "observable_behavior": "array.len() == 3"
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "array_operations",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_array"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::push"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetArraySize",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DeleteItemFromArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DetachItemFromArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_PrintUnformatted",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::dump"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_CreateArray",
+          "cJSON.c::cJSON_DeleteItemFromArray",
+          "cJSON.c::cJSON_DetachItemFromArray",
+          "cJSON.c::cJSON_GetArraySize",
+          "cJSON.c::cJSON_PrintUnformatted"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::array_remove",
+          "src/value/mod.rs::JsonValue::dump",
+          "src/value/mod.rs::JsonValue::len",
+          "src/value/mod.rs::JsonValue::new_array",
+          "src/value/mod.rs::JsonValue::push"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "delete_item_from_array",
+      "layer": "public_behavior",
+      "operation": "array_operations",
+      "evidence": "tests/misc_tests.c - cjson_delete_item_from_array_should_not_broken_list_structure",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateArray",
+        "cJSON.c::cJSON_AddItemToArray",
+        "cJSON.c::cJSON_GetArraySize",
+        "cJSON.c::cJSON_DeleteItemFromArray",
+        "cJSON.c::cJSON_DetachItemFromArray",
+        "cJSON.c::cJSON_PrintUnformatted"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_array",
+        "src/value/mod.rs::JsonValue::push",
+        "src/value/mod.rs::JsonValue::len",
+        "src/value/mod.rs::JsonValue::array_remove",
+        "src/value/mod.rs::JsonValue::dump"
+      ],
+      "operation_metadata": {
+        "description": "Create arrays, add items, get size, remove items.",
+        "normalization": "cJSON_AddItemToArray transfers ownership; target push moves value. cJSON_GetArraySize returns int; target len returns usize. Both delete/detach map to array_remove (detach returns removed, delete discards). PrintUnformatted maps to dump.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Create array with two items, remove first item (index 0), dump result."
+      },
+      "expected": {
+        "observable_behavior": "after removal, array.dump() == \"[{\\\"b\\\":\\\"456\\\"}]\""
+      },
+      "oracle_source": "source_fixture",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "array_operations",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_array"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::push"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetArraySize",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DeleteItemFromArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DetachItemFromArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_PrintUnformatted",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::dump"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_CreateArray",
+          "cJSON.c::cJSON_DeleteItemFromArray",
+          "cJSON.c::cJSON_DetachItemFromArray",
+          "cJSON.c::cJSON_GetArraySize",
+          "cJSON.c::cJSON_PrintUnformatted"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::array_remove",
+          "src/value/mod.rs::JsonValue::dump",
+          "src/value/mod.rs::JsonValue::len",
+          "src/value/mod.rs::JsonValue::new_array",
+          "src/value/mod.rs::JsonValue::push"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "detach_item_from_array",
+      "layer": "public_behavior",
+      "operation": "array_operations",
+      "evidence": "tests/misc_tests.c - cjson_should_not_follow_too_deep_circular_references",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateArray",
+        "cJSON.c::cJSON_AddItemToArray",
+        "cJSON.c::cJSON_GetArraySize",
+        "cJSON.c::cJSON_DeleteItemFromArray",
+        "cJSON.c::cJSON_DetachItemFromArray",
+        "cJSON.c::cJSON_PrintUnformatted"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_array",
+        "src/value/mod.rs::JsonValue::push",
+        "src/value/mod.rs::JsonValue::len",
+        "src/value/mod.rs::JsonValue::array_remove",
+        "src/value/mod.rs::JsonValue::dump"
+      ],
+      "operation_metadata": {
+        "description": "Create arrays, add items, get size, remove items.",
+        "normalization": "cJSON_AddItemToArray transfers ownership; target push moves value. cJSON_GetArraySize returns int; target len returns usize. Both delete/detach map to array_remove (detach returns removed, delete discards). PrintUnformatted maps to dump.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Detach item from array (array_remove returns removed)."
+      },
+      "expected": {
+        "observable_behavior": "after detach, removed value is the item; array length decreases."
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "array_operations",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_array"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::push"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetArraySize",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DeleteItemFromArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DetachItemFromArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_PrintUnformatted",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::dump"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_CreateArray",
+          "cJSON.c::cJSON_DeleteItemFromArray",
+          "cJSON.c::cJSON_DetachItemFromArray",
+          "cJSON.c::cJSON_GetArraySize",
+          "cJSON.c::cJSON_PrintUnformatted"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::array_remove",
+          "src/value/mod.rs::JsonValue::dump",
+          "src/value/mod.rs::JsonValue::len",
+          "src/value/mod.rs::JsonValue::new_array",
+          "src/value/mod.rs::JsonValue::push"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "print_unformatted",
+      "layer": "public_behavior",
+      "operation": "print_unformatted",
+      "evidence": "tests/misc_tests.c - cjson_delete_item_from_array_should_not_broken_list_structure",
+      "source_functions": [
+        "cJSON.c::cJSON_PrintUnformatted"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::dump"
+      ],
+      "operation_metadata": {
+        "description": "Print JSON without formatting (compact).",
+        "normalization": "cJSON_PrintUnformatted returns compact string; target dump returns compact string.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Build a simple JSON object and dump it."
+      },
+      "expected": {
+        "observable_behavior": "dump() returns a compact JSON string without whitespace."
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "print_unformatted",
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_PrintUnformatted",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::dump"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_PrintUnformatted"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::dump"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "print_pretty_basic",
+      "layer": "public_behavior",
+      "operation": "print_pretty",
+      "evidence": "tests/parse_examples.c - file_test1_should_be_parsed_and_printed (uses cJSON_Print)",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "operation_metadata": {
+        "description": "Pretty-print JSON objects.",
+        "normalization": "cJSON_Print returns formatted string; target pretty returns String with given spaces.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Parse a simple object and pretty-print with 4 spaces."
+      },
+      "expected": {
+        "observable_behavior": "pretty(4) returns a formatted string with newlines and indentation."
+      },
+      "oracle_source": "source_test_property",
+      "oracle_confidence": "medium",
+      "alignment_validation": {
+        "operation": "print_pretty",
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Print",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "replace_item_in_object",
+      "layer": "public_behavior",
+      "operation": "replace_item_in_object",
+      "evidence": "tests/misc_tests.c - cjson_replace_item_in_object_should_preserve_name",
+      "source_functions": [
+        "cJSON.c::cJSON_ReplaceItemInObject",
+        "cJSON.c::cJSON_ReplaceItemInObjectCaseSensitive"
+      ],
+      "target_functions": [
+        "src/object.rs::Object::insert",
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "operation_metadata": {
+        "description": "Replace an item in an object preserving the key.",
+        "normalization": "cJSON_ReplaceItemInObject replaces value at key; target Object::insert overwrites. Both preserve key string.",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Create object with child number 1, replace it with number 2, key preserved."
+      },
+      "expected": {
+        "observable_behavior": "object[\"child\"].as_f64() == Some(2.0)"
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "replace_item_in_object",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_ReplaceItemInObject",
+            "tgt_uuid": "src/object.rs::Object::insert"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_ReplaceItemInObjectCaseSensitive",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::insert"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_ReplaceItemInObject",
+          "cJSON.c::cJSON_ReplaceItemInObjectCaseSensitive"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::insert",
+          "src/value/mod.rs::JsonValue::insert"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "object_remove",
+      "layer": "public_behavior",
+      "operation": "object_remove_operations",
+      "evidence": "tests/misc_tests.c - cjson_functions_should_not_crash_with_null_pointers",
+      "source_functions": [
+        "cJSON.c::cJSON_DeleteItemFromObject",
+        "cJSON.c::cJSON_DeleteItemFromObjectCaseSensitive",
+        "cJSON.c::cJSON_DetachItemFromObject",
+        "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive"
+      ],
+      "target_functions": [
+        "src/object.rs::Object::remove",
+        "src/value/mod.rs::JsonValue::remove"
+      ],
+      "operation_metadata": {
+        "description": "Remove items from objects by key.",
+        "normalization": "Both delete and detach remove the key; delete discards, detach returns removed. Target Object::remove returns Option<JsonValue>; JsonValue::remove returns JsonValue (Null if missing).",
+        "normalization_status": "adapter_declared_v1",
+        "adapter_generation_status": "llm_synthesized_v1"
+      },
+      "input": {
+        "case": "Create object with key, remove it, verify key no longer exists."
+      },
+      "expected": {
+        "observable_behavior": "object.has_key(\"key\") == false; removed value is correct."
+      },
+      "oracle_source": "source_test_assertion",
+      "oracle_confidence": "high",
+      "alignment_validation": {
+        "operation": "object_remove_operations",
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_DeleteItemFromObject",
+            "tgt_uuid": "src/object.rs::Object::remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DeleteItemFromObjectCaseSensitive",
+            "tgt_uuid": "src/object.rs::Object::remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DetachItemFromObject",
+            "tgt_uuid": "src/object.rs::Object::remove"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive",
+            "tgt_uuid": "src/object.rs::Object::remove"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_DeleteItemFromObject",
+          "cJSON.c::cJSON_DeleteItemFromObjectCaseSensitive",
+          "cJSON.c::cJSON_DetachItemFromObject",
+          "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive"
+        ],
+        "covered_target_functions": [
+          "src/object.rs::Object::remove"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/value/mod.rs::JsonValue::remove"
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "events": 24,
+    "traced_source_functions": 35,
+    "traced_target_functions": 22,
+    "traced_source_function_ids": [
+      "cJSON.c::cJSON_AddArrayToObject",
+      "cJSON.c::cJSON_AddBoolToObject",
+      "cJSON.c::cJSON_AddFalseToObject",
+      "cJSON.c::cJSON_AddItemToArray",
+      "cJSON.c::cJSON_AddItemToObject",
+      "cJSON.c::cJSON_AddItemToObjectCS",
+      "cJSON.c::cJSON_AddNumberToObject",
+      "cJSON.c::cJSON_AddObjectToObject",
+      "cJSON.c::cJSON_AddStringToObject",
+      "cJSON.c::cJSON_AddTrueToObject",
+      "cJSON.c::cJSON_CreateArray",
+      "cJSON.c::cJSON_CreateObject",
+      "cJSON.c::cJSON_DeleteItemFromArray",
+      "cJSON.c::cJSON_DeleteItemFromObject",
+      "cJSON.c::cJSON_DeleteItemFromObjectCaseSensitive",
+      "cJSON.c::cJSON_DetachItemFromArray",
+      "cJSON.c::cJSON_DetachItemFromObject",
+      "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive",
+      "cJSON.c::cJSON_GetArraySize",
+      "cJSON.c::cJSON_GetNumberValue",
+      "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+      "cJSON.c::cJSON_GetStringValue",
+      "cJSON.c::cJSON_HasObjectItem",
+      "cJSON.c::cJSON_IsArray",
+      "cJSON.c::cJSON_IsBool",
+      "cJSON.c::cJSON_IsNull",
+      "cJSON.c::cJSON_IsNumber",
+      "cJSON.c::cJSON_IsObject",
+      "cJSON.c::cJSON_IsString",
+      "cJSON.c::cJSON_Parse",
+      "cJSON.c::cJSON_ParseWithOpts",
+      "cJSON.c::cJSON_Print",
+      "cJSON.c::cJSON_PrintUnformatted",
+      "cJSON.c::cJSON_ReplaceItemInObject",
+      "cJSON.c::cJSON_ReplaceItemInObjectCaseSensitive"
+    ],
+    "traced_target_function_ids": [
+      "src/object.rs::Object::get",
+      "src/object.rs::Object::insert",
+      "src/object.rs::Object::remove",
+      "src/parser.rs::parse",
+      "src/value/mod.rs::JsonValue::array_remove",
+      "src/value/mod.rs::JsonValue::as_f64",
+      "src/value/mod.rs::JsonValue::as_str",
+      "src/value/mod.rs::JsonValue::dump",
+      "src/value/mod.rs::JsonValue::has_key",
+      "src/value/mod.rs::JsonValue::insert",
+      "src/value/mod.rs::JsonValue::is_array",
+      "src/value/mod.rs::JsonValue::is_boolean",
+      "src/value/mod.rs::JsonValue::is_null",
+      "src/value/mod.rs::JsonValue::is_number",
+      "src/value/mod.rs::JsonValue::is_object",
+      "src/value/mod.rs::JsonValue::is_string",
+      "src/value/mod.rs::JsonValue::len",
+      "src/value/mod.rs::JsonValue::new_array",
+      "src/value/mod.rs::JsonValue::new_object",
+      "src/value/mod.rs::JsonValue::pretty",
+      "src/value/mod.rs::JsonValue::push",
+      "src/value/mod.rs::JsonValue::remove"
+    ],
+    "validated_aligned_source_functions": 35,
+    "validated_aligned_target_functions": 21,
+    "validated_aligned_source_function_ids": [
+      "cJSON.c::cJSON_AddArrayToObject",
+      "cJSON.c::cJSON_AddBoolToObject",
+      "cJSON.c::cJSON_AddFalseToObject",
+      "cJSON.c::cJSON_AddItemToArray",
+      "cJSON.c::cJSON_AddItemToObject",
+      "cJSON.c::cJSON_AddItemToObjectCS",
+      "cJSON.c::cJSON_AddNumberToObject",
+      "cJSON.c::cJSON_AddObjectToObject",
+      "cJSON.c::cJSON_AddStringToObject",
+      "cJSON.c::cJSON_AddTrueToObject",
+      "cJSON.c::cJSON_CreateArray",
+      "cJSON.c::cJSON_CreateObject",
+      "cJSON.c::cJSON_DeleteItemFromArray",
+      "cJSON.c::cJSON_DeleteItemFromObject",
+      "cJSON.c::cJSON_DeleteItemFromObjectCaseSensitive",
+      "cJSON.c::cJSON_DetachItemFromArray",
+      "cJSON.c::cJSON_DetachItemFromObject",
+      "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive",
+      "cJSON.c::cJSON_GetArraySize",
+      "cJSON.c::cJSON_GetNumberValue",
+      "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+      "cJSON.c::cJSON_GetStringValue",
+      "cJSON.c::cJSON_HasObjectItem",
+      "cJSON.c::cJSON_IsArray",
+      "cJSON.c::cJSON_IsBool",
+      "cJSON.c::cJSON_IsNull",
+      "cJSON.c::cJSON_IsNumber",
+      "cJSON.c::cJSON_IsObject",
+      "cJSON.c::cJSON_IsString",
+      "cJSON.c::cJSON_Parse",
+      "cJSON.c::cJSON_ParseWithOpts",
+      "cJSON.c::cJSON_Print",
+      "cJSON.c::cJSON_PrintUnformatted",
+      "cJSON.c::cJSON_ReplaceItemInObject",
+      "cJSON.c::cJSON_ReplaceItemInObjectCaseSensitive"
+    ],
+    "validated_aligned_target_function_ids": [
+      "src/object.rs::Object::get",
+      "src/object.rs::Object::insert",
+      "src/object.rs::Object::remove",
+      "src/parser.rs::parse",
+      "src/value/mod.rs::JsonValue::array_remove",
+      "src/value/mod.rs::JsonValue::as_f64",
+      "src/value/mod.rs::JsonValue::as_str",
+      "src/value/mod.rs::JsonValue::dump",
+      "src/value/mod.rs::JsonValue::has_key",
+      "src/value/mod.rs::JsonValue::insert",
+      "src/value/mod.rs::JsonValue::is_array",
+      "src/value/mod.rs::JsonValue::is_boolean",
+      "src/value/mod.rs::JsonValue::is_null",
+      "src/value/mod.rs::JsonValue::is_number",
+      "src/value/mod.rs::JsonValue::is_object",
+      "src/value/mod.rs::JsonValue::is_string",
+      "src/value/mod.rs::JsonValue::len",
+      "src/value/mod.rs::JsonValue::new_array",
+      "src/value/mod.rs::JsonValue::new_object",
+      "src/value/mod.rs::JsonValue::pretty",
+      "src/value/mod.rs::JsonValue::push"
+    ],
+    "covered_aligned_pairs": 35,
+    "alignment_status_counts": {
+      "fully_aligned": 24
+    },
+    "mapping_shape_counts": {
+      "many_to_many": 18,
+      "one_to_one": 5,
+      "many_to_one": 1
+    },
+    "support_target_functions": [
+      "src/value/mod.rs::JsonValue::insert",
+      "src/value/mod.rs::JsonValue::remove"
+    ]
+  }
+}

@@ -110,3 +110,95 @@ PROMPT_STRATEGY_ANALYSIS = """
   "overall_translation_verdict": "基于以上数据，给出一个最终的定性结论，比如：Target 代码是属于'机械式逐行机翻'、'带安全检查的增强代码'，还是'接近人类水平的重构'？（一句话总结）"
 }}
 """
+
+PROMPT_3B_ADAPTER_SYNTHESIS = """# CP2RS Phase 3B Adapter Synthesis
+
+You generate a repository-specific 3B public-first adapter.
+
+Important rules:
+- Return a single valid JSON object only. No Markdown fences. No explanations outside JSON.
+- Return compact JSON when possible; avoid long comments or duplicated prose so the response is not truncated.
+- Use the adapter shape shown in `required_adapter_shape`.
+- Generate public behavior operations from source test evidence and 3A aligned function pairs.
+- Prefer `source_evidence.behavior_cases` when designing operations: one operation should reflect a concrete source test case or a tight group of source tests with the same observable behavior.
+- Prefer `source_evidence.behavior_cases[].assertions` when deciding executable oracle values: they list source assertion expressions, literals, and aligned functions mentioned by each assertion.
+- Review `source_evidence.mixed_public_internal_cases` before writing operations. These cases are L1 risk cases because the source test explicitly calls non-public aligned functions alongside public calls.
+- For mixed public/internal source cases, use this three-way policy: (1) if the target public API naturally includes the internal effect, replay the public API and explain that in `normalization`; (2) if the target has an explicit public equivalent for the internal state transition, include that public call in the replay; (3) if the internal state transition cannot be preserved through target public APIs, omit the case/function from L1 and use a skip reason such as `cannot_public_replay_internal_state_transition` or `requires_function_boundary_or_adapter_wrapper`.
+- Never silently drop an explicit source internal call and replay only the surrounding public calls when that internal call may affect the final observable result.
+- Use `source_evidence.function_index` to ground every `source_functions` entry and to check which source functions still need coverage.
+- Treat `source_evidence.quality_checks` as a context integrity signal. If it reports missing evidence, omit unsupported functions instead of guessing.
+- Use `target_aligned_api_context` and the selected `target_public_api_signatures` candidates to write Rust calls that actually exist.
+- Read `target_api_scope.selection_policy`: the candidate list is intentionally compact, but validation checks against the full parsed public API set.
+- Use `target_crate_import_hint.crate_name_for_rust_code` when importing the Rust crate in integration tests.
+- Do not rely on target repository tests or examples; the target may have no tests. Infer target API usage from Cargo.toml/lib.rs, parsed public signatures, owner_type, call_hint, and body excerpts only.
+- For every source function listed in a `public_operations.*.source_functions` entry, copy every corresponding `tgt_uuid` from `alignment_scope.public_eligible_pairs_with_src_test_evidence` into that operation's `target_functions`. You may add support public target APIs too, but do not omit the 3A target recipe for a declared source function.
+- Use `source_evidence.fixtures` when source tests rely on input/expected files rather than inline literals.
+- Pay attention to each target API `owner_type` and `call_hint`; do not call an `Object` method on a `JsonValue` unless you first obtain an `Object` value/reference.
+- For target signatures with generic `Into<...>` parameters, pass concrete values directly when possible instead of adding unnecessary `.into()` calls.
+- The `normalization` field is an audit note. The actual executable oracle must appear in `rust_test_harness`.
+- Do not invent target behavior that is not grounded in source tests or fixtures.
+- Maximize reliable coverage of `alignment_scope.public_eligible_pairs_with_src_test_evidence`; do not stop after a few examples if more source-tested public functions have clear assertions or fixtures.
+- Broad coverage is welcome only when each operation is still grounded in concrete source test evidence. Omit a function only when replay would require speculation or non-public target APIs.
+- Avoid brittle exact string-format assertions unless the source test/fixture explicitly provides that exact expected string. For printing/pretty output without exact expected fixtures, prefer parseability, structural checks, or clearly grounded substring/property checks.
+- For every trace event, set `oracle_source` and `oracle_confidence`. Use `high` only for concrete assertions or expected fixtures. Use `medium` for normalized behavior properties inferred from source tests.
+- Use only public Rust APIs in `rust_test_harness`.
+- Every `trace_events[].id` must be a valid Rust function identifier.
+- The Rust harness must define exactly one `#[test] fn <trace_event_id>()` for each trace event id.
+- Do not add extra `#[test]` functions without a matching trace event id.
+- If you want to test another behavior, declare a matching `public_operations` entry and `trace_events` entry.
+- If a source aligned function is too hard to replay reliably, omit it; the framework will count it as adapter_missing.
+- The `evidence` fields should cite concrete source test paths/names from the context.
+- Every declared target function should appear in the Rust harness through the actual target API call.
+- The Rust integration test must compile as tests/cp2rs_3b_public.rs inside the target crate.
+- Avoid fragile nested JSON string literals inside `rust_test_harness`. Prefer constructing JsonValue objects/arrays with public APIs such as new_object, new_array, insert, push, get, remove, len, dump, and pretty. If parsing JSON text is needed, prefer simple texts like "null", "[]", "{{}}", "[1,2,3]" that do not require many escaped quotes.
+
+Context:
+{context_json}
+"""
+
+PROMPT_3B_ADAPTER_SCHEMA_REPAIR = """# CP2RS Phase 3B Adapter Schema Repair
+
+Your previous response was not a valid 3B adapter. Fix it and return one valid JSON object only.
+Do not add Rust tests for behavior that is not represented by public_operations and trace_events.
+Use the compact repair context; it intentionally includes only schema/validation-relevant synthesis context, not the full original prompt.
+Pay special attention to harness API audit errors:
+- If a target function is declared but not mentioned, either call that exact API leaf in rust_test_harness or remove it only if it is not required by the declared source functions.
+- Required 3A target functions from alignment_scope must not be removed; instead, make the harness explicitly exercise them.
+- If rust_test_harness uses a public target API name not declared in public_operations.*.target_functions, add the matching public UUID to the operation that uses it, or remove the call.
+- For owner methods such as Object::get or JsonValue::contains, the Rust code must visibly use `.get(...)` or `.contains(...)`; indexing or equivalent syntax will not satisfy the audit.
+- If validation reports JSON extraction/parse errors, repair the JSON formatting first. In particular, simplify rust_test_harness string literals and avoid nested escaped JSON text such as `"{{\\\"a\\\":1}}"`; build objects/arrays through public APIs instead.
+
+Repair context:
+{repair_context_json}
+"""
+
+PROMPT_3B_REPLAY_REPAIR = """# CP2RS Phase 3B Replay Repair
+
+The previous 3B adapter was schema-valid, but its generated Rust replay failed before semantic comparison.
+
+Repair only infrastructure/build/API usage issues in the adapter or rust_test_harness. Do not change the source-test-derived observable behavior unless the previous adapter clearly encoded it incorrectly. Return one valid compact JSON adapter object only, with no Markdown fences and no explanations.
+Do not add extra Rust tests unless you also declare matching public_operations and trace_events.
+Use the target API owner_type/signature information from target_repair_context. In particular:
+- Do not call a method on the wrong receiver type. If a target function belongs to Object, call it on an Object value/reference, not directly on JsonValue.
+- If the value is JsonValue, pattern-match or otherwise obtain the correct receiver before using an owner-specific method.
+- For generic Into<...> parameters, pass concrete values directly when possible; avoid unnecessary .into() calls that create type inference failures.
+- Every declared target function should still appear in the repaired Rust harness through the actual API call.
+
+Replay repair context:
+{repair_context_json}
+"""
+
+PROMPT_3B_AGENT_COVERAGE_EXPANSION = """# CP2RS Phase 3B Agent Coverage Expansion
+
+You are continuing an automatic 3B adapter-generation loop.
+The current adapter is schema-valid and may already replay successfully, but it still misses source-tested public 3A functions.
+This is a targeted coverage pass: focus first on `targeted_missing_source_functions` in the Agent context. Do not rewrite unrelated passing operations.
+
+Return one complete compact JSON adapter object only. No Markdown fences. No explanations outside JSON.
+Preserve existing passing behavior and add coverage only when source test evidence supports an executable target public replay oracle.
+Prefer appending or minimally merging operations/events for the targeted missing functions. Leave a function omitted if the available evidence does not support a reliable public replay oracle.
+If cargo/build feedback indicates wrong Rust receiver/API usage, repair the harness while preserving operation/event alignment.
+
+Agent context:
+{repair_context_json}
+"""

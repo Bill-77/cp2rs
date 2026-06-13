@@ -32,16 +32,13 @@ cmake-build-*/
 *.obj
 
 *.exe
-
 *.out
 
-
-
 # IDE 设置
-
 .vscode/
-
 .idea/
-
 .DS_Store
 
+# Local secrets
+.env
+.env.local
