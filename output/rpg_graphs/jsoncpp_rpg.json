@@ -1,0 +1,205 @@
+{
+  "nodes": {
+    "root_nodes": [
+      {
+        "id": "Root_Core",
+        "semantic_name": "核心 JSON 值类型与基础设施",
+        "description": "包含 Json::Value 核心类、异常（Exception, RuntimeError, LogicError）、路径（Path）、迭代器、配置类型（Int, UInt, String）、安全分配器、版本函数等。是解析和序列化的基础。"
+      },
+      {
+        "id": "Root_Reader",
+        "semantic_name": "JSON 解析模块",
+        "description": "包含 Json::Reader、Json::CharReader、Json::CharReaderBuilder、Json::Features 等解析相关类。负责从字符串或流中解析 JSON，构建 Value 对象。"
+      },
+      {
+        "id": "Root_Writer",
+        "semantic_name": "JSON 序列化模块",
+        "description": "包含 Json::Writer、Json::StreamWriter、Json::StreamWriterBuilder、Json::FastWriter、Json::StyledWriter 等序列化类，以及内部工具（如 codePointToUTF8）。负责将 Value 对象输出为 JSON 字符串或流。"
+      }
+    ],
+    "intermediate_nodes": [
+      {
+        "id": "Intermediate_include_json_forwards_h",
+        "parent_root": "Root_Core",
+        "file_path": "include/json/forwards.h",
+        "semantic_name": "前向声明头文件",
+        "description": "提供 Json 命名空间下所有主要类的前向声明，用于减少编译依赖。"
+      },
+      {
+        "id": "Intermediate_include_json_assertions_h",
+        "parent_root": "Root_Core",
+        "file_path": "include/json/assertions.h",
+        "semantic_name": "断言宏头文件",
+        "description": "定义 JSON_ASSERT 等断言宏，被多个源文件使用。"
+      },
+      {
+        "id": "Intermediate_include_json_json_h",
+        "parent_root": "Root_Core",
+        "file_path": "include/json/json.h",
+        "semantic_name": "汇总头文件",
+        "description": "整合所有公共头文件，方便用户包含。"
+      },
+      {
+        "id": "Intermediate_include_json_config_h",
+        "parent_root": "Root_Core",
+        "file_path": "include/json/config.h",
+        "description": "定义 Json::Int、Json::UInt、Json::String 等基础类型别名及 platform-specific 宏。",
+        "semantic_name": "平台配置头文件"
+      },
+      {
+        "id": "Intermediate_include_json_version_h",
+        "parent_root": "Root_Core",
+        "file_path": "include/json/version.h",
+        "semantic_name": "版本头文件",
+        "description": "定义版本宏，如 JSONCPP_VERSION_STRING。"
+      },
+      {
+        "id": "Intermediate_include_json_allocator_h",
+        "parent_root": "Root_Core",
+        "file_path": "include/json/allocator.h",
+        "semantic_name": "安全分配器头文件",
+        "description": "定义 Json::SecureAllocator，用于安全地分配/释放内存。"
+      },
+      {
+        "id": "Intermediate_include_json_value_h",
+        "parent_root": "Root_Core",
+        "file_path": "include/json/value.h",
+        "semantic_name": "Value 核心类头文件",
+        "description": "声明 Json::Value、Exception、CZString、Comments、Path、迭代器等核心类型。"
+      },
+      {
+        "id": "Intermediate_src_lib_json_json_value_cpp",
+        "parent_root": "Root_Core",
+        "file_path": "src/lib_json/json_value.cpp",
+        "semantic_name": "Value 类实现源文件",
+        "description": "实现 Value 及其相关类的成员函数。"
+      },
+      {
+        "id": "Intermediate_include_json_json_features_h",
+        "parent_root": "Root_Reader",
+        "file_path": "include/json/json_features.h",
+        "semantic_name": "解析特性头文件",
+        "description": "定义 Json::Features 类，用于配置解析行为（如允许注释、严格模式等）。"
+      },
+      {
+        "id": "Intermediate_include_json_reader_h",
+        "parent_root": "Root_Reader",
+        "file_path": "include/json/reader.h",
+        "semantic_name": "解析器头文件",
+        "description": "声明 Json::Reader、Json::CharReader、Json::CharReaderBuilder 等解析类。"
+      },
+      {
+        "id": "Intermediate_src_lib_json_json_reader_cpp",
+        "parent_root": "Root_Reader",
+        "file_path": "src/lib_json/json_reader.cpp",
+        "semantic_name": "解析器实现源文件",
+        "description": "实现 Reader、OurReader、CharReaderBuilder 等的成员函数。"
+      },
+      {
+        "id": "Intermediate_include_json_writer_h",
+        "parent_root": "Root_Writer",
+        "file_path": "include/json/writer.h",
+        "semantic_name": "序列化器头文件",
+        "description": "声明 Json::Writer、Json::StreamWriter、Json::StreamWriterBuilder、Json::FastWriter、Json::StyledWriter 等序列化类。"
+      },
+      {
+        "id": "Intermediate_src_lib_json_json_tool_h",
+        "parent_root": "Root_Writer",
+        "file_path": "src/lib_json/json_tool.h",
+        "semantic_name": "内部工具头文件",
+        "description": "定义序列化中使用的辅助函数，如 codePointToUTF8、uintToString、fixNumericLocale 等。"
+      },
+      {
+        "id": "Intermediate_src_lib_json_json_writer_cpp",
+        "parent_root": "Root_Writer",
+        "file_path": "src/lib_json/json_writer.cpp",
+        "semantic_name": "序列化器实现源文件",
+        "description": "实现 Writer、StreamWriter、StreamWriterBuilder、BuildStyledStreamWriter 等的成员函数。"
+      }
+    ]
+  },
+  "edges": {
+    "inter_module_edges": [
+      {
+        "source": "Root_Reader",
+        "target": "Root_Core",
+        "relation_type": "data_flow",
+        "description": "解析器读取 JSON 输入，构造并输出 Json::Value 对象。",
+        "evidence": "Reader::parse 及其变体以 Value& root 为输出参数，将解析结果写入 Value 对象。CharReader::parse 也以 Value* root 为输出。数据流从 Reader 模块流向 Core 模块。"
+      },
+      {
+        "source": "Root_Core",
+        "target": "Root_Writer",
+        "relation_type": "data_flow",
+        "description": "序列化器从 Json::Value 对象读取数据，生成 JSON 字符串或写入流。",
+        "evidence": "Writer::write 和 StreamWriter::write 以 const Value& root 为输入，提取 Value 的内部状态进行序列化。数据流从 Core 模块流向 Writer 模块。"
+      }
+    ],
+    "intra_module_edges": [
+      {
+        "source": "Intermediate_include_json_config_h",
+        "target": "Intermediate_include_json_value_h",
+        "relation_type": "execution_order",
+        "description": "value.h 依赖 config.h 中定义的基础类型（Int, UInt, String）。",
+        "evidence": "value.h 中使用了 Json::Int、Json::UInt、Json::String（通过 using 从 config.h 导入），以及 Json::ValueType 枚举。config.h 必须前置包含。"
+      },
+      {
+        "source": "Intermediate_include_json_forwards_h",
+        "target": "Intermediate_include_json_value_h",
+        "relation_type": "execution_order",
+        "description": "value.h 依赖 forwards.h 中前向声明的类（如 Value、Reader 等），用于友元声明或指针成员。",
+        "evidence": "value.h 中包含了 Json::Value 的前向声明（实际上是自身的前向声明），但 forwards.h 提供了其他类如 Reader 的前向声明，value.h 中可能使用这些前向声明（如友元或迭代器），故需要前置。"
+      },
+      {
+        "source": "Intermediate_include_json_value_h",
+        "target": "Intermediate_src_lib_json_json_value_cpp",
+        "relation_type": "execution_order",
+        "description": "json_value.cpp 实现 value.h 中声明的类。",
+        "evidence": "C++ 编译模型要求实现源文件包含对应的头文件。"
+      },
+      {
+        "source": "Intermediate_include_json_json_features_h",
+        "target": "Intermediate_include_json_reader_h",
+        "relation_type": "execution_order",
+        "description": "reader.h 使用 Json::Features 类（定义于 json_features.h）作为成员或参数。",
+        "evidence": "reader.h 中 Reader 的构造函数接受 const Features&，并包含 features_ 成员，因此需要 json_features.h 的定义。"
+      },
+      {
+        "source": "Intermediate_include_json_reader_h",
+        "target": "Intermediate_src_lib_json_json_reader_cpp",
+        "relation_type": "execution_order",
+        "description": "json_reader.cpp 实现 reader.h 中声明的类。",
+        "evidence": "C++ 编译模型要求实现源文件包含对应的头文件。"
+      },
+      {
+        "source": "Intermediate_include_json_writer_h",
+        "target": "Intermediate_src_lib_json_json_writer_cpp",
+        "relation_type": "execution_order",
+        "description": "json_writer.cpp 实现 writer.h 中声明的类。",
+        "evidence": "C++ 编译模型要求实现源文件包含对应的头文件。"
+      },
+      {
+        "source": "Intermediate_src_lib_json_json_tool_h",
+        "target": "Intermediate_src_lib_json_json_writer_cpp",
+        "relation_type": "execution_order",
+        "description": "json_writer.cpp 使用 json_tool.h 中定义的辅助函数（如 codePointToUTF8、uintToString）。",
+        "evidence": "json_writer.cpp 的 data_flow 中直接调用了 codePointToUTF8 和 uintToString，这些函数定义在 json_tool.h 中。"
+      }
+    ]
+  },
+  "metadata": {
+    "edge_validation": {
+      "inter_module_edges": {
+        "total": 2,
+        "normalized_relation_types": 0,
+        "dropped_self_loops": 0
+      },
+      "intra_module_edges": {
+        "total": 7,
+        "normalized_relation_types": 0,
+        "dropped_self_loops": 0,
+        "rolled_up_cross_root_edges": 0
+      }
+    }
+  }
+}

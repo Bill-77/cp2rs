@@ -11,10 +11,50 @@ IGNORE_DIRS = {
     'test', 'tests', 'testing', 
     'example', 'examples', 'sample', 'samples',
     'benchmark', 'benchmarks', 'benches',
+    'fuzz', 'fuzzer', 'fuzzing',
     'doc', 'docs', 
     'third_party', 'vendor', 'extern', 'deps',
     'build', 'out', 'target', 'bin'
 }
+
+TEST_DIR_MARKERS = {
+    "test", "tests", "testing", "unittest", "unittests",
+    "testcase", "testcases", "testrunner", "fuzz", "fuzzer", "fuzzing",
+}
+
+TEST_FILE_STEMS = {
+    "test", "tests", "unittest", "unit_test", "main_test",
+    "fuzz", "fuzzer", "fuzz_main",
+}
+
+def is_ignored_dir(dirname):
+    """Phase 1/2 focus on repository implementation semantics, not test/fuzz/example code."""
+    lower = dirname.lower()
+    if lower.startswith(".") or lower in IGNORE_DIRS:
+        return True
+    if lower in TEST_DIR_MARKERS:
+        return True
+    if any(marker in lower for marker in ("test_", "_test", "tests_", "_tests", "testrunner", "fuzz")):
+        return True
+    if lower.startswith(("test", "unittest", "bench", "fuzz")):
+        return True
+    if lower.endswith(("test", "tests", "testing", "benchmark", "benchmarks", "fuzzer")):
+        return True
+    return False
+
+def is_ignored_source_file(filename):
+    """Filter test/fuzz source files that are outside obvious test directories."""
+    lower = filename.lower()
+    stem, ext = os.path.splitext(lower)
+    if ext not in {'.c', '.cpp', '.cc', '.cxx', '.h', '.hpp', '.rs'}:
+        return False
+    if stem in TEST_FILE_STEMS:
+        return True
+    if stem.startswith(("test_", "tests_", "fuzz_", "fuzzer_")):
+        return True
+    if stem.endswith(("_test", "_tests", "_unittest", "_fuzzer", "_fuzz")):
+        return True
+    return False
 
 def dehydrate(data):
     """
@@ -45,7 +85,10 @@ def detect_repo_language(repo_path):
     has_c = False
     
     for root, dirs, files in os.walk(repo_path):
+        dirs[:] = [d for d in dirs if not is_ignored_dir(d)]
         for file in files:
+            if is_ignored_source_file(file):
+                continue
             ext = os.path.splitext(file)[1].lower()
             # 只要有 .rs 就是 Rust 仓库
             if ext == '.rs':
@@ -93,16 +136,12 @@ def parse_repository(repo_path, pre_detected_lang=None):
         # 【降噪 1：目录级拦截】
         # 就地修改 dirs 列表，过滤掉黑名单目录和隐藏目录（如 .git, .github）
         # os.walk 就不会再进入这些被剔除的目录了！
-        dirs[:] = [d for d in dirs if d.lower() not in IGNORE_DIRS and not d.startswith('.')]
+        dirs[:] = [d for d in dirs if not is_ignored_dir(d)]
 
         for file in files:
             # 【降噪 2：文件级拦截】
-            # 过滤掉散落在正常目录下的测试文件 (如 *_test.c, test_*.rs)
-            lower_file = file.lower()
-            if lower_file.startswith('test_') or \
-               lower_file.endswith('_test.c') or \
-               lower_file.endswith('_test.cpp') or \
-               lower_file.endswith('_test.rs'):
+            # 过滤掉散落在正常目录下的测试/模糊测试文件 (如 *_test.c, test_*.rs, fuzz_main.c)
+            if is_ignored_source_file(file):
                 continue
 
             ext = os.path.splitext(file)[1].lower()

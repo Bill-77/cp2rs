@@ -2,221 +2,223 @@
   "nodes": {
     "root_nodes": [
       {
-        "id": "Root_CoreTypes",
-        "semantic_name": "核心数据类型系统",
-        "description": "包含仓库的所有基础数据类型：JsonValue 枚举、Object (有序哈希表)、Number (紧凑浮点)、Short (短字符串优化) 以及 Error 枚举。还包含底层数学工具 (diyfp, grisu2, print_dec)。几乎所有上层模块都依赖此 Root。"
-      },
-      {
-        "id": "Root_Parsing",
-        "semantic_name": "JSON 解析引擎",
-        "description": "提供 JSON 字符串到 JsonValue 的解析能力。核心是 parser 模块，包含 Parser 结构体和相关宏，实现标准 JSON 以及部分扩展 (如十六进制 escapes、大数) 的解析。使用 ? 进行错误传播，最终返回 Result<JsonValue>。"
-      },
-      {
-        "id": "Root_Codegen",
-        "semantic_name": "JSON 代码生成引擎",
-        "description": "提供 JsonValue 到字符串或任意 io::Write 目标的序列化能力。定义 Generator trait 以及四种实现：DumpGenerator (紧凑)、PrettyGenerator (美化)、WriterGenerator (写入任意 writer)、PrettyWriterGenerator。"
-      },
-      {
         "id": "Root_PublicAPI",
-        "semantic_name": "公开 API 层",
-        "description": "crate 根模块，重导出所有公开类型 (JsonValue, Error, parse 等)，并提供便捷顶层函数 (from, stringify, stringify_pretty) 以及宏 (array, object, value)。用户通常通过此层访问仓库功能。"
+        "semantic_name": "Public API Facade & Error",
+        "description": "Public API entry points (lib.rs) with re-exports of core types and the top-level parse, stringify, from functions, alongside the public Error enum (error.rs) that propagates parsing and type errors to users."
+      },
+      {
+        "id": "Root_DataModel",
+        "semantic_name": "Core Data Model",
+        "description": "Encapsulates the core JSON data types: JsonValue enum, Object container (hash-indexed store), Number with mantissa/exponent representation, Short string optimization, and float conversion utilities (grisu2/diyfp) used by Number."
+      },
+      {
+        "id": "Root_Parser",
+        "semantic_name": "JSON Parser",
+        "description": "Implements the JSON parser using an internal Parser struct and helper macros to convert a &str source into a JsonValue, with depth limit and precision constants."
+      },
+      {
+        "id": "Root_Serialization",
+        "semantic_name": "JSON Serialization Generators",
+        "description": "Provides code generators (Generator trait) for serializing JsonValue to compact/pretty strings or io::Write streams, including the decimal number formatting utility print_dec."
       }
     ],
     "intermediate_nodes": [
       {
         "id": "Intermediate_error",
-        "parent_root": "Root_CoreTypes",
+        "parent_root": "Root_PublicAPI",
         "file_path": "src/error.rs",
-        "semantic_name": "错误类型定义",
-        "description": "定义了 Error 枚举（UnexpectedCharacter, UnexpectedEndOfJson, ExceededDepthLimit, FailedUtf8Parsing, WrongType），实现 Display 和 std::error::Error。"
-      },
-      {
-        "id": "Intermediate_value_mod",
-        "parent_root": "Root_CoreTypes",
-        "file_path": "src/value/mod.rs",
-        "semantic_name": "核心 JSON 值实现",
-        "description": "定义 JsonValue 枚举 (Null, Short, String, Number, Boolean, Object, Array)，提供操作函数 (dump, pretty, push, insert, remove, index 等)。"
-      },
-      {
-        "id": "Intermediate_value_implements",
-        "parent_root": "Root_CoreTypes",
-        "file_path": "src/value/implements.rs",
-        "semantic_name": "类型转换实现",
-        "description": "通过 From trait 实现各种 Rust 类型到 JsonValue 的转换（&str, Vec, HashMap, BTreeMap, Option 等），以及 PartialEq 比较。"
-      },
-      {
-        "id": "Intermediate_object",
-        "parent_root": "Root_CoreTypes",
-        "file_path": "src/object.rs",
-        "semantic_name": "JSON 对象实现",
-        "description": "实现基于 Vec<Node> 的有序哈希表 Object，支持插入、查找、删除、迭代，并提供 dump/pretty 序列化方法。"
-      },
-      {
-        "id": "Intermediate_number",
-        "parent_root": "Root_CoreTypes",
-        "file_path": "src/number.rs",
-        "semantic_name": "数字类型实现",
-        "description": "定义 Number 结构体 (category, exponent, mantissa)，支持从 f64/f32 转换，提供 as_fixed_point 等方法，实现 Display 和 PartialEq。"
-      },
-      {
-        "id": "Intermediate_short",
-        "parent_root": "Root_CoreTypes",
-        "file_path": "src/short.rs",
-        "semantic_name": "短字符串优化",
-        "description": "实现 Short 结构体，将短字符串内联存储在栈上，减少堆分配。通过 from_slice (unsafe) 创建，实现 Deref<Target=str>。"
-      },
-      {
-        "id": "Intermediate_util_mod",
-        "parent_root": "Root_CoreTypes",
-        "file_path": "src/util/mod.rs",
-        "semantic_name": "工具模块入口",
-        "description": "仅重新导出子模块 (diyfp, grisu2, print_dec)，不包含自身逻辑。"
-      },
-      {
-        "id": "Intermediate_util_diyfp",
-        "parent_root": "Root_CoreTypes",
-        "file_path": "src/util/diyfp.rs",
-        "semantic_name": "双精度浮点内部表示",
-        "description": "定义 DiyFp 结构体 (f, e)，支持从 f64 构建、归一化、边界计算和缓存指数表，是 grisu2 算法的底层基础。"
-      },
-      {
-        "id": "Intermediate_util_grisu2",
-        "parent_root": "Root_CoreTypes",
-        "file_path": "src/util/grisu2.rs",
-        "semantic_name": "Grisu2 浮点转换算法",
-        "description": "实现 convert 函数，将 f64 转换为 (u64, i16) 的十进制表示，使用 DiyFp 和缓存指数。"
-      },
-      {
-        "id": "Intermediate_util_print_dec",
-        "parent_root": "Root_CoreTypes",
-        "file_path": "src/util/print_dec.rs",
-        "semantic_name": "十进制整数打印",
-        "description": "提供 write 函数，将 u64 和指数组合高效打印为十进制字符串，使用 LUT 和分段处理。"
-      },
-      {
-        "id": "Intermediate_parser",
-        "parent_root": "Root_Parsing",
-        "file_path": "src/parser.rs",
-        "semantic_name": "JSON 解析器",
-        "description": "提供 Parser 结构体和公共 parse 函数，递归解析 JSON 值，支持深度限制、Unicode escapes、大数等。"
-      },
-      {
-        "id": "Intermediate_codegen",
-        "parent_root": "Root_Codegen",
-        "file_path": "src/codegen.rs",
-        "semantic_name": "代码生成器",
-        "description": "定义 Generator trait，提供 write_json、write_string、write_number、write_object 等序列化方法；实现 DumpGenerator、PrettyGenerator、WriterGenerator、PrettyWriterGenerator。"
+        "semantic_name": "Public Error Type",
+        "description": "Defines the public Error enum with variants for unexpected characters, EOF, depth limit, UTF-8 failure, and wrong type. Implements Display and std::error::Error."
       },
       {
         "id": "Intermediate_lib",
         "parent_root": "Root_PublicAPI",
         "file_path": "src/lib.rs",
-        "semantic_name": "Crate 根模块",
-        "description": "重导出核心类型和 parse 函数；提供 from、stringify、stringify_pretty 顶层函数；定义 array、object、value 宏以及 Result、Members 等类型别名。"
+        "semantic_name": "Public Re-exports & Top-level Functions",
+        "description": "Root module re-exporting Error, JsonValue, Null, parse. Defines type aliases (Result, Array, Members). Provides public functions from, stringify, stringify_pretty."
+      },
+      {
+        "id": "Intermediate_parser",
+        "parent_root": "Root_Parser",
+        "file_path": "src/parser.rs",
+        "semantic_name": "JSON Parser Implementation",
+        "description": "Private Parser struct with unsafe byte-level parsing logic. Exposes pub parse(source: &str) -> Result<JsonValue>. Manages depth limit and precision via const/static globals."
+      },
+      {
+        "id": "Intermediate_value",
+        "parent_root": "Root_DataModel",
+        "file_path": "src/value/mod.rs",
+        "semantic_name": "JsonValue Enum & Operations",
+        "description": "Core JsonValue enum (Null, Short, String, Number, Boolean, Object, Array) with type checks, conversions (as_str, as_f64, as_u64), container ops (push, insert, remove), and serialization entry points (dump, pretty, write)."
+      },
+      {
+        "id": "Intermediate_value_implements",
+        "parent_root": "Root_DataModel",
+        "file_path": "src/value/implements.rs",
+        "semantic_name": "JsonValue From/PartialEq",
+        "description": "Implements From<&str>, From<Vec>, From<HashMap>, etc. for JsonValue and various PartialEq comparisons."
+      },
+      {
+        "id": "Intermediate_object",
+        "parent_root": "Root_DataModel",
+        "file_path": "src/object.rs",
+        "semantic_name": "Object Container (Vec-based Dict)",
+        "description": "Object struct using Vec<Node> with hash-indexed key lookups and inline-buffer Key optimization. Provides insert, get, remove, iter, dump (via codegen), pretty."
+      },
+      {
+        "id": "Intermediate_number",
+        "parent_root": "Root_DataModel",
+        "file_path": "src/number.rs",
+        "semantic_name": "Number (Mantissa-Exponent)",
+        "description": "Number struct with (sign, mantissa, exponent). f64/f32 conversion via grisu2, integer conversion, fixed-point ops, Display via print_dec."
+      },
+      {
+        "id": "Intermediate_short",
+        "parent_root": "Root_DataModel",
+        "file_path": "src/short.rs",
+        "semantic_name": "Short String Inline Optimization",
+        "description": "Short struct storing small strings inline in a fixed-size byte array. Used by JsonValue::Short for values up to MAX_LEN bytes."
+      },
+      {
+        "id": "Intermediate_util_grisu2",
+        "parent_root": "Root_DataModel",
+        "file_path": "src/util/grisu2.rs",
+        "semantic_name": "Float-to-String Grisu2 Algorithm",
+        "description": "Implements the Grisu2 algorithm leveraging DiyFp to convert an f64 into (u64 mantissa, i16 exponent) used by Number::from."
+      },
+      {
+        "id": "Intermediate_util_diyfp",
+        "parent_root": "Root_DataModel",
+        "file_path": "src/util/diyfp.rs",
+        "semantic_name": "Double-Integer Arithmetic (DiyFp)",
+        "description": "DiyFp struct for high-precision integer arithmetic on float-like values. Statically cached power tables for decimal normalization."
+      },
+      {
+        "id": "Intermediate_codegen",
+        "parent_root": "Root_Serialization",
+        "file_path": "src/codegen.rs",
+        "semantic_name": "Serialization Generators",
+        "description": "Generator trait with write_json, write_string, write_number, write_object. Concrete implementations: DumpGenerator, PrettyGenerator, WriterGenerator, PrettyWriterGenerator."
+      },
+      {
+        "id": "Intermediate_util_print_dec",
+        "parent_root": "Root_Serialization",
+        "file_path": "src/util/print_dec.rs",
+        "semantic_name": "Decimal Print Utility",
+        "description": "Unsafe helper function write() that formats a u64 mantissa and i16 exponent into decimal digits into an io::Write, using lookup tables for fast digit conversion."
+      },
+      {
+        "id": "Intermediate_src_util_mod_rs",
+        "parent_root": "Root_DataModel",
+        "file_path": "src/util/mod.rs",
+        "semantic_name": "Auto-mounted implementation file",
+        "description": "Automatically attached during RPG validation because Phase 1 parsed this file but the LLM omitted it; parent inferred by matched existing header/source sibling."
       }
     ]
   },
   "edges": {
     "inter_module_edges": [
       {
-        "source": "Root_Parsing",
-        "target": "Root_CoreTypes",
-        "relation_type": "data_flow",
-        "description": "解析器依赖于核心类型进行 JSON 值构建。Parser 直接使用 JsonValue, Object, Number, Error 等类型，并通过 Object::with_capacity、JsonValue::Array 等调用构建数据结构。",
-        "evidence": "parser.rs 的 dependencies: uses crate::object::Object, crate::number::Number, crate::{JsonValue, Error, Result}。control_flow 显示 direct_calls 如 Object::with_capacity, JsonValue::Array, Number::from_parts_unchecked。"
-      },
-      {
-        "source": "Root_Codegen",
-        "target": "Root_CoreTypes",
-        "relation_type": "data_flow",
-        "description": "代码生成器从核心类型读取数据并序列化。Generator 实现需要处理 JsonValue、Number、Object 的变体，并使用 util::print_dec 进行数字格式化。",
-        "evidence": "codegen.rs 的 dependencies: uses crate::JsonValue, crate::number::Number, crate::object::Object, crate::util::print_dec。Generator trait 的 write_json 方法根据 JsonValue 变体分发。"
-      },
-      {
-        "source": "Root_CoreTypes",
-        "target": "Root_Codegen",
-        "relation_type": "data_flow",
-        "description": "核心类型 JsonValue 和 Object 的 dump/pretty 方法主动调用代码生成器，完成序列化。形成从数据类型到生成器的反向数据流。",
-        "evidence": "object.rs 和 value/mod.rs 的 dependencies 包含 crate::codegen::{DumpGenerator, PrettyGenerator, Generator}。dump 方法的 control_flow 直接调用 DumpGenerator::new 和 gen.write_json。"
-      },
-      {
         "source": "Root_PublicAPI",
-        "target": "Root_Parsing",
+        "target": "Root_Parser",
         "relation_type": "data_flow",
-        "description": "顶层 API 通过重导出公开 parse 函数，使得 crate 用户可以直接调用解析功能。",
-        "evidence": "lib.rs 的 re_exports 包含 \"source_path\": \"parser::parse\", \"alias\": \"parse\"。"
+        "description": "The top-level pub fn parse(source: &str) -> Result<JsonValue> is re-exported from lib.rs and delegates directly to parser::parse, creating a data flow from API to parser.",
+        "evidence": "lib.rs re_exports 'pub use parser::parse as parse' and standalone_functions stringify calls root.into then root.dump/root.pretty. parser.rs direct_calls on standalone_functions: parse -> Parser::new(source).parse"
       },
       {
-        "source": "Root_PublicAPI",
-        "target": "Root_Codegen",
+        "source": "Root_Parser",
+        "target": "Root_DataModel",
         "relation_type": "data_flow",
-        "description": "顶层函数 stringify 和 stringify_pretty 通过调用 JsonValue 的 dump/pretty 方法间接使用代码生成器，将 JsonValue 输出为字符串。",
-        "evidence": "lib.rs 的 standalone_functions: stringify 的 control_flow 包含 root.dump，而 dump 依赖于 codegen。stringify_pretty 的 control_flow 包含 root.pretty。"
+        "description": "Parser::parse method constructs and returns JsonValue, JsonValue::Array, JsonValue::Object, Number, and uses Object::with_capacity/Object::insert_index, establishing data ownership transfer from parser to the data model layer.",
+        "evidence": "parser.rs Parser::parse direct_calls include 'JsonValue::Array', 'Object::with_capacity', 'JsonValue::Object', 'JsonValue::Number', 'JsonValue::Boolean', 'object.insert_index', and 'Number::from_parts_unchecked' (via read_number macro)"
       },
       {
-        "source": "Root_PublicAPI",
-        "target": "Root_CoreTypes",
+        "source": "Root_DataModel",
+        "target": "Root_Serialization",
         "relation_type": "data_flow",
-        "description": "顶层 API 重导出核心类型 (JsonValue, Error, Null) 和类型别名 (Result, Members)，并依赖 Into<JsonValue> 实现便捷的 from 函数。",
-        "evidence": "lib.rs 的 re_exports 包含 error::Error, value::JsonValue, value::JsonValue::Null。from 函数的 control_flow 调用 value.into（Into<JsonValue> trait 方法，在 implements.rs 中实现）。"
+        "description": "JsonValue::dump/pretty and Object::dump/pretty directly instantiate DumpGenerator or PrettyGenerator and call gen.write_json(self)/gen.write_object(self), transferring the immutable reference for serialization. Number::fmt calls print_dec::write.",
+        "evidence": "value/mod.rs JsonValue::dump: direct_calls ['DumpGenerator::new', 'gen.write_json(self).expect', 'gen.consume']; object.rs Object::dump: direct_calls ['DumpGenerator::new', 'gen.write_object(self).expect', 'gen.consume']; number.rs Display::fmt: direct_calls ['print_dec::write']"
+      },
+      {
+        "source": "Root_Serialization",
+        "target": "Root_DataModel",
+        "relation_type": "data_flow",
+        "description": "Generator::write_json and write_object introspect the internals of JsonValue (checks variants) and Number (num.as_parts, num.is_nan), reading the data model's fields for serialization.",
+        "evidence": "codegen.rs Generator::write_json direct_calls include 'short.as_str', 'self.write_number', 'self.write_object', 'object.iter'; write_number uses 'num.as_parts', 'num.is_nan'; write_string_complex uses 'string.as_bytes'"
       }
     ],
     "intra_module_edges": [
       {
-        "source": "Intermediate_value_mod",
-        "target": "Intermediate_object",
+        "source": "Intermediate_lib",
+        "target": "Intermediate_error",
         "relation_type": "execution_order",
-        "description": "JsonValue 的导航和修改方法委托给 Object。例如 insert 调用 object.insert，remove 调用 object.remove，len 调用 object.len。当 JsonValue 不是 Object 时返回错误或默认值。",
-        "evidence": "value/mod.rs 的 direct_calls 包含 object.insert, object.remove, object.len, object.get, object.clear。data_flow 显示 takes_ownership 和 mutates_borrows 传递。"
+        "description": "Public API functions (from, stringify, stringify_pretty) that potentially call into value conversions return Result<T, Error> or propagate errors. The Error type is fundamental to all fallible operations.",
+        "evidence": "lib.rs defines 'pub type Result<T> = result::Result<T, Error>' and re-exports Error. error.rs Error::wrong_type is called by value::push and value::insert for type mismatch errors."
       },
       {
-        "source": "Intermediate_value_mod",
+        "source": "Intermediate_value",
+        "target": "Intermediate_object",
+        "relation_type": "execution_order",
+        "description": "JsonValue::Object variant delegates object operations (insert, remove, get, len, iter, clear) directly to the internal Object struct.",
+        "evidence": "value/mod.rs JsonValue methods: insert calls 'object.insert', remove calls 'object.remove', len calls 'object.len', entries calls 'object.iter', clear calls 'object.clear'"
+      },
+      {
+        "source": "Intermediate_value",
         "target": "Intermediate_number",
-        "relation_type": "data_flow",
-        "description": "JsonValue 提供 as_number, as_f64, as_u64 等方法访问 Number 数据，并通过 Number 的转换方法 (into f64, try_into u64) 获取基本类型。",
-        "evidence": "value/mod.rs 的 direct_calls 包含 value.as_number (返回 Number), value.into (Number 到 f64/f32)。data_flow 显示所有权转移或借用。"
+        "relation_type": "execution_order",
+        "description": "JsonValue::Number variant delegates as_fixed_point_u64/i64, as_f64/f32 (via .into on Number), and Number-related operations to the Number struct.",
+        "evidence": "value/mod.rs JsonValue::as_f64: direct_calls ['self.as_number().map', 'value.into']; as_fixed_point_u64: direct_calls ['value.as_fixed_point_u64']; as_number: returns 'Some' of embedded Number"
+      },
+      {
+        "source": "Intermediate_value",
+        "target": "Intermediate_short",
+        "relation_type": "execution_order",
+        "description": "JsonValue::Short variant uses Short struct; as_str() returns Short's as_str() for short strings.",
+        "evidence": "value/mod.rs JsonValue::as_str for Short variant returns 'Some(short.as_str())'"
       },
       {
         "source": "Intermediate_value_implements",
         "target": "Intermediate_short",
         "relation_type": "execution_order",
-        "description": "From<&'a str> 实现中，当字符串长度不超过 MAX_LEN 时使用 Short::from_slice 创建 Short 变体，否则创建 String 变体。",
-        "evidence": "implements.rs 的 direct_calls 包含 JsonValue::Short 和 Short::from_slice。control_flow 显示 'val.len' 分支判断。"
-      },
-      {
-        "source": "Intermediate_value_implements",
-        "target": "Intermediate_object",
-        "relation_type": "execution_order",
-        "description": "From<HashMap<K,V>> 和 From<BTreeMap<K,V>> 实现通过将迭代器收集为 Object (JsonValue::Object) 来转换集合类型。",
-        "evidence": "implements.rs 的 direct_calls 包含 JsonValue::Object 和 val.into_iter().collect()，其中 Object 实现了 FromIterator。"
-      },
-      {
-        "source": "Intermediate_number",
-        "target": "Intermediate_util_print_dec",
-        "relation_type": "execution_order",
-        "description": "Number 的 Display 实现通过 print_dec::write 将 mantissa 和 exponent 高效地格式化为十进制字符串。",
-        "evidence": "number.rs 的 direct_calls 包含 print_dec::write(&mut buf, positive, mantissa, exponent)。data_flow 显示 mutates_borrows 传递 writer。"
+        "description": "The From<&str> implementation for JsonValue uses Short::from_slice for strings within MAX_LEN, connecting Short optimization to JsonValue creation.",
+        "evidence": "value/implements.rs From<&str>: direct_calls ['val.len', 'JsonValue::Short', 'Short::from_slice', 'JsonValue::String']"
       },
       {
         "source": "Intermediate_number",
         "target": "Intermediate_util_grisu2",
         "relation_type": "execution_order",
-        "description": "Number 的 From<f64> 和 From<f32> 实现使用 grisu2::convert 将浮点数转换为 (u64, i16) 的内部表示。",
-        "evidence": "number.rs 的 direct_calls 包含 grisu2::convert。控制流显示先调用 float.classify，再调用 grisu2::convert。"
+        "description": "Number::from(f64) and Number::from(f32) call grisu2::convert to transform a float into (mantissa, exponent) parts.",
+        "evidence": "number.rs Number::from<f64>: direct_calls ['float.classify', 'float.is_sign_positive', 'grisu2::convert', 'Number::from_parts']"
       },
       {
         "source": "Intermediate_util_grisu2",
         "target": "Intermediate_util_diyfp",
         "relation_type": "execution_order",
-        "description": "Grisu2 算法使用 DiyFp 结构体进行浮点边界计算和归一化，digit_gen 函数中调用 DiyFp::new、normalize、normalize_boundary 等方法。",
-        "evidence": "grisu2.rs 的 dependencies 包含 crate::util::diyfp。direct_calls 包含 DiyFp::new, v.normalized_boundaries, v.normalize。"
+        "description": "grisu2.rs convert() calls DiyFp::from_f64, normalized_boundaries, normalize, and diyfp::get_cached_power for its float-to-decimal conversion.",
+        "evidence": "grisu2.rs convert: direct_calls ['DiyFp::from_f64', 'v.normalized_boundaries', 'diyfp::get_cached_power', 'v.normalize', 'digit_gen']"
       },
       {
-        "source": "Intermediate_util_print_dec",
-        "target": "Intermediate_util_diyfp",
-        "relation_type": "data_flow",
-        "description": "print_dec 模块使用 DiyFp 相关概念？实际上 print_dec 不直接依赖 diyfp。此边删除。正确：print_dec 不调用 diyfp。"
+        "source": "Intermediate_codegen",
+        "target": "Intermediate_util_print_dec",
+        "relation_type": "execution_order",
+        "description": "Generator::write_number calls print_dec::write to format number parts into decimal representation in the output buffer.",
+        "evidence": "codegen.rs Generator::write_number: direct_calls ['num.as_parts', 'print_dec::write', 'self.get_writer']"
       }
     ]
+  },
+  "metadata": {
+    "edge_validation": {
+      "inter_module_edges": {
+        "total": 6,
+        "normalized_relation_types": 0,
+        "dropped_self_loops": 2
+      },
+      "intra_module_edges": {
+        "total": 8,
+        "normalized_relation_types": 0,
+        "dropped_self_loops": 0,
+        "rolled_up_cross_root_edges": 0
+      }
+    }
   }
 }

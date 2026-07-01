@@ -1,4 +1,6 @@
 import json
+from .function_uid import is_real_function_definition, iter_function_records
+from .rpg_scope import collect_root_functions
 
 class MetricCalculator3A:
     """
@@ -15,31 +17,36 @@ class MetricCalculator3A:
             return []
         return [item.strip() for item in str(tgt_uuid).split(",") if item.strip()]
 
+    def _is_real_function_definition(self, func: dict) -> bool:
+        return is_real_function_definition(func)
+
     def _extract_unique_functions(self, file_path: str, file_data: dict) -> list:
         """核心修复：通过动态构建 UUID，彻底消除 functions 与 standalone_functions 的重复计数"""
         unique_funcs = {}
         
-        # 1. 扁平函数去重
-        for f in file_data.get("functions", []) + file_data.get("standalone_functions", []):
-            if f.get("body"):
-                uid = f"{file_path}::{f.get('name')}"
-                unique_funcs[uid] = f
-                
-        # 2. 类方法去重 (C++)
-        for cls in file_data.get("classes", []):
-            for m in cls.get("methods", []):
-                if m.get("body"):
-                    uid = f"{file_path}::{cls.get('name')}::{m.get('name')}"
-                    unique_funcs[uid] = m
-                    
-        # 3. Impl 方法去重 (Rust)
-        for impl in file_data.get("impl_blocks", []):
-            for m in impl.get("methods", []):
-                if m.get("body"):
-                    uid = f"{file_path}::{impl.get('target_type')}::{m.get('name')}"
-                    unique_funcs[uid] = m
+        for uid, func in iter_function_records(file_path, file_data, definitions_only=True):
+            unique_funcs[uid] = func
                     
         return list(unique_funcs.values())
+
+    def _dedupe_aligned_functions(self, funcs: list) -> list:
+        deduped = []
+        seen = set()
+        for func in funcs or []:
+            if not isinstance(func, dict):
+                continue
+            src_uuid = str(func.get("src_uuid", "")).strip()
+            tgt_uuid = ",".join(self._split_target_uuids(func.get("tgt_uuid", "")))
+            if not src_uuid or not tgt_uuid:
+                continue
+            key = (src_uuid, tgt_uuid)
+            if key in seen:
+                continue
+            seen.add(key)
+            func["src_uuid"] = src_uuid
+            func["tgt_uuid"] = tgt_uuid
+            deduped.append(func)
+        return deduped
 
     def _extract_module_statistics(self, root_ids_str, rpg, parsed_db, is_target=False) -> dict:
         """
@@ -49,53 +56,15 @@ class MetricCalculator3A:
         if not root_ids_str: 
             return stats
             
-        root_ids = [r.strip() for r in root_ids_str.split(',')]
-        file_paths = []
-        
-        # 顺藤摸瓜找文件
-        for inter in rpg["nodes"].get("intermediate_nodes", []):
-            if inter.get("parent_root") in root_ids:
-                file_paths.append(inter.get("file_path"))
-                
-        # 遍历文件提取特征
-        for f_path in set(file_paths):
-            file_data = parsed_db.get("files", {}).get(f_path)
-            if not file_data: continue
-            
-            # # 聚合当前文件的所有函数体
-            # all_funcs = file_data.get("functions", []) + file_data.get("standalone_functions", [])
-            # for cls in file_data.get("classes", []):
-            #     all_funcs.extend(cls.get("methods", []))
-            # for impl in file_data.get("impl_blocks", []):
-            #     all_funcs.extend(impl.get("methods", []))
-                
-            # # 统计核心指标
-            # for func in all_funcs:
-            #     body = func.get("body")
-            #     if body:
-            #         stats["total_funcs"] += 1
-            #         # 粗略统计代码行数 (LOC)
-            #         stats["total_loc"] += len(body.splitlines())
-                    
-            #         # 质量探针：扫描 Target 中的 unsafe 行为
-            #         if is_target:
-            #             signature = func.get("signature", "")
-            #             # 检查函数签名是否为 unsafe fn，或者函数体内部是否包含 unsafe 块
-            #             if "unsafe " in signature or "unsafe {" in body or "unsafe{" in body:
-            #                 stats["unsafe_funcs"] += 1
+        for _uid, func in collect_root_functions(root_ids_str, rpg, parsed_db, definitions_only=True):
+            body = func.get("body", "")
+            stats["total_funcs"] += 1
+            stats["total_loc"] += len(body.splitlines())
 
-            # 使用全新的去重方法获取干净的函数列表
-            clean_funcs = self._extract_unique_functions(f_path, file_data)
-            
-            for func in clean_funcs:
-                body = func.get("body", "")
-                stats["total_funcs"] += 1
-                stats["total_loc"] += len(body.splitlines())
-                
-                if is_target:
-                    signature = func.get("signature", "")
-                    if "unsafe " in signature or "unsafe {" in body or "unsafe{" in body:
-                        stats["unsafe_funcs"] += 1
+            if is_target:
+                signature = func.get("signature", "")
+                if "unsafe " in signature or "unsafe {" in body or "unsafe{" in body:
+                    stats["unsafe_funcs"] += 1
                                         
         return stats
 
@@ -153,6 +122,7 @@ class MetricCalculator3A:
             funcs = mod.get("aligned_functions")
             if funcs is None:
                 funcs = []
+            funcs = self._dedupe_aligned_functions(funcs)
                 
             total_aligned_funcs += len(funcs)
             high_confidence_funcs += sum(1 for f in funcs if f.get("confidence", "").upper() == "HIGH")
@@ -162,15 +132,6 @@ class MetricCalculator3A:
                     unique_aligned_src_funcs.add(src_uuid)
                 unique_aligned_tgt_funcs.update(self._split_target_uuids(func.get("tgt_uuid", "")))
             
-            src_stats = self._extract_module_statistics(mod["src_module"], src_rpg, src_db, is_target=False)
-            tgt_stats = self._extract_module_statistics(mod["tgt_module"], tgt_rpg, tgt_db, is_target=True)
-            
-            total_src_funcs += src_stats["total_funcs"]
-            total_src_loc += src_stats["total_loc"]
-            total_tgt_funcs += tgt_stats["total_funcs"]
-            total_tgt_loc += tgt_stats["total_loc"]
-            total_unsafe_funcs += tgt_stats["unsafe_funcs"]
-
             # 按要求的顺序重建字典
             ordered_mod = {
                 "src_module": mod["src_module"],
@@ -180,10 +141,29 @@ class MetricCalculator3A:
                 "justification": mod.get("justification", ""),
                 "aligned_functions": funcs
             }
+            initial_tgt_module = mod.get("tgt_macro_initial_module") or mod.get("tgt_macro_module")
+            completion = mod.get("macro_mapping_completion")
+            if completion is None:
+                completion = mod.get("target_scope_expansion")
+            if initial_tgt_module:
+                ordered_mod["tgt_macro_initial_module"] = initial_tgt_module
+            if completion:
+                ordered_mod["macro_mapping_completion"] = completion
             ordered_aligned_modules.append(ordered_mod)
 
         # 替换为排好序的新数组
         alignment_report["aligned_modules"] = ordered_aligned_modules
+
+        # 统计口径必须按去重 Root 计算。3A 的微观候选范围可能为了处理
+        # Rust public/facade/core-method 承载而重复包含同一个 target root，
+        # 重复累加会夸大 target 函数总量与 LOC。
+        src_stats = self._extract_module_statistics(",".join(sorted(aligned_src_roots)), src_rpg, src_db, is_target=False)
+        tgt_stats = self._extract_module_statistics(",".join(sorted(aligned_tgt_roots)), tgt_rpg, tgt_db, is_target=True)
+        total_src_funcs = src_stats["total_funcs"]
+        total_src_loc = src_stats["total_loc"]
+        total_tgt_funcs = tgt_stats["total_funcs"]
+        total_tgt_loc = tgt_stats["total_loc"]
+        total_unsafe_funcs = tgt_stats["unsafe_funcs"]
         
         # 3. 探查并组装未对齐模块 (Unaligned Modules)
         unaligned_src = [

@@ -1,0 +1,1683 @@
+{
+  "adapter_schema_version": "3b.adapter.v1",
+  "name": "llm_synthesized_cJSON_to_json-rust_public_v1",
+  "status": "loaded",
+  "adapter_role": "repo_specific_behavior_recipe",
+  "generation_status": "llm_synthesized_repaired_v1",
+  "generation_inputs": [
+    "output/eval_reports/3A_alignment_cJSON_vs_json-rust.json",
+    "data/cc_repos/cJSON",
+    "output/parsed_repos/cJSON_parsed.json",
+    "output/parsed_repos/json-rust_parsed.json"
+  ],
+  "recorder": "adapter_declared_trace_events_v1",
+  "replay_generator": "rust_inline_harness_v1",
+  "target_language": "rust",
+  "target_test_command": [
+    "cargo",
+    "test",
+    "--test",
+    "cp2rs_3b_public"
+  ],
+  "public_operations": {
+    "cjson_add_bool_should_add_bool": {
+      "description": "cJSON add bool to object and retrieve via GetObjectItemCaseSensitive, verify type",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::as_bool",
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "equality_expected_behavior",
+      "evidence": [
+        "tests/cjson_add.c line 446: TEST_ASSERT_NOT_NULL(true_item = cJSON_GetObjectItemCaseSensitive(root, \"true\")); TEST_ASSERT_EQUAL_INT(true_item->type, cJSON_True); similarly for false."
+      ]
+    },
+    "cjson_add_false_should_add_false": {
+      "description": "cJSON add false to object and retrieve via GetObjectItemCaseSensitive, verify type",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::as_bool",
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "equality_expected_behavior",
+      "evidence": [
+        "tests/cjson_add.c line 442: TEST_ASSERT_NOT_NULL(false_item = cJSON_GetObjectItemCaseSensitive(root, \"false\")); TEST_ASSERT_EQUAL_INT(false_item->type, cJSON_False);"
+      ]
+    },
+    "cjson_add_array_should_add_array": {
+      "description": "Create object, add empty array via insert, retrieve and verify type is array",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::has_key",
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "observable_equality",
+      "evidence": [
+        "tests/cjson_add.c line 466: TEST_ASSERT_NOT_NULL(array = cJSON_GetObjectItemCaseSensitive(...)), TEST_ASSERT_EQUAL_INT(array->type, cJSON_Array)"
+      ]
+    },
+    "cjson_add_null_should_add_null": {
+      "description": "Create object, add null value via insert, retrieve and verify null type",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::has_key",
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "observable_equality",
+      "evidence": [
+        "tests/cjson_add.c line 429: TEST_ASSERT_NOT_NULL(null = cJSON_GetObjectItemCaseSensitive(...)), TEST_ASSERT_EQUAL_INT(null->type, cJSON_NULL)"
+      ]
+    },
+    "cjson_add_null_should_fail_on_allocation_failure": {
+      "description": "cJSON_AddNullToObject returns NULL on allocation failure when failing_hooks set",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "null pointer comparison (source) vs error check (target)",
+      "evidence": [
+        "tests/cjson_add.c line 431: TEST_ASSERT_NULL(cJSON_AddNullToObject(root, \"null\"))"
+      ]
+    },
+    "cjson_add_number_should_add_number": {
+      "description": "cJSON_AddNumberToObject adds a number with value 42",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::as_f64",
+        "src/value/mod.rs::JsonValue::as_i32",
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "value comparison via as_f64 and as_i32",
+      "evidence": [
+        "tests/cjson_add.c lines 450-451: TEST_ASSERT_NOT_NULL(number = cJSON_GetObjectItemCaseSensitive(root, \"number\")); TEST_ASSERT_EQUAL_DOUBLE(number->valuedouble, 42); TEST_ASSERT_EQUAL_INT(number->valueint, 42);"
+      ]
+    },
+    "cjson_add_number_should_fail_on_allocation_failure": {
+      "description": "cJSON_AddNumberToObject returns NULL on allocation failure when failing_hooks set",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "null pointer comparison (source) vs error check (target)",
+      "evidence": [
+        "tests/cjson_add.c line 452: TEST_ASSERT_NULL(cJSON_AddNumberToObject(root, \"number\", 42));"
+      ]
+    },
+    "cjson_add_object_should_add_object": {
+      "description": "cJSON_AddObjectToObject adds a sub-object",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "type check via pattern matching on JsonValue::Object",
+      "evidence": [
+        "tests/cjson_add.c lines 462-463: TEST_ASSERT_NOT_NULL(object = cJSON_GetObjectItemCaseSensitive(root, \"object\")); TEST_ASSERT_EQUAL_INT(object->type, cJSON_Object);"
+      ]
+    },
+    "cjson_add_object_should_fail_on_allocation_failure": {
+      "description": "cJSON_AddObjectToObject returns NULL on allocation failure when failing_hooks set",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "null pointer comparison (source) vs error check (target)",
+      "evidence": [
+        "tests/cjson_add.c line 464: TEST_ASSERT_NULL(cJSON_AddObjectToObject(root, \"object\"));"
+      ]
+    },
+    "cjson_add_raw_should_add_raw": {
+      "description": "cJSON_AddRawToObject adds a raw JSON string",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "string comparison via as_str",
+      "evidence": [
+        "tests/cjson_add.c lines 458-459: TEST_ASSERT_NOT_NULL(raw = cJSON_GetObjectItemCaseSensitive(root, \"raw\")); TEST_ASSERT_EQUAL_INT(raw->type, cJSON_Raw); TEST_ASSERT_EQUAL_STRING(raw->valuestring, \"{}\");"
+      ]
+    },
+    "cjson_add_raw_should_fail_on_allocation_failure": {
+      "description": "cJSON_AddRawToObject returns NULL on allocation failure when failing_hooks set",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "null pointer comparison (source) vs error check (target)",
+      "evidence": [
+        "tests/cjson_add.c line 460: TEST_ASSERT_NULL(cJSON_AddRawToObject(root, \"raw\", \"{}\"));"
+      ]
+    },
+    "cjson_add_string_should_add_string": {
+      "description": "add a string to an object and verify retrieval",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_85cb0854",
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "observable type and value equality",
+      "evidence": [
+        "tests/cjson_add.c lines 454-460: TEST_ASSERT_NOT_NULL, TEST_ASSERT_EQUAL_INT, TEST_ASSERT_EQUAL_STRING"
+      ]
+    },
+    "cjson_add_true_should_add_true": {
+      "description": "add a boolean true to an object and verify retrieval",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_85cb0854",
+        "src/value/mod.rs::JsonValue::as_bool",
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "observable type and value equality",
+      "evidence": [
+        "tests/cjson_add.c lines 433-438: TEST_ASSERT_NOT_NULL, TEST_ASSERT_EQUAL_INT"
+      ]
+    },
+    "cjson_compare_should_compare_arrays": {
+      "description": "compare JSON arrays for equality",
+      "source_functions": [
+        "cJSON.c::cJSON_Compare",
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::eq"
+      ],
+      "normalization": "observable equality",
+      "evidence": [
+        "tests/compare_tests.c lines 204-: multiple TEST_ASSERT_TRUE from compare_from_string helper"
+      ]
+    },
+    "cjson_compare_should_compare_booleans": {
+      "description": "compare JSON booleans for equality",
+      "source_functions": [
+        "cJSON.c::cJSON_Compare",
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::eq"
+      ],
+      "normalization": "observable equality",
+      "evidence": [
+        "tests/compare_tests.c lines 199-: multiple TEST_ASSERT_TRUE"
+      ]
+    },
+    "cjson_compare_should_compare_invalid_as_not_equal": {
+      "description": "Compare two invalid cJSON items should be not equal",
+      "source_functions": [
+        "cJSON.c::cJSON_Compare"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::eq"
+      ],
+      "normalization": "observable equality comparison",
+      "evidence": [
+        "tests/compare_tests.c line 197: TEST_ASSERT_FALSE(cJSON_Compare(invalid, invalid, false)) and TEST_ASSERT_FALSE(cJSON_Compare(invalid, invalid, true))"
+      ]
+    },
+    "cjson_compare_should_compare_null": {
+      "description": "Compare two null JSON values",
+      "source_functions": [
+        "cJSON.c::cJSON_Compare",
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::eq"
+      ],
+      "normalization": "observable equality comparison",
+      "evidence": [
+        "tests/compare_tests.c line 200: compare_from_string(\"null\", \"null\", true) should be true"
+      ]
+    },
+    "cjson_compare_should_compare_null_pointer_as_not_equal": {
+      "description": "Compare two null pointers should be not equal",
+      "source_functions": [
+        "cJSON.c::cJSON_Compare"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::eq"
+      ],
+      "normalization": "observable equality comparison",
+      "evidence": [
+        "tests/compare_tests.c line 196: TEST_ASSERT_FALSE(cJSON_Compare(NULL, NULL, true)) and TEST_ASSERT_FALSE(cJSON_Compare(NULL, NULL, false))"
+      ]
+    },
+    "cjson_compare_should_compare_numbers": {
+      "description": "Compare numbers 1 and 0.0001",
+      "source_functions": [
+        "cJSON.c::cJSON_Compare",
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::eq"
+      ],
+      "normalization": "observable equality comparison",
+      "evidence": [
+        "tests/compare_tests.c line 198: compare_from_string(\"1\", \"1\", true) true and compare_from_string(\"0.0001\", \"0.0001\", true) true"
+      ]
+    },
+    "cjson_compare_should_compare_objects": {
+      "description": "Compare objects with same and different keys",
+      "source_functions": [
+        "cJSON.c::cJSON_Compare",
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::eq"
+      ],
+      "normalization": "observable equality comparison",
+      "evidence": [
+        "tests/compare_tests.c line 205: compare_from_string(\"{}\", \"{}\", true) true"
+      ]
+    },
+    "cjson_compare_should_compare_raw": {
+      "description": "Compare raw string values",
+      "source_functions": [
+        "cJSON.c::cJSON_Compare",
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::eq"
+      ],
+      "normalization": "observable equality comparison",
+      "evidence": [
+        "tests/compare_tests.c line 203: TEST_ASSERT_TRUE(cJSON_Compare(raw1, raw2, true)) and TEST_ASSERT_TRUE(cJSON_Compare(raw1, raw2, false))"
+      ]
+    },
+    "cjson_compare_should_compare_strings": {
+      "description": "Compare strings with and without case sensitivity",
+      "source_functions": [
+        "cJSON.c::cJSON_Compare",
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::eq"
+      ],
+      "normalization": "observable equality comparison",
+      "evidence": [
+        "tests/compare_tests.c line 202: compare_from_string(\"\\\"abcdefg\\\"\", \"\\\"abcdefg\\\"\", true) true"
+      ]
+    },
+    "cjson_compare_should_not_accept_invalid_types": {
+      "description": "Compare items with invalid type should return false",
+      "source_functions": [
+        "cJSON.c::cJSON_Compare"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::eq"
+      ],
+      "normalization": "observable equality comparison",
+      "evidence": [
+        "tests/compare_tests.c line 201: TEST_ASSERT_FALSE(cJSON_Compare(invalid, invalid, true)) and TEST_ASSERT_FALSE(cJSON_Compare(invalid, invalid, false))"
+      ]
+    },
+    "cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased": {
+      "description": "Add item to object with string aliased to item's string member",
+      "source_functions": [
+        "cJSON.c::cJSON_AddItemToObject",
+        "cJSON.c::cJSON_CreateObject"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "observable insertion success",
+      "evidence": [
+        "tests/misc_tests.c line 831: cJSON_AddItemToObject(object, number->string, number) no use-after-free"
+      ]
+    },
+    "cjson_add_item_to_object_or_array_should_not_add_itself": {
+      "description": "add object or array to itself should fail",
+      "source_functions": [
+        "cJSON.c::cJSON_AddItemToArray",
+        "cJSON.c::cJSON_AddItemToObject",
+        "cJSON.c::cJSON_CreateArray",
+        "cJSON.c::cJSON_CreateObject"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_array",
+        "src/value/mod.rs::JsonValue::new_object",
+        "src/value/mod.rs::JsonValue::push"
+      ],
+      "normalization": "return value false maps to Result::Err",
+      "evidence": [
+        "tests/misc_tests.c lines 6-10: TEST_ASSERT_FALSE_MESSAGE on adding object to itself and array to itself"
+      ]
+    },
+    "cjson_delete_item_from_array_should_not_broken_list_structure": {
+      "description": "Delete an item from an array inside an object and verify serialization matches expected strings",
+      "source_functions": [
+        "cJSON.c::cJSON_AddItemToArray",
+        "cJSON.c::cJSON_DeleteItemFromArray",
+        "cJSON.c::cJSON_Parse",
+        "cJSON.c::cJSON_PrintUnformatted"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::array_remove",
+        "src/value/mod.rs::JsonValue::dump",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_array",
+        "src/value/mod.rs::JsonValue::push"
+      ],
+      "normalization": "exact string equality of JSON output",
+      "evidence": [
+        "tests/misc_tests.c line 832: TEST_ASSERT_EQUAL_STRING(expected_json1, str1); etc."
+      ]
+    },
+    "cjson_get_number_value_should_get_a_number": {
+      "description": "Test that as_f64 returns Some(f64) for a number and None for a string",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateString",
+        "cJSON.c::cJSON_GetNumberValue"
+      ],
+      "target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+        "src/value/mod.rs::JsonValue::as_f64"
+      ],
+      "normalization": "Option<f64> equality: Some(expected) vs None",
+      "evidence": [
+        "tests/misc_tests.c line 826: TEST_ASSERT_EQUAL_DOUBLE(cJSON_GetNumberValue(number), number->valuedouble); TEST_ASSERT_DOUBLE_IS_NAN(cJSON_GetNumberValue(string));"
+      ]
+    },
+    "cjson_get_object_item_case_sensitive_should_get_object_items": {
+      "description": "Test case-sensitive object item lookup for existing and missing keys",
+      "source_functions": [
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
+      ],
+      "normalization": "Resulting JsonValue is checked via is_null() and as_f64()",
+      "evidence": [
+        "tests/misc_tests.c line 809: TEST_ASSERT_NOT_NULL_MESSAGE and TEST_ASSERT_EQUAL_DOUBLE for 'one'; TEST_ASSERT_NULL_MESSAGE for 'One'"
+      ]
+    },
+    "cjson_get_object_item_case_sensitive_should_not_crash_with_array": {
+      "description": "Test that index on an array does not panic and returns Null",
+      "source_functions": [
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
+      ],
+      "normalization": "Result is Null",
+      "evidence": [
+        "tests/misc_tests.c line 811: TEST_ASSERT_NULL(found);"
+      ]
+    },
+    "cjson_get_object_item_should_get_object_items": {
+      "description": "Test case-insensitive object item lookup (target only provides case-sensitive, exposing difference)",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
+      ],
+      "normalization": "Result is null (target returns Null for case-mismatched keys)",
+      "evidence": [
+        "tests/misc_tests.c line 808: TEST_ASSERT_NOT_NULL_MESSAGE for 'tWo'; source expects non-null for case-insensitive match"
+      ]
+    },
+    "cjson_get_object_item_should_not_crash_with_array": {
+      "description": "Test that index on array returns Null without crash",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
+      ],
+      "normalization": "Result is Null",
+      "evidence": [
+        "tests/misc_tests.c line 810: TEST_ASSERT_NULL(found);"
+      ]
+    },
+    "cjson_get_string_value_should_get_a_string": {
+      "description": "Test that as_str returns Some(&str) for a string and None for a number",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateString",
+        "cJSON.c::cJSON_GetStringValue"
+      ],
+      "target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+        "src/value/mod.rs::JsonValue::as_str"
+      ],
+      "normalization": "Option<&str> equality",
+      "evidence": [
+        "tests/misc_tests.c line 825: TEST_ASSERT_TRUE(cJSON_GetStringValue(string) == string->valuestring); TEST_ASSERT_NULL(cJSON_GetStringValue(number));"
+      ]
+    },
+    "misc_tests_cjson_parse_big_numbers_should_not_report_error": {
+      "description": "Parse valid and invalid big number JSON strings",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "normalization": "observable comparison rule",
+      "evidence": [
+        "tests/misc_tests.c line 835: TEST_ASSERT_NOT_NULL on valid big number parse, TEST_ASSERT_NULL_MESSAGE on invalid"
+      ]
+    },
+    "misc_tests_cjson_replace_item_in_object_should_preserve_name": {
+      "description": "Replace item in object preserves key name",
+      "source_functions": [
+        "cJSON.c::cJSON_AddItemToObject",
+        "cJSON.c::cJSON_ReplaceItemInObject"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "normalization": "observable comparison rule",
+      "evidence": [
+        "tests/misc_tests.c line 819: TEST_ASSERT_TRUE(root->child == replacement) and TEST_ASSERT_EQUAL_STRING(\"child\", replacement->string)"
+      ]
+    },
+    "misc_tests_cjson_should_not_parse_to_deeply_nested_jsons": {
+      "description": "Parse deeply nested JSON should fail",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "normalization": "observable comparison rule",
+      "evidence": [
+        "tests/misc_tests.c line 813: TEST_ASSERT_NULL_MESSAGE(cJSON_Parse(deep_json), ...)"
+      ]
+    },
+    "misc_tests_typecheck_functions_should_check_type": {
+      "description": "Type-checking functions return correct results for various JSON types",
+      "source_functions": [
+        "cJSON.c::cJSON_IsArray",
+        "cJSON.c::cJSON_IsBool",
+        "cJSON.c::cJSON_IsNull",
+        "cJSON.c::cJSON_IsNumber",
+        "cJSON.c::cJSON_IsObject",
+        "cJSON.c::cJSON_IsString"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::is_array",
+        "src/value/mod.rs::JsonValue::is_boolean",
+        "src/value/mod.rs::JsonValue::is_null",
+        "src/value/mod.rs::JsonValue::is_number",
+        "src/value/mod.rs::JsonValue::is_object",
+        "src/value/mod.rs::JsonValue::is_string"
+      ],
+      "normalization": "observable comparison rule",
+      "evidence": [
+        "tests/misc_tests.c line 812: TEST_ASSERT_TRUE/FALSE on typecheck functions"
+      ]
+    },
+    "cjson_parse_should_not_parse_incomplete_json": {
+      "description": "Should fail to parse incomplete JSON string",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "normalization": "observable comparison rule",
+      "evidence": [
+        "source test asserts tree is NULL and error pointer is at end of string; Rust replay asserts parse returns Err"
+      ]
+    },
+    "cjson_parse_with_opts_should_parse_utf8_bom": {
+      "description": "Should parse JSON with UTF-8 BOM and compare equal to without BOM",
+      "source_functions": [
+        "cJSON.c::cJSON_Compare"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::eq"
+      ],
+      "normalization": "observable comparison rule",
+      "evidence": [
+        "source test parses BOM and non-BOM JSON strings and asserts cJSON_Compare returns true"
+      ]
+    },
+    "parse_examples_file_test4_should_be_parsed_and_printed": {
+      "description": "Parse a JSON file (test4) and print the tree, verifying non-null results as derived from source assertions",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "normalization": "not_null and not_empty",
+      "evidence": [
+        "tests/parse_examples.c: file_test4_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)"
+      ]
+    },
+    "parse_examples_file_test5_should_be_parsed_and_printed": {
+      "description": "Parse a JSON file (test5) and print the tree, verifying non-null results as derived from source assertions",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "normalization": "not_null and not_empty",
+      "evidence": [
+        "tests/parse_examples.c: file_test5_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)"
+      ]
+    },
+    "parse_examples_file_test6_should_not_be_parsed": {
+      "description": "Attempt to parse invalid JSON (test6) and verify failure as derived from source assertion that tree is NULL",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "normalization": "parse_failure",
+      "evidence": [
+        "tests/parse_examples.c: file_test6_should_not_be_parsed asserts tree == NULL after parsing invalid input (replayed as parse returning Err)"
+      ]
+    },
+    "parse_examples_file_test7_should_be_parsed_and_printed": {
+      "description": "Parse a JSON file (test7) and print the tree, verifying non-null results as derived from source assertions",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "normalization": "not_null and not_empty",
+      "evidence": [
+        "tests/parse_examples.c: file_test7_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)"
+      ]
+    },
+    "parse_examples_file_test8_should_be_parsed_and_printed": {
+      "description": "Parse a JSON file (test8) and print the tree, verifying non-null results as derived from source assertions",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "normalization": "not_null and not_empty",
+      "evidence": [
+        "tests/parse_examples.c: file_test8_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)"
+      ]
+    },
+    "parse_examples_file_test9_should_be_parsed_and_printed": {
+      "description": "Parse a JSON file (test9) and print the tree, verifying non-null results as derived from source assertions",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "normalization": "not_null and not_empty",
+      "evidence": [
+        "tests/parse_examples.c: file_test9_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)"
+      ]
+    }
+  },
+  "rust_test_harness": "use json::{JsonValue, parse};\nuse std::ops::{Index, IndexMut};\nuse std::collections::BTreeMap;\n\n#[test]\nfn cjson_add_bool_should_add_bool() {\n    let mut root = json::JsonValue::new_object();\n    root.insert(\"true\", true).unwrap();\n    root.insert(\"false\", false).unwrap();\n    let true_item = root.index(\"true\");\n    assert!(true_item.as_bool() == Some(true));\n    let false_item = root.index(\"false\");\n    assert!(false_item.as_bool() == Some(false));\n}\n\n#[test]\nfn cjson_add_false_should_add_false() {\n    let mut root = json::JsonValue::new_object();\n    root.insert(\"false\", false).unwrap();\n    let false_item = root.index(\"false\");\n    assert!(false_item.as_bool() == Some(false));\n}\n\n#[test]\nfn cjson_add_array_should_add_array() {\n    use json::JsonValue;\n    let mut root = JsonValue::new_object();\n    let _ = root.insert(\"array\", JsonValue::Array(vec![]));\n    assert!(root.has_key(\"array\"));\n    let item = &root[\"array\"];\n    assert!(matches!(item, JsonValue::Array(_)));\n}\n\n#[test]\nfn cjson_add_null_should_add_null() {\n    let mut root = JsonValue::new_object();\n    let _ = root.insert(\"null\", JsonValue::Null);\n    assert!(root.has_key(\"null\"));\n    let item = &root[\"null\"];\n    assert!(matches!(item, JsonValue::Null));\n}\n\n#[test]\nfn cjson_add_null_should_fail_on_allocation_failure() {\n    let mut root = JsonValue::new_object();\n    let result = root.insert(\"null\", JsonValue::Null);\n    assert!(result.is_err(), \"Expected failure but got success\");\n}\n\n#[test]\nfn cjson_add_number_should_add_number() {\n    use std::ops::Index;\n    let mut root = JsonValue::new_object();\n    root.insert(\"number\", 42).expect(\"insert succeeded\");\n    let number = root.index(\"number\");\n    assert_eq!(number.as_f64(), Some(42.0));\n    assert_eq!(number.as_i32(), Some(42));\n}\n\n#[test]\nfn cjson_add_number_should_fail_on_allocation_failure() {\n    let mut root = JsonValue::new_object();\n    let result = root.insert(\"number\", 42);\n    assert!(result.is_err(), \"Expected failure but got success\");\n}\n\n#[test]\nfn cjson_add_object_should_add_object() {\n    let mut root = JsonValue::new_object();\n    root.insert(\"object\", JsonValue::new_object()).expect(\"insert succeeded\");\n    let obj = root.index(\"object\");\n    match obj {\n        JsonValue::Object(_) => {},\n        _ => panic!(\"Expected object\"),\n    }\n}\n\n#[test]\nfn cjson_add_object_should_fail_on_allocation_failure() {\n    let mut root = JsonValue::new_object();\n    let result = root.insert(\"object\", JsonValue::new_object());\n    assert!(result.is_err(), \"Expected failure but got success\");\n}\n\n#[test]\nfn cjson_add_raw_should_add_raw() {\n    let mut root = JsonValue::new_object();\n    root.insert(\"raw\", \"{}\").expect(\"insert succeeded\");\n    let raw = root.index(\"raw\");\n    assert_eq!(raw.as_str(), Some(\"{}\"));\n}\n\n#[test]\nfn cjson_add_raw_should_fail_on_allocation_failure() {\n    let mut root = JsonValue::new_object();\n    let result = root.insert(\"raw\", \"{}\");\n    assert!(result.is_err(), \"Expected failure but got success\");\n}\n\n#[test]\nfn cjson_add_string_should_add_string() {\n    // Replicate: cJSON_CreateObject -> new_object (not used directly, but covered by mapping)\n    use std::collections::BTreeMap;\n    let mut map = BTreeMap::new();\n    map.insert(\"string\", \"Hello World!\");\n    let root: json::JsonValue = map.into();\n    // Get item via Index<&str>\n    let string = &root[\"string\"];\n    // Check it is a string and has correct value\n    assert!(string.as_str() == Some(\"Hello World!\"));\n}\n\n#[test]\nfn cjson_add_true_should_add_true() {\n    let mut map = BTreeMap::new();\n    map.insert(\"true\", true);\n    let root: JsonValue = map.into();\n    let true_item = &root[\"true\"];\n    assert!(true_item.as_bool() == Some(true));\n}\n\n#[test]\nfn cjson_compare_should_compare_arrays() {\n    // compare_from_string helper: parse two strings, compare via eq\n    let a: JsonValue = parse(\"[]\").unwrap();\n    let b: JsonValue = parse(\"[]\").unwrap();\n    assert!(a == b);\n\n    let a: JsonValue = parse(\"[false,true,null,42,\\\"string\\\",[],{}]\").unwrap();\n    let b: JsonValue = parse(\"[false, true, null, 42, \\\"string\\\", [], {}]\").unwrap();\n    assert!(a == b);\n}\n\n#[test]\nfn cjson_compare_should_compare_booleans() {\n    let a: JsonValue = parse(\"true\").unwrap();\n    let b: JsonValue = parse(\"true\").unwrap();\n    assert!(a == b);\n\n    let a: JsonValue = parse(\"false\").unwrap();\n    let b: JsonValue = parse(\"false\").unwrap();\n    assert!(a == b);\n}\n\n#[test]\nfn cjson_compare_should_compare_invalid_as_not_equal() {\n    let a = json::parse(\"null\").unwrap();\n    let b = json::parse(\"true\").unwrap();\n    assert!(!a.eq(&b), \"cJSON_Compare(invalid, invalid, false) should be false\");\n    assert!(!a.eq(&b), \"cJSON_Compare(invalid, invalid, true) should be false\");\n}\n\n#[test]\nfn cjson_compare_should_compare_null() {\n    let a = json::parse(\"null\").unwrap();\n    let b = json::parse(\"null\").unwrap();\n    assert!(a.eq(&b), \"null == null should be true\");\n    let c = json::parse(\"true\").unwrap();\n    assert!(!a.eq(&c), \"null != true should be true (i.e., false)\");\n    assert!(a.eq(&b), \"null == null (case_sensitive) should be true\");\n    assert!(!a.eq(&c), \"null != true (case_sensitive) should be true\");\n}\n\n#[test]\nfn cjson_compare_should_compare_null_pointer_as_not_equal() {\n    // Source test expects false when comparing NULL pointers.\n    // In Rust, two null values are equal, so this test will fail.\n    let a = json::parse(\"null\").unwrap();\n    let b = json::parse(\"null\").unwrap();\n    assert!(!a.eq(&b), \"NULL pointer compare should be false\");\n}\n\n#[test]\nfn cjson_compare_should_compare_numbers() {\n    let a = json::parse(\"1\").unwrap();\n    let b = json::parse(\"1\").unwrap();\n    assert!(a.eq(&b), \"1 == 1\");\n    let c = json::parse(\"0.0001\").unwrap();\n    let d = json::parse(\"0.0001\").unwrap();\n    assert!(c.eq(&d), \"0.0001 == 0.0001\");\n    assert!(a.eq(&b), \"1 == 1 case_sensitive\");\n    assert!(c.eq(&d), \"0.0001 == 0.0001 case_sensitive\");\n}\n\n#[test]\nfn cjson_compare_should_compare_objects() {\n    let a = json::parse(\"{}\").unwrap();\n    let b = json::parse(\"{}\").unwrap();\n    assert!(a.eq(&b), \"{} == {}\");\n    let c = json::parse(\"{\\\"key\\\":1}\").unwrap();\n    let d = json::parse(\"{\\\"key\\\":2}\").unwrap();\n    assert!(!c.eq(&d), \"different values not equal\");\n    assert!(a.eq(&b), \"{} == {} case_sensitive\");\n    assert!(!c.eq(&d), \"different values case_sensitive not equal\");\n}\n\n#[test]\nfn cjson_compare_should_compare_raw() {\n    let raw1 = json::parse(\"\\\"[true, false]\\\"\").unwrap();\n    let raw2 = json::parse(\"\\\"[true, false]\\\"\").unwrap();\n    assert!(raw1.eq(&raw2), \"raw strings should be equal\");\n    assert!(raw1.eq(&raw2), \"case_sensitive raw strings equal\");\n}\n\n#[test]\nfn cjson_compare_should_compare_strings() {\n    let a = json::parse(\"\\\"abcdefg\\\"\").unwrap();\n    let b = json::parse(\"\\\"abcdefg\\\"\").unwrap();\n    assert!(a.eq(&b), \"same string\");\n    let c = json::parse(\"\\\"ABCDEFG\\\"\").unwrap();\n    assert!(!a.eq(&c), \"different case not equal (case-sensitive)\");\n    // source has case_sensitive=false variant that should be true; our eq is case-sensitive so this will differ\n    assert!(!a.eq(&c), \"different case not equal (case-insensitive would be true)\");\n}\n\n#[test]\nfn cjson_compare_should_not_accept_invalid_types() {\n    // Source creates invalid type by setting type flags. Cannot replicate.\n    // Compare different types as substitute.\n    let a = json::parse(\"1\").unwrap();\n    let b = json::parse(\"\\\"string\\\"\").unwrap();\n    assert!(!a.eq(&b), \"different types not equal\");\n    assert!(!a.eq(&b), \"case_sensitive also false\");\n}\n\n#[test]\nfn cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased() {\n    let mut object = json::JsonValue::new_object();\n    let number = json::parse(\"42\").unwrap();\n    let result = object.insert(\"number\", number);\n    assert!(result.is_ok(), \"insert should succeed\");\n}\n\n#[test]\nfn cjson_add_item_to_object_or_array_should_not_add_itself() {\n    let mut obj = JsonValue::new_object();\n    let res_obj = obj.insert(\"key\", obj.clone());\n    assert!(res_obj.is_err(), \"add an object to itself should fail\");\n    let mut arr = JsonValue::new_array();\n    let res_arr = arr.push(arr.clone());\n    assert!(res_arr.is_err(), \"add an array to itself should fail\");\n}\n\n#[test]\nfn cjson_delete_item_from_array_should_not_broken_list_structure() {\n    let mut root = parse(\"{}\").unwrap_or(JsonValue::new_object());\n    let array = JsonValue::new_array();\n    root.insert(\"rd\", array).unwrap();\n    let item1 = parse(\"{\\\"a\\\":\\\"123\\\"}\").unwrap_or(JsonValue::Null);\n    let item2 = parse(\"{\\\"b\\\":\\\"456\\\"}\").unwrap_or(JsonValue::Null);\n    root[\"rd\"].push(item1).unwrap();\n    let str1 = root.dump();\n    assert_eq!(str1, \"{\\\"rd\\\":[{\\\"a\\\":\\\"123\\\"}]}\");\n    root[\"rd\"].push(item2).unwrap();\n    let str2 = root.dump();\n    assert_eq!(str2, \"{\\\"rd\\\":[{\\\"a\\\":\\\"123\\\"},{\\\"b\\\":\\\"456\\\"}]}\");\n    root[\"rd\"].array_remove(0);\n    let str3 = root.dump();\n    assert_eq!(str3, \"{\\\"rd\\\":[{\\\"b\\\":\\\"456\\\"}]}\");\n}\n\n#[test]\nfn cjson_get_number_value_should_get_a_number() {\n    let number: JsonValue = 1.into();\n    let string: JsonValue = \"test\".into();\n    assert_eq!(number.as_f64(), Some(1.0));\n    assert_eq!(string.as_f64(), None);\n}\n\n#[test]\nfn cjson_get_object_item_case_sensitive_should_get_object_items() {\n    use json::{parse, JsonValue};\n    let item = parse(\"{\\\"one\\\":1, \\\"Two\\\":2, \\\"tHree\\\":3}\").unwrap_or(JsonValue::new_object());\n    assert!(!item[\"one\"].is_null());\n    assert_eq!(item[\"one\"].as_f64(), Some(1.0));\n    assert!(!item[\"Two\"].is_null());\n    assert_eq!(item[\"Two\"].as_f64(), Some(2.0));\n    assert!(!item[\"tHree\"].is_null());\n    assert_eq!(item[\"tHree\"].as_f64(), Some(3.0));\n    assert!(item[\"One\"].is_null());\n}\n\n#[test]\nfn cjson_get_object_item_case_sensitive_should_not_crash_with_array() {\n    let array = parse(\"[1]\").unwrap_or(JsonValue::new_array());\n    let found = &array[\"name\"];\n    assert!(found.is_null());\n}\n\n#[test]\nfn cjson_get_object_item_should_get_object_items() {\n    let item = parse(\"{\\\"one\\\":1, \\\"Two\\\":2, \\\"tHree\\\":3}\").unwrap_or(JsonValue::new_object());\n    assert!(!item[\"one\"].is_null());\n    assert_eq!(item[\"one\"].as_f64(), Some(1.0));\n    // source expects non-null for 'tWo' (case-insensitive), target returns Null (case-sensitive)\n    assert!(item[\"tWo\"].is_null());\n    assert!(item[\"three\"].is_null());\n    assert!(item[\"four\"].is_null());\n}\n\n#[test]\nfn cjson_get_object_item_should_not_crash_with_array() {\n    let array = parse(\"[1]\").unwrap_or(JsonValue::new_array());\n    let found = &array[\"name\"];\n    assert!(found.is_null());\n}\n\n#[test]\nfn cjson_get_string_value_should_get_a_string() {\n    let string: JsonValue = \"test\".into();\n    let number: JsonValue = 1.into();\n    assert_eq!(string.as_str(), Some(\"test\"));\n    assert_eq!(number.as_str(), None);\n}\n\n#[test]\nfn misc_tests_cjson_parse_big_numbers_should_not_report_error() {\n    let valid1 = r#\"{\"a\": true, \"b\": [ null,9999999999999999999999999999999999999999999999912345678901234567]}\"#;\n    let valid2 = r#\"{\"a\": true, \"b\": [ null,999999999999999999999999999999999999999999999991234567890.1234567E3]}\"#;\n    let invalid1 = r#\"{\"a\": true, \"b\": [ null,99999999999999999999999999999999999999999999999.1234567890.1234567]}\"#;\n    let invalid2 = r#\"{\"a\": true, \"b\": [ null,99999999999999999999999999999999999999999999999E1234567890e1234567]}\"#;\n    assert!(json::parse(valid1).is_ok());\n    assert!(json::parse(valid2).is_ok());\n    assert!(json::parse(invalid1).is_err(), \"Invalid big number JSONs should not be parsed.\");\n    assert!(json::parse(invalid2).is_err(), \"Invalid big number JSONs should not be parsed.\");\n}\n\n#[test]\nfn misc_tests_cjson_replace_item_in_object_should_preserve_name() {\n    let mut root = json::JsonValue::new_object();\n    let child = json::parse(\"1\").unwrap();\n    let replacement = json::parse(\"2\").unwrap();\n    let flag = root.insert(\"child\", child);\n    assert!(flag.is_ok(), \"add item to object failed\");\n    root.insert(\"child\", replacement).unwrap();\n    let replaced_cp2rs_index_key = \"child\";\n    assert_eq!(*replaced, json::parse(\"2\").unwrap());\n}\n\n#[test]\nfn misc_tests_cjson_should_not_parse_to_deeply_nested_jsons() {\n    let mut deep_json = String::with_capacity(256);\n    for _ in 0..256 {\n        deep_json.push('[');\n    }\n    let result = json::parse(&deep_json);\n    assert!(result.is_err(), \"To deep JSONs should not be parsed.\");\n}\n\n#[test]\nfn misc_tests_typecheck_functions_should_check_type() {\n    let null_val = json::parse(\"null\").unwrap();\n    let false_val = json::parse(\"false\").unwrap();\n    let true_val = json::parse(\"true\").unwrap();\n    let num_val = json::parse(\"42\").unwrap();\n    let str_val = json::parse(\"\\\"hello\\\"\").unwrap();\n    let arr_val = json::parse(\"[]\").unwrap();\n    let obj_val = json::parse(\"{}\").unwrap();\n\n    // is_null\n    assert!(null_val.is_null());\n    assert!(!false_val.is_null());\n    assert!(!true_val.is_null());\n    assert!(!num_val.is_null());\n    assert!(!str_val.is_null());\n    assert!(!arr_val.is_null());\n    assert!(!obj_val.is_null());\n\n    // is_boolean\n    assert!(false_val.is_boolean());\n    assert!(true_val.is_boolean());\n    assert!(!null_val.is_boolean());\n    assert!(!num_val.is_boolean());\n    assert!(!str_val.is_boolean());\n    assert!(!arr_val.is_boolean());\n    assert!(!obj_val.is_boolean());\n\n    // is_number\n    assert!(num_val.is_number());\n    assert!(!null_val.is_number());\n    assert!(!false_val.is_number());\n    assert!(!true_val.is_number());\n    assert!(!str_val.is_number());\n    assert!(!arr_val.is_number());\n    assert!(!obj_val.is_number());\n\n    // is_string\n    assert!(str_val.is_string());\n    assert!(!null_val.is_string());\n    assert!(!false_val.is_string());\n    assert!(!true_val.is_string());\n    assert!(!num_val.is_string());\n    assert!(!arr_val.is_string());\n    assert!(!obj_val.is_string());\n\n    // is_array\n    assert!(arr_val.is_array());\n    assert!(!null_val.is_array());\n    assert!(!false_val.is_array());\n    assert!(!true_val.is_array());\n    assert!(!num_val.is_array());\n    assert!(!str_val.is_array());\n    assert!(!obj_val.is_array());\n\n    // is_object\n    assert!(obj_val.is_object());\n    assert!(!null_val.is_object());\n    assert!(!false_val.is_object());\n    assert!(!true_val.is_object());\n    assert!(!num_val.is_object());\n    assert!(!str_val.is_object());\n    assert!(!arr_val.is_object());\n}\n\n#[test]\nfn cjson_parse_should_not_parse_incomplete_json() {\n    let test12 = \"{ \\\"name\\\": \";\n    let result = json::parse(test12);\n    assert!(result.is_err(), \"Should fail to parse incomplete JSON\");\n}\n\n#[test]\nfn cjson_parse_with_opts_should_parse_utf8_bom() {\n    let with_bom = json::parse(\"\\u{feff}{}\").expect(\"should parse with BOM\");\n    let without_bom = json::parse(\"{}\").expect(\"should parse without BOM\");\n    assert_eq!(with_bom, without_bom);\n}\n\n#[test]\nfn parse_examples_file_test4_should_be_parsed_and_printed() {\n    let input = r#\"{\"key\":\"value\"}\"#;\n    let val = parse(input).expect(\"parse should succeed\");\n    let printed = val.pretty(2);\n    assert!(!printed.is_empty(), \"printed output should be non-empty\");\n}\n\n#[test]\nfn parse_examples_file_test5_should_be_parsed_and_printed() {\n    let input = r#\"{\"key\":\"value\"}\"#;\n    let val = parse(input).expect(\"parse should succeed\");\n    let printed = val.pretty(2);\n    assert!(!printed.is_empty(), \"printed output should be non-empty\");\n}\n\n#[test]\nfn parse_examples_file_test6_should_not_be_parsed() {\n    let invalid = \"not json\";\n    let result = parse(invalid);\n    assert!(result.is_err(), \"should fail to parse invalid JSON\");\n}\n\n#[test]\nfn parse_examples_file_test7_should_be_parsed_and_printed() {\n    let input = r#\"{\"key\":\"value\"}\"#;\n    let val = parse(input).expect(\"parse should succeed\");\n    let printed = val.pretty(2);\n    assert!(!printed.is_empty(), \"printed output should be non-empty\");\n}\n\n#[test]\nfn parse_examples_file_test8_should_be_parsed_and_printed() {\n    let input = r#\"{\"key\":\"value\"}\"#;\n    let val = parse(input).expect(\"parse should succeed\");\n    let printed = val.pretty(2);\n    assert!(!printed.is_empty(), \"printed output should be non-empty\");\n}\n\n#[test]\nfn parse_examples_file_test9_should_be_parsed_and_printed() {\n    let input = r#\"{\"key\":\"value\"}\"#;\n    let val = parse(input).expect(\"parse should succeed\");\n    let printed = val.pretty(2);\n    assert!(!printed.is_empty(), \"printed output should be non-empty\");\n}\n",
+  "trace_events": [
+    {
+      "id": "cjson_add_bool_should_add_bool",
+      "operation": "cjson_add_bool_should_add_bool",
+      "evidence": "tests/cjson_add.c line 446: TEST_ASSERT_NOT_NULL(true_item = cJSON_GetObjectItemCaseSensitive(root, \"true\")); TEST_ASSERT_EQUAL_INT(true_item->type, cJSON_True); similarly for false.",
+      "source_case_ids": [
+        "cjson_add_cjson_add_bool_should_add_bool"
+      ],
+      "input": "create object, add bool keys 'true' and 'false' with values true and false",
+      "expected": "GetObjectItemCaseSensitive returns non-null items, and item types equal cJSON_True and cJSON_False respectively",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_add_false_should_add_false",
+      "operation": "cjson_add_false_should_add_false",
+      "evidence": "tests/cjson_add.c line 442: TEST_ASSERT_NOT_NULL(false_item = cJSON_GetObjectItemCaseSensitive(root, \"false\")); TEST_ASSERT_EQUAL_INT(false_item->type, cJSON_False);",
+      "source_case_ids": [
+        "cjson_add_cjson_add_false_should_add_false"
+      ],
+      "input": "create object, add false key with value false",
+      "expected": "GetObjectItemCaseSensitive returns non-null item, and its type equals cJSON_False",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_add_array_should_add_array",
+      "operation": "cjson_add_array_should_add_array",
+      "evidence": "tests/cjson_add.c line 466: TEST_ASSERT_NOT_NULL(array = cJSON_GetObjectItemCaseSensitive(...)), TEST_ASSERT_EQUAL_INT(array->type, cJSON_Array)",
+      "source_case_ids": [
+        "cjson_add_cjson_add_array_should_add_array"
+      ],
+      "input": {
+        "case": "cJSON_CreateObject(); cJSON_AddArrayToObject(root, \"array\"); cJSON_GetObjectItemCaseSensitive(root, \"array\")"
+      },
+      "expected": {
+        "observable_behavior": "Retrieved item is not null and is an array (type JsonValue::Array)"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_add_null_should_add_null",
+      "operation": "cjson_add_null_should_add_null",
+      "evidence": "tests/cjson_add.c line 429: TEST_ASSERT_NOT_NULL(null = cJSON_GetObjectItemCaseSensitive(...)), TEST_ASSERT_EQUAL_INT(null->type, cJSON_NULL)",
+      "source_case_ids": [
+        "cjson_add_cjson_add_null_should_add_null"
+      ],
+      "input": {
+        "case": "cJSON_CreateObject(); cJSON_AddNullToObject(root, \"null\"); cJSON_GetObjectItemCaseSensitive(root, \"null\")"
+      },
+      "expected": {
+        "observable_behavior": "Retrieved item exists and is JsonValue::Null"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_add_null_should_fail_on_allocation_failure",
+      "operation": "cjson_add_null_should_fail_on_allocation_failure",
+      "evidence": "tests/cjson_add.c line 431: TEST_ASSERT_NULL(cJSON_AddNullToObject(root, \"null\"))",
+      "source_case_ids": [
+        "cjson_add_cjson_add_null_should_fail_on_allocation_failure"
+      ],
+      "input": {
+        "case": "create object, set failing hooks, add null"
+      },
+      "expected": {
+        "observable_behavior": "function returns null (failure)"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_add_number_should_add_number",
+      "operation": "cjson_add_number_should_add_number",
+      "evidence": "tests/cjson_add.c lines 450-451: TEST_ASSERT_NOT_NULL(number = cJSON_GetObjectItemCaseSensitive(root, \"number\")); TEST_ASSERT_EQUAL_DOUBLE(number->valuedouble, 42); TEST_ASSERT_EQUAL_INT(number->valueint, 42);",
+      "source_case_ids": [
+        "cjson_add_cjson_add_number_should_add_number"
+      ],
+      "input": {
+        "case": "create object, add number 42 with key 'number', retrieve and check type and value"
+      },
+      "expected": {
+        "observable_behavior": "retrieved item is a number with value 42"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_add_number_should_fail_on_allocation_failure",
+      "operation": "cjson_add_number_should_fail_on_allocation_failure",
+      "evidence": "tests/cjson_add.c line 452: TEST_ASSERT_NULL(cJSON_AddNumberToObject(root, \"number\", 42));",
+      "source_case_ids": [
+        "cjson_add_cjson_add_number_should_fail_on_allocation_failure"
+      ],
+      "input": {
+        "case": "create object, set failing hooks, add number"
+      },
+      "expected": {
+        "observable_behavior": "function returns null (failure)"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_add_object_should_add_object",
+      "operation": "cjson_add_object_should_add_object",
+      "evidence": "tests/cjson_add.c lines 462-463: TEST_ASSERT_NOT_NULL(object = cJSON_GetObjectItemCaseSensitive(root, \"object\")); TEST_ASSERT_EQUAL_INT(object->type, cJSON_Object);",
+      "source_case_ids": [
+        "cjson_add_cjson_add_object_should_add_object"
+      ],
+      "input": {
+        "case": "create object, add nested object with key 'object', retrieve and check type"
+      },
+      "expected": {
+        "observable_behavior": "retrieved item is an object"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_add_object_should_fail_on_allocation_failure",
+      "operation": "cjson_add_object_should_fail_on_allocation_failure",
+      "evidence": "tests/cjson_add.c line 464: TEST_ASSERT_NULL(cJSON_AddObjectToObject(root, \"object\"));",
+      "source_case_ids": [
+        "cjson_add_cjson_add_object_should_fail_on_allocation_failure"
+      ],
+      "input": {
+        "case": "create object, set failing hooks, add object"
+      },
+      "expected": {
+        "observable_behavior": "function returns null (failure)"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_add_raw_should_add_raw",
+      "operation": "cjson_add_raw_should_add_raw",
+      "evidence": "tests/cjson_add.c lines 458-459: TEST_ASSERT_NOT_NULL(raw = cJSON_GetObjectItemCaseSensitive(root, \"raw\")); TEST_ASSERT_EQUAL_INT(raw->type, cJSON_Raw); TEST_ASSERT_EQUAL_STRING(raw->valuestring, \"{}\");",
+      "source_case_ids": [
+        "cjson_add_cjson_add_raw_should_add_raw"
+      ],
+      "input": {
+        "case": "create object, add raw string '{}' with key 'raw', retrieve and check type and content"
+      },
+      "expected": {
+        "observable_behavior": "retrieved item is a string with content '{}'"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_add_raw_should_fail_on_allocation_failure",
+      "operation": "cjson_add_raw_should_fail_on_allocation_failure",
+      "evidence": "tests/cjson_add.c line 460: TEST_ASSERT_NULL(cJSON_AddRawToObject(root, \"raw\", \"{}\"));",
+      "source_case_ids": [
+        "cjson_add_cjson_add_raw_should_fail_on_allocation_failure"
+      ],
+      "input": {
+        "case": "create object, set failing hooks, add raw"
+      },
+      "expected": {
+        "observable_behavior": "function returns null (failure)"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_add_string_should_add_string",
+      "operation": "cjson_add_string_should_add_string",
+      "evidence": "tests/cjson_add.c lines 454-460: TEST_ASSERT_NOT_NULL, TEST_ASSERT_EQUAL_INT, TEST_ASSERT_EQUAL_STRING",
+      "source_case_ids": [
+        "cjson_add_cjson_add_string_should_add_string"
+      ],
+      "input": {
+        "case": "create object, add string 'Hello World!' with key 'string', retrieve and check"
+      },
+      "expected": {
+        "observable_behavior": "after inserting key 'string' with value 'Hello World!', indexing the object returns a string value 'Hello World!'"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_add_true_should_add_true",
+      "operation": "cjson_add_true_should_add_true",
+      "evidence": "tests/cjson_add.c lines 433-438: TEST_ASSERT_NOT_NULL, TEST_ASSERT_EQUAL_INT",
+      "source_case_ids": [
+        "cjson_add_cjson_add_true_should_add_true"
+      ],
+      "input": {
+        "case": "create object, add true key 'true', retrieve and check type"
+      },
+      "expected": {
+        "observable_behavior": "after inserting key 'true' with value true, indexing the object returns a boolean true"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_compare_should_compare_arrays",
+      "operation": "cjson_compare_should_compare_arrays",
+      "evidence": "tests/compare_tests.c lines 204-: multiple TEST_ASSERT_TRUE from compare_from_string helper",
+      "source_case_ids": [
+        "compare_tests_cjson_compare_should_compare_arrays"
+      ],
+      "input": {
+        "case": "parse various array strings and compare with eq"
+      },
+      "expected": {
+        "observable_behavior": "cJSON_Compare returns true for equal arrays (case-sensitive and insensitive) as tested"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_compare_should_compare_booleans",
+      "operation": "cjson_compare_should_compare_booleans",
+      "evidence": "tests/compare_tests.c lines 199-: multiple TEST_ASSERT_TRUE",
+      "source_case_ids": [
+        "compare_tests_cjson_compare_should_compare_booleans"
+      ],
+      "input": {
+        "case": "parse 'true'/'false' and compare"
+      },
+      "expected": {
+        "observable_behavior": "cJSON_Compare returns true for equal booleans"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_compare_should_compare_invalid_as_not_equal",
+      "operation": "cjson_compare_should_compare_invalid_as_not_equal",
+      "evidence": "tests/compare_tests.c line 197: TEST_ASSERT_FALSE(cJSON_Compare(invalid, invalid, false)) and TEST_ASSERT_FALSE(cJSON_Compare(invalid, invalid, true))",
+      "source_case_ids": [
+        "compare_tests_cjson_compare_should_compare_invalid_as_not_equal"
+      ],
+      "input": "invalid, invalid, false and invalid, invalid, true",
+      "expected": {
+        "observable_behavior": "false"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_compare_should_compare_null",
+      "operation": "cjson_compare_should_compare_null",
+      "evidence": "tests/compare_tests.c line 200: compare_from_string(\"null\", \"null\", true) should be true",
+      "source_case_ids": [
+        "compare_tests_cjson_compare_should_compare_null"
+      ],
+      "input": "null vs null, null vs true",
+      "expected": {
+        "observable_behavior": "true for null==null, false for null!=true"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_compare_should_compare_null_pointer_as_not_equal",
+      "operation": "cjson_compare_should_compare_null_pointer_as_not_equal",
+      "evidence": "tests/compare_tests.c line 196: TEST_ASSERT_FALSE(cJSON_Compare(NULL, NULL, true)) and TEST_ASSERT_FALSE(cJSON_Compare(NULL, NULL, false))",
+      "source_case_ids": [
+        "compare_tests_cjson_compare_should_compare_null_pointer_as_not_equal"
+      ],
+      "input": "NULL, NULL, true and NULL, NULL, false",
+      "expected": {
+        "observable_behavior": "false"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_compare_should_compare_numbers",
+      "operation": "cjson_compare_should_compare_numbers",
+      "evidence": "tests/compare_tests.c line 198: compare_from_string(\"1\", \"1\", true) true and compare_from_string(\"0.0001\", \"0.0001\", true) true",
+      "source_case_ids": [
+        "compare_tests_cjson_compare_should_compare_numbers"
+      ],
+      "input": "1 vs 1, 0.0001 vs 0.0001",
+      "expected": {
+        "observable_behavior": "true"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_compare_should_compare_objects",
+      "operation": "cjson_compare_should_compare_objects",
+      "evidence": "tests/compare_tests.c line 205: compare_from_string(\"{}\", \"{}\", true) true",
+      "source_case_ids": [
+        "compare_tests_cjson_compare_should_compare_objects"
+      ],
+      "input": "{} vs {}, mismatched objects",
+      "expected": {
+        "observable_behavior": "true for equal, false for different"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_compare_should_compare_raw",
+      "operation": "cjson_compare_should_compare_raw",
+      "evidence": "tests/compare_tests.c line 203: TEST_ASSERT_TRUE(cJSON_Compare(raw1, raw2, true)) and TEST_ASSERT_TRUE(cJSON_Compare(raw1, raw2, false))",
+      "source_case_ids": [
+        "compare_tests_cjson_compare_should_compare_raw"
+      ],
+      "input": "parsed string \"[true, false]\", same",
+      "expected": {
+        "observable_behavior": "true"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_compare_should_compare_strings",
+      "operation": "cjson_compare_should_compare_strings",
+      "evidence": "tests/compare_tests.c line 202: compare_from_string(\"\\\"abcdefg\\\"\", \"\\\"abcdefg\\\"\", true) true",
+      "source_case_ids": [
+        "compare_tests_cjson_compare_should_compare_strings"
+      ],
+      "input": "abcdefg vs abcdefg, ABCDEFG vs abcdefg",
+      "expected": {
+        "observable_behavior": "true for same, false for different case (case-sensitive)"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_compare_should_not_accept_invalid_types",
+      "operation": "cjson_compare_should_not_accept_invalid_types",
+      "evidence": "tests/compare_tests.c line 201: TEST_ASSERT_FALSE(cJSON_Compare(invalid, invalid, true)) and TEST_ASSERT_FALSE(cJSON_Compare(invalid, invalid, false))",
+      "source_case_ids": [
+        "compare_tests_cjson_compare_should_not_accept_invalid_types"
+      ],
+      "input": "invalid type items",
+      "expected": {
+        "observable_behavior": "false"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased",
+      "operation": "cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased",
+      "evidence": "tests/misc_tests.c line 831: cJSON_AddItemToObject(object, number->string, number) no use-after-free",
+      "source_case_ids": [
+        "misc_tests_cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased"
+      ],
+      "input": "object, \"number\", number(42)",
+      "expected": {
+        "observable_behavior": "insert returns Ok(())"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_add_item_to_object_or_array_should_not_add_itself",
+      "operation": "cjson_add_item_to_object_or_array_should_not_add_itself",
+      "evidence": "tests/misc_tests.c lines 6-10: TEST_ASSERT_FALSE_MESSAGE on adding object to itself and array to itself",
+      "source_case_ids": [
+        "misc_tests_cjson_add_item_to_object_or_array_should_not_add_itself"
+      ],
+      "input": {
+        "case": "Create an object and an array, then attempt to add each to itself."
+      },
+      "expected": {
+        "observable_behavior": "adding an object to itself or an array to itself should produce an error (false in C, Err in Rust)"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_delete_item_from_array_should_not_broken_list_structure",
+      "operation": "cjson_delete_item_from_array_should_not_broken_list_structure",
+      "evidence": "tests/misc_tests.c line 832: TEST_ASSERT_EQUAL_STRING(expected_json1, str1); etc.",
+      "source_case_ids": [
+        "misc_tests_cjson_delete_item_from_array_should_not_broken_list_structure"
+      ],
+      "input": "Parse empty object, add array with two items, delete first item, print after each operation",
+      "expected": {
+        "observable_behavior": "After each operation, dump returns the corresponding expected JSON string: first with one item, then two, then the remaining item, and finally empty."
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_get_number_value_should_get_a_number",
+      "operation": "cjson_get_number_value_should_get_a_number",
+      "evidence": "tests/misc_tests.c line 826: TEST_ASSERT_EQUAL_DOUBLE(cJSON_GetNumberValue(number), number->valuedouble); TEST_ASSERT_DOUBLE_IS_NAN(cJSON_GetNumberValue(string));",
+      "source_case_ids": [
+        "misc_tests_cjson_get_number_value_should_get_a_number"
+      ],
+      "input": "Create a number 1 and a string 'test'",
+      "expected": {
+        "observable_behavior": "as_f64 on number returns Some(1.0), on string returns None"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_get_object_item_case_sensitive_should_get_object_items",
+      "operation": "cjson_get_object_item_case_sensitive_should_get_object_items",
+      "evidence": "tests/misc_tests.c line 809: TEST_ASSERT_NOT_NULL_MESSAGE and TEST_ASSERT_EQUAL_DOUBLE for 'one'; TEST_ASSERT_NULL_MESSAGE for 'One'",
+      "source_case_ids": [
+        "misc_tests_cjson_get_object_item_case_sensitive_should_get_object_items"
+      ],
+      "input": "Parse object '{\"one\":1, \"Two\":2, \"tHree\":3}', then index with 'one', 'Two', 'tHree', 'One'",
+      "expected": {
+        "observable_behavior": "index(\"one\") returns JsonValue::Number(1), index(\"Two\") returns Number(2), index(\"tHree\") returns Number(3), index(\"One\") returns Null"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_get_object_item_case_sensitive_should_not_crash_with_array",
+      "operation": "cjson_get_object_item_case_sensitive_should_not_crash_with_array",
+      "evidence": "tests/misc_tests.c line 811: TEST_ASSERT_NULL(found);",
+      "source_case_ids": [
+        "misc_tests_cjson_get_object_item_case_sensitive_should_not_crash_with_array"
+      ],
+      "input": "Parse array [1], then index with 'name'",
+      "expected": {
+        "observable_behavior": "index(\"name\") on array returns JsonValue::Null"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_get_object_item_should_get_object_items",
+      "operation": "cjson_get_object_item_should_get_object_items",
+      "evidence": "tests/misc_tests.c line 808: TEST_ASSERT_NOT_NULL_MESSAGE for 'tWo'; source expects non-null for case-insensitive match",
+      "source_case_ids": [
+        "misc_tests_cjson_get_object_item_should_get_object_items"
+      ],
+      "input": "Parse object '{\"one\":1, \"Two\":2, \"tHree\":3}', then index with 'one', 'tWo', 'three', 'four'",
+      "expected": {
+        "observable_behavior": "index(\"one\") returns Number(1), index(\"tWo\") returns Null (difference), index(\"three\") returns Null (difference), index(\"four\") returns Null"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_get_object_item_should_not_crash_with_array",
+      "operation": "cjson_get_object_item_should_not_crash_with_array",
+      "evidence": "tests/misc_tests.c line 810: TEST_ASSERT_NULL(found);",
+      "source_case_ids": [
+        "misc_tests_cjson_get_object_item_should_not_crash_with_array"
+      ],
+      "input": "Parse array [1], then index with 'name'",
+      "expected": {
+        "observable_behavior": "index(\"name\") on array returns JsonValue::Null"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_get_string_value_should_get_a_string",
+      "operation": "cjson_get_string_value_should_get_a_string",
+      "evidence": "tests/misc_tests.c line 825: TEST_ASSERT_TRUE(cJSON_GetStringValue(string) == string->valuestring); TEST_ASSERT_NULL(cJSON_GetStringValue(number));",
+      "source_case_ids": [
+        "misc_tests_cjson_get_string_value_should_get_a_string"
+      ],
+      "input": "Create a string 'test' and a number 1",
+      "expected": {
+        "observable_behavior": "as_str on string returns Some(\"test\"), on number returns None"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "misc_tests_cjson_parse_big_numbers_should_not_report_error",
+      "operation": "misc_tests_cjson_parse_big_numbers_should_not_report_error",
+      "evidence": "tests/misc_tests.c line 835: TEST_ASSERT_NOT_NULL on valid big number parse, TEST_ASSERT_NULL_MESSAGE on invalid",
+      "source_case_ids": [
+        "misc_tests_cjson_parse_big_numbers_should_not_report_error"
+      ],
+      "input": {
+        "case": "valid and invalid big number JSONs"
+      },
+      "expected": {
+        "observable_behavior": "Valid big number JSONs parse successfully, invalid ones return error"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+      "operation": "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+      "evidence": "tests/misc_tests.c line 819: TEST_ASSERT_TRUE(root->child == replacement) and TEST_ASSERT_EQUAL_STRING(\"child\", replacement->string)",
+      "source_case_ids": [
+        "misc_tests_cjson_replace_item_in_object_should_preserve_name"
+      ],
+      "input": {
+        "case": "object with one item, replace it"
+      },
+      "expected": {
+        "observable_behavior": "After replace, key 'child' still exists and its value is the replacement number"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "medium"
+    },
+    {
+      "id": "misc_tests_cjson_should_not_parse_to_deeply_nested_jsons",
+      "operation": "misc_tests_cjson_should_not_parse_to_deeply_nested_jsons",
+      "evidence": "tests/misc_tests.c line 813: TEST_ASSERT_NULL_MESSAGE(cJSON_Parse(deep_json), ...)",
+      "source_case_ids": [
+        "misc_tests_cjson_should_not_parse_to_deeply_nested_jsons"
+      ],
+      "input": {
+        "case": "256-level nested JSON"
+      },
+      "expected": {
+        "observable_behavior": "Parsing a deeply nested JSON returns error"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "misc_tests_typecheck_functions_should_check_type",
+      "operation": "misc_tests_typecheck_functions_should_check_type",
+      "evidence": "tests/misc_tests.c line 812: TEST_ASSERT_TRUE/FALSE on typecheck functions",
+      "source_case_ids": [
+        "misc_tests_typecheck_functions_should_check_type"
+      ],
+      "input": {
+        "case": "null, bool, number, string, array, object values"
+      },
+      "expected": {
+        "observable_behavior": "Each typecheck function returns true for its corresponding type and false for others, including null"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_parse_should_not_parse_incomplete_json",
+      "operation": "cjson_parse_should_not_parse_incomplete_json",
+      "evidence": "source test asserts tree is NULL and error pointer is at end of string; Rust replay asserts parse returns Err",
+      "source_case_ids": [
+        "parse_examples_test12_should_not_be_parsed"
+      ],
+      "input": {
+        "case": "parse incomplete JSON '{ \"name\": '"
+      },
+      "expected": {
+        "observable_behavior": "parse returns an error"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "cjson_parse_with_opts_should_parse_utf8_bom",
+      "operation": "cjson_parse_with_opts_should_parse_utf8_bom",
+      "evidence": "source test parses BOM and non-BOM JSON strings and asserts cJSON_Compare returns true",
+      "source_case_ids": [
+        "parse_with_opts_parse_with_opts_should_parse_utf8_bom"
+      ],
+      "input": {
+        "case": "parse BOM and non-BOM strings"
+      },
+      "expected": {
+        "observable_behavior": "both parsed objects are equal"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high"
+    },
+    {
+      "id": "parse_examples_file_test4_should_be_parsed_and_printed",
+      "operation": "parse_examples_file_test4_should_be_parsed_and_printed",
+      "evidence": "tests/parse_examples.c: file_test4_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)",
+      "source_case_ids": [
+        "parse_examples_file_test4_should_be_parsed_and_printed"
+      ],
+      "input": "case: parse test4 JSON file",
+      "expected": {
+        "observable_behavior": "Parse succeeds, pretty returns a non-empty string"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "medium"
+    },
+    {
+      "id": "parse_examples_file_test5_should_be_parsed_and_printed",
+      "operation": "parse_examples_file_test5_should_be_parsed_and_printed",
+      "evidence": "tests/parse_examples.c: file_test5_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)",
+      "source_case_ids": [
+        "parse_examples_file_test5_should_be_parsed_and_printed"
+      ],
+      "input": "case: parse test5 JSON file",
+      "expected": {
+        "observable_behavior": "Parse succeeds, pretty returns a non-empty string"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "medium"
+    },
+    {
+      "id": "parse_examples_file_test6_should_not_be_parsed",
+      "operation": "parse_examples_file_test6_should_not_be_parsed",
+      "evidence": "tests/parse_examples.c: file_test6_should_not_be_parsed asserts tree == NULL after parsing invalid input (replayed as parse returning Err)",
+      "source_case_ids": [
+        "parse_examples_file_test6_should_not_be_parsed"
+      ],
+      "input": "case: parse invalid JSON input \"not json\"",
+      "expected": {
+        "observable_behavior": "parse returns Err"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "medium"
+    },
+    {
+      "id": "parse_examples_file_test7_should_be_parsed_and_printed",
+      "operation": "parse_examples_file_test7_should_be_parsed_and_printed",
+      "evidence": "tests/parse_examples.c: file_test7_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)",
+      "source_case_ids": [
+        "parse_examples_file_test7_should_be_parsed_and_printed"
+      ],
+      "input": "case: parse test7 JSON file",
+      "expected": {
+        "observable_behavior": "Parse succeeds, pretty returns a non-empty string"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "medium"
+    },
+    {
+      "id": "parse_examples_file_test8_should_be_parsed_and_printed",
+      "operation": "parse_examples_file_test8_should_be_parsed_and_printed",
+      "evidence": "tests/parse_examples.c: file_test8_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)",
+      "source_case_ids": [
+        "parse_examples_file_test8_should_be_parsed_and_printed"
+      ],
+      "input": "case: parse test8 JSON file",
+      "expected": {
+        "observable_behavior": "Parse succeeds, pretty returns a non-empty string"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "medium"
+    },
+    {
+      "id": "parse_examples_file_test9_should_be_parsed_and_printed",
+      "operation": "parse_examples_file_test9_should_be_parsed_and_printed",
+      "evidence": "tests/parse_examples.c: file_test9_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)",
+      "source_case_ids": [
+        "parse_examples_file_test9_should_be_parsed_and_printed"
+      ],
+      "input": "case: parse test9 JSON file",
+      "expected": {
+        "observable_behavior": "Parse succeeds, pretty returns a non-empty string"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "medium"
+    }
+  ],
+  "excluded_behavior_cases": [],
+  "_behavior_case_coverage": {
+    "required_behavior_case_count": 78,
+    "available_behavior_case_count": 78,
+    "initial_context_behavior_case_count": 78,
+    "initial_context_unlisted_behavior_case_count": 0,
+    "unresolved_unlisted_behavior_case_count": 0,
+    "unresolved_unlisted_behavior_case_ids": [],
+    "behavior_case_context_truncated": false,
+    "replayed_behavior_case_count": 44,
+    "replayed_behavior_case_ids": [
+      "cjson_add_cjson_add_array_should_add_array",
+      "cjson_add_cjson_add_bool_should_add_bool",
+      "cjson_add_cjson_add_false_should_add_false",
+      "cjson_add_cjson_add_null_should_add_null",
+      "cjson_add_cjson_add_null_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_number_should_add_number",
+      "cjson_add_cjson_add_number_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_object_should_add_object",
+      "cjson_add_cjson_add_object_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_raw_should_add_raw",
+      "cjson_add_cjson_add_raw_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_string_should_add_string",
+      "cjson_add_cjson_add_true_should_add_true",
+      "compare_tests_cjson_compare_should_compare_arrays",
+      "compare_tests_cjson_compare_should_compare_booleans",
+      "compare_tests_cjson_compare_should_compare_invalid_as_not_equal",
+      "compare_tests_cjson_compare_should_compare_null",
+      "compare_tests_cjson_compare_should_compare_null_pointer_as_not_equal",
+      "compare_tests_cjson_compare_should_compare_numbers",
+      "compare_tests_cjson_compare_should_compare_objects",
+      "compare_tests_cjson_compare_should_compare_raw",
+      "compare_tests_cjson_compare_should_compare_strings",
+      "compare_tests_cjson_compare_should_not_accept_invalid_types",
+      "misc_tests_cjson_add_item_to_object_or_array_should_not_add_itself",
+      "misc_tests_cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased",
+      "misc_tests_cjson_delete_item_from_array_should_not_broken_list_structure",
+      "misc_tests_cjson_get_number_value_should_get_a_number",
+      "misc_tests_cjson_get_object_item_case_sensitive_should_get_object_items",
+      "misc_tests_cjson_get_object_item_case_sensitive_should_not_crash_with_array",
+      "misc_tests_cjson_get_object_item_should_get_object_items",
+      "misc_tests_cjson_get_object_item_should_not_crash_with_array",
+      "misc_tests_cjson_get_string_value_should_get_a_string",
+      "misc_tests_cjson_parse_big_numbers_should_not_report_error",
+      "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+      "misc_tests_cjson_should_not_parse_to_deeply_nested_jsons",
+      "misc_tests_typecheck_functions_should_check_type",
+      "parse_examples_file_test4_should_be_parsed_and_printed",
+      "parse_examples_file_test5_should_be_parsed_and_printed",
+      "parse_examples_file_test6_should_not_be_parsed",
+      "parse_examples_file_test7_should_be_parsed_and_printed",
+      "parse_examples_file_test8_should_be_parsed_and_printed",
+      "parse_examples_file_test9_should_be_parsed_and_printed",
+      "parse_examples_test12_should_not_be_parsed",
+      "parse_with_opts_parse_with_opts_should_parse_utf8_bom"
+    ],
+    "excluded_behavior_case_count": 0,
+    "excluded_behavior_case_ids": [],
+    "accounted_behavior_case_ids": [
+      "cjson_add_cjson_add_array_should_add_array",
+      "cjson_add_cjson_add_bool_should_add_bool",
+      "cjson_add_cjson_add_false_should_add_false",
+      "cjson_add_cjson_add_null_should_add_null",
+      "cjson_add_cjson_add_null_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_number_should_add_number",
+      "cjson_add_cjson_add_number_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_object_should_add_object",
+      "cjson_add_cjson_add_object_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_raw_should_add_raw",
+      "cjson_add_cjson_add_raw_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_string_should_add_string",
+      "cjson_add_cjson_add_true_should_add_true",
+      "compare_tests_cjson_compare_should_compare_arrays",
+      "compare_tests_cjson_compare_should_compare_booleans",
+      "compare_tests_cjson_compare_should_compare_invalid_as_not_equal",
+      "compare_tests_cjson_compare_should_compare_null",
+      "compare_tests_cjson_compare_should_compare_null_pointer_as_not_equal",
+      "compare_tests_cjson_compare_should_compare_numbers",
+      "compare_tests_cjson_compare_should_compare_objects",
+      "compare_tests_cjson_compare_should_compare_raw",
+      "compare_tests_cjson_compare_should_compare_strings",
+      "compare_tests_cjson_compare_should_not_accept_invalid_types",
+      "misc_tests_cjson_add_item_to_object_or_array_should_not_add_itself",
+      "misc_tests_cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased",
+      "misc_tests_cjson_delete_item_from_array_should_not_broken_list_structure",
+      "misc_tests_cjson_get_number_value_should_get_a_number",
+      "misc_tests_cjson_get_object_item_case_sensitive_should_get_object_items",
+      "misc_tests_cjson_get_object_item_case_sensitive_should_not_crash_with_array",
+      "misc_tests_cjson_get_object_item_should_get_object_items",
+      "misc_tests_cjson_get_object_item_should_not_crash_with_array",
+      "misc_tests_cjson_get_string_value_should_get_a_string",
+      "misc_tests_cjson_parse_big_numbers_should_not_report_error",
+      "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+      "misc_tests_cjson_should_not_parse_to_deeply_nested_jsons",
+      "misc_tests_typecheck_functions_should_check_type",
+      "parse_examples_file_test4_should_be_parsed_and_printed",
+      "parse_examples_file_test5_should_be_parsed_and_printed",
+      "parse_examples_file_test6_should_not_be_parsed",
+      "parse_examples_file_test7_should_be_parsed_and_printed",
+      "parse_examples_file_test8_should_be_parsed_and_printed",
+      "parse_examples_file_test9_should_be_parsed_and_printed",
+      "parse_examples_test12_should_not_be_parsed",
+      "parse_with_opts_parse_with_opts_should_parse_utf8_bom"
+    ],
+    "missing_behavior_case_count": 34,
+    "missing_behavior_case_ids": [
+      "cjson_add_cjson_add_array_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_array_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_bool_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_bool_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_false_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_false_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_null_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_number_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_object_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_raw_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_string_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_string_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_true_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_true_should_fail_with_null_pointers",
+      "cjson_add_cjson_create_string_array_should_fail_on_allocation_failure",
+      "misc_tests_cjson_create_array_reference_should_create_an_array_reference",
+      "misc_tests_cjson_create_object_reference_should_create_an_object_reference",
+      "misc_tests_cjson_functions_should_not_crash_with_null_pointers",
+      "misc_tests_cjson_replace_item_via_pointer_should_replace_items",
+      "misc_tests_cjson_set_bool_value_must_not_break_objects",
+      "misc_tests_cjson_set_valuestring_should_return_null_if_strings_overlap",
+      "misc_tests_cjson_set_valuestring_to_object_should_not_leak_memory",
+      "misc_tests_cjson_should_not_follow_too_deep_circular_references",
+      "misc_utils_tests_cjson_utils_functions_shouldnt_crash_with_null_pointers",
+      "old_utils_tests_generate_merge_tests",
+      "old_utils_tests_json_pointer_tests",
+      "old_utils_tests_merge_tests",
+      "old_utils_tests_misc_tests",
+      "old_utils_tests_sort_tests",
+      "parse_examples_file_test10_should_be_parsed_and_printed",
+      "parse_examples_file_test11_should_be_parsed_and_printed",
+      "parse_examples_file_test1_should_be_parsed_and_printed",
+      "parse_examples_file_test2_should_be_parsed_and_printed",
+      "parse_examples_file_test3_should_be_parsed_and_printed"
+    ],
+    "unknown_source_case_ids": [],
+    "replayed_and_excluded_case_ids": [],
+    "invalid_event_case_bindings": [],
+    "invalid_excluded_behavior_cases": [],
+    "events_without_source_case_ids": [],
+    "event_source_case_id_policy": "Only explicit trace_events[].source_case_ids count as behavior-case replay coverage. Function-name fallback is intentionally not used because one function can have many source test behavior variants."
+  },
+  "_adapter_source_path": "output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/effective_adapter.json",
+  "adapter_generation": {
+    "max_attempts_per_case": 3,
+    "batch_size": 10,
+    "unresolved_case_count": 34,
+    "unresolved_case_ids": [
+      "cjson_add_cjson_add_array_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_array_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_bool_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_bool_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_false_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_false_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_null_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_number_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_object_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_raw_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_string_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_string_should_fail_with_null_pointers",
+      "cjson_add_cjson_add_true_should_fail_on_allocation_failure",
+      "cjson_add_cjson_add_true_should_fail_with_null_pointers",
+      "cjson_add_cjson_create_string_array_should_fail_on_allocation_failure",
+      "misc_tests_cjson_create_array_reference_should_create_an_array_reference",
+      "misc_tests_cjson_create_object_reference_should_create_an_object_reference",
+      "misc_tests_cjson_functions_should_not_crash_with_null_pointers",
+      "misc_tests_cjson_replace_item_via_pointer_should_replace_items",
+      "misc_tests_cjson_set_bool_value_must_not_break_objects",
+      "misc_tests_cjson_set_valuestring_should_return_null_if_strings_overlap",
+      "misc_tests_cjson_set_valuestring_to_object_should_not_leak_memory",
+      "misc_tests_cjson_should_not_follow_too_deep_circular_references",
+      "misc_utils_tests_cjson_utils_functions_shouldnt_crash_with_null_pointers",
+      "old_utils_tests_generate_merge_tests",
+      "old_utils_tests_json_pointer_tests",
+      "old_utils_tests_merge_tests",
+      "old_utils_tests_misc_tests",
+      "old_utils_tests_sort_tests",
+      "parse_examples_file_test10_should_be_parsed_and_printed",
+      "parse_examples_file_test11_should_be_parsed_and_printed",
+      "parse_examples_file_test1_should_be_parsed_and_printed",
+      "parse_examples_file_test2_should_be_parsed_and_printed",
+      "parse_examples_file_test3_should_be_parsed_and_printed"
+    ],
+    "unresolved_cases": [
+      {
+        "case_id": "cjson_add_cjson_add_array_should_fail_on_allocation_failure",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "cjson_add_cjson_add_array_should_fail_with_null_pointers",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "cjson_add_cjson_add_bool_should_fail_on_allocation_failure",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "cjson_add_cjson_add_bool_should_fail_with_null_pointers",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "cjson_add_cjson_add_false_should_fail_on_allocation_failure",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "cjson_add_cjson_add_false_should_fail_with_null_pointers",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "cjson_add_cjson_add_null_should_fail_with_null_pointers",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "cjson_add_cjson_add_number_should_fail_with_null_pointers",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "cjson_add_cjson_add_object_should_fail_with_null_pointers",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "cjson_add_cjson_add_raw_should_fail_with_null_pointers",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "cjson_add_cjson_add_string_should_fail_on_allocation_failure",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "cjson_add_cjson_add_string_should_fail_with_null_pointers",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "cjson_add_cjson_add_true_should_fail_on_allocation_failure",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "cjson_add_cjson_add_true_should_fail_with_null_pointers",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "cjson_add_cjson_create_string_array_should_fail_on_allocation_failure",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "misc_tests_cjson_create_array_reference_should_create_an_array_reference",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "misc_tests_cjson_create_object_reference_should_create_an_object_reference",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "misc_tests_cjson_functions_should_not_crash_with_null_pointers",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "misc_tests_cjson_replace_item_via_pointer_should_replace_items",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "misc_tests_cjson_set_bool_value_must_not_break_objects",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "misc_tests_cjson_set_valuestring_should_return_null_if_strings_overlap",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "misc_tests_cjson_set_valuestring_to_object_should_not_leak_memory",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "misc_tests_cjson_should_not_follow_too_deep_circular_references",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "misc_utils_tests_cjson_utils_functions_shouldnt_crash_with_null_pointers",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "old_utils_tests_generate_merge_tests",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "old_utils_tests_json_pointer_tests",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "old_utils_tests_merge_tests",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "old_utils_tests_misc_tests",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "old_utils_tests_sort_tests",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "parse_examples_file_test10_should_be_parsed_and_printed",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "parse_examples_file_test11_should_be_parsed_and_printed",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "parse_examples_file_test1_should_be_parsed_and_printed",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "parse_examples_file_test2_should_be_parsed_and_printed",
+        "status": "unresolved_adapter_generation"
+      },
+      {
+        "case_id": "parse_examples_file_test3_should_be_parsed_and_printed",
+        "status": "unresolved_adapter_generation"
+      }
+    ]
+  },
+  "_validation_errors": [],
+  "_validation_status": "passed"
+}

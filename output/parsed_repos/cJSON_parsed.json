@@ -141,9 +141,9 @@
           "contains_function_pointers": false,
           "declaration": "static internal_hooks global_hooks = { internal_malloc, internal_free, internal_realloc };",
           "initialization_symbols": [
+            "internal_realloc",
             "internal_free",
-            "internal_malloc",
-            "internal_realloc"
+            "internal_malloc"
           ]
         },
         {
@@ -278,10 +278,10 @@
           "body": "CJSON_PUBLIC(const char*) cJSON_Version(void)\r\n{\r\n    static char version[15];\r\n    sprintf(version, \"%i.%i.%i\", CJSON_VERSION_MAJOR, CJSON_VERSION_MINOR, CJSON_VERSION_PATCH);\r\n\r\n    return version;\r\n}",
           "data_flow": {
             "reads": [
-              "CJSON_VERSION_PATCH",
               "CJSON_VERSION_MINOR",
-              "version",
-              "CJSON_VERSION_MAJOR"
+              "CJSON_VERSION_MAJOR",
+              "CJSON_VERSION_PATCH",
+              "version"
             ]
           },
           "control_flow": {
@@ -400,9 +400,9 @@
           "data_flow": {
             "reads": [
               "realloc",
-              "global_hooks",
+              "malloc",
               "free",
-              "malloc"
+              "global_hooks"
             ],
             "writes": [
               "global_hooks"
@@ -501,21 +501,21 @@
               "INT_MAX"
             ],
             "mutates_parameters": [
-              "item",
-              "input_buffer"
+              "input_buffer",
+              "item"
             ]
           },
           "control_flow": {
             "direct_calls": [
-              "strtod",
-              "buffer_at_offset",
               "can_access_at_index",
               "memcpy",
-              "get_decimal_point"
+              "buffer_at_offset",
+              "get_decimal_point",
+              "strtod"
             ],
             "indirect_calls": [
-              "input_buffer->hooks.deallocate",
-              "input_buffer->hooks.allocate"
+              "input_buffer->hooks.allocate",
+              "input_buffer->hooks.deallocate"
             ],
             "has_unstructured_jumps": true
           },
@@ -568,10 +568,10 @@
           },
           "control_flow": {
             "direct_calls": [
+              "cJSON_strdup",
               "strcpy",
-              "cJSON_free",
               "strlen",
-              "cJSON_strdup"
+              "cJSON_free"
             ],
             "has_unstructured_jumps": false
           },
@@ -601,8 +601,8 @@
             ],
             "indirect_calls": [
               "p->hooks.reallocate",
-              "p->hooks.allocate",
-              "p->hooks.deallocate"
+              "p->hooks.deallocate",
+              "p->hooks.allocate"
             ],
             "has_unstructured_jumps": false
           },
@@ -671,12 +671,12 @@
           },
           "control_flow": {
             "direct_calls": [
-              "ensure",
               "isnan",
+              "ensure",
               "sscanf",
               "sprintf",
-              "compare_double",
               "get_decimal_point",
+              "compare_double",
               "isinf"
             ],
             "has_unstructured_jumps": false
@@ -737,8 +737,8 @@
               "cJSON_String"
             ],
             "mutates_parameters": [
-              "item",
-              "input_buffer"
+              "input_buffer",
+              "item"
             ]
           },
           "control_flow": {
@@ -747,8 +747,8 @@
               "utf16_literal_to_utf8"
             ],
             "indirect_calls": [
-              "input_buffer->hooks.deallocate",
-              "input_buffer->hooks.allocate"
+              "input_buffer->hooks.allocate",
+              "input_buffer->hooks.deallocate"
             ],
             "has_unstructured_jumps": true
           },
@@ -767,10 +767,10 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "ensure",
-              "strcpy",
+              "sprintf",
               "memcpy",
-              "sprintf"
+              "ensure",
+              "strcpy"
             ],
             "has_unstructured_jumps": false
           },
@@ -874,8 +874,8 @@
           "control_flow": {
             "direct_calls": [
               "cannot_access_at_index",
-              "buffer_at_offset",
-              "can_access_at_index"
+              "can_access_at_index",
+              "buffer_at_offset"
             ],
             "has_unstructured_jumps": false
           },
@@ -898,9 +898,9 @@
           },
           "control_flow": {
             "direct_calls": [
-              "strncmp",
+              "can_access_at_index",
               "buffer_at_offset",
-              "can_access_at_index"
+              "strncmp"
             ],
             "has_unstructured_jumps": false
           },
@@ -948,12 +948,12 @@
           },
           "control_flow": {
             "direct_calls": [
+              "parse_value",
               "buffer_skip_whitespace",
               "buffer_at_offset",
+              "skip_utf8_bom",
               "cJSON_New_Item",
-              "cJSON_Delete",
-              "parse_value",
-              "skip_utf8_bom"
+              "cJSON_Delete"
             ],
             "has_unstructured_jumps": true
           },
@@ -1016,16 +1016,16 @@
           },
           "control_flow": {
             "direct_calls": [
-              "memset",
               "update_offset",
-              "cjson_min",
+              "memset",
               "memcpy",
+              "cjson_min",
               "print_value"
             ],
             "indirect_calls": [
-              "hooks->allocate",
+              "hooks->reallocate",
               "hooks->deallocate",
-              "hooks->reallocate"
+              "hooks->allocate"
             ],
             "has_unstructured_jumps": true
           },
@@ -1095,8 +1095,8 @@
               "print_value"
             ],
             "indirect_calls": [
-              "global_hooks.allocate",
-              "global_hooks.deallocate"
+              "global_hooks.deallocate",
+              "global_hooks.allocate"
             ],
             "has_unstructured_jumps": false
           },
@@ -1136,25 +1136,25 @@
           "body": "static cJSON_bool parse_value(cJSON * const item, parse_buffer * const input_buffer)\r\n{\r\n    if ((input_buffer == NULL) || (input_buffer->content == NULL))\r\n    {\r\n        return false; /* no input */\r\n    }\r\n\r\n    /* parse the different types of values */\r\n    /* null */\r\n    if (can_read(input_buffer, 4) && (strncmp((const char*)buffer_at_offset(input_buffer), \"null\", 4) == 0))\r\n    {\r\n        item->type = cJSON_NULL;\r\n        input_buffer->offset += 4;\r\n        return true;\r\n    }\r\n    /* false */\r\n    if (can_read(input_buffer, 5) && (strncmp((const char*)buffer_at_offset(input_buffer), \"false\", 5) == 0))\r\n    {\r\n        item->type = cJSON_False;\r\n        input_buffer->offset += 5;\r\n        return true;\r\n    }\r\n    /* true */\r\n    if (can_read(input_buffer, 4) && (strncmp((const char*)buffer_at_offset(input_buffer), \"true\", 4) == 0))\r\n    {\r\n        item->type = cJSON_True;\r\n        item->valueint = 1;\r\n        input_buffer->offset += 4;\r\n        return true;\r\n    }\r\n    /* string */\r\n    if (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == '\\\"'))\r\n    {\r\n        return parse_string(item, input_buffer);\r\n    }\r\n    /* number */\r\n    if (can_access_at_index(input_buffer, 0) && ((buffer_at_offset(input_buffer)[0] == '-') || ((buffer_at_offset(input_buffer)[0] >= '0') && (buffer_at_offset(input_buffer)[0] <= '9'))))\r\n    {\r\n        return parse_number(item, input_buffer);\r\n    }\r\n    /* array */\r\n    if (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == '['))\r\n    {\r\n        return parse_array(item, input_buffer);\r\n    }\r\n    /* object */\r\n    if (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == '{'))\r\n    {\r\n        return parse_object(item, input_buffer);\r\n    }\r\n\r\n    return false;\r\n}",
           "data_flow": {
             "reads": [
+              "cJSON_NULL",
               "cJSON_True",
-              "cJSON_False",
-              "cJSON_NULL"
+              "cJSON_False"
             ],
             "mutates_parameters": [
-              "item",
-              "input_buffer"
+              "input_buffer",
+              "item"
             ]
           },
           "control_flow": {
             "direct_calls": [
-              "buffer_at_offset",
               "can_access_at_index",
-              "strncmp",
-              "parse_object",
-              "parse_array",
-              "parse_string",
               "parse_number",
-              "can_read"
+              "can_read",
+              "buffer_at_offset",
+              "parse_object",
+              "parse_string",
+              "parse_array",
+              "strncmp"
             ],
             "has_unstructured_jumps": false
           },
@@ -1172,25 +1172,25 @@
           "body": "static cJSON_bool print_value(const cJSON * const item, printbuffer * const output_buffer)\r\n{\r\n    unsigned char *output = NULL;\r\n\r\n    if ((item == NULL) || (output_buffer == NULL))\r\n    {\r\n        return false;\r\n    }\r\n\r\n    switch ((item->type) & 0xFF)\r\n    {\r\n        case cJSON_NULL:\r\n            output = ensure(output_buffer, 5);\r\n            if (output == NULL)\r\n            {\r\n                return false;\r\n            }\r\n            strcpy((char*)output, \"null\");\r\n            return true;\r\n\r\n        case cJSON_False:\r\n            output = ensure(output_buffer, 6);\r\n            if (output == NULL)\r\n            {\r\n                return false;\r\n            }\r\n            strcpy((char*)output, \"false\");\r\n            return true;\r\n\r\n        case cJSON_True:\r\n            output = ensure(output_buffer, 5);\r\n            if (output == NULL)\r\n            {\r\n                return false;\r\n            }\r\n            strcpy((char*)output, \"true\");\r\n            return true;\r\n\r\n        case cJSON_Number:\r\n            return print_number(item, output_buffer);\r\n\r\n        case cJSON_Raw:\r\n        {\r\n            size_t raw_length = 0;\r\n            if (item->valuestring == NULL)\r\n            {\r\n                return false;\r\n            }\r\n\r\n            raw_length = strlen(item->valuestring) + sizeof(\"\");\r\n            output = ensure(output_buffer, raw_length);\r\n            if (output == NULL)\r\n            {\r\n                return false;\r\n            }\r\n            memcpy(output, item->valuestring, raw_length);\r\n            return true;\r\n        }\r\n\r\n        case cJSON_String:\r\n            return print_string(item, output_buffer);\r\n\r\n        case cJSON_Array:\r\n            return print_array(item, output_buffer);\r\n\r\n        case cJSON_Object:\r\n            return print_object(item, output_buffer);\r\n\r\n        default:\r\n            return false;\r\n    }\r\n}",
           "data_flow": {
             "reads": [
-              "cJSON_False",
-              "cJSON_Array",
               "cJSON_Number",
               "cJSON_True",
-              "cJSON_Raw",
-              "cJSON_String",
+              "cJSON_Object",
+              "cJSON_False",
+              "cJSON_Array",
               "cJSON_NULL",
-              "cJSON_Object"
+              "cJSON_Raw",
+              "cJSON_String"
             ]
           },
           "control_flow": {
             "direct_calls": [
-              "ensure",
-              "strcpy",
-              "print_object",
               "print_string",
-              "memcpy",
               "strlen",
+              "memcpy",
+              "strcpy",
               "print_array",
+              "ensure",
+              "print_object",
               "print_number"
             ],
             "has_unstructured_jumps": false
@@ -1209,23 +1209,23 @@
           "body": "static cJSON_bool parse_array(cJSON * const item, parse_buffer * const input_buffer)\r\n{\r\n    cJSON *head = NULL; /* head of the linked list */\r\n    cJSON *current_item = NULL;\r\n\r\n    if (input_buffer->depth >= CJSON_NESTING_LIMIT)\r\n    {\r\n        return false; /* to deeply nested */\r\n    }\r\n    input_buffer->depth++;\r\n\r\n    if (buffer_at_offset(input_buffer)[0] != '[')\r\n    {\r\n        /* not an array */\r\n        goto fail;\r\n    }\r\n\r\n    input_buffer->offset++;\r\n    buffer_skip_whitespace(input_buffer);\r\n    if (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == ']'))\r\n    {\r\n        /* empty array */\r\n        goto success;\r\n    }\r\n\r\n    /* check if we skipped to the end of the buffer */\r\n    if (cannot_access_at_index(input_buffer, 0))\r\n    {\r\n        input_buffer->offset--;\r\n        goto fail;\r\n    }\r\n\r\n    /* step back to character in front of the first element */\r\n    input_buffer->offset--;\r\n    /* loop through the comma separated array elements */\r\n    do\r\n    {\r\n        /* allocate next item */\r\n        cJSON *new_item = cJSON_New_Item(&(input_buffer->hooks));\r\n        if (new_item == NULL)\r\n        {\r\n            goto fail; /* allocation failure */\r\n        }\r\n\r\n        /* attach next item to list */\r\n        if (head == NULL)\r\n        {\r\n            /* start the linked list */\r\n            current_item = head = new_item;\r\n        }\r\n        else\r\n        {\r\n            /* add to the end and advance */\r\n            current_item->next = new_item;\r\n            new_item->prev = current_item;\r\n            current_item = new_item;\r\n        }\r\n\r\n        /* parse next value */\r\n        input_buffer->offset++;\r\n        buffer_skip_whitespace(input_buffer);\r\n        if (!parse_value(current_item, input_buffer))\r\n        {\r\n            goto fail; /* failed to parse value */\r\n        }\r\n        buffer_skip_whitespace(input_buffer);\r\n    }\r\n    while (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == ','));\r\n\r\n    if (cannot_access_at_index(input_buffer, 0) || buffer_at_offset(input_buffer)[0] != ']')\r\n    {\r\n        goto fail; /* expected end of array */\r\n    }\r\n\r\nsuccess:\r\n    input_buffer->depth--;\r\n\r\n    if (head != NULL) {\r\n        head->prev = current_item;\r\n    }\r\n\r\n    item->type = cJSON_Array;\r\n    item->child = head;\r\n\r\n    input_buffer->offset++;\r\n\r\n    return true;\r\n\r\nfail:\r\n    if (head != NULL)\r\n    {\r\n        cJSON_Delete(head);\r\n    }\r\n\r\n    return false;\r\n}",
           "data_flow": {
             "reads": [
-              "CJSON_NESTING_LIMIT",
-              "cJSON_Array"
+              "cJSON_Array",
+              "CJSON_NESTING_LIMIT"
             ],
             "mutates_parameters": [
-              "item",
-              "input_buffer"
+              "input_buffer",
+              "item"
             ]
           },
           "control_flow": {
             "direct_calls": [
+              "parse_value",
+              "cannot_access_at_index",
+              "can_access_at_index",
               "buffer_skip_whitespace",
               "buffer_at_offset",
-              "can_access_at_index",
               "cJSON_New_Item",
-              "cJSON_Delete",
-              "parse_value",
-              "cannot_access_at_index"
+              "cJSON_Delete"
             ],
             "has_unstructured_jumps": true
           },
@@ -1251,9 +1251,9 @@
           },
           "control_flow": {
             "direct_calls": [
+              "print_value",
               "ensure",
-              "update_offset",
-              "print_value"
+              "update_offset"
             ],
             "has_unstructured_jumps": false
           },
@@ -1271,24 +1271,24 @@
           "body": "static cJSON_bool parse_object(cJSON * const item, parse_buffer * const input_buffer)\r\n{\r\n    cJSON *head = NULL; /* linked list head */\r\n    cJSON *current_item = NULL;\r\n\r\n    if (input_buffer->depth >= CJSON_NESTING_LIMIT)\r\n    {\r\n        return false; /* to deeply nested */\r\n    }\r\n    input_buffer->depth++;\r\n\r\n    if (cannot_access_at_index(input_buffer, 0) || (buffer_at_offset(input_buffer)[0] != '{'))\r\n    {\r\n        goto fail; /* not an object */\r\n    }\r\n\r\n    input_buffer->offset++;\r\n    buffer_skip_whitespace(input_buffer);\r\n    if (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == '}'))\r\n    {\r\n        goto success; /* empty object */\r\n    }\r\n\r\n    /* check if we skipped to the end of the buffer */\r\n    if (cannot_access_at_index(input_buffer, 0))\r\n    {\r\n        input_buffer->offset--;\r\n        goto fail;\r\n    }\r\n\r\n    /* step back to character in front of the first element */\r\n    input_buffer->offset--;\r\n    /* loop through the comma separated array elements */\r\n    do\r\n    {\r\n        /* allocate next item */\r\n        cJSON *new_item = cJSON_New_Item(&(input_buffer->hooks));\r\n        if (new_item == NULL)\r\n        {\r\n            goto fail; /* allocation failure */\r\n        }\r\n\r\n        /* attach next item to list */\r\n        if (head == NULL)\r\n        {\r\n            /* start the linked list */\r\n            current_item = head = new_item;\r\n        }\r\n        else\r\n        {\r\n            /* add to the end and advance */\r\n            current_item->next = new_item;\r\n            new_item->prev = current_item;\r\n            current_item = new_item;\r\n        }\r\n\r\n        if (cannot_access_at_index(input_buffer, 1))\r\n        {\r\n            goto fail; /* nothing comes after the comma */\r\n        }\r\n\r\n        /* parse the name of the child */\r\n        input_buffer->offset++;\r\n        buffer_skip_whitespace(input_buffer);\r\n        if (!parse_string(current_item, input_buffer))\r\n        {\r\n            goto fail; /* failed to parse name */\r\n        }\r\n        buffer_skip_whitespace(input_buffer);\r\n\r\n        /* swap valuestring and string, because we parsed the name */\r\n        current_item->string = current_item->valuestring;\r\n        current_item->valuestring = NULL;\r\n\r\n        if (cannot_access_at_index(input_buffer, 0) || (buffer_at_offset(input_buffer)[0] != ':'))\r\n        {\r\n            goto fail; /* invalid object */\r\n        }\r\n\r\n        /* parse the value */\r\n        input_buffer->offset++;\r\n        buffer_skip_whitespace(input_buffer);\r\n        if (!parse_value(current_item, input_buffer))\r\n        {\r\n            goto fail; /* failed to parse value */\r\n        }\r\n        buffer_skip_whitespace(input_buffer);\r\n    }\r\n    while (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == ','));\r\n\r\n    if (cannot_access_at_index(input_buffer, 0) || (buffer_at_offset(input_buffer)[0] != '}'))\r\n    {\r\n        goto fail; /* expected end of object */\r\n    }\r\n\r\nsuccess:\r\n    input_buffer->depth--;\r\n\r\n    if (head != NULL) {\r\n        head->prev = current_item;\r\n    }\r\n\r\n    item->type = cJSON_Object;\r\n    item->child = head;\r\n\r\n    input_buffer->offset++;\r\n    return true;\r\n\r\nfail:\r\n    if (head != NULL)\r\n    {\r\n        cJSON_Delete(head);\r\n    }\r\n\r\n    return false;\r\n}",
           "data_flow": {
             "reads": [
-              "CJSON_NESTING_LIMIT",
-              "cJSON_Object"
+              "cJSON_Object",
+              "CJSON_NESTING_LIMIT"
             ],
             "mutates_parameters": [
-              "item",
-              "input_buffer"
+              "input_buffer",
+              "item"
             ]
           },
           "control_flow": {
             "direct_calls": [
+              "parse_value",
+              "cannot_access_at_index",
+              "can_access_at_index",
               "buffer_skip_whitespace",
               "buffer_at_offset",
-              "can_access_at_index",
               "cJSON_New_Item",
               "parse_string",
-              "cJSON_Delete",
-              "parse_value",
-              "cannot_access_at_index"
+              "cJSON_Delete"
             ],
             "has_unstructured_jumps": true
           },
@@ -1314,10 +1314,10 @@
           },
           "control_flow": {
             "direct_calls": [
-              "ensure",
-              "update_offset",
+              "print_string_ptr",
               "print_value",
-              "print_string_ptr"
+              "ensure",
+              "update_offset"
             ],
             "has_unstructured_jumps": false
           },
@@ -1457,8 +1457,8 @@
           "body": "static void suffix_object(cJSON *prev, cJSON *item)\r\n{\r\n    prev->next = item;\r\n    item->prev = prev;\r\n}",
           "data_flow": {
             "mutates_parameters": [
-              "item",
-              "prev"
+              "prev",
+              "item"
             ]
           },
           "control_flow": {
@@ -1483,8 +1483,8 @@
           },
           "control_flow": {
             "direct_calls": [
-              "memcpy",
-              "cJSON_New_Item"
+              "cJSON_New_Item",
+              "memcpy"
             ],
             "has_unstructured_jumps": false
           },
@@ -1501,8 +1501,8 @@
           "body": "static cJSON_bool add_item_to_array(cJSON *array, cJSON *item)\r\n{\r\n    cJSON *child = NULL;\r\n\r\n    if ((item == NULL) || (array == NULL) || (array == item))\r\n    {\r\n        return false;\r\n    }\r\n\r\n    child = array->child;\r\n    /*\r\n     * To find the last item in array quickly, we use prev in array\r\n     */\r\n    if (child == NULL)\r\n    {\r\n        /* list is empty, start new one */\r\n        array->child = item;\r\n        item->prev = item;\r\n        item->next = NULL;\r\n    }\r\n    else\r\n    {\r\n        /* append to the end */\r\n        if (child->prev)\r\n        {\r\n            suffix_object(child->prev, item);\r\n            array->child->prev = item;\r\n        }\r\n    }\r\n\r\n    return true;\r\n}",
           "data_flow": {
             "mutates_parameters": [
-              "item",
-              "array"
+              "array",
+              "item"
             ]
           },
           "control_flow": {
@@ -1559,8 +1559,8 @@
           "body": "static cJSON_bool add_item_to_object(cJSON * const object, const char * const string, cJSON * const item, const internal_hooks * const hooks, const cJSON_bool constant_key)\r\n{\r\n    char *new_key = NULL;\r\n    int new_type = cJSON_Invalid;\r\n\r\n    if ((object == NULL) || (string == NULL) || (item == NULL) || (object == item))\r\n    {\r\n        return false;\r\n    }\r\n\r\n    if (constant_key)\r\n    {\r\n        new_key = (char*)cast_away_const(string);\r\n        new_type = item->type | cJSON_StringIsConst;\r\n    }\r\n    else\r\n    {\r\n        new_key = (char*)cJSON_strdup((const unsigned char*)string, hooks);\r\n        if (new_key == NULL)\r\n        {\r\n            return false;\r\n        }\r\n\r\n        new_type = item->type & ~cJSON_StringIsConst;\r\n    }\r\n\r\n    if (!(item->type & cJSON_StringIsConst) && (item->string != NULL))\r\n    {\r\n        hooks->deallocate(item->string);\r\n    }\r\n\r\n    item->string = new_key;\r\n    item->type = new_type;\r\n\r\n    return add_item_to_array(object, item);\r\n}",
           "data_flow": {
             "reads": [
-              "cJSON_StringIsConst",
-              "cJSON_Invalid"
+              "cJSON_Invalid",
+              "cJSON_StringIsConst"
             ],
             "mutates_parameters": [
               "item"
@@ -1663,8 +1663,8 @@
           },
           "control_flow": {
             "direct_calls": [
-              "add_item_to_object",
-              "create_reference"
+              "create_reference",
+              "add_item_to_object"
             ],
             "has_unstructured_jumps": false
           },
@@ -1710,9 +1710,9 @@
           },
           "control_flow": {
             "direct_calls": [
+              "cJSON_Delete",
               "add_item_to_object",
-              "cJSON_CreateTrue",
-              "cJSON_Delete"
+              "cJSON_CreateTrue"
             ],
             "has_unstructured_jumps": false
           },
@@ -1734,9 +1734,9 @@
           },
           "control_flow": {
             "direct_calls": [
+              "cJSON_CreateFalse",
               "add_item_to_object",
-              "cJSON_Delete",
-              "cJSON_CreateFalse"
+              "cJSON_Delete"
             ],
             "has_unstructured_jumps": false
           },
@@ -1758,8 +1758,8 @@
           },
           "control_flow": {
             "direct_calls": [
-              "add_item_to_object",
               "cJSON_CreateBool",
+              "add_item_to_object",
               "cJSON_Delete"
             ],
             "has_unstructured_jumps": false
@@ -1783,8 +1783,8 @@
           "control_flow": {
             "direct_calls": [
               "add_item_to_object",
-              "cJSON_CreateNumber",
-              "cJSON_Delete"
+              "cJSON_Delete",
+              "cJSON_CreateNumber"
             ],
             "has_unstructured_jumps": false
           },
@@ -1807,8 +1807,8 @@
           "control_flow": {
             "direct_calls": [
               "add_item_to_object",
-              "cJSON_CreateString",
-              "cJSON_Delete"
+              "cJSON_Delete",
+              "cJSON_CreateString"
             ],
             "has_unstructured_jumps": false
           },
@@ -1831,8 +1831,8 @@
           "control_flow": {
             "direct_calls": [
               "add_item_to_object",
-              "cJSON_Delete",
-              "cJSON_CreateRaw"
+              "cJSON_CreateRaw",
+              "cJSON_Delete"
             ],
             "has_unstructured_jumps": false
           },
@@ -1855,8 +1855,8 @@
           "control_flow": {
             "direct_calls": [
               "add_item_to_object",
-              "cJSON_Delete",
-              "cJSON_CreateObject"
+              "cJSON_CreateObject",
+              "cJSON_Delete"
             ],
             "has_unstructured_jumps": false
           },
@@ -1879,8 +1879,8 @@
           "control_flow": {
             "direct_calls": [
               "add_item_to_object",
-              "cJSON_Delete",
-              "cJSON_CreateArray"
+              "cJSON_CreateArray",
+              "cJSON_Delete"
             ],
             "has_unstructured_jumps": false
           },
@@ -1897,8 +1897,8 @@
           "body": "CJSON_PUBLIC(cJSON *) cJSON_DetachItemViaPointer(cJSON *parent, cJSON * const item)\r\n{\r\n    if ((parent == NULL) || (item == NULL) || (item != parent->child && item->prev == NULL))\r\n    {\r\n        return NULL;\r\n    }\r\n\r\n    if (item != parent->child)\r\n    {\r\n        /* not the first element */\r\n        item->prev->next = item->next;\r\n    }\r\n    if (item->next != NULL)\r\n    {\r\n        /* not the last element */\r\n        item->next->prev = item->prev;\r\n    }\r\n\r\n    if (item == parent->child)\r\n    {\r\n        /* first element */\r\n        parent->child = item->next;\r\n    }\r\n    else if (item->next == NULL)\r\n    {\r\n        /* last element */\r\n        parent->child->prev = item->prev;\r\n    }\r\n\r\n    /* make sure the detached item doesn't point anywhere anymore */\r\n    item->prev = NULL;\r\n    item->next = NULL;\r\n\r\n    return item;\r\n}",
           "data_flow": {
             "mutates_parameters": [
-              "item",
-              "parent"
+              "parent",
+              "item"
             ]
           },
           "control_flow": {
@@ -1918,8 +1918,8 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "get_array_item",
-              "cJSON_DetachItemViaPointer"
+              "cJSON_DetachItemViaPointer",
+              "get_array_item"
             ],
             "has_unstructured_jumps": false
           },
@@ -1937,8 +1937,8 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "cJSON_DetachItemFromArray",
-              "cJSON_Delete"
+              "cJSON_Delete",
+              "cJSON_DetachItemFromArray"
             ],
             "has_unstructured_jumps": false
           },
@@ -1956,8 +1956,8 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "cJSON_GetObjectItem",
-              "cJSON_DetachItemViaPointer"
+              "cJSON_DetachItemViaPointer",
+              "cJSON_GetObjectItem"
             ],
             "has_unstructured_jumps": false
           },
@@ -1975,8 +1975,8 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "cJSON_GetObjectItemCaseSensitive",
-              "cJSON_DetachItemViaPointer"
+              "cJSON_DetachItemViaPointer",
+              "cJSON_GetObjectItemCaseSensitive"
             ],
             "has_unstructured_jumps": false
           },
@@ -2032,8 +2032,8 @@
           "body": "CJSON_PUBLIC(cJSON_bool) cJSON_InsertItemInArray(cJSON *array, int which, cJSON *newitem)\r\n{\r\n    cJSON *after_inserted = NULL;\r\n\r\n    if (which < 0 || newitem == NULL)\r\n    {\r\n        return false;\r\n    }\r\n\r\n    after_inserted = get_array_item(array, (size_t)which);\r\n    if (after_inserted == NULL)\r\n    {\r\n        return add_item_to_array(array, newitem);\r\n    }\r\n\r\n    if (after_inserted != array->child && after_inserted->prev == NULL) {\r\n        /* return false if after_inserted is a corrupted array item */\r\n        return false;\r\n    }\r\n\r\n    newitem->next = after_inserted;\r\n    newitem->prev = after_inserted->prev;\r\n    after_inserted->prev = newitem;\r\n    if (after_inserted == array->child)\r\n    {\r\n        array->child = newitem;\r\n    }\r\n    else\r\n    {\r\n        newitem->prev->next = newitem;\r\n    }\r\n    return true;\r\n}",
           "data_flow": {
             "mutates_parameters": [
-              "newitem",
-              "array"
+              "array",
+              "newitem"
             ]
           },
           "control_flow": {
@@ -2056,9 +2056,9 @@
           "body": "CJSON_PUBLIC(cJSON_bool) cJSON_ReplaceItemViaPointer(cJSON * const parent, cJSON * const item, cJSON * replacement)\r\n{\r\n    if ((parent == NULL) || (parent->child == NULL) || (replacement == NULL) || (item == NULL))\r\n    {\r\n        return false;\r\n    }\r\n\r\n    if (replacement == item)\r\n    {\r\n        return true;\r\n    }\r\n\r\n    replacement->next = item->next;\r\n    replacement->prev = item->prev;\r\n\r\n    if (replacement->next != NULL)\r\n    {\r\n        replacement->next->prev = replacement;\r\n    }\r\n    if (parent->child == item)\r\n    {\r\n        if (parent->child->prev == parent->child)\r\n        {\r\n            replacement->prev = replacement;\r\n        }\r\n        parent->child = replacement;\r\n    }\r\n    else\r\n    {   /*\r\n         * To find the last item in array quickly, we use prev in array.\r\n         * We can't modify the last item's next pointer where this item was the parent's child\r\n         */\r\n        if (replacement->prev != NULL)\r\n        {\r\n            replacement->prev->next = replacement;\r\n        }\r\n        if (replacement->next == NULL)\r\n        {\r\n            parent->child->prev = replacement;\r\n        }\r\n    }\r\n\r\n    item->next = NULL;\r\n    item->prev = NULL;\r\n    cJSON_Delete(item);\r\n\r\n    return true;\r\n}",
           "data_flow": {
             "mutates_parameters": [
+              "parent",
               "item",
-              "replacement",
-              "parent"
+              "replacement"
             ]
           },
           "control_flow": {
@@ -2081,8 +2081,8 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "get_array_item",
-              "cJSON_ReplaceItemViaPointer"
+              "cJSON_ReplaceItemViaPointer",
+              "get_array_item"
             ],
             "has_unstructured_jumps": false
           },
@@ -2099,8 +2099,8 @@
           "body": "static cJSON_bool replace_item_in_object(cJSON *object, const char *string, cJSON *replacement, cJSON_bool case_sensitive)\r\n{\r\n    if ((replacement == NULL) || (string == NULL))\r\n    {\r\n        return false;\r\n    }\r\n\r\n    /* replace the name in the replacement */\r\n    if (!(replacement->type & cJSON_StringIsConst) && (replacement->string != NULL))\r\n    {\r\n        cJSON_free(replacement->string);\r\n    }\r\n    replacement->string = (char*)cJSON_strdup((const unsigned char*)string, &global_hooks);\r\n    if (replacement->string == NULL)\r\n    {\r\n        return false;\r\n    }\r\n\r\n    replacement->type &= ~cJSON_StringIsConst;\r\n\r\n    return cJSON_ReplaceItemViaPointer(object, get_object_item(object, string, case_sensitive), replacement);\r\n}",
           "data_flow": {
             "reads": [
-              "cJSON_StringIsConst",
-              "global_hooks"
+              "global_hooks",
+              "cJSON_StringIsConst"
             ],
             "mutates_parameters": [
               "replacement"
@@ -2108,10 +2108,10 @@
           },
           "control_flow": {
             "direct_calls": [
-              "get_object_item",
+              "cJSON_strdup",
               "cJSON_ReplaceItemViaPointer",
-              "cJSON_free",
-              "cJSON_strdup"
+              "get_object_item",
+              "cJSON_free"
             ],
             "has_unstructured_jumps": false
           },
@@ -2259,9 +2259,9 @@
           "data_flow": {
             "reads": [
               "INT_MAX",
+              "cJSON_Number",
               "INT_MIN",
-              "global_hooks",
-              "cJSON_Number"
+              "global_hooks"
             ]
           },
           "control_flow": {
@@ -2290,8 +2290,8 @@
           "control_flow": {
             "direct_calls": [
               "cJSON_New_Item",
-              "cJSON_Delete",
-              "cJSON_strdup"
+              "cJSON_strdup",
+              "cJSON_Delete"
             ],
             "has_unstructured_jumps": false
           },
@@ -2334,8 +2334,8 @@
           "data_flow": {
             "reads": [
               "cJSON_IsReference",
-              "global_hooks",
-              "cJSON_Object"
+              "cJSON_Object",
+              "global_hooks"
             ]
           },
           "control_flow": {
@@ -2390,8 +2390,8 @@
           "control_flow": {
             "direct_calls": [
               "cJSON_New_Item",
-              "cJSON_Delete",
-              "cJSON_strdup"
+              "cJSON_strdup",
+              "cJSON_Delete"
             ],
             "has_unstructured_jumps": false
           },
@@ -2431,8 +2431,8 @@
           "body": "CJSON_PUBLIC(cJSON *) cJSON_CreateObject(void)\r\n{\r\n    cJSON *item = cJSON_New_Item(&global_hooks);\r\n    if (item)\r\n    {\r\n        item->type = cJSON_Object;\r\n    }\r\n\r\n    return item;\r\n}",
           "data_flow": {
             "reads": [
-              "global_hooks",
-              "cJSON_Object"
+              "cJSON_Object",
+              "global_hooks"
             ]
           },
           "control_flow": {
@@ -2456,10 +2456,10 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "suffix_object",
+              "cJSON_CreateArray",
               "cJSON_Delete",
-              "cJSON_CreateNumber",
-              "cJSON_CreateArray"
+              "suffix_object",
+              "cJSON_CreateNumber"
             ],
             "has_unstructured_jumps": false
           },
@@ -2477,10 +2477,10 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "suffix_object",
+              "cJSON_CreateArray",
               "cJSON_Delete",
-              "cJSON_CreateNumber",
-              "cJSON_CreateArray"
+              "suffix_object",
+              "cJSON_CreateNumber"
             ],
             "has_unstructured_jumps": false
           },
@@ -2498,10 +2498,10 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "suffix_object",
+              "cJSON_CreateArray",
               "cJSON_Delete",
-              "cJSON_CreateNumber",
-              "cJSON_CreateArray"
+              "suffix_object",
+              "cJSON_CreateNumber"
             ],
             "has_unstructured_jumps": false
           },
@@ -2519,9 +2519,9 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
+              "cJSON_CreateArray",
               "cJSON_Delete",
               "cJSON_CreateString",
-              "cJSON_CreateArray",
               "suffix_object"
             ],
             "has_unstructured_jumps": false
@@ -2568,18 +2568,18 @@
           "body": "cJSON * cJSON_Duplicate_rec(const cJSON *item, size_t depth, cJSON_bool recurse)\r\n{\r\n    cJSON *newitem = NULL;\r\n    cJSON *child = NULL;\r\n    cJSON *next = NULL;\r\n    cJSON *newchild = NULL;\r\n\r\n    /* Bail on bad ptr */\r\n    if (!item)\r\n    {\r\n        goto fail;\r\n    }\r\n    /* Create new item */\r\n    newitem = cJSON_New_Item(&global_hooks);\r\n    if (!newitem)\r\n    {\r\n        goto fail;\r\n    }\r\n    /* Copy over all vars */\r\n    newitem->type = item->type & (~cJSON_IsReference);\r\n    newitem->valueint = item->valueint;\r\n    newitem->valuedouble = item->valuedouble;\r\n    if (item->valuestring)\r\n    {\r\n        newitem->valuestring = (char*)cJSON_strdup((unsigned char*)item->valuestring, &global_hooks);\r\n        if (!newitem->valuestring)\r\n        {\r\n            goto fail;\r\n        }\r\n    }\r\n    if (item->string)\r\n    {\r\n        newitem->string = (item->type&cJSON_StringIsConst) ? item->string : (char*)cJSON_strdup((unsigned char*)item->string, &global_hooks);\r\n        if (!newitem->string)\r\n        {\r\n            goto fail;\r\n        }\r\n    }\r\n    /* If non-recursive, then we're done! */\r\n    if (!recurse)\r\n    {\r\n        return newitem;\r\n    }\r\n    /* Walk the ->next chain for the child. */\r\n    child = item->child;\r\n    while (child != NULL)\r\n    {\r\n        if(depth >= CJSON_CIRCULAR_LIMIT) {\r\n            goto fail;\r\n        }\r\n        newchild = cJSON_Duplicate_rec(child, depth + 1, true); /* Duplicate (with recurse) each item in the ->next chain */\r\n        if (!newchild)\r\n        {\r\n            goto fail;\r\n        }\r\n        if (next != NULL)\r\n        {\r\n            /* If newitem->child already set, then crosswire ->prev and ->next and move on */\r\n            next->next = newchild;\r\n            newchild->prev = next;\r\n            next = newchild;\r\n        }\r\n        else\r\n        {\r\n            /* Set newitem->child and move to it */\r\n            newitem->child = newchild;\r\n            next = newchild;\r\n        }\r\n        child = child->next;\r\n    }\r\n    if (newitem && newitem->child)\r\n    {\r\n        newitem->child->prev = newchild;\r\n    }\r\n\r\n    return newitem;\r\n\r\nfail:\r\n    if (newitem != NULL)\r\n    {\r\n        cJSON_Delete(newitem);\r\n    }\r\n\r\n    return NULL;\r\n}",
           "data_flow": {
             "reads": [
-              "cJSON_IsReference",
               "CJSON_CIRCULAR_LIMIT",
-              "cJSON_StringIsConst",
-              "global_hooks"
+              "cJSON_IsReference",
+              "global_hooks",
+              "cJSON_StringIsConst"
             ]
           },
           "control_flow": {
             "direct_calls": [
-              "cJSON_Delete",
-              "cJSON_New_Item",
               "cJSON_Duplicate_rec",
-              "cJSON_strdup"
+              "cJSON_New_Item",
+              "cJSON_strdup",
+              "cJSON_Delete"
             ],
             "has_unstructured_jumps": true
           },
@@ -2664,9 +2664,9 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "minify_string",
+              "skip_oneline_comment",
               "skip_multiline_comment",
-              "skip_oneline_comment"
+              "minify_string"
             ],
             "has_unstructured_jumps": false
           },
@@ -2874,23 +2874,23 @@
           "body": "CJSON_PUBLIC(cJSON_bool) cJSON_Compare(const cJSON * const a, const cJSON * const b, const cJSON_bool case_sensitive)\r\n{\r\n    if ((a == NULL) || (b == NULL) || ((a->type & 0xFF) != (b->type & 0xFF)))\r\n    {\r\n        return false;\r\n    }\r\n\r\n    /* check if type is valid */\r\n    switch (a->type & 0xFF)\r\n    {\r\n        case cJSON_False:\r\n        case cJSON_True:\r\n        case cJSON_NULL:\r\n        case cJSON_Number:\r\n        case cJSON_String:\r\n        case cJSON_Raw:\r\n        case cJSON_Array:\r\n        case cJSON_Object:\r\n            break;\r\n\r\n        default:\r\n            return false;\r\n    }\r\n\r\n    /* identical objects are equal */\r\n    if (a == b)\r\n    {\r\n        return true;\r\n    }\r\n\r\n    switch (a->type & 0xFF)\r\n    {\r\n        /* in these cases and equal type is enough */\r\n        case cJSON_False:\r\n        case cJSON_True:\r\n        case cJSON_NULL:\r\n            return true;\r\n\r\n        case cJSON_Number:\r\n            if (compare_double(a->valuedouble, b->valuedouble))\r\n            {\r\n                return true;\r\n            }\r\n            return false;\r\n\r\n        case cJSON_String:\r\n        case cJSON_Raw:\r\n            if ((a->valuestring == NULL) || (b->valuestring == NULL))\r\n            {\r\n                return false;\r\n            }\r\n            if (strcmp(a->valuestring, b->valuestring) == 0)\r\n            {\r\n                return true;\r\n            }\r\n\r\n            return false;\r\n\r\n        case cJSON_Array:\r\n        {\r\n            cJSON *a_element = a->child;\r\n            cJSON *b_element = b->child;\r\n\r\n            for (; (a_element != NULL) && (b_element != NULL);)\r\n            {\r\n                if (!cJSON_Compare(a_element, b_element, case_sensitive))\r\n                {\r\n                    return false;\r\n                }\r\n\r\n                a_element = a_element->next;\r\n                b_element = b_element->next;\r\n            }\r\n\r\n            /* one of the arrays is longer than the other */\r\n            if (a_element != b_element) {\r\n                return false;\r\n            }\r\n\r\n            return true;\r\n        }\r\n\r\n        case cJSON_Object:\r\n        {\r\n            cJSON *a_element = NULL;\r\n            cJSON *b_element = NULL;\r\n            cJSON_ArrayForEach(a_element, a)\r\n            {\r\n                /* TODO This has O(n^2) runtime, which is horrible! */\r\n                b_element = get_object_item(b, a_element->string, case_sensitive);\r\n                if (b_element == NULL)\r\n                {\r\n                    return false;\r\n                }\r\n\r\n                if (!cJSON_Compare(a_element, b_element, case_sensitive))\r\n                {\r\n                    return false;\r\n                }\r\n            }\r\n\r\n            /* doing this twice, once on a and b to prevent true comparison if a subset of b\r\n             * TODO: Do this the proper way, this is just a fix for now */\r\n            cJSON_ArrayForEach(b_element, b)\r\n            {\r\n                a_element = get_object_item(a, b_element->string, case_sensitive);\r\n                if (a_element == NULL)\r\n                {\r\n                    return false;\r\n                }\r\n\r\n                if (!cJSON_Compare(b_element, a_element, case_sensitive))\r\n                {\r\n                    return false;\r\n                }\r\n            }\r\n\r\n            return true;\r\n        }\r\n\r\n        default:\r\n            return false;\r\n    }\r\n}",
           "data_flow": {
             "reads": [
-              "cJSON_False",
-              "cJSON_Array",
               "cJSON_Number",
               "cJSON_True",
-              "cJSON_Raw",
-              "cJSON_String",
+              "cJSON_Object",
+              "cJSON_False",
+              "cJSON_Array",
               "cJSON_NULL",
-              "cJSON_Object"
+              "cJSON_String",
+              "cJSON_Raw"
             ]
           },
           "control_flow": {
             "direct_calls": [
+              "cJSON_Compare",
               "get_object_item",
               "cJSON_ArrayForEach",
-              "strcmp",
               "compare_double",
-              "cJSON_Compare"
+              "strcmp"
             ],
             "has_unstructured_jumps": false
           },
@@ -3014,9 +3014,9 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
+              "memcpy",
               "cJSON_malloc",
-              "strlen",
-              "memcpy"
+              "strlen"
             ],
             "has_unstructured_jumps": false
           },
@@ -3136,17 +3136,17 @@
           },
           "control_flow": {
             "direct_calls": [
-              "strcat",
               "encode_string_as_pointer",
-              "cJSON_IsObject",
               "strlen",
-              "cJSONUtils_strdup",
-              "cJSONUtils_FindPointerFromObjectTo",
-              "cJSON_IsArray",
+              "cJSON_IsObject",
               "sprintf",
-              "cJSON_free",
+              "strcat",
               "pointer_encoded_length",
-              "cJSON_malloc"
+              "cJSONUtils_FindPointerFromObjectTo",
+              "cJSONUtils_strdup",
+              "cJSON_malloc",
+              "cJSON_IsArray",
+              "cJSON_free"
             ],
             "has_unstructured_jumps": false
           },
@@ -3199,11 +3199,11 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "get_array_item",
+              "compare_pointers",
               "cJSON_IsObject",
+              "get_array_item",
               "decode_array_index_from_pointer",
-              "cJSON_IsArray",
-              "compare_pointers"
+              "cJSON_IsArray"
             ],
             "has_unstructured_jumps": false
           },
@@ -3294,16 +3294,16 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "strrchr",
-              "decode_array_index_from_pointer",
-              "detach_item_from_array",
-              "cJSONUtils_strdup",
+              "get_item_from_pointer",
               "cJSON_IsObject",
               "decode_pointer_inplace",
-              "cJSON_IsArray",
-              "cJSON_free",
               "cJSON_DetachItemFromObject",
-              "get_item_from_pointer"
+              "strrchr",
+              "detach_item_from_array",
+              "decode_array_index_from_pointer",
+              "cJSONUtils_strdup",
+              "cJSON_IsArray",
+              "cJSON_free"
             ],
             "has_unstructured_jumps": true
           },
@@ -3363,15 +3363,15 @@
           "data_flow": {
             "reads": [
               "cJSON_Array",
-              "cJSON_String",
               "cJSON_Number",
-              "cJSON_Object"
+              "cJSON_Object",
+              "cJSON_String"
             ]
           },
           "control_flow": {
             "direct_calls": [
-              "compare_strings",
               "compare_json",
+              "compare_strings",
               "sort_object",
               "compare_double",
               "strcmp"
@@ -3392,8 +3392,8 @@
           "body": "static cJSON_bool insert_item_in_array(cJSON *array, size_t which, cJSON *newitem)\r\n{\r\n    cJSON *child = array->child;\r\n    while (child && (which > 0))\r\n    {\r\n        child = child->next;\r\n        which--;\r\n    }\r\n    if (which > 0)\r\n    {\r\n        /* item is after the end of the array */\r\n        return 0;\r\n    }\r\n    if (child == NULL)\r\n    {\r\n        cJSON_AddItemToArray(array, newitem);\r\n        return 1;\r\n    }\r\n\r\n    /* insert into the linked list */\r\n    newitem->next = child;\r\n    newitem->prev = child->prev;\r\n    child->prev = newitem;\r\n\r\n    /* was it at the beginning */\r\n    if (child == array->child)\r\n    {\r\n        array->child = newitem;\r\n    }\r\n    else\r\n    {\r\n        newitem->prev->next = newitem;\r\n    }\r\n\r\n    return 1;\r\n}",
           "data_flow": {
             "mutates_parameters": [
-              "newitem",
-              "array"
+              "array",
+              "newitem"
             ]
           },
           "control_flow": {
@@ -3416,8 +3416,8 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "cJSON_GetObjectItemCaseSensitive",
-              "cJSON_GetObjectItem"
+              "cJSON_GetObjectItem",
+              "cJSON_GetObjectItemCaseSensitive"
             ],
             "has_unstructured_jumps": false
           },
@@ -3434,20 +3434,20 @@
           "body": "static enum patch_operation decode_patch_operation(const cJSON * const patch, const cJSON_bool case_sensitive)\r\n{\r\n    cJSON *operation = get_object_item(patch, \"op\", case_sensitive);\r\n    if (!cJSON_IsString(operation))\r\n    {\r\n        return INVALID;\r\n    }\r\n\r\n    if (strcmp(operation->valuestring, \"add\") == 0)\r\n    {\r\n        return ADD;\r\n    }\r\n\r\n    if (strcmp(operation->valuestring, \"remove\") == 0)\r\n    {\r\n        return REMOVE;\r\n    }\r\n\r\n    if (strcmp(operation->valuestring, \"replace\") == 0)\r\n    {\r\n        return REPLACE;\r\n    }\r\n\r\n    if (strcmp(operation->valuestring, \"move\") == 0)\r\n    {\r\n        return MOVE;\r\n    }\r\n\r\n    if (strcmp(operation->valuestring, \"copy\") == 0)\r\n    {\r\n        return COPY;\r\n    }\r\n\r\n    if (strcmp(operation->valuestring, \"test\") == 0)\r\n    {\r\n        return TEST;\r\n    }\r\n\r\n    return INVALID;\r\n}",
           "data_flow": {
             "reads": [
-              "TEST",
-              "ADD",
-              "COPY",
               "MOVE",
-              "REPLACE",
               "INVALID",
-              "REMOVE"
+              "REPLACE",
+              "TEST",
+              "COPY",
+              "REMOVE",
+              "ADD"
             ]
           },
           "control_flow": {
             "direct_calls": [
-              "strcmp",
               "get_object_item",
-              "cJSON_IsString"
+              "cJSON_IsString",
+              "strcmp"
             ],
             "has_unstructured_jumps": false
           },
@@ -3485,15 +3485,15 @@
           "body": "static int apply_patch(cJSON *object, const cJSON *patch, const cJSON_bool case_sensitive)\r\n{\r\n    cJSON *path = NULL;\r\n    cJSON *value = NULL;\r\n    cJSON *parent = NULL;\r\n    enum patch_operation opcode = INVALID;\r\n    unsigned char *parent_pointer = NULL;\r\n    unsigned char *child_pointer = NULL;\r\n    int status = 0;\r\n\r\n    path = get_object_item(patch, \"path\", case_sensitive);\r\n    if (!cJSON_IsString(path))\r\n    {\r\n        /* malformed patch. */\r\n        status = 2;\r\n        goto cleanup;\r\n    }\r\n\r\n    opcode = decode_patch_operation(patch, case_sensitive);\r\n    if (opcode == INVALID)\r\n    {\r\n        status = 3;\r\n        goto cleanup;\r\n    }\r\n    else if (opcode == TEST)\r\n    {\r\n        /* compare value: {...} with the given path */\r\n        status = !compare_json(get_item_from_pointer(object, path->valuestring, case_sensitive), get_object_item(patch, \"value\", case_sensitive), case_sensitive);\r\n        goto cleanup;\r\n    }\r\n\r\n    /* special case for replacing the root */\r\n    if (path->valuestring[0] == '\\0')\r\n    {\r\n        if (opcode == REMOVE)\r\n        {\r\n            static const cJSON invalid = { NULL, NULL, NULL, cJSON_Invalid, NULL, 0, 0, NULL};\r\n\r\n            overwrite_item(object, invalid);\r\n\r\n            status = 0;\r\n            goto cleanup;\r\n        }\r\n\r\n        if ((opcode == REPLACE) || (opcode == ADD))\r\n        {\r\n            value = get_object_item(patch, \"value\", case_sensitive);\r\n            if (value == NULL)\r\n            {\r\n                /* missing \"value\" for add/replace. */\r\n                status = 7;\r\n                goto cleanup;\r\n            }\r\n\r\n            value = cJSON_Duplicate(value, 1);\r\n            if (value == NULL)\r\n            {\r\n                /* out of memory for add/replace. */\r\n                status = 8;\r\n                goto cleanup;\r\n            }\r\n\r\n            overwrite_item(object, *value);\r\n\r\n            /* delete the duplicated value */\r\n            cJSON_free(value);\r\n            value = NULL;\r\n\r\n            /* the string \"value\" isn't needed */\r\n            if (object->string != NULL)\r\n            {\r\n                cJSON_free(object->string);\r\n                object->string = NULL;\r\n            }\r\n\r\n            status = 0;\r\n            goto cleanup;\r\n        }\r\n    }\r\n\r\n    if ((opcode == REMOVE) || (opcode == REPLACE))\r\n    {\r\n        /* Get rid of old. */\r\n        cJSON *old_item = detach_path(object, (unsigned char*)path->valuestring, case_sensitive);\r\n        if (old_item == NULL)\r\n        {\r\n            status = 13;\r\n            goto cleanup;\r\n        }\r\n        cJSON_Delete(old_item);\r\n        if (opcode == REMOVE)\r\n        {\r\n            /* For Remove, this job is done. */\r\n            status = 0;\r\n            goto cleanup;\r\n        }\r\n    }\r\n\r\n    /* Copy/Move uses \"from\". */\r\n    if ((opcode == MOVE) || (opcode == COPY))\r\n    {\r\n        cJSON *from = get_object_item(patch, \"from\", case_sensitive);\r\n        if (!cJSON_IsString(from))\r\n        {\r\n            /* missing \"from\" for copy/move. */\r\n            status = 4;\r\n            goto cleanup;\r\n        }\r\n\r\n        if (opcode == MOVE)\r\n        {\r\n            value = detach_path(object, (unsigned char*)from->valuestring, case_sensitive);\r\n        }\r\n        if (opcode == COPY)\r\n        {\r\n            value = get_item_from_pointer(object, from->valuestring, case_sensitive);\r\n        }\r\n        if (value == NULL)\r\n        {\r\n            /* missing \"from\" for copy/move. */\r\n            status = 5;\r\n            goto cleanup;\r\n        }\r\n        if (opcode == COPY)\r\n        {\r\n            value = cJSON_Duplicate(value, 1);\r\n        }\r\n        if (value == NULL)\r\n        {\r\n            /* out of memory for copy/move. */\r\n            status = 6;\r\n            goto cleanup;\r\n        }\r\n    }\r\n    else /* Add/Replace uses \"value\". */\r\n    {\r\n        value = get_object_item(patch, \"value\", case_sensitive);\r\n        if (value == NULL)\r\n        {\r\n            /* missing \"value\" for add/replace. */\r\n            status = 7;\r\n            goto cleanup;\r\n        }\r\n        value = cJSON_Duplicate(value, 1);\r\n        if (value == NULL)\r\n        {\r\n            /* out of memory for add/replace. */\r\n            status = 8;\r\n            goto cleanup;\r\n        }\r\n    }\r\n\r\n    /* Now, just add \"value\" to \"path\". */\r\n\r\n    /* split pointer in parent and child */\r\n    parent_pointer = cJSONUtils_strdup((unsigned char*)path->valuestring);\r\n    if (parent_pointer) {\r\n        child_pointer = (unsigned char*)strrchr((char*)parent_pointer, '/');\r\n    }\r\n    if (child_pointer != NULL)\r\n    {\r\n        child_pointer[0] = '\\0';\r\n        child_pointer++;\r\n    }\r\n    parent = get_item_from_pointer(object, (char*)parent_pointer, case_sensitive);\r\n    decode_pointer_inplace(child_pointer);\r\n\r\n    /* add, remove, replace, move, copy, test. */\r\n    if ((parent == NULL) || (child_pointer == NULL))\r\n    {\r\n        /* Couldn't find object to add to. */\r\n        status = 9;\r\n        goto cleanup;\r\n    }\r\n    else if (cJSON_IsArray(parent))\r\n    {\r\n        if (strcmp((char*)child_pointer, \"-\") == 0)\r\n        {\r\n            cJSON_AddItemToArray(parent, value);\r\n            value = NULL;\r\n        }\r\n        else\r\n        {\r\n            size_t index = 0;\r\n            if (!decode_array_index_from_pointer(child_pointer, &index))\r\n            {\r\n                status = 11;\r\n                goto cleanup;\r\n            }\r\n\r\n            if (!insert_item_in_array(parent, index, value))\r\n            {\r\n                status = 10;\r\n                goto cleanup;\r\n            }\r\n            value = NULL;\r\n        }\r\n    }\r\n    else if (cJSON_IsObject(parent))\r\n    {\r\n        if (case_sensitive)\r\n        {\r\n            cJSON_DeleteItemFromObjectCaseSensitive(parent, (char*)child_pointer);\r\n        }\r\n        else\r\n        {\r\n            cJSON_DeleteItemFromObject(parent, (char*)child_pointer);\r\n        }\r\n        cJSON_AddItemToObject(parent, (char*)child_pointer, value);\r\n        value = NULL;\r\n    }\r\n    else /* parent is not an object */\r\n    {\r\n        /* Couldn't find object to add to. */\r\n        status = 9;\r\n        goto cleanup;\r\n    }\r\n\r\ncleanup:\r\n    if (value != NULL)\r\n    {\r\n        cJSON_Delete(value);\r\n    }\r\n    if (parent_pointer != NULL)\r\n    {\r\n        cJSON_free(parent_pointer);\r\n    }\r\n\r\n    return status;\r\n}",
           "data_flow": {
             "reads": [
-              "TEST",
-              "ADD",
-              "COPY",
               "MOVE",
-              "REPLACE",
               "INVALID",
+              "REPLACE",
+              "cJSON_Invalid",
+              "TEST",
               "invalid",
+              "COPY",
               "REMOVE",
-              "cJSON_Invalid"
+              "ADD"
             ],
             "mutates_parameters": [
               "object"
@@ -3501,28 +3501,28 @@
           },
           "control_flow": {
             "direct_calls": [
-              "cJSON_IsString",
-              "decode_array_index_from_pointer",
-              "cJSON_IsArray",
-              "get_object_item",
-              "decode_patch_operation",
+              "cJSON_AddItemToArray",
+              "cJSON_AddItemToObject",
               "cJSON_Duplicate",
               "cJSON_Delete",
-              "cJSON_AddItemToArray",
+              "cJSON_free",
               "get_item_from_pointer",
-              "cJSON_AddItemToObject",
               "cJSON_DeleteItemFromObjectCaseSensitive",
               "strrchr",
-              "cJSONUtils_strdup",
-              "compare_json",
-              "cJSON_DeleteItemFromObject",
+              "decode_array_index_from_pointer",
+              "decode_patch_operation",
+              "cJSON_IsString",
               "strcmp",
               "overwrite_item",
-              "cJSON_IsObject",
+              "cJSON_DeleteItemFromObject",
               "detach_path",
+              "compare_json",
+              "cJSON_IsArray",
+              "insert_item_in_array",
+              "cJSON_IsObject",
               "decode_pointer_inplace",
-              "cJSON_free",
-              "insert_item_in_array"
+              "get_object_item",
+              "cJSONUtils_strdup"
             ],
             "has_unstructured_jumps": true
           },
@@ -3540,8 +3540,8 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "cJSON_IsArray",
-              "apply_patch"
+              "apply_patch",
+              "cJSON_IsArray"
             ],
             "has_unstructured_jumps": false
           },
@@ -3559,8 +3559,8 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "cJSON_IsArray",
-              "apply_patch"
+              "apply_patch",
+              "cJSON_IsArray"
             ],
             "has_unstructured_jumps": false
           },
@@ -3578,17 +3578,17 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "encode_string_as_pointer",
-              "cJSON_CreateString",
-              "strlen",
-              "cJSON_CreateObject",
-              "sprintf",
-              "cJSON_Duplicate",
-              "cJSON_free",
-              "pointer_encoded_length",
               "cJSON_AddItemToArray",
+              "encode_string_as_pointer",
+              "cJSON_CreateObject",
+              "strlen",
+              "cJSON_CreateString",
+              "cJSON_AddItemToObject",
+              "cJSON_Duplicate",
+              "pointer_encoded_length",
+              "sprintf",
               "cJSON_malloc",
-              "cJSON_AddItemToObject"
+              "cJSON_free"
             ],
             "has_unstructured_jumps": false
           },
@@ -3623,26 +3623,26 @@
           "body": "static void create_patches(cJSON * const patches, const unsigned char * const path, cJSON * const from, cJSON * const to, const cJSON_bool case_sensitive)\r\n{\r\n    if ((from == NULL) || (to == NULL))\r\n    {\r\n        return;\r\n    }\r\n\r\n    if ((from->type & 0xFF) != (to->type & 0xFF))\r\n    {\r\n        compose_patch(patches, (const unsigned char*)\"replace\", path, 0, to);\r\n        return;\r\n    }\r\n\r\n    switch (from->type & 0xFF)\r\n    {\r\n        case cJSON_Number:\r\n            if ((from->valueint != to->valueint) || !compare_double(from->valuedouble, to->valuedouble))\r\n            {\r\n                compose_patch(patches, (const unsigned char*)\"replace\", path, NULL, to);\r\n            }\r\n            return;\r\n\r\n        case cJSON_String:\r\n            if (strcmp(from->valuestring, to->valuestring) != 0)\r\n            {\r\n                compose_patch(patches, (const unsigned char*)\"replace\", path, NULL, to);\r\n            }\r\n            return;\r\n\r\n        case cJSON_Array:\r\n        {\r\n            size_t index = 0;\r\n            cJSON *from_child = from->child;\r\n            cJSON *to_child = to->child;\r\n            unsigned char *new_path = (unsigned char*)cJSON_malloc(strlen((const char*)path) + 20 + sizeof(\"/\")); /* Allow space for 64bit int. log10(2^64) = 20 */\r\n\r\n            /* generate patches for all array elements that exist in both \"from\" and \"to\" */\r\n            for (index = 0; (from_child != NULL) && (to_child != NULL); (void)(from_child = from_child->next), (void)(to_child = to_child->next), index++)\r\n            {\r\n                /* check if conversion to unsigned long is valid\r\n                 * This should be eliminated at compile time by dead code elimination\r\n                 * if size_t is an alias of unsigned long, or if it is bigger */\r\n                if (index > ULONG_MAX)\r\n                {\r\n                    cJSON_free(new_path);\r\n                    return;\r\n                }\r\n                sprintf((char*)new_path, \"%s/%lu\", path, (unsigned long)index); /* path of the current array element */\r\n                create_patches(patches, new_path, from_child, to_child, case_sensitive);\r\n            }\r\n\r\n            /* remove leftover elements from 'from' that are not in 'to' */\r\n            for (; (from_child != NULL); (void)(from_child = from_child->next))\r\n            {\r\n                /* check if conversion to unsigned long is valid\r\n                 * This should be eliminated at compile time by dead code elimination\r\n                 * if size_t is an alias of unsigned long, or if it is bigger */\r\n                if (index > ULONG_MAX)\r\n                {\r\n                    cJSON_free(new_path);\r\n                    return;\r\n                }\r\n                sprintf((char*)new_path, \"%lu\", (unsigned long)index);\r\n                compose_patch(patches, (const unsigned char*)\"remove\", path, new_path, NULL);\r\n            }\r\n            /* add new elements in 'to' that were not in 'from' */\r\n            for (; (to_child != NULL); (void)(to_child = to_child->next), index++)\r\n            {\r\n                compose_patch(patches, (const unsigned char*)\"add\", path, (const unsigned char*)\"-\", to_child);\r\n            }\r\n            cJSON_free(new_path);\r\n            return;\r\n        }\r\n\r\n        case cJSON_Object:\r\n        {\r\n            cJSON *from_child = NULL;\r\n            cJSON *to_child = NULL;\r\n            sort_object(from, case_sensitive);\r\n            sort_object(to, case_sensitive);\r\n\r\n            from_child = from->child;\r\n            to_child = to->child;\r\n            /* for all object values in the object with more of them */\r\n            while ((from_child != NULL) || (to_child != NULL))\r\n            {\r\n                int diff;\r\n                if (from_child == NULL)\r\n                {\r\n                    diff = 1;\r\n                }\r\n                else if (to_child == NULL)\r\n                {\r\n                    diff = -1;\r\n                }\r\n                else\r\n                {\r\n                    diff = compare_strings((unsigned char*)from_child->string, (unsigned char*)to_child->string, case_sensitive);\r\n                }\r\n\r\n                if (diff == 0)\r\n                {\r\n                    /* both object keys are the same */\r\n                    size_t path_length = strlen((const char*)path);\r\n                    size_t from_child_name_length = pointer_encoded_length((unsigned char*)from_child->string);\r\n                    unsigned char *new_path = (unsigned char*)cJSON_malloc(path_length + from_child_name_length + sizeof(\"/\"));\r\n\r\n                    sprintf((char*)new_path, \"%s/\", path);\r\n                    encode_string_as_pointer(new_path + path_length + 1, (unsigned char*)from_child->string);\r\n\r\n                    /* create a patch for the element */\r\n                    create_patches(patches, new_path, from_child, to_child, case_sensitive);\r\n                    cJSON_free(new_path);\r\n\r\n                    from_child = from_child->next;\r\n                    to_child = to_child->next;\r\n                }\r\n                else if (diff < 0)\r\n                {\r\n                    /* object element doesn't exist in 'to' --> remove it */\r\n                    compose_patch(patches, (const unsigned char*)\"remove\", path, (unsigned char*)from_child->string, NULL);\r\n\r\n                    from_child = from_child->next;\r\n                }\r\n                else\r\n                {\r\n                    /* object element doesn't exist in 'from' --> add it */\r\n                    compose_patch(patches, (const unsigned char*)\"add\", path, (unsigned char*)to_child->string, to_child);\r\n\r\n                    to_child = to_child->next;\r\n                }\r\n            }\r\n            return;\r\n        }\r\n\r\n        default:\r\n            break;\r\n    }\r\n}",
           "data_flow": {
             "reads": [
-              "cJSON_Array",
               "cJSON_Number",
-              "ULONG_MAX",
+              "cJSON_Object",
+              "cJSON_Array",
               "cJSON_String",
-              "cJSON_Object"
+              "ULONG_MAX"
             ]
           },
           "control_flow": {
             "direct_calls": [
               "encode_string_as_pointer",
-              "create_patches",
               "strlen",
-              "compare_strings",
-              "sprintf",
               "cJSON_free",
-              "pointer_encoded_length",
+              "compose_patch",
               "sort_object",
+              "create_patches",
+              "compare_strings",
+              "pointer_encoded_length",
+              "sprintf",
               "compare_double",
               "cJSON_malloc",
-              "compose_patch",
               "strcmp"
             ],
             "has_unstructured_jumps": false
@@ -3735,17 +3735,17 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "merge_patch",
               "cJSON_DeleteItemFromObjectCaseSensitive",
-              "cJSON_DetachItemFromObjectCaseSensitive",
-              "cJSON_IsObject",
-              "cJSON_IsNull",
               "cJSON_CreateObject",
-              "cJSON_Duplicate",
-              "cJSON_Delete",
-              "cJSON_DetachItemFromObject",
               "cJSON_DeleteItemFromObject",
-              "cJSON_AddItemToObject"
+              "cJSON_IsObject",
+              "cJSON_AddItemToObject",
+              "cJSON_DetachItemFromObjectCaseSensitive",
+              "cJSON_Duplicate",
+              "cJSON_DetachItemFromObject",
+              "cJSON_IsNull",
+              "merge_patch",
+              "cJSON_Delete"
             ],
             "has_unstructured_jumps": false
           },
@@ -3799,16 +3799,16 @@
           "data_flow": {},
           "control_flow": {
             "direct_calls": [
-              "cJSON_CreateNull",
-              "cJSON_IsObject",
               "cJSON_CreateObject",
-              "compare_json",
-              "cJSON_Duplicate",
+              "cJSON_CreateNull",
               "cJSONUtils_GenerateMergePatch",
-              "cJSON_Delete",
+              "cJSON_IsObject",
+              "cJSON_AddItemToObject",
+              "cJSON_Duplicate",
               "sort_object",
-              "strcmp",
-              "cJSON_AddItemToObject"
+              "compare_json",
+              "cJSON_Delete",
+              "strcmp"
             ],
             "has_unstructured_jumps": false
           },
@@ -3866,253 +3866,6 @@
           "is_function_like": false
         }
       ]
-    },
-    "test.c": {
-      "metadata": {
-        "language": "c",
-        "file_path": "test.c",
-        "file_type": "source",
-        "is_test_file": false
-      },
-      "dependencies": {
-        "system_includes": [
-          "<stdio.h>",
-          "<stdlib.h>",
-          "<string.h>"
-        ],
-        "local_includes": [
-          "\"cJSON.h\""
-        ]
-      },
-      "global_states": [
-        {
-          "name": "CJSON_CDECL",
-          "type": "int",
-          "is_static": false,
-          "is_extern": false,
-          "is_const": false,
-          "contains_function_pointers": false,
-          "declaration": "int CJSON_CDECL"
-        }
-      ],
-      "functions": [
-        {
-          "name": "print_preallocated",
-          "doc_comment": "/* Create a bunch of objects as demonstration. */",
-          "signature": "static int print_preallocated(cJSON *root)",
-          "has_body": true,
-          "is_static": true,
-          "is_variadic": false,
-          "start_line": 43,
-          "end_line": 106,
-          "body": "static int print_preallocated(cJSON *root)\r\n{\r\n    /* declarations */\r\n    char *out = NULL;\r\n    char *buf = NULL;\r\n    char *buf_fail = NULL;\r\n    size_t len = 0;\r\n    size_t len_fail = 0;\r\n\r\n    /* formatted print */\r\n    out = cJSON_Print(root);\r\n\r\n    /* create buffer to succeed */\r\n    /* the extra 5 bytes are because of inaccuracies when reserving memory */\r\n    len = strlen(out) + 5;\r\n    buf = (char*)malloc(len);\r\n    if (buf == NULL)\r\n    {\r\n        printf(\"Failed to allocate memory.\\n\");\r\n        exit(1);\r\n    }\r\n\r\n    /* create buffer to fail */\r\n    len_fail = strlen(out);\r\n    buf_fail = (char*)malloc(len_fail);\r\n    if (buf_fail == NULL)\r\n    {\r\n        printf(\"Failed to allocate memory.\\n\");\r\n        exit(1);\r\n    }\r\n\r\n    /* Print to buffer */\r\n    if (!cJSON_PrintPreallocated(root, buf, (int)len, 1)) {\r\n        printf(\"cJSON_PrintPreallocated failed!\\n\");\r\n        if (strcmp(out, buf) != 0) {\r\n            printf(\"cJSON_PrintPreallocated not the same as cJSON_Print!\\n\");\r\n            printf(\"cJSON_Print result:\\n%s\\n\", out);\r\n            printf(\"cJSON_PrintPreallocated result:\\n%s\\n\", buf);\r\n        }\r\n        free(out);\r\n        free(buf_fail);\r\n        free(buf);\r\n        return -1;\r\n    }\r\n\r\n    /* success */\r\n    printf(\"%s\\n\", buf);\r\n\r\n    /* force it to fail */\r\n    if (cJSON_PrintPreallocated(root, buf_fail, (int)len_fail, 1)) {\r\n        printf(\"cJSON_PrintPreallocated failed to show error with insufficient memory!\\n\");\r\n        printf(\"cJSON_Print result:\\n%s\\n\", out);\r\n        printf(\"cJSON_PrintPreallocated result:\\n%s\\n\", buf_fail);\r\n        free(out);\r\n        free(buf_fail);\r\n        free(buf);\r\n        return -1;\r\n    }\r\n\r\n    free(out);\r\n    free(buf_fail);\r\n    free(buf);\r\n    return 0;\r\n}",
-          "data_flow": {},
-          "control_flow": {
-            "direct_calls": [
-              "exit",
-              "free",
-              "strlen",
-              "printf",
-              "strcmp",
-              "cJSON_Print",
-              "cJSON_PrintPreallocated",
-              "malloc"
-            ],
-            "has_unstructured_jumps": false
-          },
-          "has_parse_errors": false
-        },
-        {
-          "name": "create_objects",
-          "doc_comment": "/* Create a bunch of objects as demonstration. */",
-          "signature": "static void create_objects(void)",
-          "has_body": true,
-          "is_static": true,
-          "is_variadic": false,
-          "start_line": 109,
-          "end_line": 257,
-          "body": "static void create_objects(void)\r\n{\r\n    /* declare a few. */\r\n    cJSON *root = NULL;\r\n    cJSON *fmt = NULL;\r\n    cJSON *img = NULL;\r\n    cJSON *thm = NULL;\r\n    cJSON *fld = NULL;\r\n    int i = 0;\r\n\r\n    /* Our \"days of the week\" array: */\r\n    const char *strings[7] =\r\n    {\r\n        \"Sunday\",\r\n        \"Monday\",\r\n        \"Tuesday\",\r\n        \"Wednesday\",\r\n        \"Thursday\",\r\n        \"Friday\",\r\n        \"Saturday\"\r\n    };\r\n    /* Our matrix: */\r\n    int numbers[3][3] =\r\n    {\r\n        {0, -1, 0},\r\n        {1, 0, 0},\r\n        {0 ,0, 1}\r\n    };\r\n    /* Our \"gallery\" item: */\r\n    int ids[4] = { 116, 943, 234, 38793 };\r\n    /* Our array of \"records\": */\r\n    struct record fields[2] =\r\n    {\r\n        {\r\n            \"zip\",\r\n            37.7668,\r\n            -1.223959e+2,\r\n            \"\",\r\n            \"SAN FRANCISCO\",\r\n            \"CA\",\r\n            \"94107\",\r\n            \"US\"\r\n        },\r\n        {\r\n            \"zip\",\r\n            37.371991,\r\n            -1.22026e+2,\r\n            \"\",\r\n            \"SUNNYVALE\",\r\n            \"CA\",\r\n            \"94085\",\r\n            \"US\"\r\n        }\r\n    };\r\n    volatile double zero = 0.0;\r\n\r\n    /* Here we construct some JSON standards, from the JSON site. */\r\n\r\n    /* Our \"Video\" datatype: */\r\n    root = cJSON_CreateObject();\r\n    cJSON_AddItemToObject(root, \"name\", cJSON_CreateString(\"Jack (\\\"Bee\\\") Nimble\"));\r\n    cJSON_AddItemToObject(root, \"format\", fmt = cJSON_CreateObject());\r\n    cJSON_AddStringToObject(fmt, \"type\", \"rect\");\r\n    cJSON_AddNumberToObject(fmt, \"width\", 1920);\r\n    cJSON_AddNumberToObject(fmt, \"height\", 1080);\r\n    cJSON_AddFalseToObject (fmt, \"interlace\");\r\n    cJSON_AddNumberToObject(fmt, \"frame rate\", 24);\r\n\r\n    /* Print to text */\r\n    if (print_preallocated(root) != 0) {\r\n        cJSON_Delete(root);\r\n        exit(EXIT_FAILURE);\r\n    }\r\n    cJSON_Delete(root);\r\n\r\n    /* Our \"days of the week\" array: */\r\n    root = cJSON_CreateStringArray(strings, 7);\r\n\r\n    if (print_preallocated(root) != 0) {\r\n        cJSON_Delete(root);\r\n        exit(EXIT_FAILURE);\r\n    }\r\n    cJSON_Delete(root);\r\n\r\n    /* Our matrix: */\r\n    root = cJSON_CreateArray();\r\n    for (i = 0; i < 3; i++)\r\n    {\r\n        cJSON_AddItemToArray(root, cJSON_CreateIntArray(numbers[i], 3));\r\n    }\r\n\r\n    /* cJSON_ReplaceItemInArray(root, 1, cJSON_CreateString(\"Replacement\")); */\r\n\r\n    if (print_preallocated(root) != 0) {\r\n        cJSON_Delete(root);\r\n        exit(EXIT_FAILURE);\r\n    }\r\n    cJSON_Delete(root);\r\n\r\n    /* Our \"gallery\" item: */\r\n    root = cJSON_CreateObject();\r\n    cJSON_AddItemToObject(root, \"Image\", img = cJSON_CreateObject());\r\n    cJSON_AddNumberToObject(img, \"Width\", 800);\r\n    cJSON_AddNumberToObject(img, \"Height\", 600);\r\n    cJSON_AddStringToObject(img, \"Title\", \"View from 15th Floor\");\r\n    cJSON_AddItemToObject(img, \"Thumbnail\", thm = cJSON_CreateObject());\r\n    cJSON_AddStringToObject(thm, \"Url\", \"http:/*www.example.com/image/481989943\");\r\n    cJSON_AddNumberToObject(thm, \"Height\", 125);\r\n    cJSON_AddStringToObject(thm, \"Width\", \"100\");\r\n    cJSON_AddItemToObject(img, \"IDs\", cJSON_CreateIntArray(ids, 4));\r\n\r\n    if (print_preallocated(root) != 0) {\r\n        cJSON_Delete(root);\r\n        exit(EXIT_FAILURE);\r\n    }\r\n    cJSON_Delete(root);\r\n\r\n    /* Our array of \"records\": */\r\n    root = cJSON_CreateArray();\r\n    for (i = 0; i < 2; i++)\r\n    {\r\n        cJSON_AddItemToArray(root, fld = cJSON_CreateObject());\r\n        cJSON_AddStringToObject(fld, \"precision\", fields[i].precision);\r\n        cJSON_AddNumberToObject(fld, \"Latitude\", fields[i].lat);\r\n        cJSON_AddNumberToObject(fld, \"Longitude\", fields[i].lon);\r\n        cJSON_AddStringToObject(fld, \"Address\", fields[i].address);\r\n        cJSON_AddStringToObject(fld, \"City\", fields[i].city);\r\n        cJSON_AddStringToObject(fld, \"State\", fields[i].state);\r\n        cJSON_AddStringToObject(fld, \"Zip\", fields[i].zip);\r\n        cJSON_AddStringToObject(fld, \"Country\", fields[i].country);\r\n    }\r\n\r\n    /* cJSON_ReplaceItemInObject(cJSON_GetArrayItem(root, 1), \"City\", cJSON_CreateIntArray(ids, 4)); */\r\n\r\n    if (print_preallocated(root) != 0) {\r\n        cJSON_Delete(root);\r\n        exit(EXIT_FAILURE);\r\n    }\r\n    cJSON_Delete(root);\r\n\r\n    root = cJSON_CreateObject();\r\n    cJSON_AddNumberToObject(root, \"number\", 1.0 / zero);\r\n\r\n    if (print_preallocated(root) != 0) {\r\n        cJSON_Delete(root);\r\n        exit(EXIT_FAILURE);\r\n    }\r\n    cJSON_Delete(root);\r\n}",
-          "data_flow": {
-            "reads": [
-              "EXIT_FAILURE"
-            ]
-          },
-          "control_flow": {
-            "direct_calls": [
-              "cJSON_CreateStringArray",
-              "exit",
-              "cJSON_CreateString",
-              "cJSON_AddFalseToObject",
-              "cJSON_AddItemToObject",
-              "cJSON_CreateObject",
-              "cJSON_AddItemToArray",
-              "cJSON_Delete",
-              "cJSON_AddNumberToObject",
-              "cJSON_CreateArray",
-              "print_preallocated",
-              "cJSON_CreateIntArray",
-              "cJSON_AddStringToObject"
-            ],
-            "has_unstructured_jumps": false
-          },
-          "has_parse_errors": false
-        }
-      ]
-    },
-    "fuzzing/fuzz_main.c": {
-      "metadata": {
-        "language": "c",
-        "file_path": "fuzzing/fuzz_main.c",
-        "file_type": "source",
-        "is_test_file": false
-      },
-      "dependencies": {
-        "system_includes": [
-          "<stdint.h>",
-          "<stdio.h>",
-          "<stdlib.h>"
-        ]
-      },
-      "functions": [
-        {
-          "name": "LLVMFuzzerTestOneInput",
-          "signature": "int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)",
-          "has_body": false,
-          "is_static": false,
-          "is_variadic": false,
-          "start_line": 5,
-          "end_line": 5,
-          "body": "int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);"
-        },
-        {
-          "name": "main",
-          "doc_comment": "/* required by C89 */\n/* fuzz target entry point, works without libFuzzer */",
-          "signature": "int main(int argc, char **argv)",
-          "has_body": true,
-          "is_static": false,
-          "is_variadic": false,
-          "start_line": 9,
-          "end_line": 54,
-          "body": "int main(int argc, char **argv)\r\n{\r\n    FILE *f;\r\n    char *buf = NULL;\r\n    long siz_buf;\r\n\r\n    if(argc < 2)\r\n    {\r\n        fprintf(stderr, \"no input file\\n\");\r\n        goto err;\r\n    }\r\n\r\n    f = fopen(argv[1], \"rb\");\r\n    if(f == NULL)\r\n    {\r\n        fprintf(stderr, \"error opening input file %s\\n\", argv[1]);\r\n        goto err;\r\n    }\r\n\r\n    fseek(f, 0, SEEK_END);\r\n\r\n    siz_buf = ftell(f);\r\n    rewind(f);\r\n\r\n    if(siz_buf < 1) goto err;\r\n\r\n    buf = (char*)malloc((size_t)siz_buf);\r\n    if(buf == NULL)\r\n    {\r\n        fprintf(stderr, \"malloc() failed\\n\");\r\n        goto err;\r\n    }\r\n\r\n    if(fread(buf, (size_t)siz_buf, 1, f) != 1)\r\n    {\r\n        fprintf(stderr, \"fread() failed\\n\");\r\n        goto err;\r\n    }\r\n\r\n    (void)LLVMFuzzerTestOneInput((uint8_t*)buf, (size_t)siz_buf);\r\n\r\nerr:\r\n    free(buf);\r\n\r\n    return 0;\r\n}",
-          "data_flow": {
-            "reads": [
-              "stderr",
-              "SEEK_END"
-            ]
-          },
-          "control_flow": {
-            "direct_calls": [
-              "fopen",
-              "rewind",
-              "LLVMFuzzerTestOneInput",
-              "ftell",
-              "fprintf",
-              "free",
-              "fseek",
-              "fread",
-              "malloc"
-            ],
-            "has_unstructured_jumps": true
-          },
-          "has_parse_errors": false
-        }
-      ]
-    },
-    "fuzzing/afl.c": {
-      "metadata": {
-        "language": "c",
-        "file_path": "fuzzing/afl.c",
-        "file_type": "source",
-        "is_test_file": false
-      },
-      "dependencies": {
-        "system_includes": [
-          "<stdio.h>",
-          "<stdlib.h>",
-          "<string.h>"
-        ],
-        "local_includes": [
-          "\"../cJSON.h\""
-        ]
-      },
-      "functions": [
-        {
-          "name": "read_file",
-          "signature": "static char *read_file(const char *filename)",
-          "has_body": true,
-          "is_static": true,
-          "is_variadic": false,
-          "start_line": 29,
-          "end_line": 83,
-          "body": "static char *read_file(const char *filename)\r\n{\r\n    FILE *file = NULL;\r\n    long length = 0;\r\n    char *content = NULL;\r\n    size_t read_chars = 0;\r\n\r\n    /* open in read binary mode */\r\n    file = fopen(filename, \"rb\");\r\n    if (file == NULL)\r\n    {\r\n        goto cleanup;\r\n    }\r\n\r\n    /* get the length */\r\n    if (fseek(file, 0, SEEK_END) != 0)\r\n    {\r\n        goto cleanup;\r\n    }\r\n    length = ftell(file);\r\n    if (length < 0)\r\n    {\r\n        goto cleanup;\r\n    }\r\n    if (fseek(file, 0, SEEK_SET) != 0)\r\n    {\r\n        goto cleanup;\r\n    }\r\n\r\n    /* allocate content buffer */\r\n    content = (char*)malloc((size_t)length + sizeof(\"\"));\r\n    if (content == NULL)\r\n    {\r\n        goto cleanup;\r\n    }\r\n\r\n    /* read the file into memory */\r\n    read_chars = fread(content, sizeof(char), (size_t)length, file);\r\n    if ((long)read_chars != length)\r\n    {\r\n        free(content);\r\n        content = NULL;\r\n        goto cleanup;\r\n    }\r\n    content[read_chars] = '\\0';\r\n\r\n\r\ncleanup:\r\n    if (file != NULL)\r\n    {\r\n        fclose(file);\r\n    }\r\n\r\n    return content;\r\n}",
-          "data_flow": {
-            "reads": [
-              "SEEK_SET",
-              "SEEK_END"
-            ]
-          },
-          "control_flow": {
-            "direct_calls": [
-              "fopen",
-              "ftell",
-              "free",
-              "fseek",
-              "fclose",
-              "fread",
-              "malloc"
-            ],
-            "has_unstructured_jumps": true
-          },
-          "has_parse_errors": false
-        },
-        {
-          "name": "main",
-          "signature": "int main(int argc, char** argv)",
-          "has_body": true,
-          "is_static": false,
-          "is_variadic": false,
-          "start_line": 85,
-          "end_line": 176,
-          "body": "int main(int argc, char** argv)\r\n{\r\n    const char *filename = NULL;\r\n    cJSON *item = NULL;\r\n    char *json = NULL;\r\n    int status = EXIT_FAILURE;\r\n    char *printed_json = NULL;\r\n\r\n    if ((argc < 2) || (argc > 3))\r\n    {\r\n        printf(\"Usage:\\n\");\r\n        printf(\"%s input_file [enable_printing]\\n\", argv[0]);\r\n        printf(\"\\t input_file: file containing the test data\\n\");\r\n        printf(\"\\t enable_printing: print after parsing, 'yes' or 'no', defaults to 'no'\\n\");\r\n        goto cleanup;\r\n    }\r\n\r\n    filename = argv[1];\r\n\r\n#if __AFL_HAVE_MANUAL_CONTROL\r\n    while (__AFL_LOOP(1000))\r\n    {\r\n#endif\r\n    status = EXIT_SUCCESS;\r\n\r\n    json = read_file(filename);\r\n    if ((json == NULL) || (json[0] == '\\0') || (json[1] == '\\0'))\r\n    {\r\n        status = EXIT_FAILURE;\r\n        goto cleanup;\r\n    }\r\n    item = cJSON_Parse(json + 2);\r\n    if (item == NULL)\r\n    {\r\n        goto cleanup;\r\n    }\r\n\r\n    if ((argc == 3) && (strncmp(argv[2], \"yes\", 3) == 0))\r\n    {\r\n        int do_format = 0;\r\n        if (json[1] == 'f')\r\n        {\r\n            do_format = 1;\r\n        }\r\n\r\n        if (json[0] == 'b')\r\n        {\r\n            /* buffered printing */\r\n            printed_json = cJSON_PrintBuffered(item, 1, do_format);\r\n        }\r\n        else\r\n        {\r\n            /* unbuffered printing */\r\n            if (do_format)\r\n            {\r\n                printed_json = cJSON_Print(item);\r\n            }\r\n            else\r\n            {\r\n                printed_json = cJSON_PrintUnformatted(item);\r\n            }\r\n        }\r\n        if (printed_json == NULL)\r\n        {\r\n            status = EXIT_FAILURE;\r\n            goto cleanup;\r\n        }\r\n        printf(\"%s\\n\", printed_json);\r\n    }\r\n\r\ncleanup:\r\n    if (item != NULL)\r\n    {\r\n        cJSON_Delete(item);\r\n        item = NULL;\r\n    }\r\n    if (json != NULL)\r\n    {\r\n        free(json);\r\n        json = NULL;\r\n    }\r\n    if (printed_json != NULL)\r\n    {\r\n        free(printed_json);\r\n        printed_json = NULL;\r\n    }\r\n#if __AFL_HAVE_MANUAL_CONTROL\r\n    }\r\n#endif\r\n\r\n    return status;\r\n}",
-          "data_flow": {
-            "reads": [
-              "EXIT_FAILURE",
-              "EXIT_SUCCESS"
-            ]
-          },
-          "control_flow": {
-            "direct_calls": [
-              "cJSON_Parse",
-              "cJSON_PrintBuffered",
-              "strncmp",
-              "__AFL_LOOP",
-              "free",
-              "printf",
-              "cJSON_PrintUnformatted",
-              "cJSON_Delete",
-              "read_file",
-              "cJSON_Print"
-            ],
-            "has_unstructured_jumps": true
-          },
-          "has_parse_errors": false
-        }
-      ]
-    },
-    "fuzzing/cjson_read_fuzzer.c": {
-      "metadata": {
-        "language": "c",
-        "file_path": "fuzzing/cjson_read_fuzzer.c",
-        "file_type": "source",
-        "is_test_file": false
-      },
-      "dependencies": {
-        "system_includes": [
-          "<stdlib.h>",
-          "<stdint.h>",
-          "<string.h>"
-        ]
-      }
     }
   }
 }

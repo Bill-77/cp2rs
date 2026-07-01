@@ -18,7 +18,7 @@ def safe_print(*args, **kwargs):
     with print_lock:
         print(*args, **kwargs)
 
-def process_single_repo(filename, llm_client):
+def process_single_repo(filename, llm_client, temperature):
     repo_name = filename.replace("_parsed.json", "")
     input_path = os.path.join(INPUT_DIR, filename)
     
@@ -38,7 +38,8 @@ def process_single_repo(filename, llm_client):
             full_ir=full_ir,
             prompt_2a=active_prompt_2a,
             llm_client=llm_client,
-            repo_name=repo_name 
+            repo_name=repo_name,
+            temperature=temperature,
         )
         
         # 安全提取图谱
@@ -58,6 +59,8 @@ def main():
     parser = argparse.ArgumentParser(description="CP2RS Phase 2 (仅生成 RPG 图谱)")
     parser.add_argument("-r", "--repo", type=str, default="",
                         help="指定要处理的仓库名 (例如: cJSON)")
+    parser.add_argument("--temperature", type=float, default=0.0,
+                        help="Phase 2 RPG 架构师大模型采样温度。建议 0.0 以提高结构化输出稳定性。")
     args = parser.parse_args()
 
     os.makedirs(RPG_OUTPUT_DIR, exist_ok=True)
@@ -77,7 +80,7 @@ def main():
 
     max_concurrency = min(len(tasks), 10)
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_concurrency) as executor:
-        futures = [executor.submit(process_single_repo, filename, llm) for filename in tasks]
+        futures = [executor.submit(process_single_repo, filename, llm, args.temperature) for filename in tasks]
         concurrent.futures.wait(futures)
         
     print("\n✅ 所有 RPG 图谱生成任务执行完毕！")

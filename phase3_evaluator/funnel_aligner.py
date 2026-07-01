@@ -3,6 +3,8 @@ import re
 import time
 from rpg_builder.llm_client import LLMClient
 from .prompts import PROMPT_MACRO_ALIGNMENT, PROMPT_MICRO_ALIGNMENT
+from .function_uid import is_real_function_definition
+from .rpg_scope import collect_root_functions
 
 class FunnelAligner:
     """
@@ -12,6 +14,125 @@ class FunnelAligner:
     """
     def __init__(self, llm_client: LLMClient):
         self.llm = llm_client
+
+    def _is_real_function_definition(self, func: dict) -> bool:
+        return is_real_function_definition(func)
+
+    def _split_root_ids(self, root_ids_str) -> list:
+        if not root_ids_str:
+            return []
+        return [item.strip() for item in str(root_ids_str).split(",") if item.strip()]
+
+    def _join_root_ids(self, root_ids) -> str:
+        seen = set()
+        ordered = []
+        for root_id in root_ids:
+            if root_id and root_id not in seen:
+                seen.add(root_id)
+                ordered.append(root_id)
+        return ",".join(ordered)
+
+    def _root_info_by_id(self, rpg) -> dict:
+        return {
+            root.get("id"): root
+            for root in rpg.get("nodes", {}).get("root_nodes", [])
+            if root.get("id")
+        }
+
+    def _root_text(self, root) -> str:
+        return " ".join(
+            str(root.get(key, ""))
+            for key in ("id", "semantic_name", "description")
+        ).lower()
+
+    def _is_public_or_facade_root(self, root) -> bool:
+        text = self._root_text(root)
+        keywords = [
+            "public", "api", "facade", "wrapper", "gateway", "entry",
+            "crate root", "re-export", "reexport", "export",
+            "公开", "入口", "门面", "聚合", "重导出", "导出",
+        ]
+        return any(keyword in text for keyword in keywords)
+
+    def _is_core_data_root(self, root) -> bool:
+        text = self._root_text(root)
+        keywords = [
+            "core", "types", "type system", "data type", "data types",
+            "domain model", "entity model",
+            "核心", "类型系统", "数据类型", "核心类型",
+        ]
+        return any(keyword in text for keyword in keywords)
+
+    def _complete_macro_target_scope(self, tgt_root_id, tgt_rpg) -> tuple:
+        """
+        Complete target macro roots before micro alignment without repo hardcoding.
+
+        Rust translations often expose behavior through a neighboring public API
+        or methods on core data types while the implementation lives in parser /
+        codegen roots. This is a macro-mapping completion step: it records the
+        support roots required to form a complete target-side behavior boundary,
+        and micro alignment then strictly uses that completed boundary.
+        """
+        original_roots = self._split_root_ids(tgt_root_id)
+        if not original_roots:
+            return "", []
+
+        root_info = self._root_info_by_id(tgt_rpg)
+        edges = tgt_rpg.get("edges", {}).get("inter_module_edges", [])
+        expanded = list(original_roots)
+        reasons = []
+
+        selected_are_public_or_facade = all(
+            self._is_public_or_facade_root(root_info.get(root_id, {}))
+            for root_id in original_roots
+            if root_id in root_info
+        )
+        if selected_are_public_or_facade:
+            return self._join_root_ids(expanded), reasons
+
+        selected_are_core = all(
+            self._is_core_data_root(root_info.get(root_id, {}))
+            for root_id in original_roots
+            if root_id in root_info
+        )
+
+        def add_root(root_id, reason):
+            if root_id and root_id in root_info and root_id not in expanded:
+                expanded.append(root_id)
+                reasons.append({"root_id": root_id, "reason": reason})
+
+        for edge in edges:
+            source = edge.get("source")
+            target = edge.get("target")
+
+            if source in original_roots:
+                source_root = root_info.get(source, {})
+                if self._is_public_or_facade_root(source_root):
+                    # Public/facade roots are broad entry points. Following all
+                    # their outgoing edges would pull in unrelated capabilities
+                    # such as parsing when completing serialization, or the
+                    # reverse. They can be added as callers below, but they
+                    # should not fan out the macro boundary.
+                    continue
+                target_root = root_info.get(target, {})
+                if not selected_are_core:
+                    add_root(target, f"macro support root via target edge {source}->{target}")
+                elif self._is_public_or_facade_root(target_root):
+                    add_root(target, f"public/facade macro support root via target edge {source}->{target}")
+
+            if target in original_roots:
+                source_root = root_info.get(source, {})
+                if self._is_public_or_facade_root(source_root):
+                    add_root(source, f"public/facade macro entry root via target edge {source}->{target}")
+                elif not selected_are_core:
+                    reciprocal = any(
+                        other.get("source") == target and other.get("target") == source
+                        for other in edges
+                    )
+                    if reciprocal or self._is_core_data_root(source_root):
+                        add_root(source, f"core-method macro support root via target edge {source}->{target}")
+
+        return self._join_root_ids(expanded), reasons
 
     def _extract_json_from_reply(self, reply: str):
         """防御性 JSON 解析：正则暴洗不合法转义，彻底阻断空弹欺骗"""
@@ -109,7 +230,15 @@ class FunnelAligner:
                     file_path = inter.get("file_path", "")
                     semantic_name = inter.get("semantic_name", "")
                     description = inter.get("description", "")
-                    summaries.append(f"    * {inter_id} | {file_path} | {semantic_name}: {description}")
+                    included_functions = inter.get("included_functions") or inter.get("included_function_names")
+                    included_patterns = inter.get("included_function_patterns") or inter.get("function_patterns")
+                    scope_parts = []
+                    if included_functions:
+                        scope_parts.append(f"included_functions={included_functions}")
+                    if included_patterns:
+                        scope_parts.append(f"included_function_patterns={included_patterns}")
+                    scope_note = f" | {'; '.join(scope_parts)}" if scope_parts else ""
+                    summaries.append(f"    * {inter_id} | {file_path}{scope_note} | {semantic_name}: {description}")
 
             if orphan_intermediates:
                 summaries.append("\n[未挂载到已知 Root 的 Intermediate 节点]")
@@ -164,46 +293,16 @@ class FunnelAligner:
     # ==========================================
     def _fetch_functions_by_root(self, root_ids_str, rpg, parsed_db) -> list:
         """
-        提取函数体：解析 Root ID (支持逗号分隔的1对N) -> 通过 parent_root 找到文件名 -> 去 DB 提取所有函数。
+        提取函数体：解析 Root ID (支持逗号分隔的1对N) -> 通过 parent_root 找到文件名。
+        若 Intermediate 声明 included_functions，则只提取该逻辑切片中的函数。
         """
-        if not root_ids_str: 
-            return []
-            
-        # 1. 解析可能由逗号分隔的 root_ids (完美支持 1-to-N 和 N-to-M 映射)
-        root_ids = [r.strip() for r in root_ids_str.split(',')]
-        file_paths = []
-        
-        # 2. 遍历中间节点，通过 parent_root 字段逆向查找它属于哪个 Root
-        for inter in rpg["nodes"].get("intermediate_nodes", []):
-            if inter.get("parent_root") in root_ids:
-                file_paths.append(inter.get("file_path"))
-                
-        # 3. 去重文件名，拿着它们去 Phase 1 Database 里提取函数体，并去重函数
         unique_funcs = {}
-        for f_path in set(file_paths):
-            file_data = parsed_db.get("files", {}).get(f_path)
-            if not file_data: 
-                continue
-            
-            # 提取扁平函数 (C 语言或独立函数)
-            for func in file_data.get("functions", []) + file_data.get("standalone_functions", []):
-                if func.get("body"):
-                    uid = f"{f_path}::{func.get('name')}"
-                    unique_funcs[uid] = {"uuid": uid, "signature": func.get("signature", ""), "body": func.get("body")}
-                    
-            # 提取类成员函数 (C++)
-            for cls in file_data.get("classes", []):
-                for method in cls.get("methods", []):
-                    if method.get("body"):
-                        uid = f"{f_path}::{cls.get('name')}::{method.get('name')}"
-                        unique_funcs[uid] = {"uuid": uid, "signature": method.get("signature", ""), "body": method.get("body")}
-            
-            # 提取 Impl 成员函数 (Rust)
-            for impl in file_data.get("impl_blocks", []):
-                for method in impl.get("methods", []):
-                    if method.get("body"):
-                        uid = f"{f_path}::{impl.get('target_type')}::{method.get('name')}"
-                        unique_funcs[uid] = {"uuid": uid, "signature": method.get("signature", ""), "body": method.get("body")}
+        for uid, func in collect_root_functions(root_ids_str, rpg, parsed_db, definitions_only=True):
+            unique_funcs[uid] = {
+                "uuid": uid,
+                "signature": func.get("signature", ""),
+                "body": func.get("body"),
+            }
                         
         # 返回去重后的纯净函数列表
         return list(unique_funcs.values())
@@ -275,6 +374,43 @@ class FunnelAligner:
 
         return all_aligned_mappings
 
+    def _dedupe_function_mappings(self, mappings) -> list:
+        deduped = []
+        seen = set()
+        for item in mappings or []:
+            if not isinstance(item, dict):
+                continue
+            src_uuid = str(item.get("src_uuid", "")).strip()
+            tgt_uuid = ",".join(
+                target.strip()
+                for target in str(item.get("tgt_uuid", "")).split(",")
+                if target.strip()
+            )
+            if not src_uuid or not tgt_uuid:
+                continue
+            key = (src_uuid, tgt_uuid)
+            if key in seen:
+                continue
+            seen.add(key)
+            item["src_uuid"] = src_uuid
+            item["tgt_uuid"] = tgt_uuid
+            deduped.append(item)
+        return deduped
+
+    def _complete_macro_mappings(self, macro_mapping, tgt_rpg) -> list:
+        completed = []
+        for module_pair in macro_mapping or []:
+            if not isinstance(module_pair, dict):
+                continue
+            original_tgt_root_id = module_pair.get("tgt_root_id")
+            completed_tgt_root_id, completion = self._complete_macro_target_scope(original_tgt_root_id, tgt_rpg)
+            new_pair = dict(module_pair)
+            new_pair["tgt_macro_initial_module"] = original_tgt_root_id
+            new_pair["tgt_root_id"] = completed_tgt_root_id or original_tgt_root_id
+            new_pair["macro_mapping_completion"] = completion
+            completed.append(new_pair)
+        return completed
+
     def run_alignment(self, src_rpg_path, tgt_rpg_path, src_db_path, tgt_db_path):
         print("🔍 [Phase 3A] 启动双重漏斗对齐引擎...")
         
@@ -285,6 +421,7 @@ class FunnelAligner:
 
         print("   -> 正在进行宏观架构对齐 (Root & Edges 拓扑)...")
         macro_mapping = self._macro_align_modules(src_rpg, tgt_rpg)
+        macro_mapping = self._complete_macro_mappings(macro_mapping, tgt_rpg)
         
         final_alignment_report = {"macro_alignment_score": 0, "aligned_modules": []}
         print(f"   -> 宏观对齐完成，找到 {len(macro_mapping)} 对相似模块。开始源码级微观对齐...")
@@ -293,18 +430,26 @@ class FunnelAligner:
             src_root_id = module_pair.get("src_root_id")
             tgt_root_id = module_pair.get("tgt_root_id")
             if not src_root_id or not tgt_root_id: continue
+            initial_tgt_root_id = module_pair.get("tgt_macro_initial_module", tgt_root_id)
+            macro_mapping_completion = module_pair.get("macro_mapping_completion", [])
             
             # 【核心改变】：彻底抛弃 Leaf Nodes 遍历，直接调用文件级溯源！
             src_funcs_with_body = self._fetch_functions_by_root(src_root_id, src_rpg, src_db)
             tgt_funcs_with_body = self._fetch_functions_by_root(tgt_root_id, tgt_rpg, tgt_db)
             
+            if initial_tgt_root_id != tgt_root_id:
+                print(f"      - Target 宏观映射补全: {initial_tgt_root_id} -> {tgt_root_id}")
             print(f"      - 正在对齐 [ {src_root_id} 🆚 {tgt_root_id} ] (提取到 {len(src_funcs_with_body)} vs {len(tgt_funcs_with_body)} 个源码体)")
             
-            func_mapping = self._micro_align_functions(src_funcs_with_body, tgt_funcs_with_body)
+            func_mapping = self._dedupe_function_mappings(
+                self._micro_align_functions(src_funcs_with_body, tgt_funcs_with_body)
+            )
             
             final_alignment_report["aligned_modules"].append({
                 "src_module": src_root_id,
                 "tgt_module": tgt_root_id,
+                "tgt_macro_initial_module": initial_tgt_root_id,
+                "macro_mapping_completion": macro_mapping_completion,
                 "justification": module_pair.get("justification", ""),
                 "aligned_functions": func_mapping 
             })

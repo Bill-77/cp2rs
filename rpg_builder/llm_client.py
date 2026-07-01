@@ -1,4 +1,5 @@
 import os
+import time
 from openai import OpenAI
 
 class LLMClient:
@@ -16,6 +17,16 @@ class LLMClient:
             raise ValueError("未找到 API Key！请在环境变量中设置 DEEPSEEK_API_KEY、在项目 .env/.env.local 中配置，或在初始化时传入。")
         
         self.model = model
+        self.last_usage = {}
+        self.usage_totals = {
+            "calls": 0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+            "cache_hit_tokens": 0,
+            "cache_miss_tokens": 0,
+            "elapsed_seconds": 0.0,
+        }
         
         # DeepSeek API 的官方 Base URL
         self.client = OpenAI(
@@ -37,6 +48,7 @@ class LLMClient:
             str: 模型返回的文本内容
         """
         try:
+            started = time.monotonic()
             response = self.client.chat.completions.create(
                 model=model or self.model,
                 messages=messages,
@@ -45,11 +57,39 @@ class LLMClient:
                 max_tokens=max_tokens,
                 top_p=0.95
             )
+            elapsed = time.monotonic() - started
+            usage = getattr(response, "usage", None)
+            self.last_usage = {
+                "model": getattr(response, "model", None) or model or self.model,
+                "prompt_tokens": int(getattr(usage, "prompt_tokens", 0) or 0),
+                "completion_tokens": int(getattr(usage, "completion_tokens", 0) or 0),
+                "total_tokens": int(getattr(usage, "total_tokens", 0) or 0),
+                "cache_hit_tokens": int(getattr(usage, "prompt_cache_hit_tokens", 0) or 0),
+                "cache_miss_tokens": int(getattr(usage, "prompt_cache_miss_tokens", 0) or 0),
+                "elapsed_seconds": round(elapsed, 3),
+                "reported_by_api": usage is not None,
+            }
+            self.usage_totals["calls"] += 1
+            for key in (
+                "prompt_tokens", "completion_tokens", "total_tokens",
+                "cache_hit_tokens", "cache_miss_tokens",
+            ):
+                self.usage_totals[key] += self.last_usage[key]
+            self.usage_totals["elapsed_seconds"] = round(
+                self.usage_totals["elapsed_seconds"] + elapsed,
+                3,
+            )
             return response.choices[0].message.content
             
         except Exception as e:
             # 在外层调度器 Agent Loop 中统一处理异常，这里直接向上抛出
             raise RuntimeError(f"DeepSeek API 调用失败: {str(e)}")
+
+    def get_usage_stats(self):
+        return {
+            "last_usage": dict(self.last_usage),
+            "totals": dict(self.usage_totals),
+        }
 
     def _load_api_key_from_env_files(self):
         for filename in self.ENV_FILES:

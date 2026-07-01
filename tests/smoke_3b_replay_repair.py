@@ -3,8 +3,8 @@
 The fake LLM first returns a schema-valid adapter whose Rust harness calls the
 target API with the wrong argument types. Schema validation passes because the
 declared target API name is present, but cargo replay fails. The replay repair
-prompt then receives cargo feedback and the fake LLM returns a corrected
-adapter. This verifies that replay repair has a budget separate from schema
+prompt then receives cargo feedback and the fake LLM returns a harness patch.
+This verifies that replay repair has a budget separate from schema
 synthesis attempts.
 """
 
@@ -23,12 +23,29 @@ from phase3_evaluator.trace_replay_3b import TraceReplay3B
 class FakeReplayRepairLLM:
     def __init__(self):
         self.calls = 0
+        self.case_id = None
 
     def chat_completion(self, messages, temperature=0.1, model=None, max_tokens=8192):
         self.calls += 1
         prompt = messages[-1]["content"]
         repaired = "Phase 3B Replay Repair" in prompt
-        return json.dumps(self._adapter(repaired), indent=2)
+        if not repaired:
+            context = json.loads(prompt.split("Generation context:", 1)[1].strip())
+            behavior_cases = context.get("targeted_behavior_cases", [])
+            self.case_id = behavior_cases[0]["case_id"]
+        adapter = self._adapter(repaired)
+        if repaired:
+            return json.dumps({
+                "replay_repair_patch_version": "3b.replay_repair_patch.v1",
+                "rust_test_harness_replacement": adapter["rust_test_harness"],
+            }, indent=2)
+        return json.dumps({
+            "adapter_patch_version": "3b.adapter_patch.v1",
+            "public_operations_add": adapter["public_operations"],
+            "trace_events_add": adapter["trace_events"],
+            "excluded_behavior_cases_add": [],
+            "rust_test_harness_append": adapter["rust_test_harness"],
+        }, indent=2)
 
     def _adapter(self, repaired):
         if repaired:
@@ -78,6 +95,7 @@ class FakeReplayRepairLLM:
                     "expected": {"sum": 5},
                     "oracle_source": "source_test_assertion",
                     "oracle_confidence": "high",
+                    "source_case_ids": [self.case_id],
                 }
             ],
             "rust_test_harness": body,
@@ -185,17 +203,19 @@ def main():
         adapter_mode="synthesize",
         synthesis_attempts=1,
         replay_repair_attempts=1,
+        keep_debug_artifacts=True,
         llm_client=llm,
     )
     report = evaluator.run(mode="run", layer="public", artifacts_dir=output_dir)
     write_json(output_dir / "report.json", report)
 
     attempts = json.loads((output_dir / "adapter_synthesis_attempts.json").read_text()).get("attempts", [])
-    summary = report.get("metrics", {}).get("atomic_counts", {})
+    summary = report.get("metrics", {}).get("basic_counts", {})
     assert llm.calls == 2, llm.calls
     assert any(item.get("stage") == "replay_infrastructure_repair" for item in attempts), attempts
     assert report.get("public_behavior", {}).get("status") == "passed", report.get("public_behavior", {})
-    assert summary.get("public_replay_passed") == 1, summary
+    assert summary.get("replay_events_passed") == 1, summary
+    assert summary.get("replayed_behavior_cases") == 1, summary
 
     print(json.dumps({
         "status": "passed",

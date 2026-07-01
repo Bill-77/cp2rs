@@ -1,0 +1,1274 @@
+{
+  "schema_version": "3b.adapter_synthesis_attempts.v2",
+  "source_repository": "jsoncpp",
+  "target_repository": "json-rust",
+  "attempt_count": 39,
+  "attempts": [
+    {
+      "attempt": 1,
+      "stage": "behavior_case_conversion",
+      "iteration": 1,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_charreaderallowdropnulltest_issue178",
+        "main_charreaderallownumerickeystest_allownumerickeys",
+        "main_charreaderallowsinglequotestest_issue182",
+        "main_charreaderallowspecialfloatstest_issue209",
+        "main_charreaderallowspecialfloatstest_specialfloat",
+        "main_charreaderallowzeroestest_issue176",
+        "main_charreaderfailifextratest_commentafterarray",
+        "main_charreaderfailifextratest_commentafterbool",
+        "main_charreaderfailifextratest_commentafterobject",
+        "main_charreaderfailifextratest_issue107"
+      ],
+      "accepted_case_ids": [
+        "main_charreaderallowdropnulltest_issue178",
+        "main_charreaderallowspecialfloatstest_specialfloat",
+        "main_charreaderfailifextratest_commentafterbool"
+      ],
+      "replay_generated_case_ids": [
+        "main_charreaderallowdropnulltest_issue178",
+        "main_charreaderallowspecialfloatstest_specialfloat",
+        "main_charreaderfailifextratest_commentafterbool"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_charreaderallownumerickeystest_allownumerickeys",
+        "main_charreaderallowsinglequotestest_issue182",
+        "main_charreaderallowspecialfloatstest_issue209",
+        "main_charreaderallowzeroestest_issue176",
+        "main_charreaderfailifextratest_commentafterarray",
+        "main_charreaderfailifextratest_commentafterobject",
+        "main_charreaderfailifextratest_issue107"
+      ],
+      "errors": [
+        "case main_charreaderallownumerickeystest_allownumerickeys: no independently valid replay event or exclusion was returned",
+        "case main_charreaderallowsinglequotestest_issue182: no independently valid replay event or exclusion was returned",
+        "case main_charreaderallowspecialfloatstest_issue209: no independently valid replay event or exclusion was returned",
+        "case main_charreaderallowzeroestest_issue176: no independently valid replay event or exclusion was returned",
+        "case main_charreaderfailifextratest_commentafterarray: no independently valid replay event or exclusion was returned",
+        "case main_charreaderfailifextratest_commentafterobject: no independently valid replay event or exclusion was returned",
+        "case main_charreaderfailifextratest_issue107: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 2,
+      "stage": "behavior_case_conversion",
+      "iteration": 2,
+      "scheduling": "immediate_retry",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_charreaderallownumerickeystest_allownumerickeys",
+        "main_charreaderallowsinglequotestest_issue182",
+        "main_charreaderallowspecialfloatstest_issue209",
+        "main_charreaderallowzeroestest_issue176",
+        "main_charreaderfailifextratest_commentafterarray",
+        "main_charreaderfailifextratest_commentafterobject",
+        "main_charreaderfailifextratest_issue107"
+      ],
+      "accepted_case_ids": [
+        "main_charreaderallownumerickeystest_allownumerickeys",
+        "main_charreaderallowsinglequotestest_issue182",
+        "main_charreaderallowspecialfloatstest_issue209",
+        "main_charreaderallowzeroestest_issue176",
+        "main_charreaderfailifextratest_commentafterarray",
+        "main_charreaderfailifextratest_commentafterobject"
+      ],
+      "replay_generated_case_ids": [
+        "main_charreaderallownumerickeystest_allownumerickeys",
+        "main_charreaderallowsinglequotestest_issue182",
+        "main_charreaderallowspecialfloatstest_issue209",
+        "main_charreaderallowzeroestest_issue176",
+        "main_charreaderfailifextratest_commentafterarray",
+        "main_charreaderfailifextratest_commentafterobject"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_charreaderfailifextratest_issue107"
+      ],
+      "errors": [
+        "case main_charreaderfailifextratest_issue107: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 3,
+      "stage": "behavior_case_conversion",
+      "iteration": 3,
+      "scheduling": "immediate_retry",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_charreaderfailifextratest_issue107"
+      ],
+      "accepted_case_ids": [
+        "main_charreaderfailifextratest_issue107"
+      ],
+      "replay_generated_case_ids": [
+        "main_charreaderfailifextratest_issue107"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [],
+      "errors": []
+    },
+    {
+      "attempt": 4,
+      "stage": "behavior_case_conversion",
+      "iteration": 4,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_charreaderfailifextratest_issue164",
+        "main_charreaderfailifextratest_parsecomment",
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parsechinesewithoneerror",
+        "main_charreadertest_parsecomment",
+        "main_charreadertest_parsenumber",
+        "main_charreadertest_parseobjectwitherrors",
+        "main_charreadertest_parsestring",
+        "main_charreadertest_parsewithdetailerror"
+      ],
+      "accepted_case_ids": [
+        "main_charreaderfailifextratest_parsecomment",
+        "main_charreadertest_parsechinesewithoneerror",
+        "main_charreadertest_parsewithdetailerror"
+      ],
+      "replay_generated_case_ids": [
+        "main_charreaderfailifextratest_parsecomment",
+        "main_charreadertest_parsechinesewithoneerror",
+        "main_charreadertest_parsewithdetailerror"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_charreaderfailifextratest_issue164",
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parsecomment",
+        "main_charreadertest_parsenumber",
+        "main_charreadertest_parseobjectwitherrors",
+        "main_charreadertest_parsestring"
+      ],
+      "errors": [
+        "case main_charreaderfailifextratest_issue164: no independently valid replay event or exclusion was returned",
+        "case main_charreaderstrictmodetest_dupkeys: no independently valid replay event or exclusion was returned",
+        "case main_charreadertest_parsearraywitherrors: no independently valid replay event or exclusion was returned",
+        "case main_charreadertest_parsecomment: no independently valid replay event or exclusion was returned",
+        "case main_charreadertest_parsenumber: no independently valid replay event or exclusion was returned",
+        "case main_charreadertest_parseobjectwitherrors: no independently valid replay event or exclusion was returned",
+        "case main_charreadertest_parsestring: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 5,
+      "stage": "behavior_case_conversion",
+      "iteration": 5,
+      "scheduling": "immediate_retry",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_charreaderfailifextratest_issue164",
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parsecomment",
+        "main_charreadertest_parsenumber",
+        "main_charreadertest_parseobjectwitherrors",
+        "main_charreadertest_parsestring"
+      ],
+      "accepted_case_ids": [
+        "main_charreaderfailifextratest_issue164",
+        "main_charreadertest_parsecomment",
+        "main_charreadertest_parsenumber",
+        "main_charreadertest_parsestring"
+      ],
+      "replay_generated_case_ids": [
+        "main_charreaderfailifextratest_issue164",
+        "main_charreadertest_parsecomment",
+        "main_charreadertest_parsenumber",
+        "main_charreadertest_parsestring"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parseobjectwitherrors"
+      ],
+      "errors": [
+        "case main_charreaderstrictmodetest_dupkeys: no independently valid replay event or exclusion was returned",
+        "case main_charreadertest_parsearraywitherrors: no independently valid replay event or exclusion was returned",
+        "case main_charreadertest_parseobjectwitherrors: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 6,
+      "stage": "behavior_case_conversion",
+      "iteration": 6,
+      "scheduling": "immediate_retry",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parseobjectwitherrors"
+      ],
+      "accepted_case_ids": [
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parseobjectwitherrors"
+      ],
+      "replay_generated_case_ids": [
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parseobjectwitherrors"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [],
+      "errors": []
+    },
+    {
+      "attempt": 7,
+      "stage": "behavior_case_conversion",
+      "iteration": 7,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_charreadertest_parsewithnoerrors",
+        "main_charreadertest_parsewithnoerrorstestingoffsets",
+        "main_charreadertest_parsewithoneerror",
+        "main_charreadertest_parsewithstacklimit",
+        "main_escapesequencetest_charreaderparseescapesequence",
+        "main_escapesequencetest_readerparseescapesequence",
+        "main_escapesequencetest_writeescapesequence",
+        "main_fastwritertest_dropnullplaceholders",
+        "main_fastwritertest_enableyamlcompatibility",
+        "main_fastwritertest_omitendinglinefeed"
+      ],
+      "accepted_case_ids": [
+        "main_charreadertest_parsewithnoerrors",
+        "main_charreadertest_parsewithnoerrorstestingoffsets",
+        "main_charreadertest_parsewithoneerror",
+        "main_charreadertest_parsewithstacklimit",
+        "main_escapesequencetest_charreaderparseescapesequence",
+        "main_escapesequencetest_readerparseescapesequence",
+        "main_escapesequencetest_writeescapesequence",
+        "main_fastwritertest_dropnullplaceholders",
+        "main_fastwritertest_enableyamlcompatibility",
+        "main_fastwritertest_omitendinglinefeed"
+      ],
+      "replay_generated_case_ids": [
+        "main_charreadertest_parsewithnoerrors",
+        "main_charreadertest_parsewithnoerrorstestingoffsets",
+        "main_charreadertest_parsewithoneerror",
+        "main_charreadertest_parsewithstacklimit",
+        "main_escapesequencetest_charreaderparseescapesequence",
+        "main_escapesequencetest_readerparseescapesequence",
+        "main_escapesequencetest_writeescapesequence",
+        "main_fastwritertest_dropnullplaceholders",
+        "main_fastwritertest_enableyamlcompatibility",
+        "main_fastwritertest_omitendinglinefeed"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [],
+      "errors": []
+    },
+    {
+      "attempt": 8,
+      "stage": "behavior_case_conversion",
+      "iteration": 8,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_fastwritertest_writearrays",
+        "main_fastwritertest_writenestedobjects",
+        "main_fastwritertest_writenumericvalue",
+        "main_fuzztest_fuzzdoesntcrash",
+        "main_iteratortest_constness",
+        "main_iteratortest_convert",
+        "main_iteratortest_decrement",
+        "main_iteratortest_distance",
+        "main_iteratortest_indexes",
+        "main_iteratortest_names"
+      ],
+      "accepted_case_ids": [
+        "main_fastwritertest_writearrays",
+        "main_iteratortest_constness",
+        "main_iteratortest_decrement",
+        "main_iteratortest_distance"
+      ],
+      "replay_generated_case_ids": [
+        "main_fastwritertest_writearrays",
+        "main_iteratortest_constness",
+        "main_iteratortest_decrement",
+        "main_iteratortest_distance"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_fastwritertest_writenestedobjects",
+        "main_fastwritertest_writenumericvalue",
+        "main_fuzztest_fuzzdoesntcrash",
+        "main_iteratortest_convert",
+        "main_iteratortest_indexes",
+        "main_iteratortest_names"
+      ],
+      "errors": [
+        "case main_fastwritertest_writenestedobjects: no independently valid replay event or exclusion was returned",
+        "case main_fastwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+        "case main_fuzztest_fuzzdoesntcrash: no independently valid replay event or exclusion was returned",
+        "case main_iteratortest_convert: no independently valid replay event or exclusion was returned",
+        "case main_iteratortest_indexes: no independently valid replay event or exclusion was returned",
+        "case main_iteratortest_names: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 9,
+      "stage": "behavior_case_conversion",
+      "iteration": 9,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_fastwritertest_writenestedobjects",
+        "main_fastwritertest_writenumericvalue",
+        "main_fuzztest_fuzzdoesntcrash",
+        "main_iteratortest_convert",
+        "main_iteratortest_indexes",
+        "main_iteratortest_names"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_fastwritertest_writenestedobjects",
+        "main_fastwritertest_writenumericvalue",
+        "main_fuzztest_fuzzdoesntcrash",
+        "main_iteratortest_convert",
+        "main_iteratortest_indexes",
+        "main_iteratortest_names"
+      ],
+      "errors": [
+        "case main_fastwritertest_writenestedobjects: no independently valid replay event or exclusion was returned",
+        "case main_fastwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+        "case main_fuzztest_fuzzdoesntcrash: no independently valid replay event or exclusion was returned",
+        "case main_iteratortest_convert: no independently valid replay event or exclusion was returned",
+        "case main_iteratortest_indexes: no independently valid replay event or exclusion was returned",
+        "case main_iteratortest_names: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 10,
+      "stage": "behavior_case_conversion",
+      "iteration": 10,
+      "scheduling": "immediate_retry",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_fastwritertest_writenestedobjects",
+        "main_fastwritertest_writenumericvalue",
+        "main_fuzztest_fuzzdoesntcrash",
+        "main_iteratortest_convert",
+        "main_iteratortest_indexes",
+        "main_iteratortest_names"
+      ],
+      "accepted_case_ids": [
+        "main_fastwritertest_writenestedobjects",
+        "main_fastwritertest_writenumericvalue"
+      ],
+      "replay_generated_case_ids": [
+        "main_fastwritertest_writenestedobjects",
+        "main_fastwritertest_writenumericvalue"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_fuzztest_fuzzdoesntcrash",
+        "main_iteratortest_convert",
+        "main_iteratortest_indexes",
+        "main_iteratortest_names"
+      ],
+      "errors": [
+        "case main_fuzztest_fuzzdoesntcrash: no independently valid replay event or exclusion was returned",
+        "case main_iteratortest_convert: no independently valid replay event or exclusion was returned",
+        "case main_iteratortest_indexes: no independently valid replay event or exclusion was returned",
+        "case main_iteratortest_names: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 11,
+      "stage": "behavior_case_conversion",
+      "iteration": 11,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_iteratortest_reverseiterator",
+        "main_iteratortest_staticstringkey",
+        "main_membertemplateas_behavessameasnamedas",
+        "main_membertemplateis_behavessameasnamedis",
+        "main_parsewithstructurederrorstest_singleerror",
+        "main_parsewithstructurederrorstest_success",
+        "main_readertest_allowdroppednullplaceholders",
+        "main_readertest_allownumerickeystest",
+        "main_readertest_parsearray",
+        "main_readertest_parsechinesewithoneerror"
+      ],
+      "accepted_case_ids": [
+        "main_iteratortest_reverseiterator",
+        "main_membertemplateas_behavessameasnamedas",
+        "main_membertemplateis_behavessameasnamedis",
+        "main_parsewithstructurederrorstest_singleerror",
+        "main_parsewithstructurederrorstest_success",
+        "main_readertest_allowdroppednullplaceholders",
+        "main_readertest_allownumerickeystest",
+        "main_readertest_parsearray",
+        "main_readertest_parsechinesewithoneerror"
+      ],
+      "replay_generated_case_ids": [
+        "main_iteratortest_reverseiterator",
+        "main_membertemplateas_behavessameasnamedas",
+        "main_membertemplateis_behavessameasnamedis",
+        "main_parsewithstructurederrorstest_singleerror",
+        "main_parsewithstructurederrorstest_success",
+        "main_readertest_allowdroppednullplaceholders",
+        "main_readertest_allownumerickeystest",
+        "main_readertest_parsearray",
+        "main_readertest_parsechinesewithoneerror"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_iteratortest_staticstringkey"
+      ],
+      "errors": [
+        "case main_iteratortest_staticstringkey: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 12,
+      "stage": "behavior_case_conversion",
+      "iteration": 12,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_iteratortest_staticstringkey"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_iteratortest_staticstringkey"
+      ],
+      "errors": [
+        "case main_iteratortest_staticstringkey: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 13,
+      "stage": "behavior_case_conversion",
+      "iteration": 13,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_iteratortest_staticstringkey"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_iteratortest_staticstringkey"
+      ],
+      "errors": [
+        "case main_iteratortest_staticstringkey: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 14,
+      "stage": "behavior_case_conversion",
+      "iteration": 14,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_readertest_parsecomment",
+        "main_readertest_parseobject",
+        "main_readertest_parsespecialfloat",
+        "main_readertest_parsestring",
+        "main_readertest_parsewithdetailerror",
+        "main_readertest_parsewithnoerrors",
+        "main_readertest_parsewithnoerrorstestingoffsets",
+        "main_readertest_parsewithoneerror",
+        "main_readertest_pusherrortest",
+        "main_readertest_streamparsewithnoerrors"
+      ],
+      "accepted_case_ids": [
+        "main_readertest_parsecomment",
+        "main_readertest_parseobject",
+        "main_readertest_parsespecialfloat",
+        "main_readertest_parsestring",
+        "main_readertest_parsewithdetailerror",
+        "main_readertest_parsewithnoerrors",
+        "main_readertest_parsewithnoerrorstestingoffsets",
+        "main_readertest_parsewithoneerror",
+        "main_readertest_streamparsewithnoerrors"
+      ],
+      "replay_generated_case_ids": [
+        "main_readertest_parsecomment",
+        "main_readertest_parseobject",
+        "main_readertest_parsespecialfloat",
+        "main_readertest_parsestring",
+        "main_readertest_parsewithdetailerror",
+        "main_readertest_parsewithnoerrors",
+        "main_readertest_parsewithnoerrorstestingoffsets",
+        "main_readertest_parsewithoneerror",
+        "main_readertest_streamparsewithnoerrors"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_readertest_pusherrortest"
+      ],
+      "errors": [
+        "case main_readertest_pusherrortest: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 15,
+      "stage": "behavior_case_conversion",
+      "iteration": 15,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_readertest_pusherrortest"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_readertest_pusherrortest"
+      ],
+      "errors": [
+        "case main_readertest_pusherrortest: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 16,
+      "stage": "behavior_case_conversion",
+      "iteration": 16,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_readertest_pusherrortest"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_readertest_pusherrortest"
+      ],
+      "errors": [
+        "case main_readertest_pusherrortest: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 17,
+      "stage": "behavior_case_conversion",
+      "iteration": 17,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_readertest_strictmodeparsenumber",
+        "main_streamwritertest_dropnullplaceholders",
+        "main_streamwritertest_enableyamlcompatibility",
+        "main_streamwritertest_escapecontrolcharacters",
+        "main_streamwritertest_escapetabcharacterwindows",
+        "main_streamwritertest_indentation",
+        "main_streamwritertest_multilinearray",
+        "main_streamwritertest_unicode",
+        "main_streamwritertest_writearrays",
+        "main_streamwritertest_writenestedobjects"
+      ],
+      "accepted_case_ids": [
+        "main_readertest_strictmodeparsenumber",
+        "main_streamwritertest_dropnullplaceholders",
+        "main_streamwritertest_enableyamlcompatibility",
+        "main_streamwritertest_escapecontrolcharacters",
+        "main_streamwritertest_escapetabcharacterwindows",
+        "main_streamwritertest_indentation",
+        "main_streamwritertest_multilinearray",
+        "main_streamwritertest_unicode",
+        "main_streamwritertest_writearrays",
+        "main_streamwritertest_writenestedobjects"
+      ],
+      "replay_generated_case_ids": [
+        "main_readertest_strictmodeparsenumber",
+        "main_streamwritertest_dropnullplaceholders",
+        "main_streamwritertest_enableyamlcompatibility",
+        "main_streamwritertest_escapecontrolcharacters",
+        "main_streamwritertest_escapetabcharacterwindows",
+        "main_streamwritertest_indentation",
+        "main_streamwritertest_multilinearray",
+        "main_streamwritertest_unicode",
+        "main_streamwritertest_writearrays",
+        "main_streamwritertest_writenestedobjects"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [],
+      "errors": []
+    },
+    {
+      "attempt": 18,
+      "stage": "behavior_case_conversion",
+      "iteration": 18,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_streamwritertest_writenumericvalue",
+        "main_streamwritertest_writezeroes",
+        "main_styledstreamwritertest_multilinearray",
+        "main_styledstreamwritertest_writearrays",
+        "main_styledstreamwritertest_writenestedobjects",
+        "main_styledstreamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_writevaluewithcomment",
+        "main_styledwritertest_multilinearray",
+        "main_styledwritertest_writearrays",
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "accepted_case_ids": [
+        "main_streamwritertest_writezeroes",
+        "main_styledstreamwritertest_writearrays",
+        "main_styledwritertest_writearrays"
+      ],
+      "replay_generated_case_ids": [
+        "main_streamwritertest_writezeroes",
+        "main_styledstreamwritertest_writearrays",
+        "main_styledwritertest_writearrays"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_streamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_multilinearray",
+        "main_styledstreamwritertest_writenestedobjects",
+        "main_styledstreamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_writevaluewithcomment",
+        "main_styledwritertest_multilinearray",
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "errors": [
+        "case main_streamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+        "case main_styledstreamwritertest_multilinearray: no independently valid replay event or exclusion was returned",
+        "case main_styledstreamwritertest_writenestedobjects: no independently valid replay event or exclusion was returned",
+        "case main_styledstreamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+        "case main_styledstreamwritertest_writevaluewithcomment: no independently valid replay event or exclusion was returned",
+        "case main_styledwritertest_multilinearray: no independently valid replay event or exclusion was returned",
+        "case main_styledwritertest_writenestedobjects: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 19,
+      "stage": "behavior_case_conversion",
+      "iteration": 19,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_streamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_multilinearray",
+        "main_styledstreamwritertest_writenestedobjects",
+        "main_styledstreamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_writevaluewithcomment",
+        "main_styledwritertest_multilinearray",
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_streamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_multilinearray",
+        "main_styledstreamwritertest_writenestedobjects",
+        "main_styledstreamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_writevaluewithcomment",
+        "main_styledwritertest_multilinearray",
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "errors": [
+        "case main_streamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+        "case main_styledstreamwritertest_multilinearray: no independently valid replay event or exclusion was returned",
+        "case main_styledstreamwritertest_writenestedobjects: no independently valid replay event or exclusion was returned",
+        "case main_styledstreamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+        "case main_styledstreamwritertest_writevaluewithcomment: no independently valid replay event or exclusion was returned",
+        "case main_styledwritertest_multilinearray: no independently valid replay event or exclusion was returned",
+        "case main_styledwritertest_writenestedobjects: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 20,
+      "stage": "behavior_case_conversion",
+      "iteration": 20,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_streamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_multilinearray",
+        "main_styledstreamwritertest_writenestedobjects",
+        "main_styledstreamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_writevaluewithcomment",
+        "main_styledwritertest_multilinearray",
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_streamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_multilinearray",
+        "main_styledstreamwritertest_writenestedobjects",
+        "main_styledstreamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_writevaluewithcomment",
+        "main_styledwritertest_multilinearray",
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "errors": [
+        "case main_streamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+        "case main_styledstreamwritertest_multilinearray: no independently valid replay event or exclusion was returned",
+        "case main_styledstreamwritertest_writenestedobjects: no independently valid replay event or exclusion was returned",
+        "case main_styledstreamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+        "case main_styledstreamwritertest_writevaluewithcomment: no independently valid replay event or exclusion was returned",
+        "case main_styledwritertest_multilinearray: no independently valid replay event or exclusion was returned",
+        "case main_styledwritertest_writenestedobjects: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 21,
+      "stage": "behavior_case_conversion",
+      "iteration": 21,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_styledwritertest_writevaluewithcomment",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_arrayissue252",
+        "main_valuetest_arrays",
+        "main_valuetest_bools",
+        "main_valuetest_commentbefore",
+        "main_valuetest_comparearray",
+        "main_valuetest_comparenull",
+        "main_valuetest_compareobject"
+      ],
+      "accepted_case_ids": [
+        "main_valuetest_arrays",
+        "main_valuetest_comparearray"
+      ],
+      "replay_generated_case_ids": [
+        "main_valuetest_arrays",
+        "main_valuetest_comparearray"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_styledwritertest_writevaluewithcomment",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_arrayissue252",
+        "main_valuetest_bools",
+        "main_valuetest_commentbefore",
+        "main_valuetest_comparenull",
+        "main_valuetest_compareobject"
+      ],
+      "errors": [
+        "case main_styledwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+        "case main_styledwritertest_writevaluewithcomment: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_arrayinsertatrandomindex: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_arrayissue252: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_bools: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_commentbefore: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_comparenull: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_compareobject: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 22,
+      "stage": "behavior_case_conversion",
+      "iteration": 22,
+      "scheduling": "immediate_retry",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_styledwritertest_writevaluewithcomment",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_arrayissue252",
+        "main_valuetest_bools",
+        "main_valuetest_commentbefore",
+        "main_valuetest_comparenull",
+        "main_valuetest_compareobject"
+      ],
+      "accepted_case_ids": [
+        "main_styledwritertest_writevaluewithcomment",
+        "main_valuetest_arrayissue252",
+        "main_valuetest_commentbefore",
+        "main_valuetest_comparenull",
+        "main_valuetest_compareobject"
+      ],
+      "replay_generated_case_ids": [
+        "main_styledwritertest_writevaluewithcomment",
+        "main_valuetest_arrayissue252",
+        "main_valuetest_commentbefore",
+        "main_valuetest_comparenull",
+        "main_valuetest_compareobject"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_bools"
+      ],
+      "errors": [
+        "case main_styledwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_arrayinsertatrandomindex: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_bools: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 23,
+      "stage": "behavior_case_conversion",
+      "iteration": 23,
+      "scheduling": "immediate_retry",
+      "status": "split_due_output_limit",
+      "targeted_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_bools"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_bools"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "split_retry_batches": [
+        [
+          "main_styledwritertest_writenumericvalue",
+          "main_valuetest_arrayinsertatrandomindex"
+        ],
+        [
+          "main_valuetest_bools"
+        ]
+      ],
+      "llm_output_limit": 5400
+    },
+    {
+      "attempt": 24,
+      "stage": "behavior_case_conversion",
+      "iteration": 24,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_valuetest_arrayinsertatrandomindex"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_valuetest_arrayinsertatrandomindex"
+      ],
+      "errors": [
+        "case main_styledwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_arrayinsertatrandomindex: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 25,
+      "stage": "behavior_case_conversion",
+      "iteration": 25,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_bools"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_bools"
+      ],
+      "errors": [
+        "case main_valuetest_bools: trace_events[74].expected must describe observable behavior"
+      ]
+    },
+    {
+      "attempt": 26,
+      "stage": "behavior_case_conversion",
+      "iteration": 26,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_valuetest_comparetype",
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_czstringcoverage",
+        "main_valuetest_getarrayvalue",
+        "main_valuetest_integers",
+        "main_valuetest_membercount",
+        "main_valuetest_nonintegers",
+        "main_valuetest_null",
+        "main_valuetest_objects"
+      ],
+      "accepted_case_ids": [
+        "main_valuetest_membercount",
+        "main_valuetest_null"
+      ],
+      "replay_generated_case_ids": [
+        "main_valuetest_membercount",
+        "main_valuetest_null"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_comparetype",
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_czstringcoverage",
+        "main_valuetest_getarrayvalue",
+        "main_valuetest_integers",
+        "main_valuetest_nonintegers",
+        "main_valuetest_objects"
+      ],
+      "errors": [
+        "case main_valuetest_comparetype: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_copymovearray: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_copyobject: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_czstringcoverage: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_getarrayvalue: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_integers: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_nonintegers: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_objects: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 27,
+      "stage": "behavior_case_conversion",
+      "iteration": 27,
+      "scheduling": "immediate_retry",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_valuetest_comparetype",
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_czstringcoverage",
+        "main_valuetest_getarrayvalue",
+        "main_valuetest_integers",
+        "main_valuetest_nonintegers",
+        "main_valuetest_objects"
+      ],
+      "accepted_case_ids": [
+        "main_valuetest_objects"
+      ],
+      "replay_generated_case_ids": [
+        "main_valuetest_objects"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_comparetype",
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_czstringcoverage",
+        "main_valuetest_getarrayvalue",
+        "main_valuetest_integers",
+        "main_valuetest_nonintegers"
+      ],
+      "errors": [
+        "case main_valuetest_comparetype: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_copymovearray: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_copyobject: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_czstringcoverage: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_getarrayvalue: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_integers: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_nonintegers: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 28,
+      "stage": "behavior_case_conversion",
+      "iteration": 28,
+      "scheduling": "immediate_retry",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_valuetest_comparetype",
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_czstringcoverage",
+        "main_valuetest_getarrayvalue",
+        "main_valuetest_integers",
+        "main_valuetest_nonintegers"
+      ],
+      "accepted_case_ids": [
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_getarrayvalue"
+      ],
+      "replay_generated_case_ids": [
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_getarrayvalue"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_comparetype",
+        "main_valuetest_czstringcoverage",
+        "main_valuetest_integers",
+        "main_valuetest_nonintegers"
+      ],
+      "errors": [
+        "case main_valuetest_comparetype: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_czstringcoverage: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_integers: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_nonintegers: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 29,
+      "stage": "behavior_case_conversion",
+      "iteration": 29,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_valuetest_precision",
+        "main_valuetest_resizearray",
+        "main_valuetest_resizepopulatesallmissingelements",
+        "main_valuetest_searchvaluebypath",
+        "main_valuetest_specialfloats",
+        "main_valuetest_strings",
+        "main_valuetest_typechecksthrowexceptions",
+        "main_valuetest_widestring",
+        "main_valuetest_zeroes",
+        "main_valuetest_zeroesinkeys"
+      ],
+      "accepted_case_ids": [
+        "main_valuetest_precision",
+        "main_valuetest_searchvaluebypath",
+        "main_valuetest_specialfloats",
+        "main_valuetest_strings",
+        "main_valuetest_typechecksthrowexceptions",
+        "main_valuetest_widestring"
+      ],
+      "replay_generated_case_ids": [
+        "main_valuetest_precision",
+        "main_valuetest_searchvaluebypath",
+        "main_valuetest_specialfloats",
+        "main_valuetest_strings",
+        "main_valuetest_typechecksthrowexceptions",
+        "main_valuetest_widestring"
+      ],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_resizearray",
+        "main_valuetest_resizepopulatesallmissingelements",
+        "main_valuetest_zeroes",
+        "main_valuetest_zeroesinkeys"
+      ],
+      "errors": [
+        "case main_valuetest_resizearray: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_resizepopulatesallmissingelements: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_zeroes: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_zeroesinkeys: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 30,
+      "stage": "behavior_case_conversion",
+      "iteration": 30,
+      "scheduling": "immediate_retry",
+      "status": "split_due_output_limit",
+      "targeted_case_ids": [
+        "main_valuetest_resizearray",
+        "main_valuetest_resizepopulatesallmissingelements",
+        "main_valuetest_zeroes",
+        "main_valuetest_zeroesinkeys"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_resizearray",
+        "main_valuetest_resizepopulatesallmissingelements",
+        "main_valuetest_zeroes",
+        "main_valuetest_zeroesinkeys"
+      ],
+      "errors": [
+        "JSON extraction failed: Unterminated string starting at: line 1 column 163 (char 162)"
+      ],
+      "split_retry_batches": [
+        [
+          "main_valuetest_resizearray",
+          "main_valuetest_resizepopulatesallmissingelements"
+        ],
+        [
+          "main_valuetest_zeroes",
+          "main_valuetest_zeroesinkeys"
+        ]
+      ],
+      "llm_output_limit": 7200
+    },
+    {
+      "attempt": 31,
+      "stage": "behavior_case_conversion",
+      "iteration": 31,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_resizearray",
+        "main_valuetest_resizepopulatesallmissingelements"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_resizearray",
+        "main_valuetest_resizepopulatesallmissingelements"
+      ],
+      "errors": [
+        "case main_valuetest_resizearray: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_resizepopulatesallmissingelements: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 32,
+      "stage": "behavior_case_conversion",
+      "iteration": 32,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "split_due_output_limit",
+      "targeted_case_ids": [
+        "main_valuetest_zeroes",
+        "main_valuetest_zeroesinkeys"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_zeroes",
+        "main_valuetest_zeroesinkeys"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "split_retry_batches": [
+        [
+          "main_valuetest_zeroes"
+        ],
+        [
+          "main_valuetest_zeroesinkeys"
+        ]
+      ],
+      "llm_output_limit": 4000
+    },
+    {
+      "attempt": 33,
+      "stage": "behavior_case_conversion",
+      "iteration": 33,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_zeroes"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_zeroes"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ]
+    },
+    {
+      "attempt": 34,
+      "stage": "behavior_case_conversion",
+      "iteration": 34,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_zeroesinkeys"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_zeroesinkeys"
+      ],
+      "errors": [
+        "case main_valuetest_zeroesinkeys: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 35,
+      "stage": "behavior_case_conversion",
+      "iteration": 35,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_zeroesinkeys"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_zeroesinkeys"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ]
+    },
+    {
+      "attempt": 36,
+      "stage": "behavior_case_conversion",
+      "iteration": 36,
+      "scheduling": "new_batch",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_resizearray",
+        "main_valuetest_resizepopulatesallmissingelements",
+        "main_valuetest_zeroes"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_resizearray",
+        "main_valuetest_resizepopulatesallmissingelements",
+        "main_valuetest_zeroes"
+      ],
+      "errors": [
+        "case main_valuetest_resizearray: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_resizepopulatesallmissingelements: no independently valid replay event or exclusion was returned",
+        "case main_valuetest_zeroes: no independently valid replay event or exclusion was returned"
+      ]
+    },
+    {
+      "attempt": 37,
+      "stage": "replay_infrastructure_repair",
+      "status": "failed",
+      "errors": [],
+      "input_infrastructure_failed_tests": 21,
+      "replay_status": "partial_infrastructure_failed",
+      "replay_reason": "merged_replay_result_after_targeted_repair_subset",
+      "rerun_event_count": 21,
+      "remaining_infrastructure_failures": 5
+    },
+    {
+      "attempt": 38,
+      "stage": "replay_infrastructure_repair",
+      "status": "failed",
+      "errors": [],
+      "input_infrastructure_failed_tests": 5,
+      "replay_status": "partial_infrastructure_failed",
+      "replay_reason": "merged_replay_result_after_targeted_repair_subset",
+      "rerun_event_count": 5,
+      "remaining_infrastructure_failures": 1
+    },
+    {
+      "attempt": 39,
+      "stage": "replay_infrastructure_repair",
+      "status": "passed",
+      "errors": [],
+      "input_infrastructure_failed_tests": 1,
+      "replay_status": "failed",
+      "replay_reason": "merged_replay_result_after_targeted_repair_subset",
+      "rerun_event_count": 1,
+      "remaining_infrastructure_failures": 0
+    }
+  ]
+}

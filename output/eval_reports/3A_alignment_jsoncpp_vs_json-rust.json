@@ -1,0 +1,575 @@
+{
+  "macro_alignment_score": 75.72,
+  "aligned_modules": [
+    {
+      "src_module": "Root_Core",
+      "src_module_description": "[Root_Core] 核心 JSON 值类型与基础设施: 包含 Json::Value 核心类、异常（Exception, RuntimeError, LogicError）、路径（Path）、迭代器、配置类型（Int, UInt, String）、安全分配器、版本函数等。是解析和序列化的基础。",
+      "tgt_module": "Root_DataModel,Root_PublicAPI",
+      "tgt_module_description": "[Root_DataModel] Core Data Model: Encapsulates the core JSON data types: JsonValue enum, Object container (hash-indexed store), Number with mantissa/exponent representation, Short string optimization, and float conversion utilities (grisu2/diyfp) used by Number.\n[Root_PublicAPI] Public API Facade & Error: Public API entry points (lib.rs) with re-exports of core types and the top-level parse, stringify, from functions, alongside the public Error enum (error.rs) that propagates parsing and type errors to users.",
+      "justification": "Source Root_Core包含Json::Value核心类型和异常类；Target Root_DataModel对应JsonValue枚举及操作，Root_PublicAPI包含公共Error枚举（对应异常语义）。拓扑上Source中Core被Reader和Writer依赖，Target中DataModel被Parser和Serialization依赖，PublicAPI作为错误和类型入口与Parser/Serialization协作，边关系一致。",
+      "aligned_functions": [
+        {
+          "src_uuid": "include/json/value.h::Json::Value",
+          "tgt_uuid": "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+          "confidence": "High",
+          "reason": "源函数构造Value from string_view，目标函数通过from(&str)构造JsonValue（Short或String），语义等价"
+        },
+        {
+          "src_uuid": "include/json/value.h::Json::getString",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_str",
+          "confidence": "High",
+          "reason": "源函数获取字符串值并输出string_view，目标返回Option<&str>，均用于获取字符串表示"
+        },
+        {
+          "src_uuid": "include/json/value.h::& operator[](std::string_view key)",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
+          "confidence": "High",
+          "reason": "非const下标访问，源返回Value&，目标返回&mut JsonValue，均用于可变引用访问"
+        },
+        {
+          "src_uuid": "include/json/value.h::& operator[](std::string_view key) const",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+          "confidence": "High",
+          "reason": "const下标访问，源返回const Value&，目标返回&JsonValue，均用于只读引用访问"
+        },
+        {
+          "src_uuid": "include/json/value.h::Json::removeMember#sig_57589d3e",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::remove",
+          "confidence": "Medium",
+          "reason": "源函数移除键值对（void），目标函数返回被移除的值，核心功能一致"
+        },
+        {
+          "src_uuid": "include/json/value.h::Json::removeMember#sig_3125195e",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::remove",
+          "confidence": "Medium",
+          "reason": "源函数移除键值对并返回bool表示是否成功（通过输出参数），目标返回Option<JsonValue>，均实现移除操作"
+        },
+        {
+          "src_uuid": "include/json/value.h::Json::isMember",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::has_key",
+          "confidence": "High",
+          "reason": "源函数判断键是否存在，目标函数has_key实现相同功能"
+        },
+        {
+          "src_uuid": "include/json/value.h::operator==",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::eq",
+          "confidence": "High",
+          "reason": "Source operator== calls isEqual, Target eq matches enum variants and compares recursively. Both implement equality comparison of JSON values."
+        },
+        {
+          "src_uuid": "include/json/value.h::Value::is<bool>",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_boolean",
+          "confidence": "High",
+          "reason": "Source is<bool> calls isBool(), Target is_boolean checks if the value is Boolean variant. Both are type-checks with no conversion."
+        },
+        {
+          "src_uuid": "include/json/value.h::Value::as<Int64>",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_i64",
+          "confidence": "High",
+          "reason": "C++ as<Int64>() calls asInt64() returning Int64; Rust as_i64() returns Option<i64>, functionally equivalent for integer conversion."
+        },
+        {
+          "src_uuid": "include/json/value.h::Value::as<UInt64>",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_u64",
+          "confidence": "High",
+          "reason": "C++ as<UInt64>() calls asUInt64(); Rust as_u64() returns Option<u64>, matching the conversion semantics."
+        },
+        {
+          "src_uuid": "include/json/value.h::Value::as<double>",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_f64",
+          "confidence": "High",
+          "reason": "C++ as<double>() calls asDouble(); Rust as_f64() returns Option<f64>, same floating-point extraction."
+        },
+        {
+          "src_uuid": "include/json/value.h::Value::as<float>",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_f32",
+          "confidence": "High",
+          "reason": "C++ as<float>() calls asFloat(); Rust as_f32() returns Option<f32>, semantically identical."
+        },
+        {
+          "src_uuid": "include/json/value.h::Value::as<const char*>",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_str",
+          "confidence": "Medium",
+          "reason": "C++ as<const char*>() returns const char* via asCString(); Rust as_str() returns Option<&str>, both provide string representation. Return type differs slightly but core logic matches."
+        },
+        {
+          "src_uuid": "include/json/value.h::Value::is<String>",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_string",
+          "confidence": "High",
+          "reason": "C++ is<String>() calls isString(); Rust is_string() returns bool, identical type check for string values."
+        },
+        {
+          "src_uuid": "include/json/value.h::Value::members#sig_06773b31",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::members_mut",
+          "confidence": "High",
+          "reason": "Non-const members() in C++ returns mutable view; Rust members_mut() returns mutable iterator over array elements, same mutability semantics."
+        },
+        {
+          "src_uuid": "include/json/value.h::Value::members#sig_c51829a1",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::members",
+          "confidence": "High",
+          "reason": "Const members() in C++ returns const view; Rust members() returns immutable iterator, matching const behavior."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::& Value::operator[](ArrayIndex index) const",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index#sig_3688427e",
+          "confidence": "High",
+          "reason": "Both provide const array access by index, returning null/default when out of bounds."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::& Value::operator[](const char* key) const",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+          "confidence": "High",
+          "reason": "Both provide const object access by C string key, returning null singleton when key not found."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::& Value::operator[](const String& key) const",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index#sig_7b43e9d0",
+          "confidence": "High",
+          "reason": "Both provide const object access by String reference, delegating to the &str version."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::& Value::resolveReference(const char* key)",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
+          "confidence": "High",
+          "reason": "Both implement mutable object key lookup with insertion if missing, using C-string key."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::& Value::resolveReference(char const* key, char const* end)",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
+          "confidence": "High",
+          "reason": "Equivalent to mutable object key lookup with range-based C-string, Target uses &str slice directly."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::& Value::operator[](const char* key)",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
+          "confidence": "High",
+          "reason": "Mutable object access by C-string key, delegates to resolveReference, same as Target's index_mut(&str)."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::& Value::operator[](const String& key)",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index_mut#sig_f318752e",
+          "confidence": "High",
+          "reason": "Mutable object access by String reference, delegating to &str version, matching Target's index_mut(&String)."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::& Value::operator[](const StaticString& key)",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
+          "confidence": "High",
+          "reason": "Mutable object access via StaticString, calls resolveReference(c_str), equivalent to index_mut(&str)."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::& Value::operator[](ArrayIndex index)",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index_mut#sig_f52e0830",
+          "confidence": "Medium",
+          "reason": "Both provide mutable array element access by index, inserting default if out of bounds, but implementation differs (map vs Vec)."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+          "tgt_uuid": "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+          "confidence": "High",
+          "reason": "源函数从const char*构造Value，调用duplicateAndPrefixStringValue复制字符串；目标函数从&str构造JsonValue，根据长度选择Short或String变体，实现字符串的复制存储，语义等价。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::operator==",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::eq",
+          "confidence": "High",
+          "reason": "Both implement equality comparison between two JSON values, checking type and value in the same manner."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::asCString",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::as_str",
+          "confidence": "Medium",
+          "reason": "Both retrieve the underlying string representation; asCString returns a raw pointer (null for null) and as_str returns Option<&str>, but the core logic of extracting the string is equivalent."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::size",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::len",
+          "confidence": "High",
+          "reason": "两者都是返回JSON数组或对象的元素个数，对于非容器类型返回0。底层逻辑等价：C++的size对array返回最高索引+1（由于JsonCpp内部确保所有索引直到最高索引都有值，结果等于元素个数），对object返回map大小；Rust的len对array返回vec.len()，对object返回object.len()。语义完全一致。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::remove",
+          "confidence": "High",
+          "reason": "Source: removeMember with begin/end pointers removes key from object and returns bool (optionally stores removed value). Target: remove takes &str, returns removed JsonValue or Null if missing/non-object. Logic identical."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_a612a4c4",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::remove",
+          "confidence": "High",
+          "reason": "Source: removeMember with const char* key, delegates to begin/end version. Target: remove(&str) implements same behavior."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_1728c343",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::remove",
+          "confidence": "High",
+          "reason": "Source: removeMember with String, delegates to data/length version. Target: remove(&str) handles string slice, same semantics."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_e0838f91",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::remove",
+          "confidence": "High",
+          "reason": "Source: void removeMember(const char*) without returned value, asserts object/null type. Target: remove returns JsonValue but callers can ignore; type handling equivalent."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_7e2523bf",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::remove",
+          "confidence": "High",
+          "reason": "Source: void removeMember(String) delegates to c_str version. Target: remove(&str) covers same path."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::removeIndex",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::array_remove",
+          "confidence": "High",
+          "reason": "Source: removeIndex(ArrayIndex, Value*) removes element at index from array, shifts others left. Target: array_remove(usize) returns removed value or Null; both handle out-of-bounds gracefully."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isMember#sig_d0d425bb",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::has_key",
+          "confidence": "High",
+          "reason": "Source: isMember returns true if key exists in object. Target: has_key(&str) returns bool by checking object's get. Semantically identical."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::demand",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
+          "confidence": "Medium",
+          "reason": "Source: demand(begin,end) asserts null/object type then returns mutable reference via resolveReference (creates if missing). Target: index_mut(&str) also converts to object if needed and returns mutable reference, inserting Null for missing keys. Core logic aligned."
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isMember#sig_11a9c542",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::has_key",
+          "confidence": "High",
+          "reason": "C++ 的 isMember(char const*) 检查对象中是否包含指定 key，Rust 的 has_key(&str) 实现相同语义：匹配 Object 变体并调用 object.get(key).is_some()。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isMember#sig_b2b3c39b",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::has_key",
+          "confidence": "High",
+          "reason": "C++ 的 isMember(String const&) 与上一版本仅在参数类型上不同，逻辑等同，与 Rust 的 has_key(&str) 功能一致。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isNull",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_null",
+          "confidence": "High",
+          "reason": "C++ 的 isNull() 返回 type() == nullValue，Rust 的 is_null() 匹配 JsonValue::Null 返回 true，完全等价。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isBool",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_boolean",
+          "confidence": "High",
+          "reason": "C++ 的 isBool() 检查 type() == booleanValue，Rust 的 is_boolean() 匹配 JsonValue::Boolean 变体，直接对应。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isDouble",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_number",
+          "confidence": "High",
+          "reason": "C++ 的 isDouble() 对 intValue、uintValue、realValue 返回 true，对应任何数值类型；Rust 的 is_number() 匹配 Number 变体（包含所有数字），语义等价。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_number",
+          "confidence": "High",
+          "reason": "C++ 的 isNumeric() 直接委托 isDouble()，因此与 is_number 对应关系相同。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isString",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_string",
+          "confidence": "High",
+          "reason": "C++ 的 isString() 检查 type() == stringValue，Rust 的 is_string() 匹配 Short 或 String 变体（均表示字符串），功能一致。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isArray",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_array",
+          "confidence": "High",
+          "reason": "C++ 的 isArray() 检查 type() == arrayValue，Rust 的 is_array() 匹配 Array 变体，直接对应。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isObject",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::is_object",
+          "confidence": "High",
+          "reason": "C++ 的 isObject() 检查 type() == objectValue，Rust 的 is_object() 匹配 Object 变体，语义等价。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::toStyledString",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::pretty",
+          "confidence": "Medium",
+          "reason": "toStyledString 生成带缩进和换行的格式化JSON字符串，JsonValue::pretty同样生成格式化JSON字符串（接受spaces参数）。两者核心功能一致，但C++版本还处理了注释，而Rust无注释支持，故置信度为Medium。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::begin#sig_fda56a58",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::members",
+          "confidence": "High",
+          "reason": "C++的const begin()返回常量迭代器遍历数组/对象，Rust的members()返回不可变迭代器遍历数组/对象。非数组/对象时均返回空迭代器。语义完全等价。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::members_mut",
+          "confidence": "High",
+          "reason": "C++的非const begin()返回可变迭代器，Rust的members_mut()返回可变迭代器，功能等价。"
+        }
+      ],
+      "tgt_macro_initial_module": "Root_DataModel,Root_PublicAPI"
+    },
+    {
+      "src_module": "Root_Reader",
+      "src_module_description": "[Root_Reader] JSON 解析模块: 包含 Json::Reader、Json::CharReader、Json::CharReaderBuilder、Json::Features 等解析相关类。负责从字符串或流中解析 JSON，构建 Value 对象。",
+      "tgt_module": "Root_Parser,Root_PublicAPI,Root_DataModel",
+      "tgt_module_description": "[Root_Parser] JSON Parser: Implements the JSON parser using an internal Parser struct and helper macros to convert a &str source into a JsonValue, with depth limit and precision constants.\n[Root_PublicAPI] Public API Facade & Error: Public API entry points (lib.rs) with re-exports of core types and the top-level parse, stringify, from functions, alongside the public Error enum (error.rs) that propagates parsing and type errors to users.\n[Root_DataModel] Core Data Model: Encapsulates the core JSON data types: JsonValue enum, Object container (hash-indexed store), Number with mantissa/exponent representation, Short string optimization, and float conversion utilities (grisu2/diyfp) used by Number.",
+      "justification": "Source Root_Reader实现JSON解析（Reader类）；Target Root_Parser实现内部解析逻辑，Root_PublicAPI公开parse函数作为入口。拓扑上Source Reader→Core对应Target PublicAPI→Parser→DataModel，数据流向一致。",
+      "aligned_functions": [
+        {
+          "src_uuid": "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
+          "tgt_uuid": "src/parser.rs::parse",
+          "confidence": "High",
+          "reason": "Both functions parse a JSON string (std::string vs &str) and return a boolean / Result. The C++ version converts string to const char* and calls the internal pointer-based parse, while the Rust version creates a Parser and calls its parse method."
+        },
+        {
+          "src_uuid": "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_c80231b6",
+          "tgt_uuid": "src/parser.rs::Parser::parse",
+          "confidence": "High",
+          "reason": "Core parsing logic: both iterate through tokens, manage a stack for nested structures (nodes_ vs stack), handle arrays/objects/values, check depth limits, and collect errors. The overall control flow and token processing are functionally equivalent."
+        },
+        {
+          "src_uuid": "src/lib_json/json_reader.cpp::Json::Reader::decodeUnicodeEscapeSequence",
+          "tgt_uuid": "src/parser.rs::Parser::read_hexdec_codepoint",
+          "confidence": "High",
+          "reason": "Both functions read a Unicode escape sequence of exactly 4 hexadecimal digits from the input stream, convert them to a numeric code point (0-9, a-f, A-F) and return the result. The digit value logic and the required number of digits are identical."
+        },
+        {
+          "src_uuid": "src/lib_json/json_reader.cpp::Json::Reader::decodeUnicodeCodePoint",
+          "tgt_uuid": "src/parser.rs::Parser::read_codepoint",
+          "confidence": "High",
+          "reason": "Both functions decode a Unicode code point from a \\uXXXX sequence, handle surrogate pairs (D800..DBFF followed by another \\uXXXX) by combining them into a single code point, and reject malformed sequences. Target uses decode_utf16 from std, source uses arithmetic shift; effect is identical."
+        },
+        {
+          "src_uuid": "src/lib_json/json_reader.cpp::Json::Reader::decodeString#sig_8e7e697c",
+          "tgt_uuid": "src/parser.rs::Parser::read_complex_string",
+          "confidence": "High",
+          "reason": "Both functions parse a JSON string literal with escape sequences: double quote, backslash, forward slash, backspace, formfeed, newline, carriage return, tab, and Unicode escapes. They reject invalid escape sequences and raw control characters below 0x20. The logic and set of supported escapes are equivalent."
+        },
+        {
+          "src_uuid": "src/lib_json/json_reader.cpp::Json::OurReader::parse",
+          "tgt_uuid": "src/parser.rs::Parser::parse",
+          "confidence": "High",
+          "reason": "Both functions are the main JSON parsing entry point, iterating over tokens and building a value tree, with similar control flow and error handling."
+        },
+        {
+          "src_uuid": "src/lib_json/json_reader.cpp::Json::OurReader::OurReader",
+          "tgt_uuid": "src/parser.rs::Parser::new",
+          "confidence": "High",
+          "reason": "Both are constructors that initialize the parser state (pointers, buffers, features) before parsing begins."
+        },
+        {
+          "src_uuid": "src/lib_json/json_reader.cpp::Json::Reader::getLocationLineAndColumn#sig_3f335fc1",
+          "tgt_uuid": "src/parser.rs::Parser::unexpected_character",
+          "confidence": "Medium",
+          "reason": "Both compute line and column numbers from a source offset; C uses a local pointer traversal while Rust uses string slicing and lines(), but the functional purpose is equivalent."
+        },
+        {
+          "src_uuid": "src/lib_json/json_reader.cpp::Json::OurReader::decodeString#sig_ab34e0ee",
+          "tgt_uuid": "src/parser.rs::Parser::read_complex_string",
+          "confidence": "High",
+          "reason": "Both functions parse a quoted JSON string, handling escape sequences (including \\n, \\t, \\u etc.) and producing the decoded content. The C++ version writes to a String&, the Rust version appends to a buffer and returns a slice. The logic of iterating through characters, handling backslash escapes and unicode codepoints is equivalent."
+        },
+        {
+          "src_uuid": "src/lib_json/json_reader.cpp::Json::OurReader::decodeUnicodeCodePoint",
+          "tgt_uuid": "src/parser.rs::Parser::read_codepoint",
+          "confidence": "High",
+          "reason": "Both functions decode a Unicode escape sequence (\\uXXXX), handle surrogate pairs (C++ calls decodeUnicodeEscapeSequence then checks high surrogate; Rust reads one codepoint then on failure expects another \\u and uses decode_utf16). The final result is the decoded Unicode character, stored in C++ as unsigned int and added to the string buffer in Rust."
+        },
+        {
+          "src_uuid": "src/lib_json/json_reader.cpp::Json::OurReader::decodeUnicodeEscapeSequence",
+          "tgt_uuid": "src/parser.rs::Parser::read_hexdec_codepoint",
+          "confidence": "High",
+          "reason": "Both functions read exactly four hexadecimal digits from the input and compute a 16-bit value. The C++ version stores it in ret_unicode, the Rust version returns a u16. The parsing loop (multiply by 16, add digit) is identical."
+        },
+        {
+          "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+          "tgt_uuid": "src/parser.rs::parse",
+          "confidence": "High",
+          "reason": "两者都是解析JSON的顶层入口：C++的CharReader::parse通过调用_impl->parse完成解析，而Rust的parse函数创建Parser并调用其parse方法，功能等价（输入字符串，输出解析结果/错误）。"
+        }
+      ],
+      "tgt_macro_initial_module": "Root_Parser,Root_PublicAPI",
+      "macro_mapping_completion": [
+        {
+          "root_id": "Root_DataModel",
+          "reason": "macro support root via target edge Root_Parser->Root_DataModel"
+        }
+      ]
+    },
+    {
+      "src_module": "Root_Writer",
+      "src_module_description": "[Root_Writer] JSON 序列化模块: 包含 Json::Writer、Json::StreamWriter、Json::StreamWriterBuilder、Json::FastWriter、Json::StyledWriter 等序列化类，以及内部工具（如 codePointToUTF8）。负责将 Value 对象输出为 JSON 字符串或流。",
+      "tgt_module": "Root_Serialization,Root_PublicAPI,Root_DataModel",
+      "tgt_module_description": "[Root_Serialization] JSON Serialization Generators: Provides code generators (Generator trait) for serializing JsonValue to compact/pretty strings or io::Write streams, including the decimal number formatting utility print_dec.\n[Root_PublicAPI] Public API Facade & Error: Public API entry points (lib.rs) with re-exports of core types and the top-level parse, stringify, from functions, alongside the public Error enum (error.rs) that propagates parsing and type errors to users.\n[Root_DataModel] Core Data Model: Encapsulates the core JSON data types: JsonValue enum, Object container (hash-indexed store), Number with mantissa/exponent representation, Short string optimization, and float conversion utilities (grisu2/diyfp) used by Number.",
+      "justification": "Source Root_Writer实现JSON序列化（Writer类）；Target Root_Serialization提供Generator实现序列化，Root_PublicAPI公开stringify/stringify_pretty作为入口。拓扑上Source Core→Writer对应Target DataModel→Serialization，且PublicAPI通过value.dump间接调用Serialization，边关系一致。",
+      "aligned_functions": [
+        {
+          "src_uuid": "src/lib_json/json_tool.h::Json::uintToString",
+          "tgt_uuid": "src/util/print_dec.rs::write_num",
+          "confidence": "High",
+          "reason": "Both functions convert an unsigned integer to decimal digits in reverse order by repeatedly taking modulo 10 and writing from the end of a buffer. In C++: value%10 + '0' written to *--current; in Rust: write_num writes digits using a LUT with similar backward pointer manipulation (curr decreased)."
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::valueToString#sig_3c39ffb4",
+          "tgt_uuid": "src/util/print_dec.rs::write",
+          "confidence": "Medium",
+          "reason": "Both produce a decimal string representation of a signed integer, including handling of negative numbers and the special case of the minimum 64-bit value. The C++ version uses uintToString and prepends '-', while the Rust write function takes a 'positive' boolean and writes '-' accordingly via io::Write; exponent=0 yields plain integer output."
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::valueToString#sig_15108376",
+          "tgt_uuid": "src/util/print_dec.rs::write",
+          "confidence": "Medium",
+          "reason": "Both produce a decimal string representation of an unsigned integer. The C++ version calls uintToString and returns the buffer, the Rust write function with exponent=0 and positive=true writes the number to a writer, which can be collected into a string equivalently."
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::writeString",
+          "tgt_uuid": "src/lib.rs::stringify",
+          "confidence": "High",
+          "reason": "Both are top-level free functions that serialize a JSON Value to a String. writeString uses a factory and OStringStream, stringify uses Into<JsonValue> and calls dump(), achieving the same effect."
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::& operator<<(OStream& sout, Value const& root)",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::write",
+          "confidence": "High",
+          "reason": "Both write a JSON Value to an output stream/writer. operator<< creates a StreamWriterBuilder and writes to OStream; JsonValue::write creates a WriterGenerator and writes to any io::Write."
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::FastWriter::write",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::dump",
+          "confidence": "High",
+          "reason": "Both are the primary entry points for compact JSON serialization. FastWriter::write builds the string in document_ then returns it; dump() uses DumpGenerator to produce a compact string."
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::StyledWriter::write",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::pretty",
+          "confidence": "High",
+          "reason": "Both produce pretty-printed JSON strings with indentation. StyledWriter::write uses indentString_ and handles comments; pretty() uses PrettyGenerator with configurable space count."
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::StyledWriter::indent",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::indent",
+          "confidence": "High",
+          "reason": "Both increase the indentation level: StyledWriter appends indentSize_ spaces to indentString_; PrettyGenerator increments dent counter (later multiplied by spaces_per_indent)."
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::StyledWriter::unindent",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::dedent",
+          "confidence": "High",
+          "reason": "Both decrease the indentation level: StyledWriter removes indentSize_ characters from indentString_; PrettyGenerator decrements dent counter."
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::StyledWriter::writeIndent",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::new_line",
+          "confidence": "Medium",
+          "reason": "Both ensure a newline and proper indentation before writing content. writeIndent adds \\n then indentString_; new_line pushes \\n then spaces based on dent * spaces_per_indent. Minor differences in handling previous whitespace."
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::StyledStreamWriter",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::new",
+          "confidence": "Medium",
+          "reason": "两者都是构造函数，用于初始化缩进设置（C++接受缩进字符串，Rust接受空格数），功能等价"
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::pretty",
+          "confidence": "Medium",
+          "reason": "两者都将根值序列化为带缩进的JSON字符串（C++输出到流，Rust返回String），核心逻辑等价"
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::writeIndent",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::new_line",
+          "confidence": "High",
+          "reason": "两者都输出换行并追加缩进，实现缩进换行功能"
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::indent",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::indent",
+          "confidence": "High",
+          "reason": "两者都增加缩进级别，用于嵌套结构"
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::unindent",
+          "tgt_uuid": "src/codegen.rs::PrettyGenerator::dedent",
+          "confidence": "High",
+          "reason": "两者都减少缩进级别，用于结束嵌套"
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::BuiltStyledStreamWriter::write",
+          "tgt_uuid": "src/value/mod.rs::JsonValue::write",
+          "confidence": "Medium",
+          "reason": "两者都接受写入器并将根值序列化输出（C++返回int，Rust返回io::Result），功能等价"
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::BuiltStyledStreamWriter::indent",
+          "tgt_uuid": "src/codegen.rs::PrettyWriterGenerator::indent",
+          "confidence": "High",
+          "reason": "Source 的 indent 将 indentation_ 追加到 indentString_，增加缩进深度；Target 的 indent 增加 dent 计数，两者语义等价，均用于增加输出时的缩进级别。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::BuiltStyledStreamWriter::unindent",
+          "tgt_uuid": "src/codegen.rs::PrettyWriterGenerator::dedent",
+          "confidence": "High",
+          "reason": "Source 的 unindent 从 indentString_ 尾部移除 indentation_，减少缩进深度；Target 的 dedent 减少 dent 计数，两者语义等价，均用于减少输出时的缩进级别。"
+        },
+        {
+          "src_uuid": "src/lib_json/json_writer.cpp::Json::BuiltStyledStreamWriter::writeIndent",
+          "tgt_uuid": "src/codegen.rs::PrettyWriterGenerator::new_line",
+          "confidence": "Medium",
+          "reason": "Source 的 writeIndent 在 indentation_ 非空时输出换行和当前缩进字符串；Target 的 new_line 输出换行后跟当前 dent * spaces_per_indent 个空格。核心行为均为产生换行缩进，但 Source 有条件判断而 Target 无，因此适度等价。"
+        }
+      ],
+      "tgt_macro_initial_module": "Root_Serialization,Root_PublicAPI",
+      "macro_mapping_completion": [
+        {
+          "root_id": "Root_DataModel",
+          "reason": "core-method macro support root via target edge Root_DataModel->Root_Serialization"
+        }
+      ]
+    }
+  ],
+  "unaligned_modules": {
+    "source_unaligned": [],
+    "target_unaligned": []
+  },
+  "quantitative_metrics": {
+    "atomic_base_data": {
+      "total_source_modules": "3 - Source 仓库的宏观模块(Root)总数",
+      "aligned_source_modules": "3 - 成功在 Target 中找到对齐映射的 Source 模块数",
+      "total_target_modules": "4 - Target 仓库的宏观模块(Root)总数",
+      "aligned_target_modules": "4 - 实际参与了架构对齐的 Target 模块数",
+      "total_source_functions": "425 - Source 对齐模块下包含的真实函数总量",
+      "total_target_functions": "216 - Target 对齐模块下包含的真实函数总量",
+      "aligned_function_pairs": "81 - 通过微观校验，成功对齐的等价函数对数量",
+      "unique_aligned_source_functions": "81 - 去重后的已对齐 Source 函数量（按 src_uuid 去重）",
+      "unique_aligned_target_functions": "45 - 去重后的参与对齐 Target 函数量（按 tgt_uuid 去重，支持逗号分隔的一对多映射）",
+      "union_functions": "560 - 两个仓库对齐模块下函数的去重并集总数",
+      "unique_union_functions": "596 - 基于去重函数参与量估算的 Source/Target 函数并集总数",
+      "total_source_loc": "4448 - Source 对齐模块的总代码行数 (Lines of Code)",
+      "total_target_loc": "2247 - Target 对齐模块的总代码行数 (Lines of Code)",
+      "source_orphan_functions": "344 - Source 中未找到 Target 对应的孤儿函数量（基于 unique_aligned_source_functions）",
+      "target_native_functions": "171 - Target 中无 Source 对应的原生函数量（基于 unique_aligned_target_functions）",
+      "target_unsafe_functions": "31 - Target 核心模块中带有 unsafe 标记或代码块的函数量",
+      "high_confidence_alignments": "66 - 被大模型评估为 High 确信度的微观对齐函数量"
+    },
+    "derived_ratio_metrics": {
+      "source_macro_coverage_rate": "100.00% ( 3 / 3 ) - 对齐的 Source 核心模块数 / Source 仓库总模块数",
+      "source_micro_coverage_rate": "19.06% ( 81 / 425 ) - 成功对齐的函数对数量 / Source 核心模块下的函数总量",
+      "source_unique_micro_coverage_rate": "19.06% ( 81 / 425 ) - 去重后的已对齐 Source 函数量 / Source 核心模块下的函数总量",
+      "target_unique_participation_rate": "20.83% ( 45 / 216 ) - 去重后的参与对齐 Target 函数量 / Target 核心模块下的函数总量",
+      "functional_overlap_ratio_iou": "14.46% ( 81 / 560 ) - 对齐的函数量 / (Source函数总量 + Target函数总量 - 对齐函数量)",
+      "unique_functional_overlap_ratio_iou": "7.55% ( 45 / 596 ) - 基于去重函数参与量估算的功能重合度",
+      "architecture_fragmentation_index": "1.3 - Target 对齐模块数 / Source 对齐模块数",
+      "mapping_compression_ratio": "1.80x ( 81 / 45 unique functions ) - 去重 Source 对齐函数数 / 去重 Target 参与函数数，>1 表示 Target 用更少函数承接更多 Source 语义",
+      "target_reuse_factor": "1.80x ( 81 / 45 ) - 对齐 pair 数 / 去重 Target 参与函数数，反映 Target 函数被多个 Source 函数复用的程度",
+      "api_bloat_ratio": "0.51x ( 216 / 425 functions ) - Target 对齐模块总函数量 / Source 对齐模块总函数量",
+      "code_volume_loc_bloat_ratio": "0.51x ( 2247 / 4448 lines ) - Target 核心模块总代码行数(LOC) / Source 核心模块总代码行数(LOC)",
+      "source_orphan_rate": "80.94% ( 344 / 425 ) - Source 中未被翻译的函数量 / Source 总函数量",
+      "target_native_rate": "79.17% ( 171 / 216 ) - Target 中无对应C源码的独创函数量 / Target 总函数量",
+      "target_unsafe_dependency_rate": "14.35% ( 31 / 216 ) - Target 中带有 unsafe 标记或代码块的函数量 / Target 总函数量",
+      "micro_alignment_confidence_rate": "81.48% ( 66 / 81 ) - 大模型标记为High确信度的对齐数量 / 总共对齐的函数对数量"
+    }
+  }
+}

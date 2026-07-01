@@ -1,0 +1,2357 @@
+{
+  "evaluation_type": "Phase 3B - Trace Replay Public-First",
+  "schema_version": "3b.report.v32",
+  "source_repository": "jsoncpp",
+  "target_repository": "json-rust",
+  "mode": "run",
+  "layer": "public",
+  "artifact_paths": {
+    "effective_adapter": "output/phase3_3b/jsoncpp_vs_json-rust_jsoncpp_compact_v2/effective_adapter.json",
+    "test_inventory": "output/phase3_3b/jsoncpp_vs_json-rust_jsoncpp_compact_v2/test_inventory.json",
+    "replay_plan": "output/phase3_3b/jsoncpp_vs_json-rust_jsoncpp_compact_v2/replay_plan.json",
+    "replay_result": "output/phase3_3b/jsoncpp_vs_json-rust_jsoncpp_compact_v2/replay_result.json",
+    "public_replay_eligibility": "output/phase3_3b/jsoncpp_vs_json-rust_jsoncpp_compact_v2/public_replay_eligibility.json",
+    "llm_usage": "output/phase3_3b/jsoncpp_vs_json-rust_jsoncpp_compact_v2/llm_usage.json",
+    "adapter_synthesis_attempts": "output/phase3_3b/jsoncpp_vs_json-rust_jsoncpp_compact_v2/adapter_synthesis_attempts.json",
+    "generated_test_file": "output/phase3_3b/jsoncpp_vs_json-rust_jsoncpp_compact_v2/generated_public_replay.rs",
+    "adapter_synthesis_context": "output/phase3_3b/jsoncpp_vs_json-rust_jsoncpp_compact_v2/adapter_synthesis_context.json"
+  },
+  "automation_readiness": {
+    "status": "review_required",
+    "summary": "3B replay produced results, but one or more failures require expected-behavior or semantic review before treating the result as automated correctness evidence.",
+    "positive_evidence": [
+      "at_least_one_3a_atomic_pair_replay_covered",
+      "no_replay_infrastructure_failures"
+    ],
+    "blocking_reasons": [],
+    "review_items": [
+      "public_replay_failures_present",
+      "llm_expected_behavior_review_required",
+      "target_semantic_failure_candidate"
+    ],
+    "coverage_gaps": [
+      "some_source_tested_public_functions_not_replayed",
+      "not_all_eligible_source_behavior_cases_replayed_or_excluded",
+      "not_all_source_tested_public_functions_traced"
+    ]
+  },
+  "key_findings": {
+    "failed_replay_events": [
+      {
+        "replay_event_id": "main_charreaderallowdropnulltest_issue178",
+        "operation": "main_charreaderallowdropnulltest_issue178",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreaderallowdropnulltest_issue178",
+            "name": "CharReaderAllowDropNullTest.issue178",
+            "source_location": "src/test_lib_json/main.cpp:3618",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+          "src/lib_json/json_value.cpp::Json::Value::size"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::len"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "doc = \"[,,,]\"",
+        "expected": {
+          "observable_behavior": "parse returns true and errs is empty"
+        },
+        "normalization": "assertion_line",
+        "evidence": "src/test_lib_json/main.cpp:3618 JSONTEST_ASSERT(ok); JSONTEST_ASSERT_STRING_EQUAL(errs, \"\");"
+      },
+      {
+        "replay_event_id": "main_charreaderallowspecialfloatstest_specialfloat",
+        "operation": "main_charreaderallowspecialfloatstest_specialfloat",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreaderallowspecialfloatstest_specialfloat",
+            "name": "CharReaderAllowSpecialFloatsTest.specialFloat",
+            "source_location": "src/test_lib_json/main.cpp:3736",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "doc1 = \"{\\\"a\\\": NaN}\"; doc2 = \"{\\\"a\\\": Infinity}\"",
+        "expected": {
+          "observable_behavior": "parse returns false and error message contains 'Syntax error: value, object or array expected'"
+        },
+        "normalization": "equality_expected_behavior",
+        "evidence": "src/test_lib_json/main.cpp:3736 JSONTEST_ASSERT(!ok); JSONTEST_ASSERT_STRING_EQUAL(errs, expected_error);"
+      },
+      {
+        "replay_event_id": "main_charreaderfailifextratest_commentafterbool",
+        "operation": "main_charreaderfailifextratest_commentafterbool",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreaderfailifextratest_commentafterbool",
+            "name": "CharReaderFailIfExtraTest.commentAfterBool",
+            "source_location": "src/test_lib_json/main.cpp:3553",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "support_target_functions_used": [
+          "src/value/mod.rs::JsonValue::as_bool"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "doc = \" true /*trailing\\ncomment*/\"",
+        "expected": {
+          "observable_behavior": "parse returns true, errs empty, root.asBool() == true"
+        },
+        "normalization": "equality_expected_behavior",
+        "evidence": "src/test_lib_json/main.cpp:3553 JSONTEST_ASSERT(ok); JSONTEST_ASSERT_STRING_EQUAL(errs, \"\"); JSONTEST_ASSERT_EQUAL(true, root.asBool());"
+      },
+      {
+        "replay_event_id": "main_charreaderallownumerickeystest_allownumerickeys",
+        "operation": "main_charreaderallownumerickeystest_allownumerickeys",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreaderallownumerickeystest_allownumerickeys",
+            "name": "CharReaderAllowNumericKeysTest.allowNumericKeys",
+            "source_location": "src/test_lib_json/main.cpp:3662",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+          "src/lib_json/json_value.cpp::Json::Value::size"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::len"
+        ],
+        "support_target_functions_used": [
+          "src/value/mod.rs::JsonValue::as_bool"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "JSON input '{15:true,-16:true,12.01:true}'"
+        },
+        "expected": {
+          "observable_behavior": "parse succeeds, no errors, root.len()=3, all keys present with bool value true"
+        },
+        "normalization": "observable comparison via assertion equality",
+        "evidence": "src/test_lib_json/main.cpp lines 3662-3679: assertions for ok, errs empty, size, and get returns true"
+      },
+      {
+        "replay_event_id": "main_charreaderallowsinglequotestest_issue182",
+        "operation": "main_charreaderallowsinglequotestest_issue182",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreaderallowsinglequotestest_issue182",
+            "name": "CharReaderAllowSingleQuotesTest.issue182",
+            "source_location": "src/test_lib_json/main.cpp:3680",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+          "src/lib_json/json_value.cpp::Json::Value::size"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::len"
+        ],
+        "support_target_functions_used": [
+          "src/value/mod.rs::JsonValue::as_bool",
+          "src/value/mod.rs::JsonValue::as_str"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "Two JSON inputs: \"{'a':true,\\\"b\\\":true}\" and \"{'a': 'x', \\\"b\\\":'y'}\""
+        },
+        "expected": {
+          "observable_behavior": "parse succeeds, no errors, root.len()=2, root['a']=true, root['b']=true for first; root['a']='x', root['b']='y' for second"
+        },
+        "normalization": "observable comparison via assertion equality",
+        "evidence": "src/test_lib_json/main.cpp lines 3680-3707: assertions for ok, errs empty, size, and get returns expected values"
+      },
+      {
+        "replay_event_id": "main_charreaderallowspecialfloatstest_issue209",
+        "operation": "main_charreaderallowspecialfloatstest_issue209",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreaderallowspecialfloatstest_issue209",
+            "name": "CharReaderAllowSpecialFloatsTest.issue209",
+            "source_location": "src/test_lib_json/main.cpp:3761",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+          "src/lib_json/json_value.cpp::Json::Value::size"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::len"
+        ],
+        "support_target_functions_used": [
+          "src/value/mod.rs::JsonValue::as_f64"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "JSON input '{\"a\":NaN,\"b\":Infinity,\"c\":-Infinity,\"d\":+Infinity}'"
+        },
+        "expected": {
+          "observable_behavior": "parse succeeds, root.len()=4, root['a'] is NaN, root['b'] is +inf, root['c'] is -inf, root['d'] is +inf"
+        },
+        "normalization": "observable comparison via assertion equality and f64::is_nan/is_infinite",
+        "evidence": "src/test_lib_json/main.cpp lines 3761-3794: assertions for ok, errs empty, size, isnan, infinity equality"
+      },
+      {
+        "replay_event_id": "main_charreaderallowzeroestest_issue176",
+        "operation": "main_charreaderallowzeroestest_issue176",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreaderallowzeroestest_issue176",
+            "name": "CharReaderAllowZeroesTest.issue176",
+            "source_location": "src/test_lib_json/main.cpp:3708",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+          "src/lib_json/json_value.cpp::Json::Value::size"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::len"
+        ],
+        "support_target_functions_used": [
+          "src/value/mod.rs::JsonValue::as_bool",
+          "src/value/mod.rs::JsonValue::as_str"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "Two JSON inputs: \"{'a':true,\\\"b\\\":true}\" and \"{'a': 'x', \\\"b\\\":'y'}\""
+        },
+        "expected": {
+          "observable_behavior": "parse succeeds, root.len()=2, root['a']=true, root['b']=true for first; root['a']='x', root['b']='y' for second"
+        },
+        "normalization": "observable comparison via assertion equality",
+        "evidence": "src/test_lib_json/main.cpp lines 3708-3727: assertions for ok, errs empty, size, and get returns expected values"
+      },
+      {
+        "replay_event_id": "main_charreaderfailifextratest_commentafterarray",
+        "operation": "main_charreaderfailifextratest_commentafterarray",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreaderfailifextratest_commentafterarray",
+            "name": "CharReaderFailIfExtraTest.commentAfterArray",
+            "source_location": "src/test_lib_json/main.cpp:3541",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "support_target_functions_used": [
+          "src/value/mod.rs::JsonValue::as_str"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "JSON input '[ \"property\" , \"value\" ] //trailing\\n//comment\\n'"
+        },
+        "expected": {
+          "observable_behavior": "parse succeeds, root[1] has string value 'value'"
+        },
+        "normalization": "observable comparison via assertion equality",
+        "evidence": "src/test_lib_json/main.cpp lines 3541-3552: assertions for ok, errs empty, root[1] equals 'value'"
+      },
+      {
+        "replay_event_id": "main_charreaderfailifextratest_commentafterobject",
+        "operation": "main_charreaderfailifextratest_commentafterobject",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreaderfailifextratest_commentafterobject",
+            "name": "CharReaderFailIfExtraTest.commentAfterObject",
+            "source_location": "src/test_lib_json/main.cpp:3527",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "support_target_functions_used": [
+          "src/value/mod.rs::JsonValue::as_str"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "JSON input '{ \"property\" : \"value\" } //trailing\\n//comment\\n'"
+        },
+        "expected": {
+          "observable_behavior": "parse succeeds, root['property'] has string value 'value'"
+        },
+        "normalization": "observable comparison via assertion equality",
+        "evidence": "src/test_lib_json/main.cpp lines 3527-3540: assertions for ok, errs empty, root['property'] equals 'value'"
+      },
+      {
+        "replay_event_id": "main_charreaderfailifextratest_parsecomment",
+        "operation": "main_charreaderfailifextratest_parsecomment",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreaderfailifextratest_parsecomment",
+            "name": "CharReaderFailIfExtraTest.parseComment",
+            "source_location": "src/test_lib_json/main.cpp:3565",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "support_target_functions_used": [
+          "src/value/mod.rs::JsonValue::as_bool"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "valid comment \" true //comment1\\n//comment2\\r//comment3\\r\\n\" and invalid comment \" true //com\\rment\""
+        },
+        "expected": {
+          "observable_behavior": "First parse returns Ok and value is true, second parse returns Err."
+        },
+        "normalization": "exact match for success/failure and as_bool value",
+        "evidence": "src/test_lib_json/main.cpp line 3565 CharReaderFailIfExtraTest.parseComment: asserts parse success and asBool true for valid comment, parse failure for invalid comment."
+      },
+      {
+        "replay_event_id": "main_charreaderfailifextratest_issue164",
+        "operation": "main_charreaderfailifextratest_issue164",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreaderfailifextratest_issue164",
+            "name": "CharReaderFailIfExtraTest.issue164",
+            "source_location": "src/test_lib_json/main.cpp:3460",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "doc = '\"property\" : \"value\" }'",
+        "expected": {
+          "observable_behavior": "First parse succeeds with root='property', second parse fails with error"
+        },
+        "normalization": "exact_match",
+        "evidence": "src/test_lib_json/main.cpp lines 5-21: parse doc then assert ok/fail and root equality"
+      },
+      {
+        "replay_event_id": "main_charreadertest_parsecomment",
+        "operation": "main_charreadertest_parsecomment",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreadertest_parsecomment",
+            "name": "CharReaderTest.parseComment",
+            "source_location": "src/test_lib_json/main.cpp:3279",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "doc1 = '//comment1\\n { //comment2\\n \"property\" : \"value\" //comment3\\n } //comment4\\n', doc2 = '{ \"property\" //comment\\n : \"value\" }'",
+        "expected": {
+          "observable_behavior": "First doc parses successfully with root[\"property\"] == \"value\"; second doc fails"
+        },
+        "normalization": "exact_match",
+        "evidence": "src/test_lib_json/main.cpp lines 3279-3306: assertions for ok, errs empty, root equality, and error"
+      },
+      {
+        "replay_event_id": "main_charreaderstrictmodetest_dupkeys",
+        "operation": "main_charreaderstrictmodetest_dupkeys",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreaderstrictmodetest_dupkeys",
+            "name": "CharReaderStrictModeTest.dupKeys",
+            "source_location": "src/test_lib_json/main.cpp:3441",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "input: raw string doc = R\"({ \"property\" : \"value\", \"key\" : \"val1\", \"key\" : \"val2\" })\"",
+        "expected": {
+          "observable_behavior": "parse returns Err; error string exactly matches \"* Line 1, Column 41\\n  Duplicate key: 'key'\\n\""
+        },
+        "normalization": "observable_behavior",
+        "evidence": "source_test_assertion: JSONTEST_ASSERT(!ok); JSONTEST_ASSERT_STRING_EQUAL(\"* Line 1, Column 41\\n\" \"  Duplicate key: 'key'\\n\", errs); JSONTEST_ASSERT_EQUAL(\"val1\", root[\"key\"]);"
+      },
+      {
+        "replay_event_id": "main_charreadertest_parsearraywitherrors",
+        "operation": "main_charreadertest_parsearraywitherrors",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreadertest_parsearraywitherrors",
+            "name": "CharReaderTest.parseArrayWithErrors",
+            "source_location": "src/test_lib_json/main.cpp:3333",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "first doc: \"[ \\\"value\\\" \" (missing bracket); second doc: R\"([ \"value1\" \"value2\" ])\" (missing comma)",
+        "expected": {
+          "observable_behavior": "parse returns Err; error strings exactly match \"* Line 1, Column 11\\n  Missing ',' or ']' in array declaration\\n\" and \"* Line 1, Column 12\\n  Missing ',' or ']' in array declaration\\n\" respectively"
+        },
+        "normalization": "observable_behavior",
+        "evidence": "source_test_assertion: JSONTEST_ASSERT(!ok); JSONTEST_ASSERT(errs == \"* Line 1, Column 11\\n\" \"  Missing ',' or ']' in array declaration\\n\"); JSONTEST_ASSERT_EQUAL(\"value\", root[0]); (first subtest) and similar for second subtest."
+      },
+      {
+        "replay_event_id": "main_charreadertest_parseobjectwitherrors",
+        "operation": "main_charreadertest_parseobjectwitherrors",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreadertest_parseobjectwitherrors",
+            "name": "CharReaderTest.parseObjectWithErrors",
+            "source_location": "src/test_lib_json/main.cpp:3310",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "first doc: R\"({ \"property\" : \"value\" )\"; second doc: R\"({ \"property\" : \"value\" ,)\"",
+        "expected": {
+          "observable_behavior": "parse returns Err; error strings exactly match \"* Line 1, Column 24\\n  Missing ',' or '}' in object declaration\\n\" and \"* Line 1, Column 25\\n  Missing '}' or object member name\\n\" respectively"
+        },
+        "normalization": "observable_behavior",
+        "evidence": "source_test_assertion: JSONTEST_ASSERT(!ok); JSONTEST_ASSERT(errs == \"* Line 1, Column 24\\n\" \"  Missing ',' or '}' in object declaration\\n\"); JSONTEST_ASSERT_EQUAL(\"value\", root[\"property\"]); (first subtest) and similar for second subtest."
+      },
+      {
+        "replay_event_id": "main_charreadertest_parsewithnoerrorstestingoffsets",
+        "operation": "main_charreadertest_parsewithnoerrorstestingoffsets",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreadertest_parsewithnoerrorstestingoffsets",
+            "name": "CharReaderTest.parseWithNoErrorsTestingOffsets",
+            "source_location": "src/test_lib_json/main.cpp:3180",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          },
+          {
+            "source_behavior_case_id": "main_charreadertest_parsewithnoerrors",
+            "name": "CharReaderTest.parseWithNoErrors",
+            "source_location": "src/test_lib_json/main.cpp:3169",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "parse multi-line JSON with nested objects, arrays, numbers, booleans, null"
+        },
+        "expected": {
+          "observable_behavior": "parse returns ok and errs is empty"
+        },
+        "normalization": "assert_ok_and_empty_errors",
+        "evidence": "source_test_assertion: JSONTEST_ASSERT(ok); JSONTEST_ASSERT(errs.empty()) from src/test_lib_json/main.cpp line 3180"
+      },
+      {
+        "replay_event_id": "main_charreadertest_parsewithoneerror",
+        "operation": "main_charreadertest_parsewithoneerror",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreadertest_parsewithoneerror",
+            "name": "CharReaderTest.parseWithOneError",
+            "source_location": "src/test_lib_json/main.cpp:3356",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "parse doc \"{ \\\"property\\\" :: \\\"value\\\" }\""
+        },
+        "expected": {
+          "observable_behavior": "parse returns error with message \"* Line 1, Column 15\\n  Syntax error: value, object or array expected.\\n\""
+        },
+        "normalization": "assert_err_and_error_message_equals",
+        "evidence": "source_test_assertion: JSONTEST_ASSERT(!ok); JSONTEST_ASSERT(errs == \"* Line 1, Column 15\\n  Syntax error: value, object or array expected.\\n\") from src/test_lib_json/main.cpp line 3356"
+      },
+      {
+        "replay_event_id": "main_charreadertest_parsewithstacklimit",
+        "operation": "main_charreadertest_parsewithstacklimit",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_charreadertest_parsewithstacklimit",
+            "name": "CharReaderTest.parseWithStackLimit",
+            "source_location": "src/test_lib_json/main.cpp:3395",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+          "src/lib_json/json_value.cpp::Json::Value::size"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::len"
+        ],
+        "support_target_functions_used": [
+          "src/value/mod.rs::JsonValue::as_str",
+          "src/value/mod.rs::JsonValue::has_key"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "parse doc \"{ \\\"property\\\" : \\\"value\\\" }\" with stackLimit=2 (succeed) then stackLimit=1 (throw)"
+        },
+        "expected": {
+          "observable_behavior": "first parse returns ok, errs empty, root[\"property\"] == \"value\"; second parse throws"
+        },
+        "normalization": "equality_and_error_assertion",
+        "evidence": "source_test_assertions: JSONTEST_ASSERT(ok); JSONTEST_ASSERT(errs.empty()); JSONTEST_ASSERT_EQUAL(\"value\", root[\"property\"]); JSONTEST_ASSERT_THROWS(reader->parse(doc...)) from src/test_lib_json/main.cpp line 3395"
+      },
+      {
+        "replay_event_id": "main_escapesequencetest_writeescapesequence",
+        "operation": "main_escapesequencetest_writeescapesequence",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_escapesequencetest_writeescapesequence",
+            "name": "EscapeSequenceTest.writeEscapeSequence",
+            "source_location": "src/test_lib_json/main.cpp:3858",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::dump"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "build array with escape sequences, write, compare to expected string"
+        },
+        "expected": {
+          "observable_behavior": "dump output matches expected escaped string with newline"
+        },
+        "normalization": "equality_expected_behavior",
+        "evidence": "source_test_assertion: JSONTEST_ASSERT_STRING_EQUAL(expected, result) from src/test_lib_json/main.cpp line 3858"
+      },
+      {
+        "replay_event_id": "main_fastwritertest_dropnullplaceholders",
+        "operation": "main_fastwritertest_dropnullplaceholders",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_fastwritertest_dropnullplaceholders",
+            "name": "FastWriterTest.dropNullPlaceholders",
+            "source_location": "src/test_lib_json/main.cpp:2304",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::dump"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "write null value before and after dropNullPlaceholders"
+        },
+        "expected": {
+          "observable_behavior": "first write returns \"null\\n\"; after dropNullPlaceholders returns \"\\n\""
+        },
+        "normalization": "equality_expected_behavior",
+        "evidence": "source_test_assertion: JSONTEST_ASSERT(writer.write(nullValue) == \"null\\n\"); JSONTEST_ASSERT(writer.write(nullValue) == \"\\n\") from src/test_lib_json/main.cpp line 2304"
+      },
+      {
+        "replay_event_id": "main_fastwritertest_enableyamlcompatibility",
+        "operation": "main_fastwritertest_enableyamlcompatibility",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_fastwritertest_enableyamlcompatibility",
+            "name": "FastWriterTest.enableYAMLCompatibility",
+            "source_location": "src/test_lib_json/main.cpp:2313",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::dump"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "write object with hello=world before and after enableYAMLCompatibility"
+        },
+        "expected": {
+          "observable_behavior": "first write returns \"{\\\"hello\\\":\\\"world\\\"}\\n\"; after enableYAMLCompatibility returns \"{\\\"hello\\\": \\\"world\\\"}\\n\""
+        },
+        "normalization": "equality_expected_behavior",
+        "evidence": "source_test_assertion: JSONTEST_ASSERT(writer.write(root) == \"{\\\"hello\\\":\\\"world\\\"}\\n\"); JSONTEST_ASSERT(writer.write(root) == \"{\\\"hello\\\": \\\"world\\\"}\\n\") from src/test_lib_json/main.cpp line 2313"
+      },
+      {
+        "replay_event_id": "main_fastwritertest_omitendinglinefeed",
+        "operation": "main_fastwritertest_omitendinglinefeed",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_fastwritertest_omitendinglinefeed",
+            "name": "FastWriterTest.omitEndingLineFeed",
+            "source_location": "src/test_lib_json/main.cpp:2324",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::dump"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "write null value before and after omitEndingLineFeed"
+        },
+        "expected": {
+          "observable_behavior": "first write returns \"null\\n\"; after omitEndingLineFeed returns \"null\""
+        },
+        "normalization": "equality_expected_behavior",
+        "evidence": "source_test_assertion: JSONTEST_ASSERT(writer.write(nullValue) == \"null\\n\"); JSONTEST_ASSERT(writer.write(nullValue) == \"null\") from src/test_lib_json/main.cpp line 2324"
+      },
+      {
+        "replay_event_id": "main_fastwritertest_writearrays",
+        "operation": "main_fastwritertest_writearrays",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_fastwritertest_writearrays",
+            "name": "FastWriterTest.writeArrays",
+            "source_location": "src/test_lib_json/main.cpp:2356",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::dump"
+        ],
+        "support_target_functions_used": [
+          "src/value/implements.rs::JsonValue::from#sig_85cb0854",
+          "src/value/implements.rs::JsonValue::from#sig_9bca93f0",
+          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "Json::Value root with property1 array [\"value1\",\"value2\"] and property2 empty array",
+        "expected": {
+          "observable_behavior": "dump output must equal expected literal string: '{\\n\"property1\":[\"value1\",\"value2\"],\\n\"property2\":[]\\n}\\n'"
+        },
+        "normalization": "exact string equality",
+        "evidence": "JSONTEST_ASSERT_STRING_EQUAL(expected, result) from source test line 13"
+      },
+      {
+        "replay_event_id": "main_fastwritertest_writenestedobjects",
+        "operation": "main_fastwritertest_writenestedobjects",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_fastwritertest_writenestedobjects",
+            "name": "FastWriterTest.writeNestedObjects",
+            "source_location": "src/test_lib_json/main.cpp:2371",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::dump"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "Build nested JsonValue from BTreeMap using From impls, then dump"
+        },
+        "expected": {
+          "observable_behavior": "dump output equals '{\"object1\":{\"bool\":true,\"nested\":123},\"object2\":{}}\\n'"
+        },
+        "normalization": "equality_expected_behavior",
+        "evidence": "src/test_lib_json/main.cpp: FastWriterTest.writeNestedObjects: JSONTEST_ASSERT_STRING_EQUAL(expected, result) with literal expected assembled from provided fragments"
+      },
+      {
+        "replay_event_id": "main_fastwritertest_writenumericvalue",
+        "operation": "main_fastwritertest_writenumericvalue",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_fastwritertest_writenumericvalue",
+            "name": "FastWriterTest.writeNumericValue",
+            "source_location": "src/test_lib_json/main.cpp:2334",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+          "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+        ],
+        "aligned_target_functions": [
+          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+          "src/value/mod.rs::JsonValue::dump"
+        ],
+        "support_target_functions_used": [
+          "src/value/implements.rs::JsonValue::from#sig_ae24f75d"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "Build JsonValue from BTreeMap using From<Option<T>> and From<&str>, then dump"
+        },
+        "expected": {
+          "observable_behavior": "dump output equals '{\"emptyValue\":null,\"false\":false,\"null\":\"null\",\"number\":-6200000000000000.0,\"real\":1.256,\"uintValue\":17}\\n'"
+        },
+        "normalization": "equality_expected_behavior",
+        "evidence": "src/test_lib_json/main.cpp: FastWriterTest.writeNumericValue: JSONTEST_ASSERT_STRING_EQUAL(expected, result) with expected literal from fragments"
+      },
+      {
+        "replay_event_id": "main_iteratortest_reverseiterator",
+        "operation": "main_iteratortest_reverseiterator",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_iteratortest_reverseiterator",
+            "name": "IteratorTest.reverseIterator",
+            "source_location": "src/test_lib_json/main.cpp:3997",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::members_mut"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::as_str"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "Object with keys k1,k2 values a,b",
+        "expected": {
+          "observable_behavior": "Reverse iteration yields [\"b\",\"a\"]"
+        },
+        "normalization": "assert_eq",
+        "evidence": "main.cpp line 3997-3999: reverse iterator yields values in reverse order"
+      },
+      {
+        "replay_event_id": "main_readertest_allowdroppednullplaceholders",
+        "operation": "main_readertest_allowdroppednullplaceholders",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_readertest_allowdroppednullplaceholders",
+            "name": "ReaderTest.allowDroppedNullPlaceholders",
+            "source_location": "src/test_lib_json/main.cpp:3156",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
+          "src/lib_json/json_value.cpp::Json::Value::isNull",
+          "src/lib_json/json_value.cpp::Json::Value::size"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::is_null",
+          "src/value/mod.rs::JsonValue::len"
+        ],
+        "support_target_functions_used": [
+          "src/value/mod.rs::JsonValue::as_i32",
+          "src/value/mod.rs::JsonValue::members_mut"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "JSON '[1,,2]'",
+        "expected": {
+          "observable_behavior": "parse succeeds, len=3, elements 1, null, 2"
+        },
+        "normalization": "assert_eq",
+        "evidence": "main.cpp line 3156: allowDroppedNullPlaceholders test"
+      },
+      {
+        "replay_event_id": "main_readertest_strictmodeparsenumber",
+        "operation": "main_readertest_strictmodeparsenumber",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_readertest_strictmodeparsenumber",
+            "name": "ReaderTest.strictModeParseNumber",
+            "source_location": "src/test_lib_json/main.cpp:3101",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "parse \"123\" as top-level JSON",
+        "expected": {
+          "observable_behavior": "parse(\"123\") returns Err"
+        },
+        "normalization": "result_error",
+        "evidence": "src/test_lib_json/main.cpp:3101 ReaderTest.strictModeParseNumber asserts !reader->parse(\"123\", root)"
+      },
+      {
+        "replay_event_id": "main_streamwritertest_dropnullplaceholders",
+        "operation": "main_streamwritertest_dropnullplaceholders",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_streamwritertest_dropnullplaceholders",
+            "name": "StreamWriterTest.dropNullPlaceholders",
+            "source_location": "src/test_lib_json/main.cpp:2759",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::writeString"
+        ],
+        "aligned_target_functions": [
+          "src/lib.rs::stringify"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "null value via parse(\"null\")",
+        "expected": {
+          "observable_behavior": "First assertion: stringify returns \"null\". Second: stringify returns empty (target will fail)."
+        },
+        "normalization": "exact_string_comparison",
+        "evidence": "src/test_lib_json/main.cpp:2759 StreamWriterTest.dropNullPlaceholders asserts Json::writeString(b, nullValue) == \"null\" and later empty()"
+      },
+      {
+        "replay_event_id": "main_streamwritertest_enableyamlcompatibility",
+        "operation": "main_streamwritertest_enableyamlcompatibility",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_streamwritertest_enableyamlcompatibility",
+            "name": "StreamWriterTest.enableYAMLCompatibility",
+            "source_location": "src/test_lib_json/main.cpp:2768",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::writeString"
+        ],
+        "aligned_target_functions": [
+          "src/lib.rs::stringify"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "parse {\"hello\":\"world\"}",
+        "expected": {
+          "observable_behavior": "First assertion: stringify returns \"{\\\"hello\\\":\\\"world\\\"}\". Second: returns \"{\\\"hello\\\": \\\"world\\\"}\" (target will fail second)."
+        },
+        "normalization": "exact_string_comparison",
+        "evidence": "src/test_lib_json/main.cpp:2768 StreamWriterTest.enableYAMLCompatibility asserts writeString(b, root) == \"{\\\"hello\\\":\\\"world\\\"}\" and later with space"
+      },
+      {
+        "replay_event_id": "main_streamwritertest_indentation",
+        "operation": "main_streamwritertest_indentation",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_streamwritertest_indentation",
+            "name": "StreamWriterTest.indentation",
+            "source_location": "src/test_lib_json/main.cpp:2783",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::writeString"
+        ],
+        "aligned_target_functions": [
+          "src/lib.rs::stringify"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "parse {\"hello\":\"world\"}",
+        "expected": {
+          "observable_behavior": "First assertion: stringify returns \"{\\\"hello\\\":\\\"world\\\"}\". Second: returns \"{\\n\\t\\\"hello\\\" : \\\"world\\\"\\n}\" (target will fail second)."
+        },
+        "normalization": "exact_string_comparison",
+        "evidence": "src/test_lib_json/main.cpp:2783 StreamWriterTest.indentation asserts compact and tab-indented output"
+      },
+      {
+        "replay_event_id": "main_streamwritertest_multilinearray",
+        "operation": "main_streamwritertest_multilinearray",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_streamwritertest_multilinearray",
+            "name": "StreamWriterTest.multiLineArray",
+            "source_location": "src/test_lib_json/main.cpp:2714",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::writeString"
+        ],
+        "aligned_target_functions": [
+          "src/lib.rs::stringify"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "parse arrays [0..20] and [0..9]",
+        "expected": {
+          "observable_behavior": "21-element array stringified equals multi-line string with tabs; 10-element array equals single-line with spaces (target may differ)."
+        },
+        "normalization": "exact_string_comparison",
+        "evidence": "src/test_lib_json/main.cpp:2714 StreamWriterTest.multiLineArray asserts expected strings for 21 and 10 element arrays"
+      },
+      {
+        "replay_event_id": "main_streamwritertest_unicode",
+        "operation": "main_streamwritertest_unicode",
+        "status": "failed",
+        "review_status": "expected_behavior_review_required",
+        "review_reason": "LLM-synthesized adapter produced a failing executable expected-behavior check with non-high confidence; review source test evidence before treating this as target semantic error.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_streamwritertest_unicode",
+            "name": "StreamWriterTest.unicode",
+            "source_location": "src/test_lib_json/main.cpp:2818",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::writeString"
+        ],
+        "aligned_target_functions": [
+          "src/lib.rs::stringify"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "medium",
+        "input": "object with value containing unicode character à via parse",
+        "expected": {
+          "observable_behavior": "stringify output contains \"\\\\u00e9\" for é"
+        },
+        "normalization": "string_contains",
+        "evidence": "src/test_lib_json/main.cpp:2818 StreamWriterTest.unicode asserts default output contains \\\\u escapes"
+      },
+      {
+        "replay_event_id": "main_streamwritertest_writearrays",
+        "operation": "main_streamwritertest_writearrays",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_streamwritertest_writearrays",
+            "name": "StreamWriterTest.writeArrays",
+            "source_location": "src/test_lib_json/main.cpp:2673",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::writeString"
+        ],
+        "aligned_target_functions": [
+          "src/lib.rs::stringify"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "parse the expected JSON to get same structure",
+        "expected": {
+          "observable_behavior": "stringify of parsed expected JSON equals the original expected string"
+        },
+        "normalization": "roundtrip_equality",
+        "evidence": "src/test_lib_json/main.cpp:2673 StreamWriterTest.writeArrays expects specific multi-line indented output"
+      },
+      {
+        "replay_event_id": "main_streamwritertest_writenestedobjects",
+        "operation": "main_streamwritertest_writenestedobjects",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_streamwritertest_writenestedobjects",
+            "name": "StreamWriterTest.writeNestedObjects",
+            "source_location": "src/test_lib_json/main.cpp:2693",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::writeString"
+        ],
+        "aligned_target_functions": [
+          "src/lib.rs::stringify"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "parse the expected JSON to get same structure",
+        "expected": {
+          "observable_behavior": "stringify of parsed expected JSON equals the original expected string"
+        },
+        "normalization": "roundtrip_equality",
+        "evidence": "src/test_lib_json/main.cpp:2693 StreamWriterTest.writeNestedObjects expects specific multi-line indented output"
+      },
+      {
+        "replay_event_id": "main_styledstreamwritertest_writearrays",
+        "operation": "main_styledstreamwritertest_writearrays",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_styledstreamwritertest_writearrays",
+            "name": "StyledStreamWriterTest.writeArrays",
+            "source_location": "src/test_lib_json/main.cpp:2530",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "support_target_functions_used": [
+          "src/value/implements.rs::JsonValue::from#sig_85cb0854",
+          "src/value/implements.rs::JsonValue::from#sig_9bca93f0",
+          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "object with property1 array [value1,value2] and property2 empty array"
+        },
+        "expected": {
+          "observable_behavior": "pretty output matches the literal expected string with tabs and newlines"
+        },
+        "normalization": "observable comparison rule",
+        "evidence": "source test src/test_lib_json/main.cpp line 2530-2547: JSONTEST_ASSERT_STRING_EQUAL(expected, result); expected contains tabs and spaces"
+      },
+      {
+        "replay_event_id": "main_styledwritertest_writearrays",
+        "operation": "main_styledwritertest_writearrays",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_styledwritertest_writearrays",
+            "name": "StyledWriterTest.writeArrays",
+            "source_location": "src/test_lib_json/main.cpp:2414",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "support_target_functions_used": [
+          "src/value/implements.rs::JsonValue::from#sig_85cb0854",
+          "src/value/implements.rs::JsonValue::from#sig_9bca93f0",
+          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "object with property1 array [value1,value2] and property2 empty array"
+        },
+        "expected": {
+          "observable_behavior": "pretty output matches the literal expected string with 3-space indent and newlines"
+        },
+        "normalization": "observable comparison rule",
+        "evidence": "source test src/test_lib_json/main.cpp line 2414-2428: JSONTEST_ASSERT_STRING_EQUAL(expected, result); expected uses 3-space indentation"
+      },
+      {
+        "replay_event_id": "main_styledwritertest_writevaluewithcomment",
+        "operation": "main_styledwritertest_writevaluewithcomment",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_styledwritertest_writevaluewithcomment",
+            "name": "StyledWriterTest.writeValueWithComment",
+            "source_location": "src/test_lib_json/main.cpp:2477",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+          "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+        ],
+        "aligned_target_functions": [
+          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "JsonValue string 'hello' with commentBefore '//commentBeforeValue'",
+        "expected": {
+          "observable_behavior": "pretty output should contain the comment before the value"
+        },
+        "normalization": "observable comparison rule",
+        "evidence": "src/test_lib_json/main.cpp:2477 JSONTEST_ASSERT_STRING_EQUAL(expected, result) with literal \"\\n//commentBeforeValue\\n\\\"hello\\\"\\n\""
+      },
+      {
+        "replay_event_id": "main_valuetest_commentbefore",
+        "operation": "main_valuetest_commentbefore",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_valuetest_commentbefore",
+            "name": "ValueTest.CommentBefore",
+            "source_location": "src/test_lib_json/main.cpp:2016",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::toStyledString",
+          "src/lib_json/json_writer.cpp::Json::writeString"
+        ],
+        "aligned_target_functions": [
+          "src/lib.rs::stringify",
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "support_target_functions_used": [
+          "src/value/implements.rs::JsonValue::from#sig_ae24f75d"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "Null value with commentBefore '// this comment should appear before'",
+        "expected": {
+          "observable_behavior": "stringify output should include comment line before null; pretty output should wrap with newlines"
+        },
+        "normalization": "observable comparison rule",
+        "evidence": "src/test_lib_json/main.cpp:2016 JSONTEST_ASSERT_STRING_EQUAL(expected, result) and JSONTEST_ASSERT_STRING_EQUAL(exp2, res2)"
+      },
+      {
+        "replay_event_id": "main_valuetest_precision",
+        "operation": "main_valuetest_precision",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_valuetest_precision",
+            "name": "ValueTest.precision",
+            "source_location": "src/test_lib_json/main.cpp:2134",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::writeString"
+        ],
+        "aligned_target_functions": [
+          "src/lib.rs::stringify"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "float values 100/3, 0.25, 0.2563456 with precision settings",
+        "expected": {
+          "observable_behavior": "writeString returns formatted strings '33.333', '0.25', '0.25635', and with precision=1 '0.3'"
+        },
+        "normalization": "string equality",
+        "evidence": "source test expects specific precision output from writeString"
+      },
+      {
+        "replay_event_id": "main_valuetest_specialfloats",
+        "operation": "main_valuetest_specialfloats",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_valuetest_specialfloats",
+            "name": "ValueTest.specialFloats",
+            "source_location": "src/test_lib_json/main.cpp:2114",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::writeString"
+        ],
+        "aligned_target_functions": [
+          "src/lib.rs::stringify"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "NaN, Infinity, -Infinity values",
+        "expected": {
+          "observable_behavior": "writeString returns 'NaN', 'Infinity', '-Infinity'"
+        },
+        "normalization": "string equality",
+        "evidence": "source test expects special float strings"
+      },
+      {
+        "replay_event_id": "main_valuetest_searchvaluebypath",
+        "operation": "main_valuetest_searchvaluebypath",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_valuetest_searchvaluebypath",
+            "name": "ValueTest.searchValueByPath",
+            "source_location": "src/test_lib_json/main.cpp:2220",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+          "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+        ],
+        "aligned_target_functions": [
+          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+          "src/value/mod.rs::JsonValue::dump"
+        ],
+        "support_target_functions_used": [
+          "src/value/implements.rs::JsonValue::from#sig_85cb0854",
+          "src/value/implements.rs::JsonValue::from#sig_9bca93f0"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "nested object with array and inner object",
+        "expected": {
+          "observable_behavior": "dump returns '{\"property1\":[0,1],\"property2\":{\"object\":\"object\"}}\\n'"
+        },
+        "normalization": "string equality",
+        "evidence": "source test asserts output string matches expected"
+      },
+      {
+        "replay_event_id": "main_valuetest_typechecksthrowexceptions",
+        "operation": "main_valuetest_typechecksthrowexceptions",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "main_valuetest_typechecksthrowexceptions",
+            "name": "ValueTest.typeChecksThrowExceptions",
+            "source_location": "src/test_lib_json/main.cpp:1885",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::asCString",
+          "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::as_str",
+          "src/value/mod.rs::JsonValue::remove"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "string value, array value",
+        "expected": {
+          "observable_behavior": "calls should panic but target returns normally"
+        },
+        "normalization": "panics expected but target does not panic; test will fail to expose difference",
+        "evidence": "source test uses JSONTEST_ASSERT_THROWS"
+      }
+    ],
+    "unresolved_behavior_cases": [
+      {
+        "source_behavior_case_id": "main_fuzztest_fuzzdoesntcrash",
+        "name": "FuzzTest.fuzzDoesntCrash",
+        "source_location": "src/test_lib_json/main.cpp:4140",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::size"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_fuzztest_fuzzdoesntcrash: no independently valid replay event or exclusion was returned",
+          "case main_iteratortest_convert: no independently valid replay event or exclusion was returned",
+          "case main_iteratortest_indexes: no independently valid replay event or exclusion was returned",
+          "case main_iteratortest_names: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_iteratortest_convert",
+        "name": "IteratorTest.convert",
+        "source_location": "src/test_lib_json/main.cpp:3976",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945",
+          "src/lib_json/json_value.cpp::Json::Value::begin#sig_fda56a58"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_fuzztest_fuzzdoesntcrash: no independently valid replay event or exclusion was returned",
+          "case main_iteratortest_convert: no independently valid replay event or exclusion was returned",
+          "case main_iteratortest_indexes: no independently valid replay event or exclusion was returned",
+          "case main_iteratortest_names: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_iteratortest_indexes",
+        "name": "IteratorTest.indexes",
+        "source_location": "src/test_lib_json/main.cpp:4077",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+          "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_fuzztest_fuzzdoesntcrash: no independently valid replay event or exclusion was returned",
+          "case main_iteratortest_convert: no independently valid replay event or exclusion was returned",
+          "case main_iteratortest_indexes: no independently valid replay event or exclusion was returned",
+          "case main_iteratortest_names: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_iteratortest_names",
+        "name": "IteratorTest.names",
+        "source_location": "src/test_lib_json/main.cpp:4057",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+          "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_fuzztest_fuzzdoesntcrash: no independently valid replay event or exclusion was returned",
+          "case main_iteratortest_convert: no independently valid replay event or exclusion was returned",
+          "case main_iteratortest_indexes: no independently valid replay event or exclusion was returned",
+          "case main_iteratortest_names: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_iteratortest_staticstringkey",
+        "name": "IteratorTest.staticStringKey",
+        "source_location": "src/test_lib_json/main.cpp:4051",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+          "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_iteratortest_staticstringkey: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_readertest_pusherrortest",
+        "name": "ReaderTest.pushErrorTest",
+        "source_location": "src/test_lib_json/main.cpp:3128",
+        "aligned_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
+          "src/lib_json/json_value.cpp::Json::Value::isString"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_readertest_pusherrortest: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_streamwritertest_writenumericvalue",
+        "name": "StreamWriterTest.writeNumericValue",
+        "source_location": "src/test_lib_json/main.cpp:2651",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+          "src/lib_json/json_writer.cpp::Json::writeString"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_streamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_multilinearray: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writenestedobjects: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writevaluewithcomment: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_styledstreamwritertest_multilinearray",
+        "name": "StyledStreamWriterTest.multiLineArray",
+        "source_location": "src/test_lib_json/main.cpp:2570",
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_streamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_multilinearray: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writenestedobjects: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writevaluewithcomment: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_styledstreamwritertest_writenestedobjects",
+        "name": "StyledStreamWriterTest.writeNestedObjects",
+        "source_location": "src/test_lib_json/main.cpp:2547",
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_streamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_multilinearray: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writenestedobjects: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writevaluewithcomment: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_styledstreamwritertest_writenumericvalue",
+        "name": "StyledStreamWriterTest.writeNumericValue",
+        "source_location": "src/test_lib_json/main.cpp:2505",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+          "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_streamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_multilinearray: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writenestedobjects: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writevaluewithcomment: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_styledstreamwritertest_writevaluewithcomment",
+        "name": "StyledStreamWriterTest.writeValueWithComment",
+        "source_location": "src/test_lib_json/main.cpp:2617",
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_streamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_multilinearray: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writenestedobjects: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writevaluewithcomment: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_styledwritertest_multilinearray",
+        "name": "StyledWriterTest.multiLineArray",
+        "source_location": "src/test_lib_json/main.cpp:2448",
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_streamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_multilinearray: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writenestedobjects: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writevaluewithcomment: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_styledwritertest_writenestedobjects",
+        "name": "StyledWriterTest.writeNestedObjects",
+        "source_location": "src/test_lib_json/main.cpp:2429",
+        "aligned_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_streamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_multilinearray: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writenestedobjects: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_styledstreamwritertest_writevaluewithcomment: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_styledwritertest_writenumericvalue",
+        "name": "StyledWriterTest.writeNumericValue",
+        "source_location": "src/test_lib_json/main.cpp:2392",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+          "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_styledwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_arrayinsertatrandomindex: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_valuetest_arrayinsertatrandomindex",
+        "name": "ValueTest.arrayInsertAtRandomIndex",
+        "source_location": "src/test_lib_json/main.cpp:552",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_styledwritertest_writenumericvalue: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_arrayinsertatrandomindex: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_valuetest_bools",
+        "name": "ValueTest.bools",
+        "source_location": "src/test_lib_json/main.cpp:678",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::isArray",
+          "src/lib_json/json_value.cpp::Json::Value::isBool",
+          "src/lib_json/json_value.cpp::Json::Value::isDouble",
+          "src/lib_json/json_value.cpp::Json::Value::isNull",
+          "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+          "src/lib_json/json_value.cpp::Json::Value::isObject",
+          "src/lib_json/json_value.cpp::Json::Value::isString"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_valuetest_bools: trace_events[74].expected must describe observable behavior"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_valuetest_comparetype",
+        "name": "ValueTest.compareType",
+        "source_location": "src/test_lib_json/main.cpp:1790",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_valuetest_comparetype: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_czstringcoverage: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_integers: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_nonintegers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_valuetest_czstringcoverage",
+        "name": "ValueTest.CZStringCoverage",
+        "source_location": "src/test_lib_json/main.cpp:207",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+          "src/lib_json/json_value.cpp::Json::Value::asCString",
+          "src/lib_json/json_value.cpp::Json::Value::demand",
+          "src/lib_json/json_value.cpp::Json::Value::isArray",
+          "src/lib_json/json_value.cpp::Json::Value::isBool",
+          "src/lib_json/json_value.cpp::Json::Value::isDouble",
+          "src/lib_json/json_value.cpp::Json::Value::isNull",
+          "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+          "src/lib_json/json_value.cpp::Json::Value::isObject",
+          "src/lib_json/json_value.cpp::Json::Value::isString",
+          "src/lib_json/json_value.cpp::Json::Value::removeIndex",
+          "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70",
+          "src/lib_json/json_value.cpp::Json::Value::size",
+          "src/lib_json/json_value.cpp::Json::Value::toStyledString",
+          "src/lib_json/json_writer.cpp::Json::writeString"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_valuetest_comparetype: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_czstringcoverage: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_integers: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_nonintegers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_valuetest_integers",
+        "name": "ValueTest.integers",
+        "source_location": "src/test_lib_json/main.cpp:720",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+          "src/lib_json/json_value.cpp::Json::Value::isArray",
+          "src/lib_json/json_value.cpp::Json::Value::isBool",
+          "src/lib_json/json_value.cpp::Json::Value::isDouble",
+          "src/lib_json/json_value.cpp::Json::Value::isNull",
+          "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+          "src/lib_json/json_value.cpp::Json::Value::isObject",
+          "src/lib_json/json_value.cpp::Json::Value::isString"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_valuetest_comparetype: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_czstringcoverage: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_integers: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_nonintegers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_valuetest_nonintegers",
+        "name": "ValueTest.nonIntegers",
+        "source_location": "src/test_lib_json/main.cpp:1454",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+          "src/lib_json/json_value.cpp::Json::Value::isArray",
+          "src/lib_json/json_value.cpp::Json::Value::isBool",
+          "src/lib_json/json_value.cpp::Json::Value::isDouble",
+          "src/lib_json/json_value.cpp::Json::Value::isNull",
+          "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+          "src/lib_json/json_value.cpp::Json::Value::isObject",
+          "src/lib_json/json_value.cpp::Json::Value::isString"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_valuetest_comparetype: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_czstringcoverage: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_integers: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_nonintegers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_valuetest_resizearray",
+        "name": "ValueTest.resizeArray",
+        "source_location": "src/test_lib_json/main.cpp:465",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::size"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_valuetest_resizearray: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_resizepopulatesallmissingelements: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_zeroes: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_valuetest_resizepopulatesallmissingelements",
+        "name": "ValueTest.resizePopulatesAllMissingElements",
+        "source_location": "src/test_lib_json/main.cpp:509",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945",
+          "src/lib_json/json_value.cpp::Json::Value::size"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_valuetest_resizearray: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_resizepopulatesallmissingelements: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_zeroes: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_valuetest_zeroes",
+        "name": "ValueTest.zeroes",
+        "source_location": "src/test_lib_json/main.cpp:2060",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case main_valuetest_resizearray: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_resizepopulatesallmissingelements: no independently valid replay event or exclusion was returned",
+          "case main_valuetest_zeroes: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "main_valuetest_zeroesinkeys",
+        "name": "ValueTest.zeroesInKeys",
+        "source_location": "src/test_lib_json/main.cpp:2086",
+        "aligned_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      }
+    ]
+  },
+  "source_test_selection": {
+    "summary": {
+      "test_files_discovered": 7,
+      "source_test_cases_discovered": 127,
+      "aligned_public_test_candidates": 111,
+      "cases_unresolved_after_exact_function_binding": 1,
+      "structurally_ineligible_for_public_replay_cases": 0,
+      "public_replay_eligible_cases": 110,
+      "cases_excluded_by_adapter_conversion": 0,
+      "unresolved_after_conversion_attempts": 24,
+      "replayed_cases": 86,
+      "mixed_public_internal_candidates": 2,
+      "mixed_cases_eligible_with_public_substitution": 2,
+      "case_conversion_attempt_mode": "per_case_attempt_limit"
+    },
+    "details": {
+      "test_inventory": "artifact_paths.test_inventory",
+      "public_replay_eligibility": "artifact_paths.public_replay_eligibility",
+      "failed_replay_source_cases": "key_findings.failed_replay_events[].source_cases",
+      "unresolved_behavior_cases": "key_findings.unresolved_behavior_cases"
+    }
+  },
+  "target_replay": {
+    "summary": {
+      "status": "failed",
+      "replay_plan_fingerprint": "8542f86340663778",
+      "replay_events_in_plan": 86,
+      "adapter_generation_status": "llm_synthesized_repaired_v1",
+      "command": "cargo test --test cp2rs_3b_public",
+      "returncode": 101,
+      "replay_events_executed": 86,
+      "replay_events_passed": 43,
+      "replay_events_failed": 43,
+      "infrastructure_failures": 0,
+      "note": "public_replay_pass_rate only describes this replay plan; compare replay_plan_fingerprint across runs before comparing pass rates."
+    },
+    "details": {
+      "failed_replay_events": "key_findings.failed_replay_events",
+      "full_replay_result": "artifact_paths.replay_result",
+      "full_replay_plan": "artifact_paths.replay_plan",
+      "generated_rust_tests": "artifact_paths.generated_test_file"
+    }
+  },
+  "adapter": {
+    "schema_version": "3b.adapter.v1",
+    "name": "llm_synthesized_jsoncpp_to_json-rust_public_v1",
+    "status": "loaded",
+    "generation_status": "llm_synthesized_repaired_v1",
+    "validation_status": "passed",
+    "summary": {
+      "public_operation_count": 86,
+      "trace_event_count": 86,
+      "referenced_operation_count": 86,
+      "unreferenced_operation_count": 0
+    },
+    "path": "output/phase3_3b/jsoncpp_vs_json-rust_jsoncpp_compact_v2/effective_adapter.json"
+  },
+  "llm_usage": {
+    "calls": 39,
+    "prompt_tokens": 457920,
+    "completion_tokens": 244667,
+    "total_tokens": 702587,
+    "elapsed_seconds": 2270.893,
+    "usage_source": "api_reported_when_available",
+    "calls_by_stage": {
+      "behavior_case_conversion_batch_1": {
+        "calls": 1,
+        "prompt_tokens": 8909,
+        "completion_tokens": 7152,
+        "total_tokens": 16061
+      },
+      "behavior_case_conversion_batch_2": {
+        "calls": 1,
+        "prompt_tokens": 8757,
+        "completion_tokens": 9286,
+        "total_tokens": 18043
+      },
+      "behavior_case_conversion_batch_3": {
+        "calls": 1,
+        "prompt_tokens": 5094,
+        "completion_tokens": 2582,
+        "total_tokens": 7676
+      },
+      "behavior_case_conversion_batch_4": {
+        "calls": 1,
+        "prompt_tokens": 10189,
+        "completion_tokens": 7711,
+        "total_tokens": 17900
+      },
+      "behavior_case_conversion_batch_5": {
+        "calls": 1,
+        "prompt_tokens": 9958,
+        "completion_tokens": 8451,
+        "total_tokens": 18409
+      },
+      "behavior_case_conversion_batch_6": {
+        "calls": 1,
+        "prompt_tokens": 7347,
+        "completion_tokens": 3561,
+        "total_tokens": 10908
+      },
+      "behavior_case_conversion_batch_7": {
+        "calls": 1,
+        "prompt_tokens": 10640,
+        "completion_tokens": 11315,
+        "total_tokens": 21955
+      },
+      "behavior_case_conversion_batch_8": {
+        "calls": 1,
+        "prompt_tokens": 10387,
+        "completion_tokens": 11626,
+        "total_tokens": 22013
+      },
+      "behavior_case_conversion_batch_9": {
+        "calls": 1,
+        "prompt_tokens": 10095,
+        "completion_tokens": 4449,
+        "total_tokens": 14544
+      },
+      "behavior_case_conversion_batch_10": {
+        "calls": 1,
+        "prompt_tokens": 10095,
+        "completion_tokens": 6935,
+        "total_tokens": 17030
+      },
+      "behavior_case_conversion_batch_11": {
+        "calls": 1,
+        "prompt_tokens": 15185,
+        "completion_tokens": 13689,
+        "total_tokens": 28874
+      },
+      "behavior_case_conversion_batch_12": {
+        "calls": 1,
+        "prompt_tokens": 5349,
+        "completion_tokens": 3072,
+        "total_tokens": 8421
+      },
+      "behavior_case_conversion_batch_13": {
+        "calls": 1,
+        "prompt_tokens": 5349,
+        "completion_tokens": 1845,
+        "total_tokens": 7194
+      },
+      "behavior_case_conversion_batch_14": {
+        "calls": 1,
+        "prompt_tokens": 11440,
+        "completion_tokens": 8456,
+        "total_tokens": 19896
+      },
+      "behavior_case_conversion_batch_15": {
+        "calls": 1,
+        "prompt_tokens": 9035,
+        "completion_tokens": 1747,
+        "total_tokens": 10782
+      },
+      "behavior_case_conversion_batch_16": {
+        "calls": 1,
+        "prompt_tokens": 9035,
+        "completion_tokens": 1753,
+        "total_tokens": 10788
+      },
+      "behavior_case_conversion_batch_17": {
+        "calls": 1,
+        "prompt_tokens": 13260,
+        "completion_tokens": 10715,
+        "total_tokens": 23975
+      },
+      "behavior_case_conversion_batch_18": {
+        "calls": 1,
+        "prompt_tokens": 12497,
+        "completion_tokens": 8145,
+        "total_tokens": 20642
+      },
+      "behavior_case_conversion_batch_19": {
+        "calls": 1,
+        "prompt_tokens": 10930,
+        "completion_tokens": 2256,
+        "total_tokens": 13186
+      },
+      "behavior_case_conversion_batch_20": {
+        "calls": 1,
+        "prompt_tokens": 10930,
+        "completion_tokens": 4434,
+        "total_tokens": 15364
+      },
+      "behavior_case_conversion_batch_21": {
+        "calls": 1,
+        "prompt_tokens": 16671,
+        "completion_tokens": 10965,
+        "total_tokens": 27636
+      },
+      "behavior_case_conversion_batch_22": {
+        "calls": 1,
+        "prompt_tokens": 16437,
+        "completion_tokens": 10472,
+        "total_tokens": 26909
+      },
+      "behavior_case_conversion_batch_23": {
+        "calls": 1,
+        "prompt_tokens": 10885,
+        "completion_tokens": 5400,
+        "total_tokens": 16285
+      },
+      "behavior_case_conversion_batch_24": {
+        "calls": 1,
+        "prompt_tokens": 7556,
+        "completion_tokens": 3596,
+        "total_tokens": 11152
+      },
+      "behavior_case_conversion_batch_25": {
+        "calls": 1,
+        "prompt_tokens": 6558,
+        "completion_tokens": 2440,
+        "total_tokens": 8998
+      },
+      "behavior_case_conversion_batch_26": {
+        "calls": 1,
+        "prompt_tokens": 20026,
+        "completion_tokens": 9194,
+        "total_tokens": 29220
+      },
+      "behavior_case_conversion_batch_27": {
+        "calls": 1,
+        "prompt_tokens": 20172,
+        "completion_tokens": 8906,
+        "total_tokens": 29078
+      },
+      "behavior_case_conversion_batch_28": {
+        "calls": 1,
+        "prompt_tokens": 19701,
+        "completion_tokens": 7085,
+        "total_tokens": 26786
+      },
+      "behavior_case_conversion_batch_29": {
+        "calls": 1,
+        "prompt_tokens": 20515,
+        "completion_tokens": 13014,
+        "total_tokens": 33529
+      },
+      "behavior_case_conversion_batch_30": {
+        "calls": 1,
+        "prompt_tokens": 10281,
+        "completion_tokens": 7200,
+        "total_tokens": 17481
+      },
+      "behavior_case_conversion_batch_31": {
+        "calls": 1,
+        "prompt_tokens": 8058,
+        "completion_tokens": 2732,
+        "total_tokens": 10790
+      },
+      "behavior_case_conversion_batch_32": {
+        "calls": 1,
+        "prompt_tokens": 5135,
+        "completion_tokens": 4000,
+        "total_tokens": 9135
+      },
+      "behavior_case_conversion_batch_33": {
+        "calls": 1,
+        "prompt_tokens": 4495,
+        "completion_tokens": 4000,
+        "total_tokens": 8495
+      },
+      "behavior_case_conversion_batch_34": {
+        "calls": 1,
+        "prompt_tokens": 4482,
+        "completion_tokens": 1630,
+        "total_tokens": 6112
+      },
+      "behavior_case_conversion_batch_35": {
+        "calls": 1,
+        "prompt_tokens": 4482,
+        "completion_tokens": 4000,
+        "total_tokens": 8482
+      },
+      "behavior_case_conversion_batch_36": {
+        "calls": 1,
+        "prompt_tokens": 9640,
+        "completion_tokens": 3180,
+        "total_tokens": 12820
+      },
+      "replay_infrastructure_repair_attempt_1": {
+        "calls": 1,
+        "prompt_tokens": 46641,
+        "completion_tokens": 9429,
+        "total_tokens": 56070
+      },
+      "replay_infrastructure_repair_attempt_2": {
+        "calls": 1,
+        "prompt_tokens": 20957,
+        "completion_tokens": 6502,
+        "total_tokens": 27459
+      },
+      "replay_infrastructure_repair_attempt_3": {
+        "calls": 1,
+        "prompt_tokens": 10747,
+        "completion_tokens": 1742,
+        "total_tokens": 12489
+      }
+    },
+    "full_usage_artifact": "artifact_paths.llm_usage"
+  },
+  "metrics": {
+    "basic_counts": {
+      "aligned_source_functions_total": 81,
+      "aligned_source_functions_with_src_test_evidence": 45,
+      "aligned_source_functions_excluded_no_src_test_evidence": 36,
+      "source_tested_non_public_or_internal_functions_excluded_l1": 10,
+      "public_source_functions_with_leaf_name_test_evidence": 35,
+      "public_source_functions_excluded_no_precise_behavior_evidence": 13,
+      "public_source_functions_with_precise_behavior_evidence_l1_scope": 22,
+      "public_target_functions_in_l1_scope": 18,
+      "mixed_public_internal_aligned_test_cases": 2,
+      "source_tested_public_functions_not_replayed": 1,
+      "replay_events_executed": 86,
+      "replay_events_passed": 43,
+      "replay_events_failed": 43,
+      "failed_replay_events_requiring_expected_behavior_review": 1,
+      "target_semantic_failure_candidates": 42,
+      "infrastructure_failures": 0,
+      "validated_aligned_source_functions_replayed": 21,
+      "validated_aligned_target_functions_replayed": 17,
+      "covered_aligned_pairs": 21,
+      "source_behavior_cases_available": 110,
+      "source_behavior_cases_eligible_for_replay": 110,
+      "source_behavior_cases_replayed": 86,
+      "source_behavior_cases_excluded_by_adapter_conversion": 0,
+      "source_behavior_cases_unresolved_after_conversion": 24
+    },
+    "ratio_metrics": {
+      "source_test_evidence_coverage": {
+        "value": "55.56%",
+        "raw_fraction": "45 / 81",
+        "description": "3A aligned source 函数中，有 src 测试证据的比例"
+      },
+      "precise_behavior_evidence_rate": {
+        "value": "62.86%",
+        "raw_fraction": "22 / 35",
+        "description": "public source 函数中，从 leaf-name 测试证据进一步确认有精确行为证据的比例"
+      },
+      "source_tested_public_function_replay_gap_rate": {
+        "value": "4.55%",
+        "raw_fraction": "1 / 22",
+        "description": "L1 scope 中有精确 src 测试证据但 adapter 未 replay 的 source 函数比例"
+      },
+      "public_replay_pass_rate": {
+        "value": "50.00%",
+        "raw_fraction": "43 / 86",
+        "description": "当前已生成 replay plan 内，public replay 通过的 event 数 / public replay 实际执行的 event 数；这是 scoped pass rate，不代表全部 eligible source behavior cases 的全局通过率"
+      },
+      "aligned_source_replay_coverage": {
+        "value": "95.45%",
+        "raw_fraction": "21 / 22",
+        "description": "L1 source scope 中被 replay 覆盖且通过 3A 对齐验证的 source 函数比例"
+      },
+      "aligned_target_replay_coverage": {
+        "value": "94.44%",
+        "raw_fraction": "17 / 18",
+        "description": "L1 target scope 中被 replay 触达且通过 3A 对齐验证的 target 函数比例"
+      },
+      "behavior_case_accounting_rate": {
+        "value": "78.18%",
+        "raw_fraction": "86 / 110",
+        "description": "eligible source behavior cases 中，已 replay 或经有效原因排除的比例"
+      },
+      "behavior_case_replay_coverage": {
+        "value": "78.18%",
+        "raw_fraction": "86 / 110",
+        "description": "eligible source behavior cases 中，成功转换为 replay event 并进入 Rust replay plan 的比例"
+      }
+    }
+  }
+}

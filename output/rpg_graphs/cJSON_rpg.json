@@ -2,131 +2,370 @@
   "nodes": {
     "root_nodes": [
       {
-        "id": "Root_CoreLibrary",
-        "semantic_name": "cJSON 核心库",
-        "description": "提供 JSON 解析、序列化、对象创建与操作的核心功能，包含公共头文件和实现文件。"
+        "id": "Root_cJSON_Parsing",
+        "semantic_name": "JSON Parsing",
+        "description": "将JSON文本字符串解析为cJSON对象树。包括标准解析、带长度解析、严格null-terminated选项等。入口函数：cJSON_Parse, cJSON_ParseWithOpts, cJSON_ParseWithLength, cJSON_ParseWithLengthOpts。委托内部parse_value/parse_array/parse_object/parse_string/parse_number递归解析。"
       },
       {
-        "id": "Root_Utils",
-        "semantic_name": "cJSON 高级工具库",
-        "description": "基于核心库扩展 JSON Pointer、JSON Patch、Merge Patch 和对象排序等高级功能。"
+        "id": "Root_cJSON_Printing",
+        "semantic_name": "JSON Serialization",
+        "description": "将cJSON对象树序列化为JSON格式字符串。支持格式化（带缩进）和未格式化输出，以及预分配缓冲区和用户自定义缓冲区模式。入口函数：cJSON_Print, cJSON_PrintUnformatted, cJSON_PrintBuffered, cJSON_PrintPreallocated。委托内部print_value/print_array/print_object/print_string/print_number递归打印。"
       },
       {
-        "id": "Root_Test",
-        "semantic_name": "测试演示程序",
-        "description": "演示 cJSON API 基本用法的测试程序。"
+        "id": "Root_cJSON_Creation",
+        "semantic_name": "JSON Data Model Creation",
+        "description": "创建各种JSON数据类型的cJSON节点：null、true、false、bool、number、string、raw、object、array。支持创建数值数组（int/float/double）和字符串数组，以及只读引用创建（string/object/array reference）。内部通过cJSON_New_Item分配节点内存，通过suffix_object/add_item_to_array/add_item_to_object构建链表结构。"
       },
       {
-        "id": "Root_Fuzzing",
-        "semantic_name": "模糊测试工具",
-        "description": "对 cJSON 进行模糊测试的工具集合，包括 AFL 和 libFuzzer 支持。"
+        "id": "Root_cJSON_Accessors",
+        "semantic_name": "JSON Data Accessors",
+        "description": "通过索引或名称安全访问cJSON对象树中的子节点。包括数组元素访问（GetArraySize/GetArrayItem）、对象属性访问（GetObjectItem/GetObjectItemCaseSensitive/HasObjectItem、case_insensitive_strcmp）、节点值提取（GetStringValue/GetNumberValue）以及版本信息（cJSON_Version）和错误指针（cJSON_GetErrorPtr）。"
+      },
+      {
+        "id": "Root_cJSON_Mutation",
+        "semantic_name": "JSON Data Mutation",
+        "description": "对cJSON对象树进行增删改操作。包括向数组/对象添加子项（Add*ToArray/Add*ToObject，支持直接创建并添加各种类型）、插入（InsertItemInArray）、替换（ReplaceItem*）、分离（DetachItem*）、删除子项（DeleteItem*）以及直接设置节点值（SetNumberHelper/SetValuestring）。"
+      },
+      {
+        "id": "Root_cJSON_TypePredicates",
+        "semantic_name": "JSON Type Predicates",
+        "description": "判断cJSON节点的具体类型。提供IsInvalid/IsFalse/IsTrue/IsBool/IsNull/IsNumber/IsString/IsArray/IsObject/IsRaw共10个类型检查函数，每个函数通过比较节点type字段与对应类型常量来实现。"
+      },
+      {
+        "id": "Root_cJSON_Utilities",
+        "semantic_name": "JSON Internal Support & Utilities",
+        "description": "提供cJSON核心共享基础设施和工具函数：内存分配与释放（cJSON_malloc/cJSON_free/internal_malloc/internal_free/internal_realloc）、递归销毁（cJSON_Delete）、深拷贝（cJSON_Duplicate）、递归比较（cJSON_Compare）、文本最小化（cJSON_Minify）、钩子配置（cJSON_InitHooks）、字符串复制（cJSON_strdup）、不区分大小写字符串比较（case_insensitive_strcmp）等。"
+      },
+      {
+        "id": "Root_cJSON_Utils",
+        "semantic_name": "JSON Utils Extension (Pointer/Patch/Sort/MergePatch)",
+        "description": "JSON工具扩展模块，基于cJSON核心库提供高级功能：JSON Pointer（GetPointer/FindPointerFromObjectTo）、JSON Patch（ApplyPatches/GeneratePatches/AddPatchToArray）、JSON Merge Patch（MergePatch/GenerateMergePatch）以及对象键排序（SortObject）。完全通过cJSON核心库的public API构建。"
       }
     ],
     "intermediate_nodes": [
       {
-        "id": "Intermediate_cJSON_h",
-        "parent_root": "Root_CoreLibrary",
-        "file_path": "cJSON.h",
-        "semantic_name": "cJSON 公共 API 头文件",
-        "description": "声明 cJSON 数据类型、枚举和所有公共函数接口。"
+        "id": "Intermediate_cJSON_Parsing",
+        "parent_root": "Root_cJSON_Parsing",
+        "file_path": "cJSON.c",
+        "included_function_patterns": [
+          "cJSON_Parse*",
+          "parse_value",
+          "parse_array",
+          "parse_object",
+          "parse_string",
+          "parse_number",
+          "buffer_skip_whitespace",
+          "skip_utf8_bom",
+          "parse_hex4",
+          "utf16_literal_to_utf8",
+          "get_decimal_point"
+        ],
+        "semantic_name": "JSON Parsing Engine",
+        "description": "JSON文本到cJSON对象树的递归下降解析引擎。包含前向声明和实现，调用cJSON_New_Item创建节点，调用cJSON_Delete处理解析错误回滚，通过global_hooks进行内存管理。"
       },
       {
-        "id": "Intermediate_cJSON_c",
-        "parent_root": "Root_CoreLibrary",
+        "id": "Intermediate_cJSON_Printing",
+        "parent_root": "Root_cJSON_Printing",
         "file_path": "cJSON.c",
-        "semantic_name": "cJSON 核心实现",
-        "description": "实现 JSON 解析、打印、对象创建/删除/修改以及内存管理等功能。"
+        "included_function_patterns": [
+          "cJSON_Print*",
+          "print_value",
+          "print_array",
+          "print_object",
+          "print_string",
+          "print_string_ptr",
+          "print_number",
+          "ensure",
+          "update_offset",
+          "compare_double"
+        ],
+        "semantic_name": "JSON Serialization Engine",
+        "description": "cJSON对象树到JSON格式化字符串的递归序列化引擎。包含print内部函数和ensure缓冲区管理，读取global_hooks进行内存分配。"
+      },
+      {
+        "id": "Intermediate_cJSON_Creation",
+        "parent_root": "Root_cJSON_Creation",
+        "file_path": "cJSON.c",
+        "included_function_patterns": [
+          "cJSON_Create*",
+          "cJSON_New_Item",
+          "suffix_object",
+          "add_item_to_array",
+          "add_item_to_object",
+          "create_reference",
+          "cast_away_const"
+        ],
+        "semantic_name": "Node Constructor & List Builder",
+        "description": "cJSON节点构造函数和双向链表构建辅助工具。cJSON_New_Item通过hooks->allocate分配零初始化节点。add_item_to_array/add_item_to_object通过suffix_object维护链表。create_reference创建IsReference标记的浅拷贝节点。"
+      },
+      {
+        "id": "Intermediate_cJSON_Accessors",
+        "parent_root": "Root_cJSON_Accessors",
+        "file_path": "cJSON.c",
+        "included_function_patterns": [
+          "cJSON_GetArraySize",
+          "get_array_item",
+          "cJSON_GetArrayItem",
+          "get_object_item",
+          "cJSON_GetObjectItem",
+          "cJSON_GetObjectItemCaseSensitive",
+          "cJSON_HasObjectItem",
+          "cJSON_GetStringValue",
+          "cJSON_GetNumberValue",
+          "cJSON_Version",
+          "cJSON_GetErrorPtr"
+        ],
+        "semantic_name": "Tree Navigation & Value Extraction",
+        "description": "cJSON对象树的只读访问接口。通过链表遍历实现数组索引和对象键查找。get_object_item委托case_insensitive_strcmp进行字符串匹配。GetStringValue/GetNumberValue先调用Is*类型检查再取值。"
+      },
+      {
+        "id": "Intermediate_cJSON_Mutation",
+        "parent_root": "Root_cJSON_Mutation",
+        "file_path": "cJSON.c",
+        "included_function_patterns": [
+          "cJSON_AddItem*",
+          "cJSON_Add[A-Z]*ToObject",
+          "cJSON_InsertItem*",
+          "cJSON_ReplaceItem*",
+          "cJSON_DetachItem*",
+          "cJSON_DeleteItem*",
+          "cJSON_SetNumberHelper",
+          "cJSON_SetValuestring",
+          "replace_item_in_object"
+        ],
+        "semantic_name": "Tree Mutation Operations",
+        "description": "cJSON对象树的增删改接口。Add*ToObject系列委托add_item_to_object和cJSON_Create*系列。Detach/Delete*系列通过指针操作分离或递归销毁节点。ReplaceItem*维护const key标记。"
+      },
+      {
+        "id": "Intermediate_cJSON_TypePredicates",
+        "parent_root": "Root_cJSON_TypePredicates",
+        "file_path": "cJSON.c",
+        "included_function_patterns": [
+          "cJSON_IsInvalid",
+          "cJSON_IsFalse",
+          "cJSON_IsTrue",
+          "cJSON_IsBool",
+          "cJSON_IsNull",
+          "cJSON_IsNumber",
+          "cJSON_IsString",
+          "cJSON_IsArray",
+          "cJSON_IsObject",
+          "cJSON_IsRaw"
+        ],
+        "semantic_name": "Type Check Predicates",
+        "description": "10个类型检查谓词函数，每个函数读取对应类型常量（cJSON_Number/cJSON_String/cJSON_Array等）并与item->type字段比较，返回cJSON_bool结果。"
+      },
+      {
+        "id": "Intermediate_cJSON_Utilities",
+        "parent_root": "Root_cJSON_Utilities",
+        "file_path": "cJSON.c",
+        "included_function_patterns": [
+          "cJSON_Delete",
+          "cJSON_Duplicate*",
+          "cJSON_Compare",
+          "cJSON_Minify",
+          "cJSON_InitHooks",
+          "cJSON_malloc",
+          "cJSON_free",
+          "case_insensitive_strcmp",
+          "cJSON_strdup",
+          "internal_malloc",
+          "internal_free",
+          "internal_realloc",
+          "skip_oneline_comment",
+          "skip_multiline_comment",
+          "minify_string"
+        ],
+        "semantic_name": "Core Shared Infrastructure",
+        "description": "跨模块共享的核心工具函数。cJSON_Delete递归释放整棵树。cJSON_Duplicate递归深拷贝。cJSON_Compare递归比较两棵树。cJSON_Minify移除JSON文本空白和注释。cJSON_strdup通过hooks->allocate分配内存复制字符串。global_hooks存储全局内存分配函数指针。"
+      },
+      {
+        "id": "Intermediate_cJSON_Utils",
+        "parent_root": "Root_cJSON_Utils",
+        "file_path": "cJSON_Utils.c",
+        "semantic_name": "JSON Utils Extension Toolkit",
+        "description": "高级JSON工具扩展，提供JSON Pointer寻址、JSON Patch应用与生成、JSON Merge Patch应用与生成、以及对象键排序。完全通过cJSON核心库的public API实现。包含cJSONUtils_strdup、get_array_item、decode_patch_operation等内部辅助函数。"
+      },
+      {
+        "id": "Intermediate_Root_cJSON_Accessors_cJSON_h",
+        "parent_root": "Root_cJSON_Accessors",
+        "file_path": "cJSON.h",
+        "semantic_name": "Auto-mounted shared declaration file",
+        "description": "Automatically attached during RPG validation because Phase 1 parsed this declaration/header file but the LLM omitted it. The file has no executable function definitions, so attaching it to multiple candidate roots preserves file completeness without expanding Phase 3A function candidates."
+      },
+      {
+        "id": "Intermediate_Root_cJSON_Creation_cJSON_h",
+        "parent_root": "Root_cJSON_Creation",
+        "file_path": "cJSON.h",
+        "semantic_name": "Auto-mounted shared declaration file",
+        "description": "Automatically attached during RPG validation because Phase 1 parsed this declaration/header file but the LLM omitted it. The file has no executable function definitions, so attaching it to multiple candidate roots preserves file completeness without expanding Phase 3A function candidates."
+      },
+      {
+        "id": "Intermediate_Root_cJSON_Mutation_cJSON_h",
+        "parent_root": "Root_cJSON_Mutation",
+        "file_path": "cJSON.h",
+        "semantic_name": "Auto-mounted shared declaration file",
+        "description": "Automatically attached during RPG validation because Phase 1 parsed this declaration/header file but the LLM omitted it. The file has no executable function definitions, so attaching it to multiple candidate roots preserves file completeness without expanding Phase 3A function candidates."
+      },
+      {
+        "id": "Intermediate_Root_cJSON_Parsing_cJSON_h",
+        "parent_root": "Root_cJSON_Parsing",
+        "file_path": "cJSON.h",
+        "semantic_name": "Auto-mounted shared declaration file",
+        "description": "Automatically attached during RPG validation because Phase 1 parsed this declaration/header file but the LLM omitted it. The file has no executable function definitions, so attaching it to multiple candidate roots preserves file completeness without expanding Phase 3A function candidates."
+      },
+      {
+        "id": "Intermediate_Root_cJSON_Printing_cJSON_h",
+        "parent_root": "Root_cJSON_Printing",
+        "file_path": "cJSON.h",
+        "semantic_name": "Auto-mounted shared declaration file",
+        "description": "Automatically attached during RPG validation because Phase 1 parsed this declaration/header file but the LLM omitted it. The file has no executable function definitions, so attaching it to multiple candidate roots preserves file completeness without expanding Phase 3A function candidates."
+      },
+      {
+        "id": "Intermediate_Root_cJSON_TypePredicates_cJSON_h",
+        "parent_root": "Root_cJSON_TypePredicates",
+        "file_path": "cJSON.h",
+        "semantic_name": "Auto-mounted shared declaration file",
+        "description": "Automatically attached during RPG validation because Phase 1 parsed this declaration/header file but the LLM omitted it. The file has no executable function definitions, so attaching it to multiple candidate roots preserves file completeness without expanding Phase 3A function candidates."
+      },
+      {
+        "id": "Intermediate_Root_cJSON_Utilities_cJSON_h",
+        "parent_root": "Root_cJSON_Utilities",
+        "file_path": "cJSON.h",
+        "semantic_name": "Auto-mounted shared declaration file",
+        "description": "Automatically attached during RPG validation because Phase 1 parsed this declaration/header file but the LLM omitted it. The file has no executable function definitions, so attaching it to multiple candidate roots preserves file completeness without expanding Phase 3A function candidates."
       },
       {
         "id": "Intermediate_cJSON_Utils_h",
-        "parent_root": "Root_Utils",
+        "parent_root": "Root_cJSON_Utils",
         "file_path": "cJSON_Utils.h",
-        "semantic_name": "cJSON 工具 API 头文件",
-        "description": "声明 JSON Pointer、Patch、Merge Patch 和排序等公共函数接口。"
-      },
-      {
-        "id": "Intermediate_cJSON_Utils_c",
-        "parent_root": "Root_Utils",
-        "file_path": "cJSON_Utils.c",
-        "semantic_name": "cJSON 工具实现",
-        "description": "实现 JSON Pointer 查找、Patch 应用/生成、Merge Patch 和对象排序等功能。"
-      },
-      {
-        "id": "Intermediate_test_c",
-        "parent_root": "Root_Test",
-        "file_path": "test.c",
-        "semantic_name": "演示测试程序",
-        "description": "创建复杂 JSON 对象并进行格式化打印的演示代码。"
-      },
-      {
-        "id": "Intermediate_fuzzing_fuzz_main_c",
-        "parent_root": "Root_Fuzzing",
-        "file_path": "fuzzing/fuzz_main.c",
-        "semantic_name": "模糊测试主驱动",
-        "description": "读取输入文件并调用 LLVMFuzzerTestOneInput 进行模糊测试。"
-      },
-      {
-        "id": "Intermediate_fuzzing_afl_c",
-        "parent_root": "Root_Fuzzing",
-        "file_path": "fuzzing/afl.c",
-        "semantic_name": "AFL 模糊测试程序",
-        "description": "使用 AFL 循环对 JSON 数据进行解析和打印的测试 harness。"
-      },
-      {
-        "id": "Intermediate_fuzzing_cjson_read_fuzzer_c",
-        "parent_root": "Root_Fuzzing",
-        "file_path": "fuzzing/cjson_read_fuzzer.c",
-        "semantic_name": "JSON 读取 Fuzzer 入口",
-        "description": "提供 LLVMFuzzerTestOneInput 函数（可能实际实现在外部链接中），供模糊测试驱动调用。"
+        "semantic_name": "Auto-mounted implementation file",
+        "description": "Automatically attached during RPG validation because Phase 1 parsed this file but the LLM omitted it; parent inferred by matched existing header/source sibling."
       }
     ]
   },
   "edges": {
     "inter_module_edges": [
       {
-        "source": "Root_CoreLibrary",
-        "target": "Root_Utils",
+        "source": "Root_cJSON_Parsing",
+        "target": "Root_cJSON_Creation",
         "relation_type": "data_flow",
-        "description": "cJSON 工具库通过调用核心库的公共 API（如 cJSON_AddItemToObject、cJSON_Delete、cJSON_Duplicate 等）来构建和操作 JSON 数据。",
-        "evidence": "cJSON_Utils.c 中 apply_patch、compose_patch、sort_object 等函数的 control_flow.direct_calls 包含 cJSON_AddItemToObject、cJSON_Delete、cJSON_AddItemToArray 等核心函数，这些函数在 cJSON.h 声明并在 cJSON.c 中实现。"
+        "description": "Parsing模块在解析JSON对象和数组时调用cJSON_New_Item创建新节点，并通过parse_value/suffix_object将新节点挂入链表中，从而构建完整的cJSON对象树。",
+        "evidence": "parse_array和parse_object的control_flow.direct_calls均包含cJSON_New_Item；parse_object调用parse_string为键创建节点。cJSON_ParseWithLengthOpts调用cJSON_New_Item创建根节点。"
       },
       {
-        "source": "Root_CoreLibrary",
-        "target": "Root_Test",
+        "source": "Root_cJSON_Parsing",
+        "target": "Root_cJSON_Utilities",
         "relation_type": "data_flow",
-        "description": "测试程序通过调用核心 API（如 cJSON_CreateStringArray、cJSON_AddStringToObject、cJSON_Print 等）创建并输出 JSON。",
-        "evidence": "test.c 中 create_objects 函数调用了 cJSON_AddStringToObject、cJSON_AddNumberToObject、cJSON_CreateArray 等，print_preallocated 调用了 cJSON_Print、cJSON_PrintPreallocated，这些函数在 cJSON.h 声明并在 cJSON.c 实现。"
+        "description": "Parsing模块读取global_hooks进行内存分配（通过parse_number/parse_string间接调用hooks->allocate/deallocate），并在解析失败时调用cJSON_Delete进行错误回滚销毁。",
+        "evidence": "cJSON_ParseWithLengthOpts.control_flow.direct_calls包含cJSON_Delete；data_flow.reads包含global_hooks。parse_array/parse_object的control_flow也包含cJSON_Delete。"
       },
       {
-        "source": "Root_CoreLibrary",
-        "target": "Root_Fuzzing",
+        "source": "Root_cJSON_Printing",
+        "target": "Root_cJSON_Utilities",
         "relation_type": "data_flow",
-        "description": "模糊测试程序通过调用核心 API（如 cJSON_Parse、cJSON_PrintBuffered、cJSON_Delete）来解析和序列化 JSON 数据。",
-        "evidence": "afl.c 中 main 函数调用了 cJSON_Parse、cJSON_PrintBuffered、cJSON_Print、cJSON_PrintUnformatted、cJSON_Delete，这些函数的实现在 cJSON.c 中。fuzz_main.c 间接通过 LLVMFuzzerTestOneInput 调用核心 API。"
+        "description": "Printing模块依赖global_hooks进行内存管理（print调用hooks->reallocate/hooks->allocate/hooks->deallocate），并依赖cJSON_Delete释放中间缓冲区。",
+        "evidence": "cJSON_Print/cJSON_PrintUnformatted/cJSON_PrintBuffered/cJSON_PrintPreallocated的data_flow.reads包含global_hooks。ensure函数的control_flow.indirect_calls包含hooks->reallocate/deallocate/allocate。print函数通过memset/memcpy操作缓冲区。"
+      },
+      {
+        "source": "Root_cJSON_Creation",
+        "target": "Root_cJSON_Utilities",
+        "relation_type": "data_flow",
+        "description": "Creation模块依赖全局内存钩子（global_hooks）进行节点分配和字符串复制，并调用cJSON_Delete处理资源分配失败的回滚。",
+        "evidence": "所有cJSON_Create*函数的data_flow.reads包含global_hooks。cJSON_New_Item调用hooks->allocate。cJSON_strdup调用hooks->allocate。cJSON_CreateString/cJSON_CreateRaw调用cJSON_Delete进行错误回滚。"
+      },
+      {
+        "source": "Root_cJSON_Mutation",
+        "target": "Root_cJSON_Creation",
+        "relation_type": "data_flow",
+        "description": "Mutation模块的Add*ToObject系列函数调用cJSON_CreateNull/True/False/Bool/Number/String/Raw/Array/Object来创建待添加的子节点，直接利用了Creation模块的节点构造函数。",
+        "evidence": "cJSON_AddNullToObject调用cJSON_CreateNull，cJSON_AddNumberToObject调用cJSON_CreateNumber，cJSON_AddStringToObject调用cJSON_CreateString等，这些在control_flow.direct_calls中有明确记载。"
+      },
+      {
+        "source": "Root_cJSON_Mutation",
+        "target": "Root_cJSON_Utilities",
+        "relation_type": "data_flow",
+        "description": "Mutation模块依赖global_hooks进行内存分配和释放，调用cJSON_Delete/cJSON_free进行资源清理，调用cJSON_strdup复制键字符串。",
+        "evidence": "所有cJSON_Add*ToObject函数的data_flow.reads包含global_hooks。add_item_to_object调用cJSON_strdup（用于复制键）。replace_item_in_object调用cJSON_strdup和cJSON_free。cJSON_DeleteItemFrom*调用cJSON_Delete。"
+      },
+      {
+        "source": "Root_cJSON_Accessors",
+        "target": "Root_cJSON_TypePredicates",
+        "relation_type": "data_flow",
+        "description": "Accessors模块的GetStringValue和GetNumberValue先调用类型检查谓词（IsString/IsNumber）确认节点类型，再提取值。",
+        "evidence": "cJSON_GetStringValue.control_flow.direct_calls包含cJSON_IsString。cJSON_GetNumberValue.control_flow.direct_calls包含cJSON_IsNumber。"
+      },
+      {
+        "source": "Root_cJSON_Accessors",
+        "target": "Root_cJSON_Utilities",
+        "relation_type": "data_flow",
+        "description": "Accessors模块读取全局状态global_error（cJSON_GetErrorPtr）和静态数组version（cJSON_Version），读取NAN常量（cJSON_GetNumberValue）。",
+        "evidence": "cJSON_GetErrorPtr.data_flow.reads包含global_error。cJSON_Version.data_flow.reads包含version。cJSON_GetNumberValue.data_flow.reads包含NAN。get_object_item调用case_insensitive_strcmp（Utility层函数）。"
+      },
+      {
+        "source": "Root_cJSON_TypePredicates",
+        "target": "Root_cJSON_Utilities",
+        "relation_type": "data_flow",
+        "description": "TypePredicates模块读取类型常量（cJSON_Number/cJSON_String/cJSON_Array/cJSON_Object/cJSON_NULL/cJSON_True/cJSON_False/cJSON_Raw/cJSON_Invalid），这些常量定义在cJSON核心类型系统中，由Utility模块承载。",
+        "evidence": "每个Is*函数的data_flow.reads包含对应类型常量。cJSON_IsBool同时读取cJSON_True和cJSON_False。cJSON_Compare读取全部类型常量。"
+      },
+      {
+        "source": "Root_cJSON_Utilities",
+        "target": "Root_cJSON_Creation",
+        "relation_type": "data_flow",
+        "description": "Utility模块的cJSON_Duplicate在深拷贝时调用cJSON_New_Item创建新节点，调用cJSON_strdup复制字符串，间接使用了Creation模块的节点构造函数。",
+        "evidence": "cJSON_Duplicate_rec.control_flow.direct_calls包含cJSON_New_Item和cJSON_strdup。"
+      },
+      {
+        "source": "Root_cJSON_Utils",
+        "target": "Root_cJSON_Accessors",
+        "relation_type": "data_flow",
+        "description": "Utils模块调用cJSON_GetObjectItem/cJSON_GetObjectItemCaseSensitive进行对象键查找，以定位要操作的目标节点。",
+        "evidence": "cJSON_Utils.c中get_object_item直接调用cJSON_GetObjectItem和cJSON_GetObjectItemCaseSensitive。detach_path调用cJSON_GetObjectItem。apply_patch调用get_object_item（包装）。"
+      },
+      {
+        "source": "Root_cJSON_Utils",
+        "target": "Root_cJSON_Creation",
+        "relation_type": "data_flow",
+        "description": "Utils模块调用cJSON_Create*系列创建新的JSON节点，用于构建patch数组、创建空对象等场景。",
+        "evidence": "cJSONUtils_GeneratePatches调用cJSON_CreateArray。compose_patch调用cJSON_CreateObject和cJSON_CreateString。merge_patch调用cJSON_CreateObject和cJSON_CreateNull。generate_merge_patch调用cJSON_CreateObject和cJSON_CreateNull。"
+      },
+      {
+        "source": "Root_cJSON_Utils",
+        "target": "Root_cJSON_Mutation",
+        "relation_type": "data_flow",
+        "description": "Utils模块调用cJSON_AddItemToArray/cJSON_AddItemToObject进行节点挂载，调用cJSON_DetachItemFromObject/cJSON_DeleteItemFromObject进行节点分离和删除。",
+        "evidence": "compose_patch调用cJSON_AddItemToArray和cJSON_AddItemToObject。apply_patch调用cJSON_AddItemToArray、cJSON_AddItemToObject、cJSON_DeleteItemFromObject（带后缀CaseSensitive版本）。detach_path调用cJSON_DetachItemFromObject。insert_item_in_array调用cJSON_AddItemToArray。"
+      },
+      {
+        "source": "Root_cJSON_Utils",
+        "target": "Root_cJSON_Utilities",
+        "relation_type": "data_flow",
+        "description": "Utils模块调用cJSON_malloc/cJSON_free进行原始内存操作，调用cJSON_Duplicate深拷贝节点，调用cJSON_Delete释放节点，调用cJSON_Compare比较两棵树。",
+        "evidence": "cJSONUtils_strdup调用cJSON_malloc和memcpy。compose_patch调用cJSON_Duplicate和cJSON_malloc/cJSON_free。apply_patch调用cJSON_Duplicate、cJSON_Delete、cJSON_free。merge_patch调用cJSON_Duplicate和cJSON_Delete。generate_merge_patch调用cJSON_Compare、cJSON_Duplicate、cJSON_Delete。"
+      },
+      {
+        "source": "Root_cJSON_Utils",
+        "target": "Root_cJSON_TypePredicates",
+        "relation_type": "data_flow",
+        "description": "Utils模块调用类型谓词函数来判断节点类型，以决定如何处理（如判断是否为Array/Object/Null等）。",
+        "evidence": "apply_patch调用cJSON_IsArray和cJSON_IsObject。get_item_from_pointer调用cJSON_IsObject和cJSON_IsArray。merge_patch调用cJSON_IsObject和cJSON_IsNull。generate_merge_patch调用cJSON_IsObject。decode_patch_operation调用cJSON_IsString。cJSONUtils_ApplyPatches调用cJSON_IsArray。"
       }
     ],
-    "intra_module_edges": [
-      {
-        "source": "Intermediate_cJSON_h",
-        "target": "Intermediate_cJSON_c",
-        "relation_type": "execution_order",
-        "description": "头文件声明必须在实现文件之前被编译和包含，以实现函数签名一致。",
-        "evidence": "cJSON.c 的 local_includes 包含 \"cJSON.h\"，表明实现文件依赖头文件的声明。"
+    "intra_module_edges": []
+  },
+  "metadata": {
+    "edge_validation": {
+      "inter_module_edges": {
+        "total": 15,
+        "normalized_relation_types": 0,
+        "dropped_self_loops": 0
       },
-      {
-        "source": "Intermediate_cJSON_Utils_h",
-        "target": "Intermediate_cJSON_Utils_c",
-        "relation_type": "execution_order",
-        "description": "工具头文件声明必须在工具实现文件之前被编译和包含。",
-        "evidence": "cJSON_Utils.c 的 local_includes 包含 \"cJSON_Utils.h\"。"
-      },
-      {
-        "source": "Intermediate_fuzzing_fuzz_main_c",
-        "target": "Intermediate_fuzzing_cjson_read_fuzzer_c",
-        "relation_type": "execution_order",
-        "description": "fuzz_main.c 在运行时调用 LLVMFuzzerTestOneInput，该函数由 cjson_read_fuzzer.c（或外部链接）提供。",
-        "evidence": "fuzz_main.c 的 control_flow.direct_calls 包含 LLVMFuzzerTestOneInput，这意味着在链接时必须存在该符号，cjson_read_fuzzer.c 是该符号的预期提供者。"
+      "intra_module_edges": {
+        "total": 0,
+        "normalized_relation_types": 0,
+        "dropped_self_loops": 0
       }
-    ]
+    }
   }
 }

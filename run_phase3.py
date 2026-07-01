@@ -82,10 +82,11 @@ def run_evaluation_pipeline(
     three_b_layer="public",
     three_b_adapter=None,
     three_b_adapter_mode="existing",
-    three_b_synthesis_attempts=2,
-    three_b_replay_repair_attempts=1,
-    three_b_agent_iterations=2,
-    three_b_agent_batch_size=5,
+    three_b_synthesis_attempts=3,
+    three_b_replay_repair_attempts=3,
+    three_b_completion_iterations=0,
+    three_b_completion_batch_size=10,
+    three_b_keep_debug_artifacts=False,
     three_b_alignment_report=None,
     src_repo_path_override=None,
     tgt_repo_path_override=None,
@@ -168,8 +169,9 @@ def run_evaluation_pipeline(
             adapter_mode=three_b_adapter_mode,
             synthesis_attempts=three_b_synthesis_attempts,
             replay_repair_attempts=three_b_replay_repair_attempts,
-            agent_iterations=three_b_agent_iterations,
-            agent_batch_size=three_b_agent_batch_size,
+            completion_iterations=three_b_completion_iterations,
+            completion_batch_size=three_b_completion_batch_size,
+            keep_debug_artifacts=three_b_keep_debug_artifacts,
             llm_client=llm_client,
         )
         report_3b = evaluator_3b.run(
@@ -216,14 +218,23 @@ def main():
                         help="指定 3B adapter JSON；不指定时会尝试内置 adapter 或报告 adapter_missing")
     parser.add_argument("--three-b-adapter-mode", choices=["existing", "auto", "synthesize", "prompt-only"], default="existing",
                         help="控制 3B adapter 来源: existing=使用已有/默认adapter; auto=有adapter则复用、否则LLM生成; synthesize=显式调用LLM生成; prompt-only=只生成LLM上下文与提示词")
-    parser.add_argument("--three-b-synthesis-attempts", type=int, default=2,
-                        help="3B LLM adapter synthesis 最大尝试次数，包括初始生成和修复，默认 2")
-    parser.add_argument("--three-b-replay-repair-attempts", type=int, default=1,
-                        help="3B LLM adapter 通过 schema 后，如 target replay 发生编译/API 基础设施失败，额外允许的修复次数，默认 1")
-    parser.add_argument("--three-b-agent-iterations", type=int, default=2,
-                        help="3B LLM agent 覆盖扩展迭代次数；replay 通过但仍有 adapter_missing 时自动补齐并重跑，默认 2")
-    parser.add_argument("--three-b-agent-batch-size", type=int, default=5,
-                        help="3B LLM agent 每轮定向补齐的 adapter_missing source 函数数，默认 5")
+    parser.add_argument("--three-b-generation-max-attempts", "--three-b-synthesis-attempts",
+                        dest="three_b_synthesis_attempts", type=int, default=3,
+                        help="每个 eligible behavior case 的 adapter 生成最大尝试次数，默认 3")
+    parser.add_argument("--three-b-replay-repair-attempts", type=int, default=3,
+                        help="target replay 发生编译/运行基础设施失败时的修复次数，默认 3")
+    parser.add_argument(
+        "--three-b-generation-iterations", "--three-b-completion-iterations", "--three-b-agent-iterations",
+        dest="three_b_completion_iterations", type=int, default=0,
+        help="3B adapter case 生成轮次；0=按每个 case 最大尝试次数自动计算（默认），正数=硬上限，-1=禁用",
+    )
+    parser.add_argument(
+        "--three-b-generation-batch-size", "--three-b-completion-batch-size", "--three-b-agent-batch-size",
+        dest="three_b_completion_batch_size", type=int, default=10,
+        help="3B 每批生成 adapter 的 eligible source behavior case 数，默认 10；旧参数名仍兼容",
+    )
+    parser.add_argument("--three-b-keep-debug-artifacts", action="store_true",
+                        help="保留 3B LLM 生成/修复过程中的 prompt、raw response、attempt adapter 与运行 worktree；默认不生成这些调试产物，只保留正式产物")
     parser.add_argument("--three-b-alignment-report", type=str, default=None,
                         help="显式指定 3B 使用的 3A 对齐报告路径；用于非默认目录/任意仓库输入")
     parser.add_argument("--src-repo-path", type=str, default=None,
@@ -277,7 +288,7 @@ def main():
         print("\n💡 提示: 请确认 Phase 1 和 Phase 2 已正确生成了上述仓库的 schema 和 rpg 文件。")
         sys.exit(1)
 
-    # 仅在需要重新执行 3A 对齐时初始化大模型。
+    # 仅在当前阶段确实可能调用大模型时初始化。
     def has_cached_3a(out_prefix):
         _, report_path, _ = get_eval_report_paths(out_prefix, args.output_suffix)
         return os.path.exists(report_path)
@@ -290,13 +301,15 @@ def main():
             needs_llm = not has_cached_3a(f"{args.src}_vs_{args.tgt}")
             if args.ans:
                 needs_llm = needs_llm or not has_cached_3a(f"{args.tgt}_vs_{args.ans}")
-    if "3b" in phases:
+    if "3b" in phases and args.three_b_mode != "inventory" and args.three_b_adapter_mode != "prompt-only":
         if args.three_b_adapter_mode == "synthesize":
             needs_llm = True
         elif args.three_b_adapter_mode == "auto":
             needs_llm = not has_phase3b_adapter(args.src, args.tgt, args.three_b_adapter)
             if args.ans:
                 needs_llm = needs_llm or not has_phase3b_adapter(args.tgt, args.ans, args.three_b_adapter)
+        if args.three_b_mode in {"replay", "run"} and args.three_b_replay_repair_attempts > 0:
+            needs_llm = True
 
     llm_client = None
     if needs_llm:
@@ -310,8 +323,9 @@ def main():
 
     print("="*60)
     mode_text = "场景一 (无标杆仓库)" if not args.ans else f"场景二 (引入标杆仓库 [{args.ans}])"
+    completion_iteration_text = "auto" if args.three_b_completion_iterations == 0 else ("disabled" if args.three_b_completion_iterations < 0 else str(args.three_b_completion_iterations))
     print(f"🛠️  运行模式: {mode_text}")
-    print(f"📌 执行阶段: {', '.join(sorted(phases))} | 3A策略: {three_a_mode} | 3B策略: {args.three_b_mode}/{args.three_b_layer}/{args.three_b_adapter_mode} | 3B生成尝试: {args.three_b_synthesis_attempts} | 3B replay修复: {args.three_b_replay_repair_attempts} | 3B agent迭代: {args.three_b_agent_iterations} | 3B agent批量: {args.three_b_agent_batch_size} | 输出后缀: {normalize_output_suffix(args.output_suffix) or '(无)'}")
+    print(f"📌 执行阶段: {', '.join(sorted(phases))} | 3A策略: {three_a_mode} | 3B策略: {args.three_b_mode}/{args.three_b_layer}/{args.three_b_adapter_mode} | 3B每case生成上限: {args.three_b_synthesis_attempts} | 3B replay修复: {args.three_b_replay_repair_attempts} | 3B生成轮次: {completion_iteration_text} | 3B生成批量: {args.three_b_completion_batch_size} | 3B调试产物: {'保留' if args.three_b_keep_debug_artifacts else '不生成'} | 输出后缀: {normalize_output_suffix(args.output_suffix) or '(无)'}")
     print("="*60)
 
     try:
@@ -332,8 +346,9 @@ def main():
             three_b_adapter_mode=args.three_b_adapter_mode,
             three_b_synthesis_attempts=args.three_b_synthesis_attempts,
             three_b_replay_repair_attempts=args.three_b_replay_repair_attempts,
-            three_b_agent_iterations=args.three_b_agent_iterations,
-            three_b_agent_batch_size=args.three_b_agent_batch_size,
+            three_b_completion_iterations=args.three_b_completion_iterations,
+            three_b_completion_batch_size=args.three_b_completion_batch_size,
+            three_b_keep_debug_artifacts=args.three_b_keep_debug_artifacts,
             three_b_alignment_report=args.three_b_alignment_report,
             src_repo_path_override=args.src_repo_path,
             tgt_repo_path_override=args.tgt_repo_path,
@@ -358,8 +373,9 @@ def main():
                 three_b_adapter_mode=args.three_b_adapter_mode,
                 three_b_synthesis_attempts=args.three_b_synthesis_attempts,
                 three_b_replay_repair_attempts=args.three_b_replay_repair_attempts,
-                three_b_agent_iterations=args.three_b_agent_iterations,
-                three_b_agent_batch_size=args.three_b_agent_batch_size,
+                three_b_completion_iterations=args.three_b_completion_iterations,
+                three_b_completion_batch_size=args.three_b_completion_batch_size,
+                three_b_keep_debug_artifacts=args.three_b_keep_debug_artifacts,
                 src_repo_path_override=args.tgt_repo_path,
                 tgt_repo_path_override=args.ans_repo_path,
                 output_suffix=args.output_suffix

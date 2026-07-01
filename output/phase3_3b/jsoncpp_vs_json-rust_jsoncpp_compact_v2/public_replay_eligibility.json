@@ -1,0 +1,4958 @@
+{
+  "schema_version": "3b.public_replay_eligibility.v1",
+  "source_repository": "jsoncpp",
+  "target_repository": "json-rust",
+  "summary": {
+    "discovered_source_test_cases": 127,
+    "aligned_public_test_candidates": 111,
+    "cases_unresolved_after_exact_function_binding": 1,
+    "public_replay_eligible_cases": 110,
+    "structurally_ineligible_for_public_replay_cases": 0,
+    "mixed_public_internal_candidates": 2,
+    "mixed_cases_eligible_with_public_substitution": 2
+  },
+  "policy": {
+    "stage_1": "Keep source tests that call exact 3A-aligned source functions in the public L1 scope.",
+    "stage_2": "For mixed public/internal tests, every explicit aligned internal call must map through 3A to public target API functions. The adapter must call those substitutions explicitly. Otherwise the case is excluded before adapter synthesis.",
+    "post_screen_conversion": "Eligible cases are adapter conversion obligations. A conversion that cannot produce a valid Rust replay must remain recorded as excluded during conversion or missing after finite attempts."
+  },
+  "eligible_cases": [
+    {
+      "case_id": "main_charreaderallowdropnulltest_issue178",
+      "name": "CharReaderAllowDropNullTest.issue178",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3618,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "parse",
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(errs, \"\");",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"\""
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"({\"",
+        "\":,\"",
+        "\":true})\"",
+        "\"a\"",
+        "\":})\"",
+        "\"[]\"",
+        "\"[null]\"",
+        "\"[,]\"",
+        "\"[,,,]\"",
+        "\"[null,]\""
+      ]
+    },
+    {
+      "case_id": "main_charreaderallownumerickeystest_allownumerickeys",
+      "name": "CharReaderAllowNumericKeysTest.allowNumericKeys",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3662,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "parse",
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(\"\", errs);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(3u, root.size());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(true, root.get(\"15\", false));",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"15\"",
+            "15"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"allowNumericKeys\"",
+        "\"{15:true,-16:true,12.01:true}\"",
+        "\"\"",
+        "\"15\"",
+        "\"-16\"",
+        "\"12.01\"",
+        "15",
+        "-16",
+        "12.01"
+      ]
+    },
+    {
+      "case_id": "main_charreaderallowsinglequotestest_issue182",
+      "name": "CharReaderAllowSingleQuotesTest.issue182",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3680,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "parse",
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(\"\", errs);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(2u, root.size());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(true, root.get(\"a\", false));",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"a\""
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"allowSingleQuotes\"",
+        "\"{'a':true,\\\"b\\\":true}\"",
+        "\"\"",
+        "\"a\"",
+        "\"b\"",
+        "\"{'a': 'x', \\\"b\\\":'y'}\"",
+        "\"x\"",
+        "\"y\"",
+        "82"
+      ]
+    },
+    {
+      "case_id": "main_charreaderallowspecialfloatstest_issue209",
+      "name": "CharReaderAllowSpecialFloatsTest.issue209",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3761,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "parse",
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(\"\", errs);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(4u, root.size());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(std::isnan(n));",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"allowSpecialFloats\"",
+        "\"({\"",
+        "\":NaN,\"",
+        "\":Infinity,\"",
+        "\":-Infinity,\"",
+        "\":+Infinity})\"",
+        "\"\"",
+        "\"a\"",
+        "\"b\"",
+        "\"c\""
+      ]
+    },
+    {
+      "case_id": "main_charreaderallowspecialfloatstest_specialfloat",
+      "name": "CharReaderAllowSpecialFloatsTest.specialFloat",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3736,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{\\\"a\\\": NaN}\"",
+        "\"* Line 1, Column 7\\n\"",
+        "\"  Syntax error: value, object or array expected.\\n\"",
+        "\"{\\\"a\\\": Infinity}\"",
+        "1",
+        "7"
+      ]
+    },
+    {
+      "case_id": "main_charreaderallowzeroestest_issue176",
+      "name": "CharReaderAllowZeroesTest.issue176",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3708,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "parse",
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(\"\", errs);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(2u, root.size());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(true, root.get(\"a\", false));",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"a\""
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"allowSingleQuotes\"",
+        "\"{'a':true,\\\"b\\\":true}\"",
+        "\"\"",
+        "\"a\"",
+        "\"b\"",
+        "\"{'a': 'x', \\\"b\\\":'y'}\"",
+        "\"x\"",
+        "\"y\"",
+        "76"
+      ]
+    },
+    {
+      "case_id": "main_charreaderfailifextratest_commentafterarray",
+      "name": "CharReaderFailIfExtraTest.commentAfterArray",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3541,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(\"\", errs);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(\"value\", root[1u]);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"value\""
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"[ \\\"property\\\" , \\\"value\\\" ] //trailing\\n//comment\\n\"",
+        "\"failIfExtra\"",
+        "\"\"",
+        "\"value\""
+      ]
+    },
+    {
+      "case_id": "main_charreaderfailifextratest_commentafterbool",
+      "name": "CharReaderFailIfExtraTest.commentAfterBool",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3553,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(\"\", errs);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(true, root.asBool());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\" true /*trailing\\ncomment*/\"",
+        "\"failIfExtra\"",
+        "\"\""
+      ]
+    },
+    {
+      "case_id": "main_charreaderfailifextratest_commentafterobject",
+      "name": "CharReaderFailIfExtraTest.commentAfterObject",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3527,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(\"\", errs);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(\"value\", root[\"property\"]);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"value\"",
+            "\"property\""
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"{ \\\"property\\\" : \\\"value\\\" } //trailing\\n//comment\\n\"",
+        "\"failIfExtra\"",
+        "\"\"",
+        "\"value\"",
+        "\"property\""
+      ]
+    },
+    {
+      "case_id": "main_charreaderfailifextratest_issue107",
+      "name": "CharReaderFailIfExtraTest.issue107",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3511,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(\"* Line 1, Column 2\\n\"",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"* Line 1, Column 2\\n\"",
+            "1",
+            "2"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(1, root.asInt());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "1"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"1:2:3\"",
+        "\"failIfExtra\"",
+        "\"* Line 1, Column 2\\n\"",
+        "\"  Extra non-whitespace after JSON value.\\n\"",
+        "07",
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "case_id": "main_charreaderfailifextratest_issue164",
+      "name": "CharReaderFailIfExtraTest.issue164",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3460,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(errs.empty());",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(\"property\", root);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"property\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!ok);",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"( \"",
+        "\" : \"",
+        "\" })\"",
+        "\"failIfExtra\"",
+        "\"property\"",
+        "\"* Line 1, Column 13\\n\"",
+        "\"  Extra non-whitespace after JSON value.\\n\"",
+        "\"* Line 1, Column 1\\n\"",
+        "\"  A valid JSON document must be either an array or an object value.\\n\"",
+        "64"
+      ]
+    },
+    {
+      "case_id": "main_charreaderfailifextratest_parsecomment",
+      "name": "CharReaderFailIfExtraTest.parseComment",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3565,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(\"\", errs);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(true, root.asBool());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!ok);",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"failIfExtra\"",
+        "\" true //comment1\\n//comment2\\r//comment3\\r\\n\"",
+        "\"\"",
+        "\" true //com\\rment\"",
+        "\"* Line 2, Column 1\\n\"",
+        "\"  Extra non-whitespace after JSON value.\\n\"",
+        "\" true //com\\nment\"",
+        "2",
+        "1"
+      ]
+    },
+    {
+      "case_id": "main_charreaderstrictmodetest_dupkeys",
+      "name": "CharReaderStrictModeTest.dupKeys",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3441,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(\"* Line 1, Column 41\\n\"",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"* Line 1, Column 41\\n\"",
+            "1",
+            "41"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(\"val1\", root[\"key\"]); // so far",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"val1\"",
+            "\"key\""
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"({ \"",
+        "\" : \"",
+        "\", \"",
+        "\" })\"",
+        "\"* Line 1, Column 41\\n\"",
+        "\"  Duplicate key: 'key'\\n\"",
+        "\"val1\"",
+        "\"key\"",
+        "1",
+        "41"
+      ]
+    },
+    {
+      "case_id": "main_charreadertest_parsearraywitherrors",
+      "name": "CharReaderTest.parseArrayWithErrors",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3333,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(errs == \"* Line 1, Column 11\\n\"",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"* Line 1, Column 11\\n\"",
+            "1",
+            "11"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(\"value\", root[0]);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"value\"",
+            "0"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!ok);",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"[ \\\"value\\\" \"",
+        "\"* Line 1, Column 11\\n\"",
+        "\"  Missing ',' or ']' in array declaration\\n\"",
+        "\"value\"",
+        "\"([ \"",
+        "\" \"",
+        "\" ])\"",
+        "\"* Line 1, Column 12\\n\"",
+        "\"value1\"",
+        "1"
+      ]
+    },
+    {
+      "case_id": "main_charreadertest_parsechinesewithoneerror",
+      "name": "CharReaderTest.parseChineseWithOneError",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3369,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(errs ==",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"{ \\\"pr佐藤erty\\\" :: \\\"value\\\" }\"",
+        "\"* Line 1, Column 19\\n  Syntax error: value, object or array \"",
+        "\"expected.\\n\"",
+        "1",
+        "19"
+      ]
+    },
+    {
+      "case_id": "main_charreadertest_parsecomment",
+      "name": "CharReaderTest.parseComment",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3279,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(errs.empty());",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(\"value\", root[\"property\"]);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"value\"",
+            "\"property\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!ok);",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"//comment1\\n { //comment2\\n \\\"property\\\" :\"",
+        "\" \\\"value\\\" //comment3\\n } //comment4\\n\"",
+        "\"value\"",
+        "\"property\"",
+        "\"{ \\\"property\\\" //comment\\n : \\\"value\\\" }\"",
+        "\"* Line 1, Column 14\\n\"",
+        "\"  Missing ':' after object member name\\n\"",
+        "\"//comment1\\n [ //comment2\\n \\\"value\\\" //comment3\\n,\"",
+        "\" //comment4\\n true //comment5\\n ] //comment6\\n\"",
+        "1"
+      ]
+    },
+    {
+      "case_id": "main_charreadertest_parsenumber",
+      "name": "CharReaderTest.parseNumber",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3193,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(errs.empty());",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(1.1111111111111111e+020, root[0]);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "1.111111111111111",
+            "020",
+            "0"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"[111111111111111111111]\"",
+        "21",
+        "111111111111111111111",
+        "1.111111111111111",
+        "020",
+        "0"
+      ]
+    },
+    {
+      "case_id": "main_charreadertest_parseobjectwitherrors",
+      "name": "CharReaderTest.parseObjectWithErrors",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3310,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(errs == \"* Line 1, Column 24\\n\"",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"* Line 1, Column 24\\n\"",
+            "1",
+            "24"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(\"value\", root[\"property\"]);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"value\"",
+            "\"property\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!ok);",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"({ \"",
+        "\" : \"",
+        "\" )\"",
+        "\"* Line 1, Column 24\\n\"",
+        "\"  Missing ',' or '}' in object declaration\\n\"",
+        "\"value\"",
+        "\"property\"",
+        "\" ,)\"",
+        "\"* Line 1, Column 25\\n\"",
+        "\"  Missing '}' or object member name\\n\""
+      ]
+    },
+    {
+      "case_id": "main_charreadertest_parsestring",
+      "name": "CharReaderTest.parseString",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3209,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "parse",
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(errs.empty());",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(\"\", root[0]);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"\"",
+            "0"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"[\\\"\\\"]\"",
+        "\"\"",
+        "\"([\"",
+        "\"])\"",
+        "\"\\u8A2a\"",
+        "\"訪\"",
+        "\"([ \"",
+        "\" ])\"",
+        "\"* Line 1, Column 3\\n\"",
+        "\"  additional six characters expected to \""
+      ]
+    },
+    {
+      "case_id": "main_charreadertest_parsewithdetailerror",
+      "name": "CharReaderTest.parseWithDetailError",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3382,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(errs ==",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"({ \"",
+        "\" : \"",
+        "\" })\"",
+        "\"* Line 1, Column 16\\n  Bad escape sequence in string\\nSee \"",
+        "\"Line 1, Column 20 for detail.\\n\"",
+        "1",
+        "16",
+        "20"
+      ]
+    },
+    {
+      "case_id": "main_charreadertest_parsewithnoerrors",
+      "name": "CharReaderTest.parseWithNoErrors",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3169,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(errs.empty());",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"({ \"",
+        "\" : \"",
+        "\" })\""
+      ]
+    },
+    {
+      "case_id": "main_charreadertest_parsewithnoerrorstestingoffsets",
+      "name": "CharReaderTest.parseWithNoErrorsTestingOffsets",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3180,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(errs.empty());",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"{ \\\"property\\\" : [\\\"value\\\", \\\"value2\\\"], \\\"obj\\\" : \"",
+        "\"{ \\\"nested\\\" : -6.2e+15, \\\"num\\\" : +123, \\\"bool\\\" : \"",
+        "\"true}, \\\"null\\\" : null, \\\"false\\\" : false }\"",
+        "-6",
+        "15",
+        "+123"
+      ]
+    },
+    {
+      "case_id": "main_charreadertest_parsewithoneerror",
+      "name": "CharReaderTest.parseWithOneError",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3356,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(errs ==",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"({ \"",
+        "\" :: \"",
+        "\" })\"",
+        "\"* Line 1, Column 15\\n  Syntax error: value, object or array \"",
+        "\"expected.\\n\"",
+        "1",
+        "15"
+      ]
+    },
+    {
+      "case_id": "main_charreadertest_parsewithstacklimit",
+      "name": "CharReaderTest.parseWithStackLimit",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3395,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "parse",
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(errs.empty());",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(\"value\", root[\"property\"]);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"value\"",
+            "\"property\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_THROWS",
+          "expression": "JSONTEST_ASSERT_THROWS(",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"({ \"",
+        "\" : \"",
+        "\" })\"",
+        "\"stackLimit\"",
+        "\"value\"",
+        "\"property\"",
+        "2",
+        "1",
+        "300"
+      ]
+    },
+    {
+      "case_id": "main_escapesequencetest_charreaderparseescapesequence",
+      "name": "EscapeSequenceTest.charReaderParseEscapeSequence",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3845,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(errs.empty());",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"[\\\"\\\\\\\"\\\",\\\"\\\\/\\\",\\\"\\\\\\\\\\\",\\\"\\\\b\\\",\"",
+        "\"\\\"\\\\f\\\",\\\"\\\\n\\\",\\\"\\\\r\\\",\\\"\\\\t\\\",\"",
+        "\"\\\"\\\\u0278\\\",\\\"\\\\ud852\\\\udf62\\\"]\"",
+        "278",
+        "52",
+        "2"
+      ]
+    },
+    {
+      "case_id": "main_escapesequencetest_readerparseescapesequence",
+      "name": "EscapeSequenceTest.readerParseEscapeSequence",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3833,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(reader.getFormattedErrorMessages().empty());",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(reader.getStructuredErrors().empty());",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"[\\\"\\\\\\\"\\\",\\\"\\\\/\\\",\\\"\\\\\\\\\\\",\\\"\\\\b\\\",\"",
+        "\"\\\"\\\\f\\\",\\\"\\\\n\\\",\\\"\\\\r\\\",\\\"\\\\t\\\",\"",
+        "\"\\\"\\\\u0278\\\",\\\"\\\\ud852\\\\udf62\\\"]\\n\"",
+        "278",
+        "52",
+        "2"
+      ]
+    },
+    {
+      "case_id": "main_escapesequencetest_writeescapesequence",
+      "name": "EscapeSequenceTest.writeEscapeSequence",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3858,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "call_names": [
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"[\\\"\\\\\\\"\\\",\\\"\\\\\\\\\\\",\\\"\\\\b\\\",\"",
+        "\"\\\"\\\\f\\\",\\\"\\\\n\\\",\\\"\\\\r\\\",\\\"\\\\t\\\",\"",
+        "\"\\\"\\\\u0278\\\",\\\"\\\\ud852\\\\udf62\\\"]\\n\"",
+        "\"\\\"\"",
+        "\"\\\\\"",
+        "\"\\b\"",
+        "\"\\f\"",
+        "\"\\n\"",
+        "\"\\r\"",
+        "\"\\t\""
+      ]
+    },
+    {
+      "case_id": "main_fastwritertest_dropnullplaceholders",
+      "name": "FastWriterTest.dropNullPlaceholders",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2304,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "call_names": [
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(writer.write(nullValue) == \"null\\n\");",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"null\\n\""
+          ],
+          "mentions_aligned_functions": [
+            "write"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(writer.write(nullValue) == \"\\n\");",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"\\n\""
+          ],
+          "mentions_aligned_functions": [
+            "write"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"null\\n\"",
+        "\"\\n\""
+      ]
+    },
+    {
+      "case_id": "main_fastwritertest_enableyamlcompatibility",
+      "name": "FastWriterTest.enableYAMLCompatibility",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2313,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "call_names": [
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(writer.write(root) == \"{\\\"hello\\\":\\\"world\\\"}\\n\");",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"{\\\"hello\\\":\\\"world\\\"}\\n\""
+          ],
+          "mentions_aligned_functions": [
+            "write"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(writer.write(root) == \"{\\\"hello\\\": \\\"world\\\"}\\n\");",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"{\\\"hello\\\": \\\"world\\\"}\\n\""
+          ],
+          "mentions_aligned_functions": [
+            "write"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"hello\"",
+        "\"world\"",
+        "\"{\\\"hello\\\":\\\"world\\\"}\\n\"",
+        "\"{\\\"hello\\\": \\\"world\\\"}\\n\""
+      ]
+    },
+    {
+      "case_id": "main_fastwritertest_omitendinglinefeed",
+      "name": "FastWriterTest.omitEndingLineFeed",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2324,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "call_names": [
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(writer.write(nullValue) == \"null\\n\");",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"null\\n\""
+          ],
+          "mentions_aligned_functions": [
+            "write"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(writer.write(nullValue) == \"null\");",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"null\""
+          ],
+          "mentions_aligned_functions": [
+            "write"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"null\\n\"",
+        "\"null\""
+      ]
+    },
+    {
+      "case_id": "main_fastwritertest_writearrays",
+      "name": "FastWriterTest.writeArrays",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2356,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "call_names": [
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{\"",
+        "\"\\\"property1\\\":[\\\"value1\\\",\\\"value2\\\"],\"",
+        "\"\\\"property2\\\":[]\"",
+        "\"}\\n\"",
+        "\"property1\"",
+        "\"value1\"",
+        "\"value2\"",
+        "\"property2\"",
+        "0",
+        "1"
+      ]
+    },
+    {
+      "case_id": "main_fastwritertest_writenestedobjects",
+      "name": "FastWriterTest.writeNestedObjects",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2371,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "call_names": [
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{\"",
+        "\"\\\"object1\\\":{\"",
+        "\"\\\"bool\\\":true,\"",
+        "\"\\\"nested\\\":123\"",
+        "\"},\"",
+        "\"\\\"object2\\\":{}\"",
+        "\"}\\n\"",
+        "\"nested\"",
+        "\"bool\"",
+        "\"object1\""
+      ]
+    },
+    {
+      "case_id": "main_fastwritertest_writenumericvalue",
+      "name": "FastWriterTest.writeNumericValue",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2334,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "call_names": [
+        "Value",
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{\"",
+        "\"\\\"emptyValue\\\":null,\"",
+        "\"\\\"false\\\":false,\"",
+        "\"\\\"null\\\":\\\"null\\\",\"",
+        "\"\\\"number\\\":-6200000000000000.0,\"",
+        "\"\\\"real\\\":1.256,\"",
+        "\"\\\"uintValue\\\":17\"",
+        "\"}\\n\"",
+        "\"emptyValue\"",
+        "\"false\""
+      ]
+    },
+    {
+      "case_id": "main_fuzztest_fuzzdoesntcrash",
+      "name": "FuzzTest.fuzzDoesntCrash",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 4140,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{}\"",
+        "0"
+      ]
+    },
+    {
+      "case_id": "main_iteratortest_constness",
+      "name": "IteratorTest.constness",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 4095,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+      ],
+      "call_names": [
+        "begin"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_THROWS",
+          "expression": "JSONTEST_ASSERT_THROWS(",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, out.str());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"(\"",
+        "\",\"",
+        "\",)\"",
+        "9",
+        "12",
+        "2",
+        "10",
+        "11"
+      ]
+    },
+    {
+      "case_id": "main_iteratortest_convert",
+      "name": "IteratorTest.convert",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3976,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945",
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_fda56a58"
+      ],
+      "call_names": [
+        "begin"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(cit == cj.begin());",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "begin"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "main_iteratortest_decrement",
+      "name": "IteratorTest.decrement",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3985,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+      ],
+      "call_names": [
+        "begin"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT((values == std::vector<std::string>{\"b\", \"a\"}));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"b\"",
+            "\"a\""
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"k1\"",
+        "\"a\"",
+        "\"k2\"",
+        "\"b\""
+      ]
+    },
+    {
+      "case_id": "main_iteratortest_distance",
+      "name": "IteratorTest.distance",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 4010,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+      ],
+      "call_names": [
+        "begin"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(i, dist);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(0, empty.end() - empty.end());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "0"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(0, empty.end() - empty.begin());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "0"
+          ],
+          "mentions_aligned_functions": [
+            "begin"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"k1\"",
+        "\"a\"",
+        "\"k2\"",
+        "\"b\"",
+        "0"
+      ]
+    },
+    {
+      "case_id": "main_iteratortest_indexes",
+      "name": "IteratorTest.indexes",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 4077,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+      ],
+      "call_names": [
+        "Value",
+        "begin"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(it != json.end());",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::Value(Json::ArrayIndex(0)), it.key());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "0"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(\"\", it.name());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(0, it.index());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "0"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"a\"",
+        "\"b\"",
+        "\"\"",
+        "0",
+        "1"
+      ]
+    },
+    {
+      "case_id": "main_iteratortest_names",
+      "name": "IteratorTest.names",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 4057,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+      ],
+      "call_names": [
+        "Value",
+        "begin"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(it != json.end());",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::Value(\"k1\"), it.key());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"k1\""
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(\"k1\", it.name());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"k1\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(\"k1\", it.memberName());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"k1\""
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"k1\"",
+        "\"a\"",
+        "\"k2\"",
+        "\"b\"",
+        "-1"
+      ]
+    },
+    {
+      "case_id": "main_iteratortest_reverseiterator",
+      "name": "IteratorTest.reverseIterator",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3997,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+      ],
+      "call_names": [
+        "begin"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT((values == std::vector<std::string>{\"b\", \"a\"}));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"b\"",
+            "\"a\""
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"k1\"",
+        "\"a\"",
+        "\"k2\"",
+        "\"b\""
+      ]
+    },
+    {
+      "case_id": "main_iteratortest_staticstringkey",
+      "name": "IteratorTest.staticStringKey",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 4051,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+      ],
+      "call_names": [
+        "Value",
+        "begin"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::Value(\"k1\"), json.begin().key());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"k1\""
+          ],
+          "mentions_aligned_functions": [
+            "Value",
+            "begin"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"k1\"",
+        "\"a\""
+      ]
+    },
+    {
+      "case_id": "main_membertemplateas_behavessameasnamedas",
+      "name": "MemberTemplateAs.BehavesSameAsNamedAs",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 4195,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::asCString"
+      ],
+      "call_names": [
+        "asCString"
+      ],
+      "non_public_aligned_call_names": [
+        "as<const char*>"
+      ],
+      "has_mixed_public_internal_calls": true,
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "required_internal_public_substitutions": [
+        {
+          "source_internal_function": "include/json/value.h::Value::as<const char*>",
+          "target_public_functions": [
+            "src/value/mod.rs::JsonValue::as_str"
+          ],
+          "handling": "explicit_target_public_substitution_required"
+        }
+      ],
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(jstr.as<const char*>(), jstr.asCString());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "mentions_aligned_functions": [
+            "asCString"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(jstr.as<Json::String>(), jstr.asString());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"hello world\"",
+        "64",
+        "4",
+        "69.6",
+        "69.69"
+      ]
+    },
+    {
+      "case_id": "main_membertemplateis_behavessameasnamedis",
+      "name": "MemberTemplateIs.BehavesSameAsNamedIs",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 4218,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isString"
+      ],
+      "call_names": [
+        "isBool",
+        "isDouble",
+        "isString"
+      ],
+      "non_public_aligned_call_names": [
+        "is<bool>"
+      ],
+      "has_mixed_public_internal_calls": true,
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "required_internal_public_substitutions": [
+        {
+          "source_internal_function": "include/json/value.h::Value::is<bool>",
+          "target_public_functions": [
+            "src/value/mod.rs::JsonValue::is_boolean"
+          ],
+          "handling": "explicit_target_public_substitution_required"
+        }
+      ],
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(j.is<bool>(), j.isBool());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "mentions_aligned_functions": [
+            "isBool"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(j.is<Json::Int>(), j.isInt());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(j.is<Json::Int64>(), j.isInt64());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "4"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(j.is<Json::UInt>(), j.isUInt());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"hello world\"",
+        "142",
+        "40.63",
+        "4"
+      ]
+    },
+    {
+      "case_id": "main_parsewithstructurederrorstest_singleerror",
+      "name": "ParseWithStructuredErrorsTest.singleError",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 4173,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "parse",
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(expectedErrors.size(), actualErrors.size());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(a.offset_start, e.offset_start);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(a.offset_limit, e.offset_limit);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{ 1 : 2 }\"",
+        "\"Missing '}' or object member name\"",
+        "1",
+        "2",
+        "3",
+        "0"
+      ]
+    },
+    {
+      "case_id": "main_parsewithstructurederrorstest_success",
+      "name": "ParseWithStructuredErrorsTest.success",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 4169,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "parse",
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(expectedErrors.size(), actualErrors.size());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(a.offset_start, e.offset_start);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(a.offset_limit, e.offset_limit);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{}\"",
+        "0"
+      ]
+    },
+    {
+      "case_id": "main_readertest_allowdroppednullplaceholders",
+      "name": "ReaderTest.allowDroppedNullPlaceholders",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3156,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
+        "src/lib_json/json_value.cpp::Json::Value::isNull",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "isNull",
+        "parse",
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(3, root.size());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "3"
+          ],
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(1, root[0].asInt());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "1",
+            "0"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(root[1].isNull());",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "1"
+          ],
+          "mentions_aligned_functions": [
+            "isNull"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(2, root[2].asInt());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "2"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"([1,,2])\"",
+        "1",
+        "2",
+        "3",
+        "0"
+      ]
+    },
+    {
+      "case_id": "main_readertest_allownumerickeystest",
+      "name": "ReaderTest.allowNumericKeysTest",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3149,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!reader->parse(input, root));",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "parse"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"({ 123 : \"",
+        "\" })\"",
+        "123"
+      ]
+    },
+    {
+      "case_id": "main_readertest_parsearray",
+      "name": "ReaderTest.parseArray",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3001,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!reader->parse(input, root));",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "parse"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"([ \"",
+        "\" )\"",
+        "\"Missing ',' or ']' in array declaration\"",
+        "\"* Line 1, Column 11\\n  Missing ',' or ']' in array declaration\\n\"",
+        "\" \"",
+        "\" ] )\"",
+        "\"* Line 1, Column 12\\n  Missing ',' or ']' in array declaration\\n\"",
+        "10",
+        "1",
+        "11"
+      ]
+    },
+    {
+      "case_id": "main_readertest_parsechinesewithoneerror",
+      "name": "ReaderTest.parseChineseWithOneError",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3111,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!reader->parse(input, root));",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "parse"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"({ \"",
+        "\"\n                                           u8\"",
+        "\" // 佐藤\n                                           R\"",
+        "\" :: \"",
+        "\" })\"",
+        "\"Syntax error: value, object or array expected.\"",
+        "\"* Line 1, Column 19\\n  Syntax error: value, object or array \"",
+        "\"expected.\\n\"",
+        "0",
+        "18"
+      ]
+    },
+    {
+      "case_id": "main_readertest_parsecomment",
+      "name": "ReaderTest.parseComment",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3045,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!reader->parse(input, root));",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "parse"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"({ /*commentBeforeValue*/ \"",
+        "\" : \"",
+        "\" }//commentAfterValue)\"",
+        "\"\\n\"",
+        "\" true //comment1\\n//comment2\\r//comment3\\r\\n\""
+      ]
+    },
+    {
+      "case_id": "main_readertest_parseobject",
+      "name": "ReaderTest.parseObject",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2988,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!reader->parse(input, root));",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "parse"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"({\"",
+        "\"})\"",
+        "\"Missing ':' after object member name\"",
+        "\"* Line 1, Column 12\\n  Missing ':' after object member name\\n\"",
+        "\" : \"",
+        "\" )\"",
+        "\"Missing ',' or '}' in object declaration\"",
+        "\"* Line 1, Column 23\\n  Missing ',' or '}' in object declaration\\n\"",
+        "\", )\"",
+        "\"Missing '}' or object member name\""
+      ]
+    },
+    {
+      "case_id": "main_readertest_parsespecialfloat",
+      "name": "ReaderTest.parseSpecialFloat",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3090,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!reader->parse(input, root));",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "parse"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"({ \"",
+        "\" : Infi })\"",
+        "\"Syntax error: value, object or array expected.\"",
+        "\"* Line 1, Column 9\\n  Syntax error: value, object or array \"",
+        "\"expected.\\n\"",
+        "\" : Infiniaa })\"",
+        "8",
+        "9",
+        "1"
+      ]
+    },
+    {
+      "case_id": "main_readertest_parsestring",
+      "name": "ReaderTest.parseString",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3011,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!reader->parse(input, root));",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "parse"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"([ \"",
+        "\" ])\"",
+        "\"additional six characters expected to parse unicode surrogate \"",
+        "\"pair.\"",
+        "\"* Line 1, Column 3\\n\"",
+        "\"  additional six characters expected to parse unicode surrogate pair.\\n\"",
+        "\"See Line 1, Column 10 for detail.\\n\"",
+        "\"expecting another \\\\u token to begin the \"",
+        "\"second half of a unicode surrogate pair\"",
+        "\"  expecting another \\\\u token to begin the \""
+      ]
+    },
+    {
+      "case_id": "main_readertest_parsewithdetailerror",
+      "name": "ReaderTest.parseWithDetailError",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3120,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!reader->parse(input, root));",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "parse"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"({ \"",
+        "\" : \"",
+        "\" })\"",
+        "\"Bad escape sequence in string\"",
+        "\"* Line 1, Column 16\\n\"",
+        "\"  Bad escape sequence in string\\n\"",
+        "\"See Line 1, Column 20 for detail.\\n\"",
+        "15",
+        "23",
+        "1"
+      ]
+    },
+    {
+      "case_id": "main_readertest_parsewithnoerrors",
+      "name": "ReaderTest.parseWithNoErrors",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2984,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!reader->parse(input, root));",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "parse"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"({ \"",
+        "\" : \"",
+        "\" })\""
+      ]
+    },
+    {
+      "case_id": "main_readertest_parsewithnoerrorstestingoffsets",
+      "name": "ReaderTest.parseWithNoErrorsTestingOffsets",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3058,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(start, v.getOffsetStart());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(limit, v.getOffsetLimit());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!reader->parse(input, root));",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "parse"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"({)\"",
+        "\"( \"",
+        "\" : [\"",
+        "\", \"",
+        "\"],)\"",
+        "\" : { \"",
+        "\" : -6.2e+15, \"",
+        "\" : true},)\"",
+        "\" : null,)\"",
+        "\" : false)\""
+      ]
+    },
+    {
+      "case_id": "main_readertest_parsewithoneerror",
+      "name": "ReaderTest.parseWithOneError",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3080,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!reader->parse(input, root));",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "parse"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"({ \"",
+        "\" :: \"",
+        "\" })\"",
+        "\"Syntax error: value, object or array expected.\"",
+        "\"* Line 1, Column 15\\n  Syntax error: value, object or array \"",
+        "\"expected.\\n\"",
+        "\"s\"",
+        "\"* Line 1, Column 1\\n  Syntax error: value, object or array \"",
+        "14",
+        "15"
+      ]
+    },
+    {
+      "case_id": "main_readertest_pusherrortest",
+      "name": "ReaderTest.pushErrorTest",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3128,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
+        "src/lib_json/json_value.cpp::Json::Value::isString"
+      ],
+      "call_names": [
+        "isString",
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(reader->getFormattedErrorMessages(),",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(reader->pushError(root[\"AUTHOR\"], \"AUTHOR must be a string\",",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"AUTHOR\"",
+            "\"AUTHOR must be a string\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(reader->getFormattedErrorMessages(),",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"({ \"",
+        "\" : 123 })\"",
+        "\"AUTHOR\"",
+        "\"AUTHOR must be a string\"",
+        "\"* Line 1, Column 14\\n\"",
+        "\"  AUTHOR must be a string\\n\"",
+        "\"See Line 1, Column 14 for detail.\\n\"",
+        "123",
+        "1",
+        "14"
+      ]
+    },
+    {
+      "case_id": "main_readertest_streamparsewithnoerrors",
+      "name": "ReaderTest.streamParseWithNoErrors",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3052,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!reader->parse(input, root));",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "parse"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"({ \"",
+        "\" : \"",
+        "\" })\""
+      ]
+    },
+    {
+      "case_id": "main_readertest_strictmodeparsenumber",
+      "name": "ReaderTest.strictModeParseNumber",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3101,
+      "aligned_source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "call_names": [
+        "parse"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!reader->parse(input, root));",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "parse"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"123\"",
+        "\"A valid JSON document must be either an array or an object value.\"",
+        "\"* Line 1, Column 1\\n\"",
+        "\"  A valid JSON document must be either an array or an object value.\\n\"",
+        "123",
+        "0",
+        "3",
+        "1"
+      ]
+    },
+    {
+      "case_id": "main_streamwritertest_dropnullplaceholders",
+      "name": "StreamWriterTest.dropNullPlaceholders",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2759,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::writeString(b, nullValue) == \"null\");",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"null\""
+          ],
+          "mentions_aligned_functions": [
+            "writeString"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::writeString(b, nullValue).empty());",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "writeString"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"dropNullPlaceholders\"",
+        "\"null\""
+      ]
+    },
+    {
+      "case_id": "main_streamwritertest_enableyamlcompatibility",
+      "name": "StreamWriterTest.enableYAMLCompatibility",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2768,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::writeString(b, root) == \"{\\\"hello\\\":\\\"world\\\"}\");",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"{\\\"hello\\\":\\\"world\\\"}\""
+          ],
+          "mentions_aligned_functions": [
+            "writeString"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::writeString(b, root) == \"{\\\"hello\\\": \\\"world\\\"}\");",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"{\\\"hello\\\": \\\"world\\\"}\""
+          ],
+          "mentions_aligned_functions": [
+            "writeString"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::writeString(b, root) == \"{\\\"hello\\\":\\\"world\\\"}\");",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"{\\\"hello\\\":\\\"world\\\"}\""
+          ],
+          "mentions_aligned_functions": [
+            "writeString"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"hello\"",
+        "\"world\"",
+        "\"indentation\"",
+        "\"\"",
+        "\"{\\\"hello\\\":\\\"world\\\"}\"",
+        "\"enableYAMLCompatibility\"",
+        "\"{\\\"hello\\\": \\\"world\\\"}\""
+      ]
+    },
+    {
+      "case_id": "main_streamwritertest_escapecontrolcharacters",
+      "name": "StreamWriterTest.escapeControlCharacters",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2849,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"0123456789abcdef\"",
+        "\"\\\\u\"",
+        "\"':\n      return \"",
+        "\"\"",
+        "\"\\\\\\\\\"",
+        "\"\\\\b\"",
+        "\"\\\\f\"",
+        "\"\\\\n\"",
+        "\"\\\\r\"",
+        "\"\\\\t\""
+      ]
+    },
+    {
+      "case_id": "main_streamwritertest_escapetabcharacterwindows",
+      "name": "StreamWriterTest.escapeTabCharacterWindows",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2911,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::writeString(b, root) == \"{\\n\\t\\\"test\\\" : \"",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"{\\n\\t\\\"test\\\" : \""
+          ],
+          "mentions_aligned_functions": [
+            "writeString"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::writeString(b, root) == \"{\\n\\t\\\"test\\\" : \"",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"{\\n\\t\\\"test\\\" : \""
+          ],
+          "mentions_aligned_functions": [
+            "writeString"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::writeString(b, root) == \"{\\n\\t\\\"test\\\" : \"",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"{\\n\\t\\\"test\\\" : \""
+          ],
+          "mentions_aligned_functions": [
+            "writeString"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"English_United States.1252\"",
+        "\"test\"",
+        "\"\\tTabTesting\\t\"",
+        "\"{\\n\\t\\\"test\\\" : \"",
+        "\"\\\"\\\\tTabTesting\\\\t\\\"\\n}\"",
+        "\"emitUTF8\"",
+        "1252"
+      ]
+    },
+    {
+      "case_id": "main_streamwritertest_indentation",
+      "name": "StreamWriterTest.indentation",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2783,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::writeString(b, root) == \"{\\\"hello\\\":\\\"world\\\"}\");",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"{\\\"hello\\\":\\\"world\\\"}\""
+          ],
+          "mentions_aligned_functions": [
+            "writeString"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::writeString(b, root) ==",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "writeString"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"hello\"",
+        "\"world\"",
+        "\"indentation\"",
+        "\"\"",
+        "\"{\\\"hello\\\":\\\"world\\\"}\"",
+        "\"\\t\"",
+        "\"{\\n\\t\\\"hello\\\" : \\\"world\\\"\\n}\""
+      ]
+    },
+    {
+      "case_id": "main_streamwritertest_multilinearray",
+      "name": "StreamWriterTest.multiLineArray",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2714,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"commentStyle\"",
+        "\"None\"",
+        "\"[\\n\\t0,\"",
+        "\"\\n\\t1,\"",
+        "\"\\n\\t2,\"",
+        "\"\\n\\t3,\"",
+        "\"\\n\\t4,\"",
+        "\"\\n\\t5,\"",
+        "\"\\n\\t6,\"",
+        "\"\\n\\t7,\""
+      ]
+    },
+    {
+      "case_id": "main_streamwritertest_unicode",
+      "name": "StreamWriterTest.unicode",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2818,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::writeString(b, root) ==",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "writeString"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::writeString(b, root) ==",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "writeString"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"test\"",
+        "\"\\t\\n\\xF0\\x91\\xA2\\xA1\\x3D\\xC4\\xB3\\xF0\\x9B\\x84\\x9B\\xEF\\xBD\\xA7\"",
+        "\"{\\n\\t\\\"test\\\" : \"",
+        "\"\\\"\\\\t\\\\n\\\\ud806\\\\udca1=\\\\u0133\\\\ud82c\\\\udd1b\\\\uff67\\\"\\n}\"",
+        "\"emitUTF8\"",
+        "\"\\\"\\\\t\\\\n\\xF0\\x91\\xA2\\xA1=\\xC4\\xB3\\xF0\\x9B\\x84\\x9B\\xEF\\xBD\\xA7\\\"\\n}\"",
+        "8",
+        "1",
+        "4",
+        "06"
+      ]
+    },
+    {
+      "case_id": "main_streamwritertest_writearrays",
+      "name": "StreamWriterTest.writeArrays",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2673,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{\\n\"",
+        "\"\\t\\\"property1\\\" : \\n\"",
+        "\"\\t[\\n\"",
+        "\"\\t\\t\\\"value1\\\",\\n\"",
+        "\"\\t\\t\\\"value2\\\"\\n\"",
+        "\"\\t],\\n\"",
+        "\"\\t\\\"property2\\\" : []\\n\"",
+        "\"}\"",
+        "\"property1\"",
+        "\"value1\""
+      ]
+    },
+    {
+      "case_id": "main_streamwritertest_writenestedobjects",
+      "name": "StreamWriterTest.writeNestedObjects",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2693,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{\\n\"",
+        "\"\\t\\\"object1\\\" : \\n\"",
+        "\"\\t{\\n\"",
+        "\"\\t\\t\\\"bool\\\" : true,\\n\"",
+        "\"\\t\\t\\\"nested\\\" : 123\\n\"",
+        "\"\\t},\\n\"",
+        "\"\\t\\\"object2\\\" : {}\\n\"",
+        "\"}\"",
+        "\"nested\"",
+        "\"bool\""
+      ]
+    },
+    {
+      "case_id": "main_streamwritertest_writenumericvalue",
+      "name": "StreamWriterTest.writeNumericValue",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2651,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "Value",
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{\\n\"",
+        "\"\\t\\\"emptyValue\\\" : null,\\n\"",
+        "\"\\t\\\"false\\\" : false,\\n\"",
+        "\"\\t\\\"null\\\" : \\\"null\\\",\\n\"",
+        "\"\\t\\\"number\\\" : -6200000000000000.0,\\n\"",
+        "\"\\t\\\"real\\\" : 1.256,\\n\"",
+        "\"\\t\\\"uintValue\\\" : 17\\n\"",
+        "\"}\"",
+        "\"emptyValue\"",
+        "\"false\""
+      ]
+    },
+    {
+      "case_id": "main_streamwritertest_writezeroes",
+      "name": "StreamWriterTest.writeZeroes",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2796,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::size",
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "size",
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(3, binary.length());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "3"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(binary, root.asString());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(expected.size(), out.size());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, out);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"hi\"",
+        "\"(\"",
+        "\")\"",
+        "\"top\"",
+        "3",
+        "0",
+        "000"
+      ]
+    },
+    {
+      "case_id": "main_styledstreamwritertest_multilinearray",
+      "name": "StyledStreamWriterTest.multiLineArray",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2570,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+      ],
+      "call_names": [
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"[\\n\\t0,\"",
+        "\"\\n\\t1,\"",
+        "\"\\n\\t2,\"",
+        "\"\\n\\t3,\"",
+        "\"\\n\\t4,\"",
+        "\"\\n\\t5,\"",
+        "\"\\n\\t6,\"",
+        "\"\\n\\t7,\"",
+        "\"\\n\\t8,\"",
+        "\"\\n\\t9,\""
+      ]
+    },
+    {
+      "case_id": "main_styledstreamwritertest_writearrays",
+      "name": "StyledStreamWriterTest.writeArrays",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2530,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+      ],
+      "call_names": [
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{\\n\"",
+        "\"\\t\\\"property1\\\" : [ \\\"value1\\\", \\\"value2\\\" ],\\n\"",
+        "\"\\t\\\"property2\\\" : []\\n\"",
+        "\"}\\n\"",
+        "\"property1\"",
+        "\"value1\"",
+        "\"value2\"",
+        "\"property2\"",
+        "0",
+        "1"
+      ]
+    },
+    {
+      "case_id": "main_styledstreamwritertest_writenestedobjects",
+      "name": "StyledStreamWriterTest.writeNestedObjects",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2547,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+      ],
+      "call_names": [
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{\\n\"",
+        "\"\\t\\\"object1\\\" : \\n\"",
+        "\"\\t\"",
+        "\"\\t\\t\\\"bool\\\" : true,\\n\"",
+        "\"\\t\\t\\\"nested\\\" : 123\\n\"",
+        "\"\\t},\\n\"",
+        "\"\\t\\\"object2\\\" : {}\\n\"",
+        "\"}\\n\"",
+        "\"nested\"",
+        "\"bool\""
+      ]
+    },
+    {
+      "case_id": "main_styledstreamwritertest_writenumericvalue",
+      "name": "StyledStreamWriterTest.writeNumericValue",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2505,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+      ],
+      "call_names": [
+        "Value",
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{\\n\"",
+        "\"\\t\\\"emptyValue\\\" : null,\\n\"",
+        "\"\\t\\\"false\\\" : false,\\n\"",
+        "\"\\t\\\"null\\\" : \\\"null\\\",\\n\"",
+        "\"\\t\\\"number\\\" : -6200000000000000.0,\\n\"",
+        "\"\\t\\\"real\\\" : 1.256,\\n\"",
+        "\"\\t\\\"uintValue\\\" : 17\\n\"",
+        "\"}\\n\"",
+        "\"emptyValue\"",
+        "\"false\""
+      ]
+    },
+    {
+      "case_id": "main_styledstreamwritertest_writevaluewithcomment",
+      "name": "StyledStreamWriterTest.writeValueWithComment",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2617,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+      ],
+      "call_names": [
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"\\t\"",
+        "\"//commentBeforeValue\\n\\\"hello\\\"\\n\"",
+        "\"hello\"",
+        "\"//commentBeforeValue\"",
+        "\"\\\"hello\\\" //commentAfterValueOnSameLine\\n\"",
+        "\"//commentAfterValueOnSameLine\"",
+        "\"\\\"hello\\\"\\n//commentAfter\\n\"",
+        "\"//commentAfter\""
+      ]
+    },
+    {
+      "case_id": "main_styledwritertest_multilinearray",
+      "name": "StyledWriterTest.multiLineArray",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2448,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+      ],
+      "call_names": [
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"[\\n   \"",
+        "\"0,\\n   1,\\n   2,\\n   \"",
+        "\"3,\\n   4,\\n   5,\\n   \"",
+        "\"6,\\n   7,\\n   8,\\n   \"",
+        "\"9,\\n   10,\\n   11,\\n   \"",
+        "\"12,\\n   13,\\n   14,\\n   \"",
+        "\"15,\\n   16,\\n   17,\\n   \"",
+        "\"18,\\n   19,\\n   20\\n]\\n\"",
+        "\"[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]\\n\"",
+        "20"
+      ]
+    },
+    {
+      "case_id": "main_styledwritertest_writearrays",
+      "name": "StyledWriterTest.writeArrays",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2414,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+      ],
+      "call_names": [
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{\\n\"",
+        "\"   \\\"property1\\\" : [ \\\"value1\\\", \\\"value2\\\" ],\\n\"",
+        "\"   \\\"property2\\\" : []\\n\"",
+        "\"}\\n\"",
+        "\"property1\"",
+        "\"value1\"",
+        "\"value2\"",
+        "\"property2\"",
+        "0",
+        "1"
+      ]
+    },
+    {
+      "case_id": "main_styledwritertest_writenestedobjects",
+      "name": "StyledWriterTest.writeNestedObjects",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2429,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+      ],
+      "call_names": [
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{\\n\"",
+        "\"   \\\"object1\\\" : {\\n\"",
+        "\"      \\\"bool\\\" : true,\\n\"",
+        "\"      \\\"nested\\\" : 123\\n\"",
+        "\"   },\\n\"",
+        "\"   \\\"object2\\\" : {}\\n\"",
+        "\"}\\n\"",
+        "\"nested\"",
+        "\"bool\"",
+        "\"object1\""
+      ]
+    },
+    {
+      "case_id": "main_styledwritertest_writenumericvalue",
+      "name": "StyledWriterTest.writeNumericValue",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2392,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+      ],
+      "call_names": [
+        "Value",
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"{\\n\"",
+        "\"   \\\"emptyValue\\\" : null,\\n\"",
+        "\"   \\\"false\\\" : false,\\n\"",
+        "\"   \\\"null\\\" : \\\"null\\\",\\n\"",
+        "\"   \\\"number\\\" : -6200000000000000.0,\\n\"",
+        "\"   \\\"real\\\" : 1.256,\\n\"",
+        "\"   \\\"uintValue\\\" : 17\\n\"",
+        "\"}\\n\"",
+        "\"emptyValue\"",
+        "\"false\""
+      ]
+    },
+    {
+      "case_id": "main_styledwritertest_writevaluewithcomment",
+      "name": "StyledWriterTest.writeValueWithComment",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2477,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+      ],
+      "call_names": [
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"\\n//commentBeforeValue\\n\\\"hello\\\"\\n\"",
+        "\"hello\"",
+        "\"//commentBeforeValue\"",
+        "\"\\\"hello\\\" //commentAfterValueOnSameLine\\n\"",
+        "\"//commentAfterValueOnSameLine\"",
+        "\"\\\"hello\\\"\\n//commentAfter\\n\\n\"",
+        "\"//commentAfter\""
+      ]
+    },
+    {
+      "case_id": "main_valuetest_arrayinsertatrandomindex",
+      "name": "ValueTest.arrayInsertAtRandomIndex",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 552,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f"
+      ],
+      "call_names": [
+        "Value"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::Value(\"index0\"), array[0]); // check append",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"index0\"",
+            "0"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::Value(\"index1\"), array[1]);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"index1\"",
+            "1"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::Value(\"index2\"), array[2]);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"index2\"",
+            "2"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::Value(\"index0\"), array.front());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"index0\""
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"index2\"",
+        "\"index3\"",
+        "\"index0\"",
+        "\"index1\"",
+        "\"index4\"",
+        "\"index5\"",
+        "\"index10\"",
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\""
+      ]
+    },
+    {
+      "case_id": "main_valuetest_arrayissue252",
+      "name": "ValueTest.arrayIssue252",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 540,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "// JSONTEST_ASSERT_EQUAL(5, root[\"array\"].size());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"array\"",
+            "5"
+          ],
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"array\"",
+        "\"a\"",
+        "\"b\"",
+        "\"\"",
+        "\"sometext with space\"",
+        "52",
+        "5",
+        "0",
+        "123456789",
+        "34567890"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_arrays",
+      "name": "ValueTest.arrays",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 415,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_value.cpp::Json::Value::isArray",
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isNull",
+        "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+        "src/lib_json/json_value.cpp::Json::Value::isObject",
+        "src/lib_json/json_value.cpp::Json::Value::isString",
+        "src/lib_json/json_value.cpp::Json::Value::removeIndex"
+      ],
+      "call_names": [
+        "Value",
+        "isArray",
+        "isBool",
+        "isDouble",
+        "isNull",
+        "isNumeric",
+        "isObject",
+        "isString",
+        "removeIndex"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIs(emptyArray_, checks));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIs(array1_, checks));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::arrayValue, array1_.type());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(emptyArray_.isConvertibleTo(Json::nullValue));",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "0",
+        "1234",
+        "2",
+        "17",
+        "1",
+        "123456789",
+        "34567890"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_bools",
+      "name": "ValueTest.bools",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 678,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::isArray",
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isNull",
+        "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+        "src/lib_json/json_value.cpp::Json::Value::isObject",
+        "src/lib_json/json_value.cpp::Json::Value::isString"
+      ],
+      "call_names": [
+        "isArray",
+        "isBool",
+        "isDouble",
+        "isNull",
+        "isNumeric",
+        "isObject",
+        "isString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::booleanValue, false_.type());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIs(false_, checks));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIs(true_, checks));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(false_.isConvertibleTo(Json::nullValue));",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "1",
+        "1.0",
+        "0",
+        "0.0",
+        "123456789",
+        "34567890",
+        "1234.56789"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_commentbefore",
+      "name": "ValueTest.CommentBefore",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2016,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::toStyledString",
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "toStyledString",
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(exp2, res2);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(exp2, res2);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"// this comment should appear before\"",
+        "\"commentStyle\"",
+        "\"All\"",
+        "\"// this comment should appear before\\nnull\"",
+        "\"\\n\"",
+        "\"hello\"",
+        "\"// this comment should appear before\\n\\\"hello\\\"\"",
+        "\"null\\n\"",
+        "\"\\\"hello\\\"\"",
+        "\"\""
+      ]
+    },
+    {
+      "case_id": "main_valuetest_comparearray",
+      "name": "ValueTest.compareArray",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 1722,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f"
+      ],
+      "call_names": [
+        "Value"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsLess(emptyArray, l1aArray));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsLess(emptyArray, l2aArray));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsLess(l1aArray, l1bArray));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsLess(l1bArray, l2aArray));",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "0",
+        "10",
+        "123456789",
+        "34567890",
+        "1234.56789",
+        "0.0039062"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_comparenull",
+      "name": "ValueTest.compareNull",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 1677,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f"
+      ],
+      "call_names": [
+        "Value"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsEqual(Json::Value(), Json::Value()));",
+          "expected_behavior_hint": "assertion_line",
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "123456789",
+        "34567890",
+        "1234.56789",
+        "0.0039062"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_compareobject",
+      "name": "ValueTest.compareObject",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 1747,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f"
+      ],
+      "call_names": [
+        "Value"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsLess(emptyObject, l1aObject));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsLess(l1aObject, l1bObject));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsLess(l1bObject, l2aObject));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsLess(l2aObject, l2bObject));",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"key1\"",
+        "\"key2\"",
+        "\"a\"",
+        "\"b\"",
+        "\"c\"",
+        "\"f\"",
+        "\"d\"",
+        "\"e\"",
+        "\"\"",
+        "\"sometext with space\""
+      ]
+    },
+    {
+      "case_id": "main_valuetest_comparetype",
+      "name": "ValueTest.compareType",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 1790,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f"
+      ],
+      "call_names": [
+        "Value"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsLess(Json::Value(), Json::Value(1)));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "1"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsLess(Json::Value(1), Json::Value(1u)));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "1"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsLess(Json::Value(1u), Json::Value(1.0)));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "1.0"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsLess(Json::Value(1.0), Json::Value(\"a\")));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"a\"",
+            "1.0"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"a\"",
+        "\"\"",
+        "\"sometext with space\"",
+        "1",
+        "1.0",
+        "123456789",
+        "34567890",
+        "1234.56789",
+        "0.0039062"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_copymovearray",
+      "name": "ValueTest.copyMoveArray",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 491,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "Value",
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(copy.size(), 2);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "2"
+          ],
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::Value(\"item1\"), copy[0]);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"item1\"",
+            "0"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::Value(\"item2\"), copy[1]);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"item2\"",
+            "1"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(moved.size(), 2);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "2"
+          ],
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"item1\"",
+        "\"item2\"",
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "2",
+        "0",
+        "1",
+        "123456789",
+        "34567890"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_copyobject",
+      "name": "ValueTest.CopyObject",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 1803,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsEqual(arrayCopy, arrayVal));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIsEqual(stringCopy, stringVal));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(arrayCopy.size() == 4);",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "4"
+          ],
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(arrayVal.size() == 5);",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "5"
+          ],
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"val1\"",
+        "\"val2\"",
+        "\"val3\"",
+        "\"string value\"",
+        "\"val4\"",
+        "\"new4\"",
+        "\"new5\"",
+        "\"another string\"",
+        "\"key0\"",
+        "\"key1\""
+      ]
+    },
+    {
+      "case_id": "main_valuetest_czstringcoverage",
+      "name": "ValueTest.CZStringCoverage",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 207,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_value.cpp::Json::Value::asCString",
+        "src/lib_json/json_value.cpp::Json::Value::demand",
+        "src/lib_json/json_value.cpp::Json::Value::isArray",
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isNull",
+        "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+        "src/lib_json/json_value.cpp::Json::Value::isObject",
+        "src/lib_json/json_value.cpp::Json::Value::isString",
+        "src/lib_json/json_value.cpp::Json::Value::removeIndex",
+        "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70",
+        "src/lib_json/json_value.cpp::Json::Value::size",
+        "src/lib_json/json_value.cpp::Json::Value::toStyledString",
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "Value",
+        "asCString",
+        "demand",
+        "isArray",
+        "isBool",
+        "isDouble",
+        "isNull",
+        "isNumeric",
+        "isObject",
+        "isString",
+        "removeIndex",
+        "removeMember",
+        "size",
+        "toStyledString",
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "literal_samples": [
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "\"param\"",
+        "\"other\"",
+        "\"0.0\"",
+        "\"0e0\"",
+        "\"1234.0\"",
+        "\"1234.0e0\"",
+        "\"1234.0e-1\""
+      ]
+    },
+    {
+      "case_id": "main_valuetest_getarrayvalue",
+      "name": "ValueTest.getArrayValue",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 521,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(array.size(), 5);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "5"
+          ],
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(index, array.get(index, defaultValue).asInt());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(array.isValidIndex(index), true);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(array.isValidIndex(index), false);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "0",
+        "5",
+        "10",
+        "4",
+        "123456789",
+        "34567890",
+        "1234.56789"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_integers",
+      "name": "ValueTest.integers",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 720,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_value.cpp::Json::Value::isArray",
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isNull",
+        "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+        "src/lib_json/json_value.cpp::Json::Value::isObject",
+        "src/lib_json/json_value.cpp::Json::Value::isString"
+      ],
+      "call_names": [
+        "Value",
+        "isArray",
+        "isBool",
+        "isDouble",
+        "isNull",
+        "isNumeric",
+        "isObject",
+        "isString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::Value(17).isConvertibleTo(Json::realValue));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "17"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::Value(17).isConvertibleTo(Json::stringValue));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "17"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(Json::Value(17).isConvertibleTo(Json::booleanValue));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "17"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!Json::Value(17).isConvertibleTo(Json::arrayValue));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "17"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"0\"",
+        "\"0.0\"",
+        "\"1048576\"",
+        "\"1048576.0\"",
+        "\"-1048576\"",
+        "\"2147483647\"",
+        "\"-2147483648\"",
+        "\"4294967295\"",
+        "\"9.22337e+18\"",
+        "\"-9.22337e+18\""
+      ]
+    },
+    {
+      "case_id": "main_valuetest_membercount",
+      "name": "ValueTest.memberCount",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 236,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkMemberCount(emptyArray_, 0));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "0"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkMemberCount(emptyObject_, 0));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "0"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkMemberCount(array1_, 1));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "1"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkMemberCount(object1_, 1));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "1"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "\"Json::Value::iterator\"",
+        "0",
+        "1",
+        "123456789",
+        "34567890",
+        "1234.56789",
+        "0.0039062"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_nonintegers",
+      "name": "ValueTest.nonIntegers",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 1454,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_value.cpp::Json::Value::isArray",
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isNull",
+        "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+        "src/lib_json/json_value.cpp::Json::Value::isObject",
+        "src/lib_json/json_value.cpp::Json::Value::isString"
+      ],
+      "call_names": [
+        "Value",
+        "isArray",
+        "isBool",
+        "isDouble",
+        "isNull",
+        "isNumeric",
+        "isObject",
+        "isString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::realValue, val.type());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIs(val, checks));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(val.isConvertibleTo(Json::intValue));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(val.isConvertibleTo(Json::uintValue));",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"1.5\"",
+        "\"-1.5\"",
+        "\"2147483647.5\"",
+        "\"-2147483648.5\"",
+        "\"4294967295.5\"",
+        "\"1.2345678901234001\"",
+        "\"2199023255552000.0\"",
+        "\"3.402823466385289e+38\"",
+        "\"1.2345678e+300\"",
+        "\"\""
+      ]
+    },
+    {
+      "case_id": "main_valuetest_null",
+      "name": "ValueTest.null",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 616,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::isArray",
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isNull",
+        "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+        "src/lib_json/json_value.cpp::Json::Value::isObject",
+        "src/lib_json/json_value.cpp::Json::Value::isString"
+      ],
+      "call_names": [
+        "isArray",
+        "isBool",
+        "isDouble",
+        "isNull",
+        "isNumeric",
+        "isObject",
+        "isString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::nullValue, null_.type());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIs(null_, checks));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(null_.isConvertibleTo(Json::nullValue));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(null_.isConvertibleTo(Json::intValue));",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "0",
+        "0.0",
+        "123456789",
+        "34567890",
+        "1234.56789",
+        "0.0039062",
+        "4"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_objects",
+      "name": "ValueTest.objects",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 254,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_value.cpp::Json::Value::demand",
+        "src/lib_json/json_value.cpp::Json::Value::isArray",
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isNull",
+        "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+        "src/lib_json/json_value.cpp::Json::Value::isObject",
+        "src/lib_json/json_value.cpp::Json::Value::isString",
+        "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70"
+      ],
+      "call_names": [
+        "Value",
+        "demand",
+        "isArray",
+        "isBool",
+        "isDouble",
+        "isNull",
+        "isNumeric",
+        "isObject",
+        "isString",
+        "removeMember"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIs(emptyObject_, checks));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIs(object1_, checks));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::objectValue, emptyObject_.type());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(emptyObject_.isConvertibleTo(Json::nullValue));",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"id\"",
+        "\"unknown id\"",
+        "\"null\"",
+        "\"bool\"",
+        "\"int\"",
+        "\"int64\"",
+        "\"uint\"",
+        "\"uint64\"",
+        "\"integral\"",
+        "\"double\""
+      ]
+    },
+    {
+      "case_id": "main_valuetest_precision",
+      "name": "ValueTest.precision",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2134,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"precision\"",
+        "\"33.333\"",
+        "\"0.25\"",
+        "\"0.25635\"",
+        "\"0.3\"",
+        "\"1234857476305.2563\"",
+        "\"0.25634569487374054\"",
+        "\"precisionType\"",
+        "\"decimal\"",
+        "\"124\""
+      ]
+    },
+    {
+      "case_id": "main_valuetest_resizearray",
+      "name": "ValueTest.resizeArray",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 465,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(array.size(), 10);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "10"
+          ],
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(array.size(), 15);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "15"
+          ],
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(array.size(), 5);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "5"
+          ],
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(array.size(), 0);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "0"
+          ],
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "0",
+        "10",
+        "15",
+        "5",
+        "123456789",
+        "34567890",
+        "1234.56789"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_resizepopulatesallmissingelements",
+      "name": "ValueTest.resizePopulatesAllMissingElements",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 509,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "call_names": [
+        "begin",
+        "size"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(n, v.size());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "mentions_aligned_functions": [
+            "size"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(n, std::distance(v.begin(), v.end()));",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "mentions_aligned_functions": [
+            "begin"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(v.front(), Json::Value{});",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(v.back(), Json::Value{});",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "10",
+        "123456789",
+        "34567890",
+        "1234.56789",
+        "0.0039062"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_searchvaluebypath",
+      "name": "ValueTest.searchValueByPath",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2220,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "call_names": [
+        "Value",
+        "write"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, outcome);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::Value(1), result);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "1"
+          ],
+          "mentions_aligned_functions": [
+            "Value"
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::nullValue, value2);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, outcome);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"property1\"",
+        "\"object\"",
+        "\"property2\"",
+        "\"error\"",
+        "\"{\"",
+        "\"\\\"property1\\\":[0,1],\"",
+        "\"\\\"property2\\\":{\\\"object\\\":\\\"object\\\"}\"",
+        "\"}\\n\"",
+        "\".property1.[%]\"",
+        "\".property1.[2]\""
+      ]
+    },
+    {
+      "case_id": "main_valuetest_specialfloats",
+      "name": "ValueTest.specialFloats",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2114,
+      "aligned_source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "call_names": [
+        "writeString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+          "expected_behavior_hint": "equality_expected_behavior"
+        }
+      ],
+      "literal_samples": [
+        "\"useSpecialFloats\"",
+        "\"NaN\"",
+        "\"Infinity\"",
+        "\"-Infinity\"",
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "123456789",
+        "34567890",
+        "1234.56789"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_strings",
+      "name": "ValueTest.strings",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 649,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::asCString",
+        "src/lib_json/json_value.cpp::Json::Value::isArray",
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isNull",
+        "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+        "src/lib_json/json_value.cpp::Json::Value::isObject",
+        "src/lib_json/json_value.cpp::Json::Value::isString"
+      ],
+      "call_names": [
+        "asCString",
+        "isArray",
+        "isBool",
+        "isDouble",
+        "isNull",
+        "isNumeric",
+        "isObject",
+        "isString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(Json::stringValue, string1_.type());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIs(emptyString_, checks));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIs(string_, checks));",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_PRED",
+          "expression": "JSONTEST_ASSERT_PRED(checkIs(string1_, checks));",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"a\"",
+        "\"\"",
+        "\"sometext with space\"",
+        "123456789",
+        "34567890",
+        "1234.56789",
+        "0.0039062",
+        "4"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_typechecksthrowexceptions",
+      "name": "ValueTest.typeChecksThrowExceptions",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 1885,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::asCString",
+        "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70"
+      ],
+      "call_names": [
+        "asCString",
+        "removeMember"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_THROWS",
+          "expression": "JSONTEST_ASSERT_THROWS(intVal[\"test\"]);",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"test\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_THROWS",
+          "expression": "JSONTEST_ASSERT_THROWS(strVal[\"test\"]);",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"test\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_THROWS",
+          "expression": "JSONTEST_ASSERT_THROWS(arrVal[\"test\"]);",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"test\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT_THROWS",
+          "expression": "JSONTEST_ASSERT_THROWS(intVal.removeMember(\"test\"));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"test\""
+          ],
+          "mentions_aligned_functions": [
+            "removeMember"
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"Test\"",
+        "\"test\"",
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "1",
+        "0",
+        "4",
+        "123456789",
+        "34567890"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_widestring",
+      "name": "ValueTest.WideString",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 1993,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::toStyledString"
+      ],
+      "call_names": [
+        "toStyledString"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(ok);",
+          "expected_behavior_hint": "assertion_line"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(root[\"abc\"].asString(), uni);",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"abc\""
+          ]
+        }
+      ],
+      "literal_samples": [
+        "\"\\u5f0f\\uff0c\\u8fdb\"",
+        "\"式，进\"",
+        "\"abc\"",
+        "\"errs: \"",
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "756",
+        "123456789",
+        "34567890"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_zeroes",
+      "name": "ValueTest.zeroes",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2060,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70"
+      ],
+      "call_names": [
+        "removeMember"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(4U, binary.length());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(binary, root.asString());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(binary, root[top].asString());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(did);",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"h\\0i\"",
+        "\"top\"",
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "0",
+        "123456789",
+        "34567890",
+        "1234.56789",
+        "0.0039062"
+      ]
+    },
+    {
+      "case_id": "main_valuetest_zeroesinkeys",
+      "name": "ValueTest.zeroesInKeys",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 2086,
+      "aligned_source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70"
+      ],
+      "call_names": [
+        "removeMember"
+      ],
+      "eligibility_status": "eligible_for_adapter_conversion",
+      "assertions": [
+        {
+          "macro": "JSONTEST_ASSERT_EQUAL",
+          "expression": "JSONTEST_ASSERT_EQUAL(4U, binary.length());",
+          "expected_behavior_hint": "equality_expected_behavior"
+        },
+        {
+          "macro": "JSONTEST_ASSERT_STRING_EQUAL",
+          "expression": "JSONTEST_ASSERT_STRING_EQUAL(\"there\", root[binary].asString());",
+          "expected_behavior_hint": "equality_expected_behavior",
+          "literal_samples": [
+            "\"there\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(!root.isMember(\"h\"));",
+          "expected_behavior_hint": "assertion_line",
+          "literal_samples": [
+            "\"h\""
+          ]
+        },
+        {
+          "macro": "JSONTEST_ASSERT",
+          "expression": "JSONTEST_ASSERT(root.isMember(binary));",
+          "expected_behavior_hint": "assertion_line"
+        }
+      ],
+      "literal_samples": [
+        "\"h\\0i\"",
+        "\"there\"",
+        "\"h\"",
+        "\"\"",
+        "\"a\"",
+        "\"sometext with space\"",
+        "0",
+        "123456789",
+        "34567890",
+        "1234.56789"
+      ]
+    }
+  ],
+  "structurally_ineligible_for_public_replay_cases": [],
+  "cases_unresolved_after_exact_function_binding": [
+    {
+      "name": "BuilderTest.settings",
+      "path": "src/test_lib_json/main.cpp",
+      "start_line": 3879,
+      "stage": "exact_alignment_binding",
+      "reason": "outside_precise_l1_function_scope",
+      "public_aligned_call_names": [
+        "isMember"
+      ],
+      "details": "The test calls a public aligned leaf name that is not in the final precise L1 function scope."
+    }
+  ]
+}

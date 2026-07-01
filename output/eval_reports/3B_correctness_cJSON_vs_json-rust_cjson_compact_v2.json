@@ -1,0 +1,1397 @@
+{
+  "evaluation_type": "Phase 3B - Trace Replay Public-First",
+  "schema_version": "3b.report.v32",
+  "source_repository": "cJSON",
+  "target_repository": "json-rust",
+  "mode": "run",
+  "layer": "public",
+  "artifact_paths": {
+    "effective_adapter": "output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/effective_adapter.json",
+    "test_inventory": "output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/test_inventory.json",
+    "replay_plan": "output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/replay_plan.json",
+    "replay_result": "output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/replay_result.json",
+    "public_replay_eligibility": "output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/public_replay_eligibility.json",
+    "llm_usage": "output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/llm_usage.json",
+    "adapter_synthesis_attempts": "output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/adapter_synthesis_attempts.json",
+    "generated_test_file": "output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/generated_public_replay.rs",
+    "adapter_synthesis_context": "output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/adapter_synthesis_context.json"
+  },
+  "automation_readiness": {
+    "status": "not_ready",
+    "summary": "3B automation is not ready for correctness judgment because replay did not execute cleanly.",
+    "positive_evidence": [
+      "at_least_one_3a_atomic_pair_replay_covered"
+    ],
+    "blocking_reasons": [
+      "target_replay_infrastructure_failed"
+    ],
+    "review_items": [
+      "public_replay_failures_present",
+      "target_semantic_failure_candidate"
+    ],
+    "coverage_gaps": [
+      "some_source_tested_public_functions_not_replayed",
+      "not_all_eligible_source_behavior_cases_replayed_or_excluded",
+      "not_all_source_tested_public_functions_traced"
+    ]
+  },
+  "key_findings": {
+    "failed_replay_events": [
+      {
+        "replay_event_id": "cjson_add_null_should_fail_on_allocation_failure",
+        "operation": "cjson_add_null_should_fail_on_allocation_failure",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "cjson_add_cjson_add_null_should_fail_on_allocation_failure",
+            "name": "cjson_add_null_should_fail_on_allocation_failure",
+            "source_location": "tests/cjson_add.c:431",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "support_target_functions_used": [
+          "src/value/mod.rs::JsonValue::insert"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "create object, set failing hooks, add null"
+        },
+        "expected": {
+          "observable_behavior": "function returns null (failure)"
+        },
+        "normalization": "null pointer comparison (source) vs error check (target)",
+        "evidence": "tests/cjson_add.c line 431: TEST_ASSERT_NULL(cJSON_AddNullToObject(root, \"null\"))"
+      },
+      {
+        "replay_event_id": "cjson_add_number_should_fail_on_allocation_failure",
+        "operation": "cjson_add_number_should_fail_on_allocation_failure",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "cjson_add_cjson_add_number_should_fail_on_allocation_failure",
+            "name": "cjson_add_number_should_fail_on_allocation_failure",
+            "source_location": "tests/cjson_add.c:452",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "support_target_functions_used": [
+          "src/value/mod.rs::JsonValue::insert"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "create object, set failing hooks, add number"
+        },
+        "expected": {
+          "observable_behavior": "function returns null (failure)"
+        },
+        "normalization": "null pointer comparison (source) vs error check (target)",
+        "evidence": "tests/cjson_add.c line 452: TEST_ASSERT_NULL(cJSON_AddNumberToObject(root, \"number\", 42));"
+      },
+      {
+        "replay_event_id": "cjson_add_object_should_fail_on_allocation_failure",
+        "operation": "cjson_add_object_should_fail_on_allocation_failure",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "cjson_add_cjson_add_object_should_fail_on_allocation_failure",
+            "name": "cjson_add_object_should_fail_on_allocation_failure",
+            "source_location": "tests/cjson_add.c:464",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "support_target_functions_used": [
+          "src/value/mod.rs::JsonValue::insert"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "create object, set failing hooks, add object"
+        },
+        "expected": {
+          "observable_behavior": "function returns null (failure)"
+        },
+        "normalization": "null pointer comparison (source) vs error check (target)",
+        "evidence": "tests/cjson_add.c line 464: TEST_ASSERT_NULL(cJSON_AddObjectToObject(root, \"object\"));"
+      },
+      {
+        "replay_event_id": "cjson_add_raw_should_fail_on_allocation_failure",
+        "operation": "cjson_add_raw_should_fail_on_allocation_failure",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "cjson_add_cjson_add_raw_should_fail_on_allocation_failure",
+            "name": "cjson_add_raw_should_fail_on_allocation_failure",
+            "source_location": "tests/cjson_add.c:460",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "support_target_functions_used": [
+          "src/value/mod.rs::JsonValue::insert"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "create object, set failing hooks, add raw"
+        },
+        "expected": {
+          "observable_behavior": "function returns null (failure)"
+        },
+        "normalization": "null pointer comparison (source) vs error check (target)",
+        "evidence": "tests/cjson_add.c line 460: TEST_ASSERT_NULL(cJSON_AddRawToObject(root, \"raw\", \"{}\"));"
+      },
+      {
+        "replay_event_id": "cjson_compare_should_compare_null_pointer_as_not_equal",
+        "operation": "cjson_compare_should_compare_null_pointer_as_not_equal",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "compare_tests_cjson_compare_should_compare_null_pointer_as_not_equal",
+            "name": "cjson_compare_should_compare_null_pointer_as_not_equal",
+            "source_location": "tests/compare_tests.c:196",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          },
+          {
+            "source_behavior_case_id": "compare_tests_cjson_compare_should_compare_null",
+            "name": "cjson_compare_should_compare_null",
+            "source_location": "tests/compare_tests.c:200",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Compare"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::eq"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": "NULL, NULL, true and NULL, NULL, false",
+        "expected": {
+          "observable_behavior": "false"
+        },
+        "normalization": "observable equality comparison",
+        "evidence": "tests/compare_tests.c line 196: TEST_ASSERT_FALSE(cJSON_Compare(NULL, NULL, true)) and TEST_ASSERT_FALSE(cJSON_Compare(NULL, NULL, false))"
+      },
+      {
+        "replay_event_id": "cjson_add_item_to_object_or_array_should_not_add_itself",
+        "operation": "cjson_add_item_to_object_or_array_should_not_add_itself",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "old_utils_tests_misc_tests",
+            "name": "misc_tests",
+            "source_location": "tests/old_utils_tests.c:219",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          },
+          {
+            "source_behavior_case_id": "misc_tests_cjson_add_item_to_object_or_array_should_not_add_itself",
+            "name": "cjson_add_item_to_object_or_array_should_not_add_itself",
+            "source_location": "tests/misc_tests.c:830",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_CreateArray",
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::insert",
+          "src/value/mod.rs::JsonValue::new_array",
+          "src/value/mod.rs::JsonValue::new_object",
+          "src/value/mod.rs::JsonValue::push"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "Create an object and an array, then attempt to add each to itself."
+        },
+        "expected": {
+          "observable_behavior": "adding an object to itself or an array to itself should produce an error (false in C, Err in Rust)"
+        },
+        "normalization": "return value false maps to Result::Err",
+        "evidence": "tests/misc_tests.c lines 6-10: TEST_ASSERT_FALSE_MESSAGE on adding object to itself and array to itself"
+      },
+      {
+        "replay_event_id": "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+        "operation": "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+        "status": "infrastructure_failed",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+            "name": "cjson_replace_item_in_object_should_preserve_name",
+            "source_location": "tests/misc_tests.c:819",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          },
+          {
+            "source_behavior_case_id": "old_utils_tests_misc_tests",
+            "name": "misc_tests",
+            "source_location": "tests/old_utils_tests.c:219",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_ReplaceItemInObject"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
+          "src/value/mod.rs::JsonValue::insert"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "medium",
+        "input": {
+          "case": "object with one item, replace it"
+        },
+        "expected": {
+          "observable_behavior": "After replace, key 'child' still exists and its value is the replacement number"
+        },
+        "normalization": "observable comparison rule",
+        "evidence": "tests/misc_tests.c line 819: TEST_ASSERT_TRUE(root->child == replacement) and TEST_ASSERT_EQUAL_STRING(\"child\", replacement->string)"
+      },
+      {
+        "replay_event_id": "cjson_parse_with_opts_should_parse_utf8_bom",
+        "operation": "cjson_parse_with_opts_should_parse_utf8_bom",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "parse_with_opts_parse_with_opts_should_parse_utf8_bom",
+            "name": "parse_with_opts_should_parse_utf8_bom",
+            "source_location": "tests/parse_with_opts.c:109",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Compare"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::eq"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "parse BOM and non-BOM strings"
+        },
+        "expected": {
+          "observable_behavior": "both parsed objects are equal"
+        },
+        "normalization": "observable comparison rule",
+        "evidence": "source test parses BOM and non-BOM JSON strings and asserts cJSON_Compare returns true"
+      }
+    ],
+    "unresolved_behavior_cases": [
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_array_should_fail_on_allocation_failure",
+        "name": "cjson_add_array_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:468",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_array_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_array_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_bool_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_bool_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_false_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_array_should_fail_with_null_pointers",
+        "name": "cjson_add_array_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:467",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_array_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_array_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_bool_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_bool_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_false_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_bool_should_fail_on_allocation_failure",
+        "name": "cjson_add_bool_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:448",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_array_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_array_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_bool_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_bool_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_false_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_bool_should_fail_with_null_pointers",
+        "name": "cjson_add_bool_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:447",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_array_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_array_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_bool_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_bool_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_false_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_false_should_fail_on_allocation_failure",
+        "name": "cjson_add_false_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:444",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_array_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_array_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_bool_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_bool_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_false_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_false_should_fail_with_null_pointers",
+        "name": "cjson_add_false_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:443",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_array_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_array_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_bool_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_bool_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_false_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_null_should_fail_with_null_pointers",
+        "name": "cjson_add_null_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:430",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_null_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_number_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_object_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_number_should_fail_with_null_pointers",
+        "name": "cjson_add_number_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:451",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_null_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_number_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_object_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_object_should_fail_with_null_pointers",
+        "name": "cjson_add_object_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:463",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_null_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_number_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_object_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_raw_should_fail_with_null_pointers",
+        "name": "cjson_add_raw_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:459",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_raw_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_string_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_string_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_true_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_true_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_string_should_fail_on_allocation_failure",
+        "name": "cjson_add_string_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:456",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_raw_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_string_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_string_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_true_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_true_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_string_should_fail_with_null_pointers",
+        "name": "cjson_add_string_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:455",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_raw_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_string_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_string_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_true_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_true_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_true_should_fail_on_allocation_failure",
+        "name": "cjson_add_true_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:435",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_raw_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_string_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_string_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_true_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_true_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_true_should_fail_with_null_pointers",
+        "name": "cjson_add_true_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:434",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_raw_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_string_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_string_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_true_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_true_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_create_string_array_should_fail_on_allocation_failure",
+        "name": "cjson_create_string_array_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:440",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateStringArray"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case cjson_add_cjson_add_raw_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_string_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_string_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_true_should_fail_on_allocation_failure: no independently valid replay event or exclusion was returned",
+          "case cjson_add_cjson_add_true_should_fail_with_null_pointers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "misc_tests_cjson_create_array_reference_should_create_an_array_reference",
+        "name": "cjson_create_array_reference_should_create_an_array_reference",
+        "source_location": "tests/misc_tests.c:829",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_CreateArray",
+          "cJSON.c::cJSON_IsArray",
+          "cJSON.c::cJSON_IsNumber"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case misc_tests_cjson_create_array_reference_should_create_an_array_reference: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_create_object_reference_should_create_an_object_reference: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_functions_should_not_crash_with_null_pointers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "misc_tests_cjson_create_object_reference_should_create_an_object_reference",
+        "name": "cjson_create_object_reference_should_create_an_object_reference",
+        "source_location": "tests/misc_tests.c:828",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_AddItemToObjectCS",
+          "cJSON.c::cJSON_CreateObject",
+          "cJSON.c::cJSON_IsNumber",
+          "cJSON.c::cJSON_IsObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case misc_tests_cjson_create_array_reference_should_create_an_array_reference: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_create_object_reference_should_create_an_object_reference: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_functions_should_not_crash_with_null_pointers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "misc_tests_cjson_functions_should_not_crash_with_null_pointers",
+        "name": "cjson_functions_should_not_crash_with_null_pointers",
+        "source_location": "tests/misc_tests.c:820",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_AddItemToObjectCS",
+          "cJSON.c::cJSON_Compare",
+          "cJSON.c::cJSON_CreateArray",
+          "cJSON.c::cJSON_CreateString",
+          "cJSON.c::cJSON_CreateStringArray",
+          "cJSON.c::cJSON_DeleteItemFromArray",
+          "cJSON.c::cJSON_DeleteItemFromObject",
+          "cJSON.c::cJSON_DeleteItemFromObjectCaseSensitive",
+          "cJSON.c::cJSON_DetachItemFromArray",
+          "cJSON.c::cJSON_DetachItemFromObject",
+          "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive",
+          "cJSON.c::cJSON_GetArrayItem",
+          "cJSON.c::cJSON_GetArraySize",
+          "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+          "cJSON.c::cJSON_IsArray",
+          "cJSON.c::cJSON_IsBool",
+          "cJSON.c::cJSON_IsNull",
+          "cJSON.c::cJSON_IsNumber",
+          "cJSON.c::cJSON_IsObject",
+          "cJSON.c::cJSON_IsString",
+          "cJSON.c::cJSON_Parse",
+          "cJSON.c::cJSON_Print",
+          "cJSON.c::cJSON_PrintUnformatted",
+          "cJSON.c::cJSON_ReplaceItemInArray",
+          "cJSON.c::cJSON_ReplaceItemInObject",
+          "cJSON.c::cJSON_ReplaceItemInObjectCaseSensitive"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case misc_tests_cjson_create_array_reference_should_create_an_array_reference: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_create_object_reference_should_create_an_object_reference: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_functions_should_not_crash_with_null_pointers: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "misc_tests_cjson_replace_item_via_pointer_should_replace_items",
+        "name": "cjson_replace_item_via_pointer_should_replace_items",
+        "source_location": "tests/misc_tests.c:818",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_CreateArray"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case misc_tests_cjson_replace_item_via_pointer_should_replace_items: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_bool_value_must_not_break_objects: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_valuestring_should_return_null_if_strings_overlap: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_valuestring_to_object_should_not_leak_memory: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_should_not_follow_too_deep_circular_references: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "misc_tests_cjson_set_bool_value_must_not_break_objects",
+        "name": "cjson_set_bool_value_must_not_break_objects",
+        "source_location": "tests/misc_tests.c:834",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject",
+          "cJSON.c::cJSON_CreateString",
+          "cJSON.c::cJSON_IsObject",
+          "cJSON.c::cJSON_IsString"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case misc_tests_cjson_replace_item_via_pointer_should_replace_items: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_bool_value_must_not_break_objects: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_valuestring_should_return_null_if_strings_overlap: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_valuestring_to_object_should_not_leak_memory: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_should_not_follow_too_deep_circular_references: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "misc_tests_cjson_set_valuestring_should_return_null_if_strings_overlap",
+        "name": "cjson_set_valuestring_should_return_null_if_strings_overlap",
+        "source_location": "tests/misc_tests.c:821",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Parse"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case misc_tests_cjson_replace_item_via_pointer_should_replace_items: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_bool_value_must_not_break_objects: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_valuestring_should_return_null_if_strings_overlap: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_valuestring_to_object_should_not_leak_memory: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_should_not_follow_too_deep_circular_references: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "misc_tests_cjson_set_valuestring_to_object_should_not_leak_memory",
+        "name": "cjson_set_valuestring_to_object_should_not_leak_memory",
+        "source_location": "tests/misc_tests.c:833",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_CreateObject",
+          "cJSON.c::cJSON_CreateString",
+          "cJSON.c::cJSON_IsObject",
+          "cJSON.c::cJSON_IsString",
+          "cJSON.c::cJSON_Parse"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case misc_tests_cjson_replace_item_via_pointer_should_replace_items: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_bool_value_must_not_break_objects: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_valuestring_should_return_null_if_strings_overlap: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_valuestring_to_object_should_not_leak_memory: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_should_not_follow_too_deep_circular_references: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "misc_tests_cjson_should_not_follow_too_deep_circular_references",
+        "name": "cjson_should_not_follow_too_deep_circular_references",
+        "source_location": "tests/misc_tests.c:814",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_CreateArray",
+          "cJSON.c::cJSON_DetachItemFromArray"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case misc_tests_cjson_replace_item_via_pointer_should_replace_items: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_bool_value_must_not_break_objects: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_valuestring_should_return_null_if_strings_overlap: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_valuestring_to_object_should_not_leak_memory: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_should_not_follow_too_deep_circular_references: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "misc_utils_tests_cjson_utils_functions_shouldnt_crash_with_null_pointers",
+        "name": "cjson_utils_functions_shouldnt_crash_with_null_pointers",
+        "source_location": "tests/misc_utils_tests.c:77",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateString"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case misc_tests_cjson_replace_item_via_pointer_should_replace_items: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_bool_value_must_not_break_objects: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_valuestring_should_return_null_if_strings_overlap: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_set_valuestring_to_object_should_not_leak_memory: no independently valid replay event or exclusion was returned",
+          "case misc_tests_cjson_should_not_follow_too_deep_circular_references: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "old_utils_tests_generate_merge_tests",
+        "name": "generate_merge_tests",
+        "source_location": "tests/old_utils_tests.c:222",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Parse",
+          "cJSON.c::cJSON_PrintUnformatted"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case old_utils_tests_generate_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_json_pointer_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_misc_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_sort_tests: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "old_utils_tests_json_pointer_tests",
+        "name": "json_pointer_tests",
+        "source_location": "tests/old_utils_tests.c:218",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Parse"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case old_utils_tests_generate_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_json_pointer_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_misc_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_sort_tests: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "old_utils_tests_merge_tests",
+        "name": "merge_tests",
+        "source_location": "tests/old_utils_tests.c:221",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Parse",
+          "cJSON.c::cJSON_PrintUnformatted"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case old_utils_tests_generate_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_json_pointer_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_misc_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_sort_tests: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "old_utils_tests_misc_tests",
+        "name": "misc_tests",
+        "source_location": "tests/old_utils_tests.c:219",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_CreateObject",
+          "cJSON.c::cJSON_CreateString",
+          "cJSON.c::cJSON_GetArrayItem"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case old_utils_tests_generate_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_json_pointer_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_misc_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_sort_tests: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "old_utils_tests_sort_tests",
+        "name": "sort_tests",
+        "source_location": "tests/old_utils_tests.c:220",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case old_utils_tests_generate_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_json_pointer_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_misc_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_sort_tests: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "parse_examples_file_test10_should_be_parsed_and_printed",
+        "name": "file_test10_should_be_parsed_and_printed",
+        "source_location": "tests/parse_examples.c:292",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case old_utils_tests_generate_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_json_pointer_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_misc_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_sort_tests: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "parse_examples_file_test11_should_be_parsed_and_printed",
+        "name": "file_test11_should_be_parsed_and_printed",
+        "source_location": "tests/parse_examples.c:293",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case old_utils_tests_generate_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_json_pointer_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_misc_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_sort_tests: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "parse_examples_file_test1_should_be_parsed_and_printed",
+        "name": "file_test1_should_be_parsed_and_printed",
+        "source_location": "tests/parse_examples.c:283",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case old_utils_tests_generate_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_json_pointer_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_misc_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_sort_tests: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "parse_examples_file_test2_should_be_parsed_and_printed",
+        "name": "file_test2_should_be_parsed_and_printed",
+        "source_location": "tests/parse_examples.c:284",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case old_utils_tests_generate_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_json_pointer_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_misc_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_sort_tests: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "parse_examples_file_test3_should_be_parsed_and_printed",
+        "name": "file_test3_should_be_parsed_and_printed",
+        "source_location": "tests/parse_examples.c:285",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "reason": "unresolved_behavior_case_conversion",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "case old_utils_tests_generate_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_json_pointer_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_merge_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_misc_tests: no independently valid replay event or exclusion was returned",
+          "case old_utils_tests_sort_tests: no independently valid replay event or exclusion was returned"
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      }
+    ],
+    "infrastructure_failures": [
+      {
+        "event_id": "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+        "test_name": "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+        "operation": "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+        "source_case_ids": [
+          "misc_tests_cjson_replace_item_in_object_should_preserve_name"
+        ],
+        "test_file": "output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/work/repair_attempt_3/target_repo/tests/cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0.rs",
+        "command": [
+          "cargo",
+          "test",
+          "--test",
+          "cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0"
+        ],
+        "returncode": 101,
+        "failure_reason": "isolated_event_build_or_environment_failure",
+        "stdout_tail": "",
+        "stderr_tail": "warning: unnecessary parentheses around match arm expression\n   --> src/parser.rs:433:30\n    |\n433 |             b'0' ..= b'9' => (ch - b'0'),\n    |                              ^         ^\n    |\n    = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default\nhelp: remove these parentheses\n    |\n433 -             b'0' ..= b'9' => (ch - b'0'),\n433 +             b'0' ..= b'9' => ch - b'0',\n    |\n\nwarning: unnecessary parentheses around match arm expression\n   --> src/parser.rs:434:30\n    |\n434 |             b'a' ..= b'f' => (ch + 10 - b'a'),\n    |                              ^              ^\n    |\nhelp: remove these parentheses\n    |\n434 -             b'a' ..= b'f' => (ch + 10 - b'a'),\n434 +             b'a' ..= b'f' => ch + 10 - b'a',\n    |\n\nwarning: unnecessary parentheses around match arm expression\n   --> src/parser.rs:435:30\n    |\n435 |             b'A' ..= b'F' => (ch + 10 - b'A'),\n    |                              ^              ^\n    |\nhelp: remove these parentheses\n    |\n435 -             b'A' ..= b'F' => (ch + 10 - b'A'),\n435 +             b'A' ..= b'F' => ch + 10 - b'A',\n    |\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/value/mod.rs:451:20\n    |\n451 |     pub fn members(&self) -> Members {\n    |                    ^^^^^     ^^^^^^^ the same lifetime is hidden here\n    |                    |\n    |                    the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\n    = note: `#[warn(mismatched_lifetime_syntaxes)]` on by default\nhelp: use `'_` for type paths\n    |\n451 |     pub fn members(&self) -> Members<'_> {\n    |                                     ++++\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/value/mod.rs:462:24\n    |\n462 |     pub fn members_mut(&mut self) -> MembersMut {\n    |                        ^^^^^^^^^     ^^^^^^^^^^ the same lifetime is hidden here\n    |                        |\n    |                        the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n462 |     pub fn members_mut(&mut self) -> MembersMut<'_> {\n    |                                                ++++\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/value/mod.rs:494:20\n    |\n494 |     pub fn entries(&self) -> Entries {\n    |                    ^^^^^     ^^^^^^^ the same lifetime is hidden here\n    |                    |\n    |                    the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n494 |     pub fn entries(&self) -> Entries<'_> {\n    |                                     ++++\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/value/mod.rs:506:24\n    |\n506 |     pub fn entries_mut(&mut self) -> EntriesMut {\n    |                        ^^^^^^^^^     ^^^^^^^^^^ the same lifetime is hidden here\n    |                        |\n    |                        the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n506 |     pub fn entries_mut(&mut self) -> EntriesMut<'_> {\n    |                                                ++++\n\nwarning: unnecessary transmute\n  --> src/util/diyfp.rs:53:22\n   |\n53 |         let u: u64 = mem::transmute(d);\n   |                      ^^^^^^^^^^^^^^^^^\n   |\n   = note: `#[warn(unnecessary_transmutes)]` on by default\nhelp: replace this with\n   |\n53 -         let u: u64 = mem::transmute(d);\n53 +         let u: u64 = f64::to_bits(d);\n   |\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/object.rs:498:17\n    |\n498 |     pub fn iter(&self) -> Iter {\n    |                 ^^^^^     ^^^^ the same lifetime is hidden here\n    |                 |\n    |                 the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n498 |     pub fn iter(&self) -> Iter<'_> {\n    |                               ++++\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/object.rs:505:21\n    |\n505 |     pub fn iter_mut(&mut self) -> IterMut {\n    |                     ^^^^^^^^^     ^^^^^^^ the same lifetime is hidden here\n    |                     |\n    |                     the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n505 |     pub fn iter_mut(&mut self) -> IterMut<'_> {\n    |                                          ++++\n\nwarning: `json` (lib) generated 10 warnings (run `cargo fix --lib -p json` to apply 10 suggestions)\n   Compiling json v0.12.4 (/home/yptang/cp2rs/output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/work/repair_attempt_3/target_repo)\nerror[E0425]: cannot find value `replaced` in this scope\n  --> tests/cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0.rs:14:17\n   |\n14 |     assert_eq!(*replaced, json::parse(\"2\").unwrap());\n   |                 ^^^^^^^^ not found in this scope\n\nwarning: unused imports: `JsonValue` and `parse`\n --> tests/cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0.rs:1:12\n  |\n1 | use json::{JsonValue, parse};\n  |            ^^^^^^^^^  ^^^^^\n  |\n  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default\n\nwarning: unused imports: `IndexMut` and `Index`\n --> tests/cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0.rs:2:16\n  |\n2 | use std::ops::{Index, IndexMut};\n  |                ^^^^^  ^^^^^^^^\n\nwarning: unused import: `std::collections::BTreeMap`\n --> tests/cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0.rs:3:5\n  |\n3 | use std::collections::BTreeMap;\n  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nFor more information about this error, try `rustc --explain E0425`.\nwarning: `json` (test \"cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0\") generated 3 warnings\nerror: could not compile `json` (test \"cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0\") due to 1 previous error; 3 warnings emitted\n"
+      }
+    ]
+  },
+  "source_test_selection": {
+    "summary": {
+      "test_files_discovered": 24,
+      "source_test_cases_discovered": 162,
+      "aligned_public_test_candidates": 78,
+      "cases_unresolved_after_exact_function_binding": 0,
+      "structurally_ineligible_for_public_replay_cases": 0,
+      "public_replay_eligible_cases": 78,
+      "cases_excluded_by_adapter_conversion": 0,
+      "unresolved_after_conversion_attempts": 34,
+      "replayed_cases": 44,
+      "mixed_public_internal_candidates": 1,
+      "mixed_cases_eligible_with_public_substitution": 1,
+      "case_conversion_attempt_mode": "per_case_attempt_limit"
+    },
+    "details": {
+      "test_inventory": "artifact_paths.test_inventory",
+      "public_replay_eligibility": "artifact_paths.public_replay_eligibility",
+      "failed_replay_source_cases": "key_findings.failed_replay_events[].source_cases",
+      "unresolved_behavior_cases": "key_findings.unresolved_behavior_cases"
+    }
+  },
+  "target_replay": {
+    "summary": {
+      "status": "partial_infrastructure_failed",
+      "replay_plan_fingerprint": "2d16a68f07b18519",
+      "replay_events_in_plan": 44,
+      "adapter_generation_status": "llm_synthesized_repaired_v1",
+      "command": "cargo test --test cp2rs_3b_public",
+      "returncode": 101,
+      "replay_events_executed": 43,
+      "replay_events_passed": 36,
+      "replay_events_failed": 7,
+      "infrastructure_failures": 1,
+      "note": "public_replay_pass_rate only describes this replay plan; compare replay_plan_fingerprint across runs before comparing pass rates."
+    },
+    "infrastructure_failures": [
+      {
+        "event_id": "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+        "test_name": "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+        "operation": "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+        "source_case_ids": [
+          "misc_tests_cjson_replace_item_in_object_should_preserve_name"
+        ],
+        "test_file": "output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/work/repair_attempt_3/target_repo/tests/cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0.rs",
+        "command": [
+          "cargo",
+          "test",
+          "--test",
+          "cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0"
+        ],
+        "returncode": 101,
+        "failure_reason": "isolated_event_build_or_environment_failure",
+        "stdout_tail": "",
+        "stderr_tail": "warning: unnecessary parentheses around match arm expression\n   --> src/parser.rs:433:30\n    |\n433 |             b'0' ..= b'9' => (ch - b'0'),\n    |                              ^         ^\n    |\n    = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default\nhelp: remove these parentheses\n    |\n433 -             b'0' ..= b'9' => (ch - b'0'),\n433 +             b'0' ..= b'9' => ch - b'0',\n    |\n\nwarning: unnecessary parentheses around match arm expression\n   --> src/parser.rs:434:30\n    |\n434 |             b'a' ..= b'f' => (ch + 10 - b'a'),\n    |                              ^              ^\n    |\nhelp: remove these parentheses\n    |\n434 -             b'a' ..= b'f' => (ch + 10 - b'a'),\n434 +             b'a' ..= b'f' => ch + 10 - b'a',\n    |\n\nwarning: unnecessary parentheses around match arm expression\n   --> src/parser.rs:435:30\n    |\n435 |             b'A' ..= b'F' => (ch + 10 - b'A'),\n    |                              ^              ^\n    |\nhelp: remove these parentheses\n    |\n435 -             b'A' ..= b'F' => (ch + 10 - b'A'),\n435 +             b'A' ..= b'F' => ch + 10 - b'A',\n    |\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/value/mod.rs:451:20\n    |\n451 |     pub fn members(&self) -> Members {\n    |                    ^^^^^     ^^^^^^^ the same lifetime is hidden here\n    |                    |\n    |                    the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\n    = note: `#[warn(mismatched_lifetime_syntaxes)]` on by default\nhelp: use `'_` for type paths\n    |\n451 |     pub fn members(&self) -> Members<'_> {\n    |                                     ++++\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/value/mod.rs:462:24\n    |\n462 |     pub fn members_mut(&mut self) -> MembersMut {\n    |                        ^^^^^^^^^     ^^^^^^^^^^ the same lifetime is hidden here\n    |                        |\n    |                        the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n462 |     pub fn members_mut(&mut self) -> MembersMut<'_> {\n    |                                                ++++\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/value/mod.rs:494:20\n    |\n494 |     pub fn entries(&self) -> Entries {\n    |                    ^^^^^     ^^^^^^^ the same lifetime is hidden here\n    |                    |\n    |                    the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n494 |     pub fn entries(&self) -> Entries<'_> {\n    |                                     ++++\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/value/mod.rs:506:24\n    |\n506 |     pub fn entries_mut(&mut self) -> EntriesMut {\n    |                        ^^^^^^^^^     ^^^^^^^^^^ the same lifetime is hidden here\n    |                        |\n    |                        the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n506 |     pub fn entries_mut(&mut self) -> EntriesMut<'_> {\n    |                                                ++++\n\nwarning: unnecessary transmute\n  --> src/util/diyfp.rs:53:22\n   |\n53 |         let u: u64 = mem::transmute(d);\n   |                      ^^^^^^^^^^^^^^^^^\n   |\n   = note: `#[warn(unnecessary_transmutes)]` on by default\nhelp: replace this with\n   |\n53 -         let u: u64 = mem::transmute(d);\n53 +         let u: u64 = f64::to_bits(d);\n   |\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/object.rs:498:17\n    |\n498 |     pub fn iter(&self) -> Iter {\n    |                 ^^^^^     ^^^^ the same lifetime is hidden here\n    |                 |\n    |                 the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n498 |     pub fn iter(&self) -> Iter<'_> {\n    |                               ++++\n\nwarning: hiding a lifetime that's elided elsewhere is confusing\n   --> src/object.rs:505:21\n    |\n505 |     pub fn iter_mut(&mut self) -> IterMut {\n    |                     ^^^^^^^^^     ^^^^^^^ the same lifetime is hidden here\n    |                     |\n    |                     the lifetime is elided here\n    |\n    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing\nhelp: use `'_` for type paths\n    |\n505 |     pub fn iter_mut(&mut self) -> IterMut<'_> {\n    |                                          ++++\n\nwarning: `json` (lib) generated 10 warnings (run `cargo fix --lib -p json` to apply 10 suggestions)\n   Compiling json v0.12.4 (/home/yptang/cp2rs/output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/work/repair_attempt_3/target_repo)\nerror[E0425]: cannot find value `replaced` in this scope\n  --> tests/cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0.rs:14:17\n   |\n14 |     assert_eq!(*replaced, json::parse(\"2\").unwrap());\n   |                 ^^^^^^^^ not found in this scope\n\nwarning: unused imports: `JsonValue` and `parse`\n --> tests/cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0.rs:1:12\n  |\n1 | use json::{JsonValue, parse};\n  |            ^^^^^^^^^  ^^^^^\n  |\n  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default\n\nwarning: unused imports: `IndexMut` and `Index`\n --> tests/cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0.rs:2:16\n  |\n2 | use std::ops::{Index, IndexMut};\n  |                ^^^^^  ^^^^^^^^\n\nwarning: unused import: `std::collections::BTreeMap`\n --> tests/cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0.rs:3:5\n  |\n3 | use std::collections::BTreeMap;\n  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nFor more information about this error, try `rustc --explain E0425`.\nwarning: `json` (test \"cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0\") generated 3 warnings\nerror: could not compile `json` (test \"cp2rs_3b_misc_tests_cjson_replace_item_in_object_should_p_685d9cf0\") due to 1 previous error; 3 warnings emitted\n"
+      }
+    ],
+    "infrastructure_repair": {
+      "max_attempts": 3,
+      "unresolved_case_count": 1,
+      "unresolved_source_behavior_case_ids": [
+        "misc_tests_cjson_replace_item_in_object_should_preserve_name"
+      ],
+      "details": "Only present when replay infrastructure failures remain after repair attempts."
+    },
+    "details": {
+      "failed_replay_events": "key_findings.failed_replay_events",
+      "full_replay_result": "artifact_paths.replay_result",
+      "full_replay_plan": "artifact_paths.replay_plan",
+      "generated_rust_tests": "artifact_paths.generated_test_file"
+    }
+  },
+  "adapter": {
+    "schema_version": "3b.adapter.v1",
+    "name": "llm_synthesized_cJSON_to_json-rust_public_v1",
+    "status": "loaded",
+    "generation_status": "llm_synthesized_repaired_v1",
+    "validation_status": "passed",
+    "summary": {
+      "public_operation_count": 44,
+      "trace_event_count": 44,
+      "referenced_operation_count": 44,
+      "unreferenced_operation_count": 0
+    },
+    "path": "output/phase3_3b/cJSON_vs_json-rust_cjson_compact_v2/effective_adapter.json"
+  },
+  "llm_usage": {
+    "calls": 25,
+    "prompt_tokens": 404565,
+    "completion_tokens": 116777,
+    "total_tokens": 521342,
+    "elapsed_seconds": 985.479,
+    "usage_source": "api_reported_when_available",
+    "calls_by_stage": {
+      "behavior_case_conversion_batch_1": {
+        "calls": 1,
+        "prompt_tokens": 7240,
+        "completion_tokens": 5766,
+        "total_tokens": 13006
+      },
+      "behavior_case_conversion_batch_2": {
+        "calls": 1,
+        "prompt_tokens": 7690,
+        "completion_tokens": 3201,
+        "total_tokens": 10891
+      },
+      "behavior_case_conversion_batch_3": {
+        "calls": 1,
+        "prompt_tokens": 7690,
+        "completion_tokens": 5824,
+        "total_tokens": 13514
+      },
+      "behavior_case_conversion_batch_4": {
+        "calls": 1,
+        "prompt_tokens": 7708,
+        "completion_tokens": 9870,
+        "total_tokens": 17578
+      },
+      "behavior_case_conversion_batch_5": {
+        "calls": 1,
+        "prompt_tokens": 5989,
+        "completion_tokens": 2215,
+        "total_tokens": 8204
+      },
+      "behavior_case_conversion_batch_6": {
+        "calls": 1,
+        "prompt_tokens": 5989,
+        "completion_tokens": 2863,
+        "total_tokens": 8852
+      },
+      "behavior_case_conversion_batch_7": {
+        "calls": 1,
+        "prompt_tokens": 10458,
+        "completion_tokens": 5937,
+        "total_tokens": 16395
+      },
+      "behavior_case_conversion_batch_8": {
+        "calls": 1,
+        "prompt_tokens": 8248,
+        "completion_tokens": 3119,
+        "total_tokens": 11367
+      },
+      "behavior_case_conversion_batch_9": {
+        "calls": 1,
+        "prompt_tokens": 8248,
+        "completion_tokens": 3474,
+        "total_tokens": 11722
+      },
+      "behavior_case_conversion_batch_10": {
+        "calls": 1,
+        "prompt_tokens": 12332,
+        "completion_tokens": 10767,
+        "total_tokens": 23099
+      },
+      "behavior_case_conversion_batch_11": {
+        "calls": 1,
+        "prompt_tokens": 7109,
+        "completion_tokens": 3581,
+        "total_tokens": 10690
+      },
+      "behavior_case_conversion_batch_12": {
+        "calls": 1,
+        "prompt_tokens": 24345,
+        "completion_tokens": 8868,
+        "total_tokens": 33213
+      },
+      "behavior_case_conversion_batch_13": {
+        "calls": 1,
+        "prompt_tokens": 21492,
+        "completion_tokens": 2008,
+        "total_tokens": 23500
+      },
+      "behavior_case_conversion_batch_14": {
+        "calls": 1,
+        "prompt_tokens": 21492,
+        "completion_tokens": 3613,
+        "total_tokens": 25105
+      },
+      "behavior_case_conversion_batch_15": {
+        "calls": 1,
+        "prompt_tokens": 18120,
+        "completion_tokens": 7649,
+        "total_tokens": 25769
+      },
+      "behavior_case_conversion_batch_16": {
+        "calls": 1,
+        "prompt_tokens": 15241,
+        "completion_tokens": 3202,
+        "total_tokens": 18443
+      },
+      "behavior_case_conversion_batch_17": {
+        "calls": 1,
+        "prompt_tokens": 15241,
+        "completion_tokens": 2371,
+        "total_tokens": 17612
+      },
+      "behavior_case_conversion_batch_18": {
+        "calls": 1,
+        "prompt_tokens": 15860,
+        "completion_tokens": 2139,
+        "total_tokens": 17999
+      },
+      "behavior_case_conversion_batch_19": {
+        "calls": 1,
+        "prompt_tokens": 17070,
+        "completion_tokens": 1830,
+        "total_tokens": 18900
+      },
+      "behavior_case_conversion_batch_20": {
+        "calls": 1,
+        "prompt_tokens": 17070,
+        "completion_tokens": 3681,
+        "total_tokens": 20751
+      },
+      "behavior_case_conversion_batch_21": {
+        "calls": 1,
+        "prompt_tokens": 10852,
+        "completion_tokens": 4280,
+        "total_tokens": 15132
+      },
+      "behavior_case_conversion_batch_22": {
+        "calls": 1,
+        "prompt_tokens": 10339,
+        "completion_tokens": 5436,
+        "total_tokens": 15775
+      },
+      "replay_infrastructure_repair_attempt_1": {
+        "calls": 1,
+        "prompt_tokens": 42914,
+        "completion_tokens": 3518,
+        "total_tokens": 46432
+      },
+      "replay_infrastructure_repair_attempt_2": {
+        "calls": 1,
+        "prompt_tokens": 42914,
+        "completion_tokens": 2391,
+        "total_tokens": 45305
+      },
+      "replay_infrastructure_repair_attempt_3": {
+        "calls": 1,
+        "prompt_tokens": 42914,
+        "completion_tokens": 9174,
+        "total_tokens": 52088
+      }
+    },
+    "full_usage_artifact": "artifact_paths.llm_usage"
+  },
+  "metrics": {
+    "basic_counts": {
+      "aligned_source_functions_total": 37,
+      "aligned_source_functions_with_src_test_evidence": 34,
+      "aligned_source_functions_excluded_no_src_test_evidence": 3,
+      "source_tested_non_public_or_internal_functions_excluded_l1": 3,
+      "public_source_functions_with_leaf_name_test_evidence": 31,
+      "public_source_functions_excluded_no_precise_behavior_evidence": 0,
+      "public_source_functions_with_precise_behavior_evidence_l1_scope": 31,
+      "public_target_functions_in_l1_scope": 25,
+      "mixed_public_internal_aligned_test_cases": 1,
+      "source_tested_public_functions_not_replayed": 11,
+      "replay_events_executed": 43,
+      "replay_events_passed": 36,
+      "replay_events_failed": 7,
+      "failed_replay_events_requiring_expected_behavior_review": 0,
+      "target_semantic_failure_candidates": 7,
+      "infrastructure_failures": 1,
+      "validated_aligned_source_functions_replayed": 20,
+      "validated_aligned_target_functions_replayed": 20,
+      "covered_aligned_pairs": 20,
+      "source_behavior_cases_available": 78,
+      "source_behavior_cases_eligible_for_replay": 78,
+      "source_behavior_cases_replayed": 44,
+      "source_behavior_cases_excluded_by_adapter_conversion": 0,
+      "source_behavior_cases_unresolved_after_conversion": 34
+    },
+    "ratio_metrics": {
+      "source_test_evidence_coverage": {
+        "value": "91.89%",
+        "raw_fraction": "34 / 37",
+        "description": "3A aligned source 函数中，有 src 测试证据的比例"
+      },
+      "precise_behavior_evidence_rate": {
+        "value": "100.00%",
+        "raw_fraction": "31 / 31",
+        "description": "public source 函数中，从 leaf-name 测试证据进一步确认有精确行为证据的比例"
+      },
+      "source_tested_public_function_replay_gap_rate": {
+        "value": "35.48%",
+        "raw_fraction": "11 / 31",
+        "description": "L1 scope 中有精确 src 测试证据但 adapter 未 replay 的 source 函数比例"
+      },
+      "public_replay_pass_rate": {
+        "value": "83.72%",
+        "raw_fraction": "36 / 43",
+        "description": "当前已生成 replay plan 内，public replay 通过的 event 数 / public replay 实际执行的 event 数；这是 scoped pass rate，不代表全部 eligible source behavior cases 的全局通过率"
+      },
+      "aligned_source_replay_coverage": {
+        "value": "64.52%",
+        "raw_fraction": "20 / 31",
+        "description": "L1 source scope 中被 replay 覆盖且通过 3A 对齐验证的 source 函数比例"
+      },
+      "aligned_target_replay_coverage": {
+        "value": "80.00%",
+        "raw_fraction": "20 / 25",
+        "description": "L1 target scope 中被 replay 触达且通过 3A 对齐验证的 target 函数比例"
+      },
+      "behavior_case_accounting_rate": {
+        "value": "56.41%",
+        "raw_fraction": "44 / 78",
+        "description": "eligible source behavior cases 中，已 replay 或经有效原因排除的比例"
+      },
+      "behavior_case_replay_coverage": {
+        "value": "56.41%",
+        "raw_fraction": "44 / 78",
+        "description": "eligible source behavior cases 中，成功转换为 replay event 并进入 Rust replay plan 的比例"
+      }
+    }
+  }
+}

@@ -36,18 +36,23 @@ PROMPT_2A_ARCHITECT_C = """
 
 1. [File-Centric] 锚定中间节点 (Intermediate Nodes): 
    - 将每个 C 文件 (`metadata.file_path`) 映射为一个 Intermediate 节点 (分配ID，如 `Intermediate_temp_sensor_c`)。
+   - 【C 专用：单文件库逻辑切片】如果一个大型 C 源文件同时承载多个清晰的 public API 行为族（例如 JSON 库中的 Parse、Print、Create、Access、Mutation、TypeCheck），可以为同一个 `file_path` 输出多个逻辑 Intermediate 节点。此时必须在节点中增加 `included_function_patterns` 或 `included_functions` 来声明该切片覆盖的函数范围；函数很多时优先使用简洁模式，如 `["cJSON_Parse*", "parse_*"]`，不要枚举上百个函数，也不要让每个 Root 都默认包含整份大文件。
    - 充分利用 `doc_comment` 提取准确的业务语义描述 (`semantic_name` 和 `description`)。
    - 【极限减负指令】：你需要在脑海中梳理底层的 functions/types/global_states 以进行连线推理，但绝对不要在最终的输出中罗列它们（系统会自动挂载叶子节点）！
 
 2. [Domain-Centric] 抽象根节点 (Root Clustering):
    - 根据 Intermediate 的目录层级 (如 `src/drivers/`) 和业务相关性，向上聚合成大粒度的 Root 模块 (例如 `Root_HardwareDrivers`)。
+   - 【C 专用：Root 粒度下限】Root 不能粗到把一个库的所有 public 子功能都放进同一个模块。对于 C JSON/容器/编解码类库，必须把明显不同的 public API 行为族提升为不同 Root，例如 Parsing、Printing/Serialization、DataModel/Creation、Accessors、Mutation、TypePredicates、Utilities。不要只在一个 `Root_Core` 下面创建多个 Intermediate 切片；这些切片如果代表不同 public API 行为族，就必须分别归属到对应 Root。只有函数族高度耦合且无法独立描述时才合并。
+   - 【C 专用：Root 粒度上限】Root 也不能细到每个 helper 函数一个模块。`static` helper 应并入它服务的 public API 行为族；只有被多个行为族共享且有独立架构意义时才形成 Shared/InternalSupport Root。
 
 3. [Wiring] 严谨连线 (Rigorous Edge Injection) 【核心推演法则】:
    - 跨模块边 (inter_module_edges)：代表不同 Root 模块间的数据流转 (`data_flow`)。
+     - 【C 专用边端点约束】`inter_module_edges.source/target` 必须是 `root_nodes[].id`，即 Root ID；禁止使用 Intermediate ID。
      - 示例线索 A：模块 A 的函数通过 `mutates_parameters` 修改了模块 B 传入的数据对象。
      - 示例线索 B：模块 A 的函数 `writes` 写入了声明为 `is_extern: true` 或跨文件共享的 `global_states`，且模块 B `reads` 了它。
      - 示例线索 C：跨模块的显式 `direct_calls` 传递了核心业务数据。
    - 模块内边 (intra_module_edges)：代表同一 Root 模块内部文件的的调用顺序。
+     - 【C 专用边端点约束】`intra_module_edges.source/target` 必须是 `intermediate_nodes[].id`，且两个 Intermediate 必须属于同一个 `parent_root`。如果两个文件/切片属于不同 Root，必须上卷为 Root 间的 `inter_module_edges`。
      - 示例线索 A：仔细查看骨架中函数的 `control_flow` 下的 `direct_calls`，该调用链中存在对同模块内另一文件的函数的调用，从而找到模块内的边。
      - 示例线索 B：头文件接口 (`has_body: false`) 必须先于源文件实现 (`has_body: true`) 被认知和加载。
    
@@ -72,6 +77,8 @@ PROMPT_2A_ARCHITECT_C = """
         "id": "Intermediate_main_c",
         "parent_root": "关联的Root节点ID",
         "file_path": "源文件路径",
+        "included_function_patterns": ["可选；仅当同一 file_path 被拆成逻辑行为切片时填写函数名模式，如 cJSON_Parse*"],
+        "included_functions": ["可选；仅当需要精确补充少量函数名时填写"],
         "semantic_name": "子组件名称",
         "description": "..."
       }
@@ -149,10 +156,13 @@ PROMPT_2A_ARCHITECT_CPP = """
 
 2. [Domain-Centric] 抽象根节点 (Root Clustering):
    - 观察所有 Intermediate 节点（文件），根据目录层级和业务关联性，向上聚合成代表顶层业务子系统的 Root 模块。
+   - 【C++ 专用：Root 粒度】优先按 public 类族、Reader/Writer/Value/Config 等稳定行为边界划分 Root；不要仅因头文件/源文件分离就拆成两个 Root，也不要把大型库所有类族压成一个 Root。
 
 3. [Wiring] 严谨连线推演 (Rigorous Edge Injection):
    - 跨模块边 (inter_module_edges)：推演 Root 模块间的数据流向 (`data_flow`)。
+     - 【C++ 专用边端点约束】`inter_module_edges.source/target` 必须是 `root_nodes[].id`；跨 Root 的类依赖、友元访问、调用关系都要上卷成 Root -> Root。
    - 模块内边 (intra_module_edges)：推演同一 Root 模块内部文件间的执行顺序 (例如，由于 C++ 编译模型，定义了类的 `.hpp` 必须在实现它的 `.cpp` 之前执行)。
+     - 【C++ 专用边端点约束】`intra_module_edges.source/target` 必须是 `intermediate_nodes[].id`，且两个 Intermediate 必须拥有同一个 `parent_root`。
    
    【核心破案法则：决议 unresolved 悬案桶】：
    当你看到 `unresolved_reads` / `unresolved_writes` 中有标识符时，必须执行推理：
@@ -259,11 +269,15 @@ PROMPT_2A_ARCHITECT_RUST = """
    - 【极限减负指令】：你需要在脑海中梳理底层的 types/traits/impl_blocks/functions 以进行连线推理，但绝对不要在最终的输出中罗列任何叶子节点（系统会自动挂载）！
 
 2. [Domain-Centric] 抽象根节点 (Root Clustering):
-   - 观察所有中间节点，根据 Rust 的 `mod` 层级和 `re_exports` 映射，向上聚合成代表顶层业务子系统的 Root 模块（例如将网络层、引擎层隔离）。
+   - 观察所有中间节点，根据 Rust 的 `mod` 层级、`re_exports` 映射、公开 API 入口和主要行为边界，向上聚合成代表顶层业务子系统的 Root 模块（例如将网络层、引擎层隔离）。
+   - 【Rust 专用：Root 粒度】Root 应代表可与 C/C++ 仓库进行宏观对齐的主行为子系统，而不是简单的一文件一 Root。对 JSON/编解码类库，优先使用且尽量限制为 4 个主行为 Root：PublicAPI/Facade、CoreData/DataModel、Parsing、Serialization/Codegen。
+   - 【Rust 专用：support-only 归属】`error.rs`、`util/*`、数字格式化、内部缓存表等 support-only 文件，默认并入使用它们的主行为 Root：错误类型通常并入 PublicAPI 或其主要传播路径；数字格式化和 grisu/diyfp 通常并入 Serialization/Codegen。只有 support 模块本身提供独立 public behavior boundary 时才单独作为 Root。不要创建仅由 Error、Util、Number formatting 组成的同级主 Root。
 
 3. [Wiring] 严谨连线 (Rigorous Edge Injection):
    - 跨模块边 (inter_module_edges)：基于 `dependencies` (尤其是 `re_exports`)、`traits` 的多态实现 (`impl_blocks` 的 `trait_name`)，推演 Root 模块间的耦合关系。关系类型为 `data_flow`。
+     - 【Rust 专用边端点约束】`inter_module_edges.source/target` 必须是 `root_nodes[].id`；跨 Root 的文件级依赖、re-export、trait impl 影响必须上卷成 Root -> Root。
    - 模块内边 (intra_module_edges)：推演同一 Root 内部的调用顺序。
+     - 【Rust 专用边端点约束】`intra_module_edges.source/target` 必须是 `intermediate_nodes[].id`，且两个 Intermediate 必须拥有同一个 `parent_root`。
    
    【Rust 特有连线规则】：
    - 状态污染追踪：如果你发现文件 A `writes_globals: ["ACTIVE"]`，文件 B `reads_globals: ["ACTIVE"]`，必须建立执行顺序或数据流连线。
