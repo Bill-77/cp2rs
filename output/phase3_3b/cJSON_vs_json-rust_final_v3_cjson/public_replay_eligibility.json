@@ -2801,6 +2801,22 @@
         "\"Failed to read expected output.\"",
         "\"Failed to read of parse test.\"",
         "\"Failed to print tree back to JSON.\""
+      ],
+      "referenced_fixtures": [
+        {
+          "path": "tests/inputs/test10",
+          "size_bytes": 79,
+          "content_excerpt": "[\"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\"]\n",
+          "replay_worktree_path": "tests/inputs/test10",
+          "fixture_role": "source_literal_reference"
+        },
+        {
+          "path": "tests/inputs/test10.expected",
+          "size_bytes": 78,
+          "content_excerpt": "[\"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\"]",
+          "replay_worktree_path": "tests/inputs/test10.expected",
+          "fixture_role": "expected_output_candidate"
+        }
       ]
     },
     {
@@ -2860,6 +2876,22 @@
         "\"Failed to read expected output.\"",
         "\"Failed to read of parse test.\"",
         "\"Failed to print tree back to JSON.\""
+      ],
+      "referenced_fixtures": [
+        {
+          "path": "tests/inputs/test11",
+          "size_bytes": 149,
+          "content_excerpt": "{\n\"name\": \"Jack (\\\"Bee\\\") Nimble\",\n\"format\": {\"type\":       \"rect\",\n\"width\":      1920,\n\"height\":     1080,\n\"interlace\":  false,\"frame rate\": 24\n}\n}\n",
+          "replay_worktree_path": "tests/inputs/test11",
+          "fixture_role": "source_literal_reference"
+        },
+        {
+          "path": "tests/inputs/test11.expected",
+          "size_bytes": 147,
+          "content_excerpt": "{\n\t\"name\":\t\"Jack (\\\"Bee\\\") Nimble\",\n\t\"format\":\t{\n\t\t\"type\":\t\"rect\",\n\t\t\"width\":\t1920,\n\t\t\"height\":\t1080,\n\t\t\"interlace\":\tfalse,\n\t\t\"frame rate\":\t24\n\t}\n}",
+          "replay_worktree_path": "tests/inputs/test11.expected",
+          "fixture_role": "expected_output_candidate"
+        }
       ]
     },
     {
@@ -2919,6 +2951,22 @@
         "\"Failed to read expected output.\"",
         "\"Failed to read of parse test.\"",
         "\"Failed to print tree back to JSON.\""
+      ],
+      "referenced_fixtures": [
+        {
+          "path": "tests/inputs/test1",
+          "size_bytes": 583,
+          "content_excerpt": "{\n    \"glossary\": {\n        \"title\": \"example glossary\",\n\t\t\"GlossDiv\": {\n            \"title\": \"S\",\n\t\t\t\"GlossList\": {\n                \"GlossEntry\": {\n                    \"ID\": \"SGML\",\n\t\t\t\t\t\"SortAs\": \"SGML\",\n\t\t\t\t\t\"GlossTerm\": \"Standard Generalized Markup Language\",\n\t\t\t\t\t\"Acronym\": \"SGML\",\n\t\t\t\t\t\"Abbrev\": \"ISO 8879:1986\",\n\t\t\t\t\t\"GlossDef\": {\n                        \"para\": \"A meta-markup language, used to create markup languages such as DocBook.\",\n\t\t\t\t\t\t\"GlossSeeAlso\": [\"GML\", \"XML\"]\n                    },\n\t\t\t\t\t\"GlossSee\": \"markup\"\n                }\n            }\n        }\n    }\n}\n",
+          "replay_worktree_path": "tests/inputs/test1",
+          "fixture_role": "source_literal_reference"
+        },
+        {
+          "path": "tests/inputs/test1.expected",
+          "size_bytes": 474,
+          "content_excerpt": "{\n\t\"glossary\":\t{\n\t\t\"title\":\t\"example glossary\",\n\t\t\"GlossDiv\":\t{\n\t\t\t\"title\":\t\"S\",\n\t\t\t\"GlossList\":\t{\n\t\t\t\t\"GlossEntry\":\t{\n\t\t\t\t\t\"ID\":\t\"SGML\",\n\t\t\t\t\t\"SortAs\":\t\"SGML\",\n\t\t\t\t\t\"GlossTerm\":\t\"Standard Generalized Markup Language\",\n\t\t\t\t\t\"Acronym\":\t\"SGML\",\n\t\t\t\t\t\"Abbrev\":\t\"ISO 8879:1986\",\n\t\t\t\t\t\"GlossDef\":\t{\n\t\t\t\t\t\t\"para\":\t\"A meta-markup language, used to create markup languages such as DocBook.\",\n\t\t\t\t\t\t\"GlossSeeAlso\":\t[\"GML\", \"XML\"]\n\t\t\t\t\t},\n\t\t\t\t\t\"GlossSee\":\t\"markup\"\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n}",
+          "replay_worktree_path": "tests/inputs/test1.expected",
+          "fixture_role": "expected_output_candidate"
+        }
       ]
     },
     {
@@ -2978,6 +3026,22 @@
         "\"Failed to read expected output.\"",
         "\"Failed to read of parse test.\"",
         "\"Failed to print tree back to JSON.\""
+      ],
+      "referenced_fixtures": [
+        {
+          "path": "tests/inputs/test2",
+          "size_bytes": 242,
+          "content_excerpt": "{\"menu\": {\n  \"id\": \"file\",\n  \"value\": \"File\",\n  \"popup\": {\n    \"menuitem\": [\n      {\"value\": \"New\", \"onclick\": \"CreateNewDoc()\"},\n      {\"value\": \"Open\", \"onclick\": \"OpenDoc()\"},\n      {\"value\": \"Close\", \"onclick\": \"CloseDoc()\"}\n    ]\n  }\n}}\n",
+          "replay_worktree_path": "tests/inputs/test2",
+          "fixture_role": "source_literal_reference"
+        },
+        {
+          "path": "tests/inputs/test2.expected",
+          "size_bytes": 268,
+          "content_excerpt": "{\n\t\"menu\":\t{\n\t\t\"id\":\t\"file\",\n\t\t\"value\":\t\"File\",\n\t\t\"popup\":\t{\n\t\t\t\"menuitem\":\t[{\n\t\t\t\t\t\"value\":\t\"New\",\n\t\t\t\t\t\"onclick\":\t\"CreateNewDoc()\"\n\t\t\t\t}, {\n\t\t\t\t\t\"value\":\t\"Open\",\n\t\t\t\t\t\"onclick\":\t\"OpenDoc()\"\n\t\t\t\t}, {\n\t\t\t\t\t\"value\":\t\"Close\",\n\t\t\t\t\t\"onclick\":\t\"CloseDoc()\"\n\t\t\t\t}]\n\t\t}\n\t}\n}",
+          "replay_worktree_path": "tests/inputs/test2.expected",
+          "fixture_role": "expected_output_candidate"
+        }
       ]
     },
     {
@@ -3037,6 +3101,22 @@
         "\"Failed to read expected output.\"",
         "\"Failed to read of parse test.\"",
         "\"Failed to print tree back to JSON.\""
+      ],
+      "referenced_fixtures": [
+        {
+          "path": "tests/inputs/test3",
+          "size_bytes": 603,
+          "content_excerpt": "{\"widget\": {\n    \"debug\": \"on\",\n    \"window\": {\n        \"title\": \"Sample Konfabulator Widget\",\n        \"name\": \"main_window\",\n        \"width\": 500,\n        \"height\": 500\n    },\n    \"image\": {\n        \"src\": \"Images/Sun.png\",\n        \"name\": \"sun1\",\n        \"hOffset\": 250,\n        \"vOffset\": 250,\n        \"alignment\": \"center\"\n    },\n    \"text\": {\n        \"data\": \"Click Here\",\n        \"size\": 36,\n        \"style\": \"bold\",\n        \"name\": \"text1\",\n        \"hOffset\": 250,\n        \"vOffset\": 100,\n        \"alignment\": \"center\",\n        \"onMouseUp\": \"sun1.opacity = (sun1.opacity / 100) * 90;\"\n    }\n}}   ",
+          "replay_worktree_path": "tests/inputs/test3",
+          "fixture_role": "source_literal_reference"
+        },
+        {
+          "path": "tests/inputs/test3.expected",
+          "size_bytes": 505,
+          "content_excerpt": "{\n\t\"widget\":\t{\n\t\t\"debug\":\t\"on\",\n\t\t\"window\":\t{\n\t\t\t\"title\":\t\"Sample Konfabulator Widget\",\n\t\t\t\"name\":\t\"main_window\",\n\t\t\t\"width\":\t500,\n\t\t\t\"height\":\t500\n\t\t},\n\t\t\"image\":\t{\n\t\t\t\"src\":\t\"Images/Sun.png\",\n\t\t\t\"name\":\t\"sun1\",\n\t\t\t\"hOffset\":\t250,\n\t\t\t\"vOffset\":\t250,\n\t\t\t\"alignment\":\t\"center\"\n\t\t},\n\t\t\"text\":\t{\n\t\t\t\"data\":\t\"Click Here\",\n\t\t\t\"size\":\t36,\n\t\t\t\"style\":\t\"bold\",\n\t\t\t\"name\":\t\"text1\",\n\t\t\t\"hOffset\":\t250,\n\t\t\t\"vOffset\":\t100,\n\t\t\t\"alignment\":\t\"center\",\n\t\t\t\"onMouseUp\":\t\"sun1.opacity = (sun1.opacity / 100) * 90;\"\n\t\t}\n\t}\n}",
+          "replay_worktree_path": "tests/inputs/test3.expected",
+          "fixture_role": "expected_output_candidate"
+        }
       ]
     },
     {
@@ -3096,6 +3176,22 @@
         "\"Failed to read expected output.\"",
         "\"Failed to read of parse test.\"",
         "\"Failed to print tree back to JSON.\""
+      ],
+      "referenced_fixtures": [
+        {
+          "path": "tests/inputs/test4",
+          "size_bytes": 3464,
+          "content_excerpt": "{\"web-app\": {\n  \"servlet\": [  \n    {\n      \"servlet-name\": \"cofaxCDS\",\n      \"servlet-class\": \"org.cofax.cds.CDSServlet\",\n      \"init-param\": {\n        \"configGlossary:installationAt\": \"Philadelphia, PA\",\n        \"configGlossary:adminEmail\": \"ksm@pobox.com\",\n        \"configGlossary:poweredBy\": \"Cofax\",\n        \"configGlossary:poweredByIcon\": \"/images/cofax.gif\",\n        \"configGlossary:staticPath\": \"/content/static\",\n        \"templateProcessorClass\": \"org.cofax.WysiwygTemplate\",\n        \"templateLoaderClass\": \"org.cofax.FilesTemplateLoader\",\n        \"templatePath\": \"templates\",\n        \"templateOverridePath\": \"\",\n        \"defaultListTemplate\": \"listTemplate.htm\",\n        \"defaultFileTemplate\": \"articleTemplate.htm\",\n        \"useJSP\": false,\n        \"jspListTemplate\": \"listTemplate.jsp\",\n        \"jspFileTemplate\": \"articleTemplate.jsp\",\n        \"cachePackageTagsTrack\": 200,\n        \"cachePackageTagsStore\": 200,\n        \"cachePackageTagsRefresh\": 60,\n        \"cacheTemplatesTrack\": 100,\n        \"cacheTemplatesStore\": 50,\n        \"cacheTemplatesRefresh\": 15,\n        \"cachePagesTrack\": 200,\n        \"cachePagesStore\": 100,\n        \"cachePagesRefresh\": 10,\n        \"cachePagesDirtyRead\": 1",
+          "replay_worktree_path": "tests/inputs/test4",
+          "fixture_role": "source_literal_reference"
+        },
+        {
+          "path": "tests/inputs/test4.expected",
+          "size_bytes": 3285,
+          "content_excerpt": "{\n\t\"web-app\":\t{\n\t\t\"servlet\":\t[{\n\t\t\t\t\"servlet-name\":\t\"cofaxCDS\",\n\t\t\t\t\"servlet-class\":\t\"org.cofax.cds.CDSServlet\",\n\t\t\t\t\"init-param\":\t{\n\t\t\t\t\t\"configGlossary:installationAt\":\t\"Philadelphia, PA\",\n\t\t\t\t\t\"configGlossary:adminEmail\":\t\"ksm@pobox.com\",\n\t\t\t\t\t\"configGlossary:poweredBy\":\t\"Cofax\",\n\t\t\t\t\t\"configGlossary:poweredByIcon\":\t\"/images/cofax.gif\",\n\t\t\t\t\t\"configGlossary:staticPath\":\t\"/content/static\",\n\t\t\t\t\t\"templateProcessorClass\":\t\"org.cofax.WysiwygTemplate\",\n\t\t\t\t\t\"templateLoaderClass\":\t\"org.cofax.FilesTemplateLoader\",\n\t\t\t\t\t\"templatePath\":\t\"templates\",\n\t\t\t\t\t\"templateOverridePath\":\t\"\",\n\t\t\t\t\t\"defaultListTemplate\":\t\"listTemplate.htm\",\n\t\t\t\t\t\"defaultFileTemplate\":\t\"articleTemplate.htm\",\n\t\t\t\t\t\"useJSP\":\tfalse,\n\t\t\t\t\t\"jspListTemplate\":\t\"listTemplate.jsp\",\n\t\t\t\t\t\"jspFileTemplate\":\t\"articleTemplate.jsp\",\n\t\t\t\t\t\"cachePackageTagsTrack\":\t200,\n\t\t\t\t\t\"cachePackageTagsStore\":\t200,\n\t\t\t\t\t\"cachePackageTagsRefresh\":\t60,\n\t\t\t\t\t\"cacheTemplatesTrack\":\t100,\n\t\t\t\t\t\"cacheTemplatesStore\":\t50,\n\t\t\t\t\t\"cacheTemplatesRefresh\":\t15,\n\t\t\t\t\t\"cachePagesTrack\":\t200,\n\t\t\t\t\t\"cachePagesStore\":\t100,\n\t\t\t\t\t\"cachePagesRefresh\":\t10,\n\t\t\t\t\t\"cachePagesDirtyRead\":\t10,\n\t\t\t\t\t\"searchEngineListTemplate\":\t\"forSearchEnginesList.htm\",\n\t\t\t\t\t\"searchEngineF",
+          "replay_worktree_path": "tests/inputs/test4.expected",
+          "fixture_role": "expected_output_candidate"
+        }
       ]
     },
     {
@@ -3155,6 +3251,22 @@
         "\"Failed to read expected output.\"",
         "\"Failed to read of parse test.\"",
         "\"Failed to print tree back to JSON.\""
+      ],
+      "referenced_fixtures": [
+        {
+          "path": "tests/inputs/test5",
+          "size_bytes": 873,
+          "content_excerpt": "{\"menu\": {\n    \"header\": \"SVG Viewer\",\n    \"items\": [\n        {\"id\": \"Open\"},\n        {\"id\": \"OpenNew\", \"label\": \"Open New\"},\n        null,\n        {\"id\": \"ZoomIn\", \"label\": \"Zoom In\"},\n        {\"id\": \"ZoomOut\", \"label\": \"Zoom Out\"},\n        {\"id\": \"OriginalView\", \"label\": \"Original View\"},\n        null,\n        {\"id\": \"Quality\"},\n        {\"id\": \"Pause\"},\n        {\"id\": \"Mute\"},\n        null,\n        {\"id\": \"Find\", \"label\": \"Find...\"},\n        {\"id\": \"FindAgain\", \"label\": \"Find Again\"},\n        {\"id\": \"Copy\"},\n        {\"id\": \"CopyAgain\", \"label\": \"Copy Again\"},\n        {\"id\": \"CopySVG\", \"label\": \"Copy SVG\"},\n        {\"id\": \"ViewSVG\", \"label\": \"View SVG\"},\n        {\"id\": \"ViewSource\", \"label\": \"View Source\"},\n        {\"id\": \"SaveAs\", \"label\": \"Save As\"},\n        null,\n        {\"id\": \"Help\"},\n        {\"id\": \"About\", \"label\": \"About Adobe CVG Viewer...\"}\n    ]\n}}\n",
+          "replay_worktree_path": "tests/inputs/test5",
+          "fixture_role": "source_literal_reference"
+        },
+        {
+          "path": "tests/inputs/test5.expected",
+          "size_bytes": 900,
+          "content_excerpt": "{\n\t\"menu\":\t{\n\t\t\"header\":\t\"SVG Viewer\",\n\t\t\"items\":\t[{\n\t\t\t\t\"id\":\t\"Open\"\n\t\t\t}, {\n\t\t\t\t\"id\":\t\"OpenNew\",\n\t\t\t\t\"label\":\t\"Open New\"\n\t\t\t}, null, {\n\t\t\t\t\"id\":\t\"ZoomIn\",\n\t\t\t\t\"label\":\t\"Zoom In\"\n\t\t\t}, {\n\t\t\t\t\"id\":\t\"ZoomOut\",\n\t\t\t\t\"label\":\t\"Zoom Out\"\n\t\t\t}, {\n\t\t\t\t\"id\":\t\"OriginalView\",\n\t\t\t\t\"label\":\t\"Original View\"\n\t\t\t}, null, {\n\t\t\t\t\"id\":\t\"Quality\"\n\t\t\t}, {\n\t\t\t\t\"id\":\t\"Pause\"\n\t\t\t}, {\n\t\t\t\t\"id\":\t\"Mute\"\n\t\t\t}, null, {\n\t\t\t\t\"id\":\t\"Find\",\n\t\t\t\t\"label\":\t\"Find...\"\n\t\t\t}, {\n\t\t\t\t\"id\":\t\"FindAgain\",\n\t\t\t\t\"label\":\t\"Find Again\"\n\t\t\t}, {\n\t\t\t\t\"id\":\t\"Copy\"\n\t\t\t}, {\n\t\t\t\t\"id\":\t\"CopyAgain\",\n\t\t\t\t\"label\":\t\"Copy Again\"\n\t\t\t}, {\n\t\t\t\t\"id\":\t\"CopySVG\",\n\t\t\t\t\"label\":\t\"Copy SVG\"\n\t\t\t}, {\n\t\t\t\t\"id\":\t\"ViewSVG\",\n\t\t\t\t\"label\":\t\"View SVG\"\n\t\t\t}, {\n\t\t\t\t\"id\":\t\"ViewSource\",\n\t\t\t\t\"label\":\t\"View Source\"\n\t\t\t}, {\n\t\t\t\t\"id\":\t\"SaveAs\",\n\t\t\t\t\"label\":\t\"Save As\"\n\t\t\t}, null, {\n\t\t\t\t\"id\":\t\"Help\"\n\t\t\t}, {\n\t\t\t\t\"id\":\t\"About\",\n\t\t\t\t\"label\":\t\"About Adobe CVG Viewer...\"\n\t\t\t}]\n\t}\n}",
+          "replay_worktree_path": "tests/inputs/test5.expected",
+          "fixture_role": "expected_output_candidate"
+        }
       ]
     },
     {
@@ -3200,6 +3312,15 @@
         "\"Failed to read test6 data.\"",
         "\"Should fail to parse what is not JSON.\"",
         "\"Error pointer is incorrect.\""
+      ],
+      "referenced_fixtures": [
+        {
+          "path": "tests/inputs/test6",
+          "size_bytes": 484,
+          "content_excerpt": "<!DOCTYPE html>\n    <html>\n    <head>\n      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n      <style type=\"text/css\">\n        html, body, iframe { margin: 0; padding: 0; height: 100%; }\n        iframe { display: block; width: 100%; border: none; }\n      </style>\n    <title>Application Error</title>\n    </head>\n    <body>\n      <iframe src=\"//s3.amazonaws.com/heroku_pages/error.html\">\n        <p>Application Error</p>\n      </iframe>\n    </body>\n    </html>",
+          "replay_worktree_path": "tests/inputs/test6",
+          "fixture_role": "source_literal_reference"
+        }
       ]
     },
     {
@@ -3259,6 +3380,22 @@
         "\"Failed to read expected output.\"",
         "\"Failed to read of parse test.\"",
         "\"Failed to print tree back to JSON.\""
+      ],
+      "referenced_fixtures": [
+        {
+          "path": "tests/inputs/test7",
+          "size_bytes": 399,
+          "content_excerpt": "[\n\t {\n\t \"precision\": \"zip\",\n\t \"Latitude\":  37.7668,\n\t \"Longitude\": -122.3959,\n\t \"Address\":   \"\",\n\t \"City\":      \"SAN FRANCISCO\",\n\t \"State\":     \"CA\",\n\t \"Zip\":       \"94107\",\n\t \"Country\":   \"US\"\n\t },\n\t {\n\t \"precision\": \"zip\",\n\t \"Latitude\":  37.371991,\n\t \"Longitude\": -122.026020,\n\t \"Address\":   \"\",\n\t \"City\":      \"SUNNYVALE\",\n\t \"State\":     \"CA\",\n\t \"Zip\":       \"94085\",\n\t \"Country\":   \"US\"\n\t }\n\t ]\n",
+          "replay_worktree_path": "tests/inputs/test7",
+          "fixture_role": "source_literal_reference"
+        },
+        {
+          "path": "tests/inputs/test7.expected",
+          "size_bytes": 347,
+          "content_excerpt": "[{\n\t\t\"precision\":\t\"zip\",\n\t\t\"Latitude\":\t37.7668,\n\t\t\"Longitude\":\t-122.3959,\n\t\t\"Address\":\t\"\",\n\t\t\"City\":\t\"SAN FRANCISCO\",\n\t\t\"State\":\t\"CA\",\n\t\t\"Zip\":\t\"94107\",\n\t\t\"Country\":\t\"US\"\n\t}, {\n\t\t\"precision\":\t\"zip\",\n\t\t\"Latitude\":\t37.371991,\n\t\t\"Longitude\":\t-122.02602,\n\t\t\"Address\":\t\"\",\n\t\t\"City\":\t\"SUNNYVALE\",\n\t\t\"State\":\t\"CA\",\n\t\t\"Zip\":\t\"94085\",\n\t\t\"Country\":\t\"US\"\n\t}]",
+          "replay_worktree_path": "tests/inputs/test7.expected",
+          "fixture_role": "expected_output_candidate"
+        }
       ]
     },
     {
@@ -3318,6 +3455,22 @@
         "\"Failed to read expected output.\"",
         "\"Failed to read of parse test.\"",
         "\"Failed to print tree back to JSON.\""
+      ],
+      "referenced_fixtures": [
+        {
+          "path": "tests/inputs/test8",
+          "size_bytes": 247,
+          "content_excerpt": "{\n\t\t\"Image\": {\n\t\t\t\"Width\":  800,\n\t\t\t\"Height\": 600,\n\t\t\t\"Title\":  \"View from 15th Floor\",\n\t\t\t\"Thumbnail\": {\n\t\t\t\t\"Url\":    \"http:/*www.example.com/image/481989943\",\n\t\t\t\t\"Height\": 125,\n\t\t\t\t\"Width\":  \"100\"\n\t\t\t},\n\t\t\t\"IDs\": [116, 943, 234, 38793]\n\t\t}\n\t}\n",
+          "replay_worktree_path": "tests/inputs/test8",
+          "fixture_role": "source_literal_reference"
+        },
+        {
+          "path": "tests/inputs/test8.expected",
+          "size_bytes": 228,
+          "content_excerpt": "{\n\t\"Image\":\t{\n\t\t\"Width\":\t800,\n\t\t\"Height\":\t600,\n\t\t\"Title\":\t\"View from 15th Floor\",\n\t\t\"Thumbnail\":\t{\n\t\t\t\"Url\":\t\"http:/*www.example.com/image/481989943\",\n\t\t\t\"Height\":\t125,\n\t\t\t\"Width\":\t\"100\"\n\t\t},\n\t\t\"IDs\":\t[116, 943, 234, 38793]\n\t}\n}",
+          "replay_worktree_path": "tests/inputs/test8.expected",
+          "fixture_role": "expected_output_candidate"
+        }
       ]
     },
     {
@@ -3377,6 +3530,22 @@
         "\"Failed to read expected output.\"",
         "\"Failed to read of parse test.\"",
         "\"Failed to print tree back to JSON.\""
+      ],
+      "referenced_fixtures": [
+        {
+          "path": "tests/inputs/test9",
+          "size_bytes": 50,
+          "content_excerpt": "[\n    [0, -1, 0],\n    [1, 0, 0],\n    [0, 0, 1]\n\t]\n",
+          "replay_worktree_path": "tests/inputs/test9",
+          "fixture_role": "source_literal_reference"
+        },
+        {
+          "path": "tests/inputs/test9.expected",
+          "size_bytes": 34,
+          "content_excerpt": "[[0, -1, 0], [1, 0, 0], [0, 0, 1]]",
+          "replay_worktree_path": "tests/inputs/test9.expected",
+          "fixture_role": "expected_output_candidate"
+        }
       ]
     },
     {

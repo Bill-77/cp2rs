@@ -127,6 +127,7 @@ class TraceReplay3B:
         self._active_artifacts_path = artifacts_path
         self._progress("INVENTORY", "开始发现和解析 src 测试")
         inventory = self.discover_tests(alignment_stats)
+        self._last_inventory = inventory
         inventory_summary = inventory.get("summary", {})
         self._progress(
             "INVENTORY",
@@ -149,12 +150,12 @@ class TraceReplay3B:
         if mode == "inventory":
             self._prime_adapter_context(alignment_stats, inventory, artifacts_path)
             adapter = {
-                "adapter_schema_version": "3b.adapter.v1",
+                "adapter_schema_version": "3b.replay_adapter.v2",
                 "name": "inventory_only",
                 "status": "not_required",
                 "generation_status": "not_run_in_inventory_mode",
-                "public_operations": {},
-                "trace_events": [],
+                "replay_events": [],
+                "unresolved_behavior_cases": [],
             }
             replay_plan = self._empty_replay_plan("three_b_mode_inventory")
         else:
@@ -174,7 +175,7 @@ class TraceReplay3B:
             self._progress(
                 "ADAPTER",
                 f"status={adapter.get('status')}, generation={adapter.get('generation_status', '')}, "
-                f"operations={len(adapter.get('public_operations', {}))}, events={len(adapter.get('trace_events', []))}",
+                f"replay_events={len(adapter.get('replay_events', []))}",
             )
             if artifacts_path:
                 with open(artifacts_path / "effective_adapter.json", "w", encoding="utf-8") as f:
@@ -461,13 +462,14 @@ class TraceReplay3B:
             self._last_synthesis_prompt = prompt
             self._write_adapter_synthesis_inputs(artifacts_path, context, prompt)
             return {
-                "adapter_schema_version": "3b.adapter.v1",
+                "adapter_schema_version": "3b.replay_adapter.v2",
                 "name": "adapter_synthesis_prompt_only",
                 "status": "adapter_synthesis_prompt_ready",
-                "adapter_role": "repo_specific_behavior_recipe",
+                "adapter_role": "repo_specific_public_replay_plan",
                 "generation_status": "prompt_only",
                 "generation_inputs": self._synthesis_generation_inputs(),
-                "public_operations": {},
+                "replay_events": [],
+                "unresolved_behavior_cases": [],
                 "_adapter_source_path": self._display_path(artifacts_path / "adapter_synthesis_prompt.md") if artifacts_path else "",
             }
 
@@ -477,9 +479,8 @@ class TraceReplay3B:
         adapter = {}
         self._apply_synthesized_adapter_defaults(adapter)
         adapter["generation_status"] = "llm_case_generation_pending"
-        adapter["rust_test_harness"] = ""
-        adapter["trace_events"] = []
-        adapter["excluded_behavior_cases"] = []
+        adapter["replay_events"] = []
+        adapter["unresolved_behavior_cases"] = []
         return adapter
 
     def _prime_adapter_context(self, alignment_stats, inventory, artifacts_path):
@@ -501,65 +502,35 @@ class TraceReplay3B:
         adapter["_validation_status"] = "passed" if not errors else "failed"
 
     def _apply_synthesized_adapter_defaults(self, adapter):
-        adapter.setdefault("adapter_schema_version", "3b.adapter.v1")
-        adapter.setdefault("name", f"llm_synthesized_{self.src_name}_to_{self.tgt_name}_public_v1")
+        adapter.setdefault("adapter_schema_version", "3b.replay_adapter.v2")
+        adapter.setdefault("name", f"llm_synthesized_{self.src_name}_to_{self.tgt_name}_public_v2")
         adapter.setdefault("status", "loaded")
-        adapter.setdefault("adapter_role", "repo_specific_behavior_recipe")
-        adapter.setdefault("generation_status", "llm_synthesized_v1")
+        adapter.setdefault("adapter_role", "repo_specific_public_replay_plan")
+        adapter.setdefault("generation_status", "llm_synthesized_v2")
         adapter.setdefault("generation_inputs", self._synthesis_generation_inputs())
-        adapter.setdefault("recorder", "adapter_declared_trace_events_v1")
-        adapter.setdefault("replay_generator", "rust_inline_harness_v1")
         adapter.setdefault("target_language", "rust")
         adapter.setdefault("target_test_command", ["cargo", "test", "--test", "cp2rs_3b_public"])
-        adapter.setdefault("public_operations", {})
+        adapter.setdefault("rust_support_source", "")
+        adapter.setdefault("replay_events", [])
+        adapter.setdefault("unresolved_behavior_cases", [])
         self._normalize_expected_behavior_field_names(adapter)
-        self._normalize_behavior_case_exclusions(adapter)
+        self._normalize_unresolved_behavior_cases(adapter)
 
     def _normalize_expected_behavior_field_names(self, adapter):
         if not isinstance(adapter, dict):
             return
-        events = adapter.get("trace_events", [])
+        events = adapter.get("replay_events", [])
         if not isinstance(events, list):
             return
         for event in events:
             if not isinstance(event, dict):
                 continue
-            if "expected_behavior_source" not in event and "oracle_source" in event:
-                event["expected_behavior_source"] = event.pop("oracle_source")
-            else:
-                event.pop("oracle_source", None)
-            if "expected_behavior_confidence" not in event and "oracle_confidence" in event:
-                event["expected_behavior_confidence"] = event.pop("oracle_confidence")
-            else:
-                event.pop("oracle_confidence", None)
             for key in ("evidence", "input", "expected", "normalization"):
                 if key in event:
                     event[key] = self._clean_expected_behavior_text(event[key])
-        operations = adapter.get("public_operations", {})
-        if isinstance(operations, dict):
-            for operation in operations.values():
-                if not isinstance(operation, dict):
-                    continue
-                for key in ("description", "normalization", "evidence"):
-                    if key in operation:
-                        operation[key] = self._clean_expected_behavior_text(operation[key])
 
     def _clean_expected_behavior_text(self, value):
         if isinstance(value, str):
-            replacements = {
-                "oracle_source": "expected_behavior_source",
-                "oracle_confidence": "expected_behavior_confidence",
-                "oracle_hint": "expected_behavior_hint",
-                "equality_oracle": "equality_expected_behavior",
-                "non_null_oracle": "non_null_expected_behavior",
-                "null_oracle": "null_expected_behavior",
-                "truth_oracle": "truth_expected_behavior",
-                "falsehood_oracle": "falsehood_expected_behavior",
-                "oracle": "expected behavior",
-                "Oracle": "Expected behavior",
-            }
-            for old, new in replacements.items():
-                value = value.replace(old, new)
             return value
         if isinstance(value, list):
             return [self._clean_expected_behavior_text(item) for item in value]
@@ -572,9 +543,8 @@ class TraceReplay3B:
 
     def _sanitize_generated_adapter(self, adapter):
         """Drop structurally unusable generated pieces; unresolved cases remain completion obligations."""
-        events = adapter.get("trace_events")
-        operations = adapter.get("public_operations")
-        if not isinstance(events, list) or not isinstance(operations, dict):
+        events = adapter.get("replay_events")
+        if not isinstance(events, list):
             return
         context_cases = {
             case.get("case_id"): case
@@ -596,50 +566,26 @@ class TraceReplay3B:
             retained_events.append(event)
             replayed_case_ids.update(source_case_ids or [])
 
-        removed_exclusions = []
-        retained_exclusions = []
-        for exclusion in adapter.get("excluded_behavior_cases") or []:
-            if not isinstance(exclusion, dict):
-                retained_exclusions.append(exclusion)
+        removed_unresolved = []
+        retained_unresolved = []
+        for item in adapter.get("unresolved_behavior_cases") or []:
+            if not isinstance(item, dict):
+                retained_unresolved.append(item)
                 continue
-            case_id = exclusion.get("case_id")
-            case = context_cases.get(case_id, {})
+            case_id = item.get("case_id") or item.get("source_behavior_case_id")
             if case_id in replayed_case_ids:
-                removed_exclusions.append(case_id)
+                removed_unresolved.append(case_id)
                 continue
-            if (
-                exclusion.get("reason") == "cannot_public_replay_internal_state_transition"
-                and not case.get("has_mixed_public_internal_calls")
-            ):
-                removed_exclusions.append(case_id)
-                continue
-            retained_exclusions.append(exclusion)
+            retained_unresolved.append(item)
 
-        referenced_operations = {
-            event.get("operation")
-            for event in retained_events
-            if event.get("operation")
-        }
-        removed_operations = sorted(set(operations) - referenced_operations)
-        adapter["trace_events"] = retained_events
-        adapter["excluded_behavior_cases"] = retained_exclusions
-        adapter["public_operations"] = {
-            name: operation
-            for name, operation in operations.items()
-            if name in referenced_operations
-        }
-        if removed_event_ids:
-            adapter["rust_test_harness"] = self._remove_rust_test_functions(
-                adapter.get("rust_test_harness", ""),
-                set(removed_event_ids),
-            )
-        if removed_event_ids or removed_exclusions or removed_operations:
+        adapter["replay_events"] = retained_events
+        adapter["unresolved_behavior_cases"] = retained_unresolved
+        if removed_event_ids or removed_unresolved:
             adapter["_generated_adapter_sanitization"] = {
                 "removed_events_without_source_case_ids": sorted(removed_event_ids),
-                "removed_invalid_or_conflicting_exclusions": sorted(
-                    case_id for case_id in removed_exclusions if case_id
+                "removed_conflicting_unresolved_cases": sorted(
+                    case_id for case_id in removed_unresolved if case_id
                 ),
-                "removed_unreferenced_operations": removed_operations,
                 "policy": "Removed generated fragments are not counted as completed; their source cases remain unresolved.",
             }
 
@@ -659,24 +605,24 @@ class TraceReplay3B:
             harness = harness[:start] + harness[end:]
         return harness
 
-    def _normalize_behavior_case_exclusions(self, adapter):
-        """Deduplicate explicit exclusions without inferring their semantic reason."""
-        exclusions = adapter.get("excluded_behavior_cases")
-        if not isinstance(exclusions, list):
+    def _normalize_unresolved_behavior_cases(self, adapter):
+        """Deduplicate unresolved behavior-case records without inferring their semantic reason."""
+        unresolved = adapter.get("unresolved_behavior_cases")
+        if not isinstance(unresolved, list):
             return
-        normalized_exclusions = []
+        normalized_unresolved = []
         by_case_id = {}
-        for item in exclusions:
+        for item in unresolved:
             if not isinstance(item, dict):
-                normalized_exclusions.append(item)
+                normalized_unresolved.append(item)
                 continue
-            case_id = item.get("case_id")
-            if item.get("reason") == "oracle_not_precise":
-                item["reason"] = "expected_behavior_not_precise"
+            case_id = item.get("case_id") or item.get("source_behavior_case_id")
+            if "source_behavior_case_id" in item and "case_id" not in item:
+                item["case_id"] = item.pop("source_behavior_case_id")
             if "details" in item:
                 item["details"] = self._clean_expected_behavior_text(item.get("details", ""))
             if not case_id or case_id not in by_case_id:
-                normalized_exclusions.append(item)
+                normalized_unresolved.append(item)
                 if case_id:
                     by_case_id[case_id] = item
                 continue
@@ -685,7 +631,7 @@ class TraceReplay3B:
             duplicate_details = str(item.get("details", "")).strip()
             if duplicate_details and duplicate_details not in existing_details:
                 existing["details"] = "; ".join(filter(None, [existing_details, duplicate_details]))
-        adapter["excluded_behavior_cases"] = normalized_exclusions
+        adapter["unresolved_behavior_cases"] = normalized_unresolved
 
     def _write_synthesized_adapter(self, artifacts_path, adapter, attempt_number):
         if artifacts_path:
@@ -732,12 +678,12 @@ class TraceReplay3B:
         for repair_index in range(1, self.replay_repair_attempts + 1):
             attempt_number = len(attempts) + 1
             total_infra_failed_tests = len(self._infrastructure_failed_test_context(
-                self._rust_inline_harness_from_adapter(current_adapter),
+                self._rust_test_source_from_adapter(current_adapter),
                 current_replay_result,
                 max_tests=10000,
             ))
             infra_failed_tests = self._infrastructure_failed_test_context(
-                self._rust_inline_harness_from_adapter(current_adapter),
+                self._rust_test_source_from_adapter(current_adapter),
                 current_replay_result,
                 max_tests=self._replay_repair_batch_size(),
             )
@@ -998,7 +944,8 @@ class TraceReplay3B:
             except Exception as exc:
                 errors.append(f"JSON extraction failed: {exc}")
 
-            if self._should_split_adapter_generation_batch_after_output_limit(errors, targeted_ids):
+            json_failure_kind = self._adapter_generation_json_failure_kind(errors)
+            if self._should_split_adapter_generation_batch_after_json_failure(errors, targeted_ids):
                 for case_id in targeted_ids:
                     case_attempt_counts[case_id] = max(0, case_attempt_counts.get(case_id, 0) - 1)
                 split_batches = self._split_case_batch(targeted_ids)
@@ -1016,13 +963,14 @@ class TraceReplay3B:
                     "excluded_case_ids": [],
                     "unresolved_case_ids": targeted_ids,
                     "errors": errors,
+                    "json_failure_kind": json_failure_kind,
                     "split_retry_batches": split_batches,
                     "llm_output_limit": (self._llm_usage.get("call_records") or [{}])[-1].get("max_output_tokens"),
                 })
                 self._write_synthesis_attempts(artifacts_path, attempts)
                 self._progress(
                     "ADAPTER-GENERATION",
-                    f"batch {iteration}: JSON output likely truncated; split targeted={len(targeted_ids)} "
+                    f"batch {iteration}: JSON output failure={json_failure_kind}; split targeted={len(targeted_ids)} "
                     f"into {[len(batch) for batch in split_batches]} and retry without consuming case attempts",
                 )
                 retry_case_ids = []
@@ -1031,9 +979,6 @@ class TraceReplay3B:
             post_coverage = self._adapter_behavior_case_coverage(current_adapter)
             replayed_case_ids = sorted(
                 set(targeted_ids) & set(post_coverage.get("replayed_behavior_case_ids", []))
-            )
-            excluded_case_ids = sorted(
-                set(targeted_ids) & set(post_coverage.get("excluded_behavior_case_ids", []))
             )
             unresolved_case_ids = sorted(set(targeted_ids) - set(accepted_case_ids))
             retry_case_ids = [
@@ -1049,15 +994,13 @@ class TraceReplay3B:
                 "targeted_case_ids": targeted_ids,
                 "accepted_case_ids": accepted_case_ids,
                 "replay_generated_case_ids": replayed_case_ids,
-                "excluded_case_ids": excluded_case_ids,
                 "unresolved_case_ids": unresolved_case_ids,
                 "errors": errors,
+                "json_failure_kind": json_failure_kind,
             })
             for case_id in targeted_ids:
                 if case_id in replayed_case_ids:
                     outcome = "replay_generated"
-                elif case_id in excluded_case_ids:
-                    outcome = "excluded_with_valid_reason"
                 else:
                     outcome = "unresolved"
                 self._note_case_conversion_attempts(
@@ -1070,7 +1013,7 @@ class TraceReplay3B:
             self._progress(
                 "ADAPTER-GENERATION",
                 f"batch {iteration}: replay_generated={len(replayed_case_ids)}, "
-                f"excluded={len(excluded_case_ids)}, unresolved_in_batch={len(unresolved_case_ids)}, "
+                f"unresolved_in_batch={len(unresolved_case_ids)}, "
                 f"retry_next={len(retry_case_ids)}",
             )
             if accepted_case_ids:
@@ -1087,7 +1030,7 @@ class TraceReplay3B:
             "unresolved_case_count": len(self._adapter_generation_unresolved_case_ids),
             "unresolved_case_ids": self._adapter_generation_unresolved_case_ids,
             "unresolved_cases": [
-                {"case_id": case_id, "status": "unresolved_adapter_generation"}
+                {"case_id": case_id, "status": "unresolved_behavior_case_conversion"}
                 for case_id in self._adapter_generation_unresolved_case_ids
             ],
         }
@@ -1125,16 +1068,37 @@ class TraceReplay3B:
         # exploring unnecessary prose/variants.
         return min(16000, max(4000, targeted_case_count * 1800))
 
-    def _should_split_adapter_generation_batch_after_output_limit(self, errors, targeted_ids):
+    def _adapter_generation_json_failure_kind(self, errors):
+        text = "\n".join(str(error) for error in errors or [])
+        if "JSON extraction failed" not in text:
+            return ""
+        call_records = self._llm_usage.get("call_records") or []
+        last_call = call_records[-1] if call_records else {}
+        if last_call.get("completion_hit_max_output"):
+            return "completion_hit_max_output"
+        if "Unterminated string" in text:
+            return "unterminated_json_string"
+        if "Expecting value: line 1 column 1" in text:
+            return "empty_or_non_json_response"
+        if "Expecting property name enclosed in double quotes" in text:
+            return "malformed_json_object"
+        return "json_parse_error"
+
+    def _should_split_adapter_generation_batch_after_json_failure(self, errors, targeted_ids):
         if len(targeted_ids or []) <= 1:
             return False
-        if not any("JSON extraction failed" in str(error) for error in errors or []):
+        failure_kind = self._adapter_generation_json_failure_kind(errors)
+        if not failure_kind:
             return False
         call_records = self._llm_usage.get("call_records") or []
-        if not call_records:
-            return False
-        last_call = call_records[-1]
-        return bool(last_call.get("completion_hit_max_output"))
+        last_call = call_records[-1] if call_records else {}
+        if last_call.get("completion_hit_max_output"):
+            return True
+        return failure_kind in {
+            "unterminated_json_string",
+            "empty_or_non_json_response",
+            "malformed_json_object",
+        } and len(targeted_ids or []) > 2
 
     def _split_case_batch(self, case_ids):
         case_ids = list(dict.fromkeys(case_ids or []))
@@ -1144,123 +1108,98 @@ class TraceReplay3B:
         return [case_ids[:midpoint], case_ids[midpoint:]]
 
     def _merge_adapter_generation_patch(self, current_adapter, candidate):
-        """Merge generated additions without allowing accepted cases to disappear."""
-        if candidate.get("adapter_patch_version") != "3b.adapter_patch.v1":
+        """Merge generated replay-event additions without allowing accepted cases to disappear."""
+        if candidate.get("adapter_patch_version") != "3b.replay_events_patch.v1":
             return candidate
 
         merged = json.loads(json.dumps(current_adapter))
-        operations = merged.setdefault("public_operations", {})
-        for name, operation in (candidate.get("public_operations_add") or {}).items():
-            if name in operations and operations[name] != operation:
-                raise ValueError(f"adapter generation patch attempts to replace existing operation: {name}")
-            operations[name] = operation
-
-        events = merged.setdefault("trace_events", [])
+        events = merged.setdefault("replay_events", [])
         existing_events = {
             event.get("id"): event
             for event in events
             if isinstance(event, dict) and event.get("id")
         }
-        for event in candidate.get("trace_events_add") or []:
-            event_id = event.get("id") if isinstance(event, dict) else None
+        for event in candidate.get("replay_events_add") or []:
+            if not isinstance(event, dict):
+                continue
+            event_id = event.get("id")
             if event_id in existing_events:
                 if existing_events[event_id] != event:
-                    raise ValueError(f"adapter generation patch attempts to replace existing trace event: {event_id}")
+                    raise ValueError(f"adapter generation patch attempts to replace existing replay event: {event_id}")
                 continue
+            event["rust_test_body"] = self._normalize_case_rust_test(event.get("rust_test_body", ""), event_id)
             events.append(event)
 
-        exclusions = merged.setdefault("excluded_behavior_cases", [])
-        exclusions.extend(candidate.get("excluded_behavior_cases_add") or [])
+        unresolved = merged.setdefault("unresolved_behavior_cases", [])
+        unresolved.extend(candidate.get("unresolved_behavior_cases_add") or [])
 
-        harness_append = candidate.get("rust_test_harness_append") or ""
-        if harness_append.strip():
-            existing_harness = merged.get("rust_test_harness", "")
-            existing_lines = {line.strip() for line in existing_harness.splitlines() if line.strip()}
-            append_lines = [
-                line for line in harness_append.strip().splitlines()
-                if not (
-                    line.strip().startswith(("use ", "extern crate "))
-                    and line.strip() in existing_lines
-                )
-            ]
-            merged["rust_test_harness"] = (
-                existing_harness.rstrip() + "\n\n" + "\n".join(append_lines).strip() + "\n"
-            ).lstrip()
-            merged["rust_test_harness"] = self._sanitize_rust_harness(merged["rust_test_harness"])
+        support_append = candidate.get("rust_support_source_append") or ""
+        if isinstance(support_append, str) and support_append.strip():
+            existing_support = merged.get("rust_support_source", "")
+            merged["rust_support_source"] = (existing_support.rstrip() + "\n\n" + support_append.strip() + "\n").lstrip()
 
-        self._normalize_behavior_case_exclusions(merged)
+        self._normalize_unresolved_behavior_cases(merged)
         return merged
 
     def _accept_valid_case_fragments(self, current_adapter, candidate, targeted_case_ids, scoped_pairs=None):
-        """Accept independently valid event/exclusion fragments from one LLM batch."""
+        """Accept independently valid replay-event fragments from one LLM batch."""
         targeted = set(targeted_case_ids or [])
         case_result_feedback = self._case_result_feedback_by_id(candidate, targeted)
-        if candidate.get("adapter_case_generation_version") in {"3b.case_results.v1", "3b.case_results.v2"}:
+        if candidate.get("adapter_case_generation_version") == "3b.replay_events.v1":
             candidate = self._case_results_to_adapter_patch(candidate, targeted_case_ids)
 
-        if candidate.get("adapter_patch_version") == "3b.adapter_patch.v1":
-            operations = candidate.get("public_operations_add") or {}
-            events = candidate.get("trace_events_add") or []
-            exclusions = candidate.get("excluded_behavior_cases_add") or []
-            harness = candidate.get("rust_test_harness_append") or ""
+        if candidate.get("adapter_patch_version") == "3b.replay_events_patch.v1":
+            events = candidate.get("replay_events_add") or []
+            unresolved = candidate.get("unresolved_behavior_cases_add") or []
         else:
-            operations = candidate.get("public_operations") or {}
-            events = candidate.get("trace_events") or []
-            exclusions = candidate.get("excluded_behavior_cases") or []
-            harness = candidate.get("rust_test_harness") or ""
+            events = candidate.get("replay_events") or []
+            unresolved = candidate.get("unresolved_behavior_cases") or []
+            candidate = {
+                "adapter_patch_version": "3b.replay_events_patch.v1",
+                "replay_events_add": events,
+                "unresolved_behavior_cases_add": unresolved,
+            }
 
-        if not isinstance(operations, dict) or not isinstance(events, list):
-            return current_adapter, [], ["adapter generation response has invalid operation/event containers"]
+        if not isinstance(events, list):
+            return current_adapter, [], ["adapter generation response has invalid replay_events container"]
 
-        test_blocks = self._rust_test_blocks_by_name(harness)
-        import_lines = self._rust_import_lines(harness)
         accepted = set()
         errors = []
         current = json.loads(json.dumps(current_adapter))
-        allowed_source_uuids, allowed_target_uuids = self._adapter_case_generation_allowed_uuids(
-            scoped_pairs or [],
-        )
+        allowed_source_uuids, allowed_target_uuids = self._adapter_case_generation_allowed_uuids(scoped_pairs or [])
 
         for event in events:
             if not isinstance(event, dict):
-                errors.append("trace event fragment must be an object")
+                errors.append("replay event fragment must be an object")
                 continue
             case_ids = set(event.get("source_case_ids") or []) & targeted
             if not case_ids:
                 continue
-            event_id = event.get("id")
-            operation_name = event.get("operation")
-            operation = operations.get(operation_name) or current.get("public_operations", {}).get(operation_name)
-            test_block = test_blocks.get(event_id)
-            if not operation or not test_block:
-                errors.append(
-                    f"case fragment {sorted(case_ids)} is missing operation {operation_name!r} "
-                    f"or Rust test {event_id!r}"
-                )
+            event_id = self._safe_identifier(event.get("id") or f"replay_{sorted(case_ids)[0]}")
+            event["id"] = event_id
+            test_body = event.get("rust_test_body")
+            if not isinstance(test_body, str) or not test_body.strip():
+                errors.append(f"case fragment {sorted(case_ids)} is missing rust_test_body for replay event {event_id!r}")
                 continue
-            source_outside_batch = sorted(set(operation.get("source_functions") or []) - allowed_source_uuids)
-            target_outside_batch = sorted(set(operation.get("target_functions") or []) - allowed_target_uuids)
+            source_outside_batch = sorted(set(event.get("source_functions") or []) - allowed_source_uuids)
+            target_outside_batch = sorted(set(event.get("target_functions") or []) - allowed_target_uuids)
             if source_outside_batch:
                 errors.extend(
-                    f"case {case_id}: operation source_functions outside current batch allowed source UUIDs: "
-                    f"{source_outside_batch[:8]}"
+                    f"case {case_id}: event source_functions outside current batch allowed source UUIDs: {source_outside_batch[:8]}"
                     for case_id in sorted(case_ids)
                 )
                 continue
             if target_outside_batch:
                 errors.extend(
-                    f"case {case_id}: operation target_functions outside current batch allowed target API UUIDs: "
-                    f"{target_outside_batch[:8]}"
+                    f"case {case_id}: event target_functions outside current batch allowed target API UUIDs: {target_outside_batch[:8]}"
                     for case_id in sorted(case_ids)
                 )
                 continue
-            harness_append = "\n".join(import_lines + [test_block])
+            event["rust_test_body"] = self._normalize_case_rust_test(test_body, event_id)
             patch = {
-                "adapter_patch_version": "3b.adapter_patch.v1",
-                "public_operations_add": {operation_name: operation},
-                "trace_events_add": [event],
-                "excluded_behavior_cases_add": [],
-                "rust_test_harness_append": harness_append,
+                "adapter_patch_version": "3b.replay_events_patch.v1",
+                "replay_events_add": [event],
+                "unresolved_behavior_cases_add": [],
             }
             try:
                 trial = self._merge_adapter_generation_patch(current, patch)
@@ -1278,22 +1217,20 @@ class TraceReplay3B:
             current = trial
             accepted.update(case_ids)
 
-        for exclusion in exclusions if isinstance(exclusions, list) else []:
-            if not isinstance(exclusion, dict) or exclusion.get("case_id") not in targeted:
+        for item in unresolved if isinstance(unresolved, list) else []:
+            if not isinstance(item, dict):
                 continue
-            case_id = exclusion.get("case_id")
-            errors.append(
-                f"case {case_id}: adapter generation may not exclude eligible cases; "
-                "return replay_generated or unresolved_adapter_generation"
-            )
+            case_id = item.get("case_id") or item.get("source_behavior_case_id")
+            if case_id not in targeted:
+                continue
+            reason = item.get("reason") or "unresolved_behavior_case_conversion"
+            details = item.get("details") or item.get("message") or ""
+            errors.append(f"case {case_id}: model returned unresolved, reason={self._truncate_text(str(reason), 220)}, details={self._truncate_text(str(details), 300)}")
 
         for case_id in sorted(targeted - accepted):
             if not any(error.startswith(f"case {case_id}:") for error in errors):
                 feedback = case_result_feedback.get(case_id)
-                if feedback:
-                    errors.append(f"case {case_id}: {feedback}")
-                else:
-                    errors.append(f"case {case_id}: no independently valid replay event or unresolved status was returned")
+                errors.append(feedback and f"case {case_id}: {feedback}" or f"case {case_id}: no independently valid replay event or unresolved status was returned")
 
         return current, sorted(accepted), errors
 
@@ -1325,10 +1262,8 @@ class TraceReplay3B:
 
     def _case_results_to_adapter_patch(self, candidate, targeted_case_ids):
         targeted = set(targeted_case_ids or [])
-        operations = {}
         events = []
-        harness_parts = []
-        errors_as_exclusions = []
+        unresolved = []
         for result in candidate.get("case_results") or []:
             if not isinstance(result, dict):
                 continue
@@ -1337,128 +1272,63 @@ class TraceReplay3B:
                 continue
             status = result.get("status", "")
             if status != "replay_generated":
-                # Keep unresolved statuses out of the adapter. The caller will
-                # mark the case unresolved because no accepted event is present.
-                continue
-
-            compact_event = result.get("event") or result.get("replay_event") or {}
-            operation = result.get("operation") or result.get("public_operation") or {}
-            event = result.get("trace_event") or {}
-            if compact_event and not operation:
-                operation = {
-                    "id": compact_event.get("operation") or compact_event.get("operation_id") or compact_event.get("id"),
-                    "description": compact_event.get("description", ""),
-                    "source_functions": compact_event.get("source_functions", []),
-                    "target_functions": compact_event.get("target_functions", []),
-                    "normalization": compact_event.get("normalization", ""),
-                    "evidence": compact_event.get("evidence", []),
-                }
-            if compact_event and not event:
-                event = {
-                    "id": compact_event.get("id"),
-                    "operation": compact_event.get("operation") or compact_event.get("operation_id") or compact_event.get("id"),
-                    "evidence": compact_event.get("evidence", ""),
-                    "source_case_ids": compact_event.get("source_case_ids", [case_id]),
-                    "input": compact_event.get("input", {}),
-                    "expected": compact_event.get("expected", {}),
-                    "expected_behavior_source": compact_event.get("expected_behavior_source", ""),
-                    "expected_behavior_confidence": compact_event.get("expected_behavior_confidence", ""),
-                }
-            if not isinstance(operation, dict) or not isinstance(event, dict):
-                errors_as_exclusions.append({
+                unresolved.append({
                     "case_id": case_id,
-                    "reason": "invalid_case_result_shape",
-                    "details": "replay_generated result must include operation and trace_event objects",
+                    "reason": result.get("reason") or status or "unresolved_behavior_case_conversion",
+                    "details": result.get("details") or result.get("message") or "",
                 })
                 continue
-
-            operation_id = (
-                operation.get("id")
-                or operation.get("name")
-                or event.get("operation")
-                or self._safe_identifier(f"operation_{case_id}")
-            )
-            operation_id = self._safe_identifier(operation_id)
-            event_id = event.get("id") or self._safe_identifier(f"replay_{case_id}")
-            event_id = self._safe_identifier(event_id)
-
-            normalized_operation = self._normalize_generated_operation(
-                operation,
-                operation_id,
-                case_id,
-            )
-            normalized_event = self._normalize_generated_event(
+            event = result.get("replay_event") or result.get("event") or {}
+            if not isinstance(event, dict):
+                unresolved.append({"case_id": case_id, "reason": "invalid_replay_event_shape", "details": "replay_generated result must include replay_event object"})
+                continue
+            events.append(self._normalize_generated_replay_event(
                 event,
-                event_id,
-                operation_id,
                 case_id,
-            )
-            rust_test = (
-                result.get("rust_test_body")
-                or result.get("rust_test_harness_append")
-                or result.get("rust_test")
-                or ""
-            )
-            rust_test = self._normalize_case_rust_test(rust_test, event_id)
-            operations[operation_id] = normalized_operation
-            events.append(normalized_event)
-            if rust_test.strip():
-                harness_parts.append(rust_test)
-
+                result.get("rust_test_body") or event.get("rust_test_body") or result.get("rust_test") or "",
+            ))
         return {
-            "adapter_patch_version": "3b.adapter_patch.v1",
-            "public_operations_add": operations,
-            "trace_events_add": events,
-            "excluded_behavior_cases_add": errors_as_exclusions,
-            "rust_test_harness_append": "\n\n".join(harness_parts),
+            "adapter_patch_version": "3b.replay_events_patch.v1",
+            "replay_events_add": events,
+            "unresolved_behavior_cases_add": unresolved,
         }
 
-    def _normalize_generated_operation(self, operation, operation_id, case_id):
-        operation = json.loads(json.dumps(operation)) if isinstance(operation, dict) else {}
-        operation.pop("id", None)
-        operation.pop("name", None)
+    def _normalize_generated_replay_event(self, event, case_id, rust_test_body=""):
+        event = json.loads(json.dumps(event)) if isinstance(event, dict) else {}
+        event_id = self._safe_identifier(event.get("id") or f"replay_{case_id}")
         case = (getattr(self, "_last_behavior_case_details", {}) or {}).get(case_id, {})
-        source_functions = list(operation.get("source_functions") or [])
+        source_functions = list(event.get("source_functions") or [])
         if not source_functions:
             source_functions = list(case.get("aligned_source_functions") or [])
         source_functions = sorted(dict.fromkeys(source_functions))
         expected_targets = self._synthesis_expected_targets_by_source()
-        target_functions = list(operation.get("target_functions") or [])
+        target_functions = list(event.get("target_functions") or [])
+        expected_target_set = set()
         for src_uuid in source_functions:
-            target_functions.extend(sorted(expected_targets.get(src_uuid, set())))
+            expected = set(expected_targets.get(src_uuid, set()))
+            expected_target_set.update(expected)
+            target_functions.extend(sorted(expected))
         for substitution in case.get("required_internal_public_substitutions", []) or []:
             if isinstance(substitution, dict):
                 target_functions.extend(substitution.get("target_public_functions", []) or [])
-        operation["source_functions"] = source_functions
-        operation["target_functions"] = sorted(dict.fromkeys(target_functions))
-        operation.setdefault("description", f"Public replay operation for source behavior case {case_id}")
-        operation.setdefault("normalization", "Compare source-test observable behavior through target public APIs.")
-        evidence = operation.get("evidence")
-        if isinstance(evidence, str) and evidence.strip():
-            operation["evidence"] = [evidence.strip()]
-            evidence = operation["evidence"]
-        if not isinstance(evidence, list) or not evidence:
-            operation["evidence"] = [self._case_evidence_label(case_id)]
-        return operation
-
-    def _normalize_generated_event(self, event, event_id, operation_id, case_id):
-        event = json.loads(json.dumps(event)) if isinstance(event, dict) else {}
+        target_functions = sorted(dict.fromkeys(target_functions))
+        support_targets = sorted(set(event.get("support_target_functions") or []) | (set(target_functions) - expected_target_set))
         event["id"] = event_id
-        event["operation"] = operation_id
+        event["source_functions"] = source_functions
+        event["target_functions"] = target_functions
+        if support_targets:
+            event["support_target_functions"] = support_targets
         source_case_ids = event.get("source_case_ids")
         if not isinstance(source_case_ids, list) or case_id not in source_case_ids:
             event["source_case_ids"] = [case_id]
+        event.setdefault("description", f"Public replay event for source behavior case {case_id}")
+        event.setdefault("normalization", "Compare source-test observable behavior through target public APIs.")
         event.setdefault("evidence", self._case_evidence_label(case_id))
         event.setdefault("input", {"case": case_id})
         event.setdefault("expected", {"observable_behavior": "source-test-derived behavior"})
-        event.setdefault(
-            "expected_behavior_source",
-            event.pop("oracle_source", "source_test_assertion"),
-        )
-        event.setdefault(
-            "expected_behavior_confidence",
-            event.pop("oracle_confidence", "medium"),
-        )
+        event.setdefault("expected_behavior_source", "source_test_assertion")
+        event.setdefault("expected_behavior_confidence", "medium")
+        event["rust_test_body"] = self._normalize_case_rust_test(rust_test_body or event.get("rust_test_body", ""), event_id)
         return event
 
     def _normalize_case_rust_test(self, rust_test, event_id):
@@ -1611,19 +1481,17 @@ class TraceReplay3B:
             index += 1
         return -1
 
-    def _rust_harness_support_source(self, harness):
-        if not isinstance(harness, str):
+    def _rust_test_support_source(self, source):
+        if not isinstance(source, str):
             return ""
-        spans = self._rust_test_block_spans_by_name(harness)
+        spans = self._rust_test_block_spans_by_name(source)
         if not spans:
-            return harness
-        pieces = []
-        cursor = 0
-        for _test_name, (start, end, _block) in sorted(spans.items(), key=lambda item: item[1][0]):
-            pieces.append(harness[cursor:start])
-            cursor = end
-        pieces.append(harness[cursor:])
-        return "".join(pieces).strip()
+            return source
+        first_start = min(start for start, _end, _block in spans.values())
+        # Only code before the first #[test] is shared support. Text between
+        # tests can be malformed output from one generated event; reusing it as
+        # support would poison every isolated per-event replay.
+        return source[:first_start].strip()
 
     def _rust_import_lines(self, harness):
         if not isinstance(harness, str):
@@ -1719,9 +1587,9 @@ class TraceReplay3B:
             require_precise_behavior=True,
         )
         adapter_src = set()
-        for operation in adapter.get("public_operations", {}).values():
-            if isinstance(operation, dict):
-                adapter_src.update(operation.get("source_functions", []) or [])
+        for event in adapter.get("replay_events", []) or []:
+            if isinstance(event, dict):
+                adapter_src.update(event.get("source_functions", []) or [])
         replay_plan_summary = replay_plan.get("summary", {})
         planned_src = set(replay_plan_summary.get("validated_aligned_source_function_ids", []))
         missing_src = sorted(tested_public_src - planned_src)
@@ -1744,11 +1612,11 @@ class TraceReplay3B:
             "unresolved_unlisted_behavior_case_count": behavior_coverage.get("unresolved_unlisted_behavior_case_count", 0),
             "behavior_case_context_truncated": behavior_coverage.get("behavior_case_context_truncated", False),
             "replayed_behavior_case_count": behavior_coverage.get("replayed_behavior_case_count", 0),
-            "excluded_behavior_case_count": behavior_coverage.get("excluded_behavior_case_count", 0),
+            "unresolved_behavior_case_count": behavior_coverage.get("unresolved_behavior_case_count", 0),
             "missing_behavior_case_count": behavior_coverage.get("missing_behavior_case_count", 0),
             "missing_behavior_case_ids": behavior_coverage.get("missing_behavior_case_ids", []),
             "replayed_behavior_case_ids": behavior_coverage.get("replayed_behavior_case_ids", []),
-            "excluded_behavior_case_ids": behavior_coverage.get("excluded_behavior_case_ids", []),
+            "unresolved_behavior_case_ids": behavior_coverage.get("unresolved_behavior_case_ids", []),
             "accounted_behavior_case_ids": behavior_coverage.get("accounted_behavior_case_ids", []),
         }
         if compact:
@@ -1834,31 +1702,38 @@ class TraceReplay3B:
         iteration,
     ):
         scoped_pairs = scope.get("targeted_alignment_pairs", [])
-        target_context = self._target_aligned_api_context(scoped_pairs, max_items=30, max_body_chars=180)
+        target_context = self._target_aligned_api_context(scoped_pairs, max_items=24, max_body_chars=140)
         target_public_api_signatures = self._target_public_api_signatures_for_synthesis(scoped_pairs, max_items=24)
+        target_usage_capabilities = self._target_rust_usage_capabilities(
+            scoped_pairs,
+            selected_api_signatures=target_public_api_signatures,
+            max_items=16,
+        )
         allowed_source_uuids, allowed_target_uuids = self._adapter_case_generation_allowed_uuids(
             scoped_pairs,
             target_context=target_context,
             target_public_api_signatures=target_public_api_signatures,
+            target_usage_capabilities=target_usage_capabilities,
         )
         repair_context = {
             "iteration": iteration,
             "objective": (
                 "Convert every targeted eligible source behavior case into an executable Rust public replay. "
-                "Cases that cannot be converted in this attempt must be returned as unresolved_adapter_generation, "
-                "not excluded."
+                "Cases that cannot be converted in this attempt must be returned as unresolved_behavior_case_conversion."
             ),
-            "preferred_output_schema": "3b.case_results.v2 compact event; Python expands event into operation + trace_event",
+            "preferred_output_schema": "3b.replay_events.v1; Python merges replay_events directly into adapter.replay_events",
             "rules": [
-                "Return one 3b.case_results JSON object only.",
-                "Prefer adapter_case_generation_version=3b.case_results.v2 with compact event objects.",
-                "Do not repeat or modify existing operations, events, or Rust tests.",
+                "Return one 3b.replay_events.v1 JSON object only.",
+                "Return adapter_case_generation_version=3b.replay_events.v1 with compact replay_event objects.",
+                "Do not repeat or modify existing replay events or Rust tests.",
                 "Process every targeted_behavior_case_id; function coverage alone is not completion.",
                 "For every declared source function, include all targets from targeted_alignment_pairs.",
                 "Do not invent expected behavior or use target tests/examples as expected behavior evidence.",
                 "Do not exclude eligible behavior differences. Replay callable target public APIs and let runtime failures expose differences.",
                 "Use only allowed_source_function_uuids_for_this_batch for event.source_functions.",
-                "Use only allowed_target_api_uuids_for_this_batch for event.target_functions and Rust public API calls.",
+                "Use only allowed_target_api_uuids_for_this_batch for event.target_functions/support_target_functions.",
+                "Rust test bodies may also use non-UUID public constructs listed in target_rust_usage_capabilities.non_uuid_public_constructs, but those constructs must not be placed in target_functions/support_target_functions.",
+                "Before marking a case unresolved, check target_rust_usage_capabilities for constructors, conversions, indexing, variants, macros, trait impls, and support APIs.",
             ],
             "targeted_behavior_case_ids": scope.get("targeted_missing_behavior_case_ids", []),
             "targeted_behavior_cases": scope.get("missing_behavior_case_evidence", []),
@@ -1870,6 +1745,8 @@ class TraceReplay3B:
             "target_aligned_api_context": target_context,
             "target_api_scope": self._target_api_scope(scoped_pairs),
             "allowed_target_public_api_signatures": target_public_api_signatures,
+            "target_rust_usage_capabilities": target_usage_capabilities,
+            "source_fixture_access": self._source_fixture_access_context(scope.get("missing_behavior_case_evidence", [])),
             "target_crate_import_hint": self._target_crate_import_hint(),
             "rust_integration_test_contract": self._rust_integration_test_contract(),
             "current_adapter_index": self._adapter_state_for_generation_prompt(
@@ -1887,6 +1764,7 @@ class TraceReplay3B:
         scoped_pairs,
         target_context=None,
         target_public_api_signatures=None,
+        target_usage_capabilities=None,
     ):
         allowed_source_uuids = {
             pair.get("src_uuid")
@@ -1903,7 +1781,13 @@ class TraceReplay3B:
         if target_public_api_signatures is None:
             target_public_api_signatures = self._target_public_api_signatures_for_synthesis(scoped_pairs, max_items=24)
         if target_context is None:
-            target_context = self._target_aligned_api_context(scoped_pairs, max_items=30, max_body_chars=180)
+            target_context = self._target_aligned_api_context(scoped_pairs, max_items=24, max_body_chars=140)
+        if target_usage_capabilities is None:
+            target_usage_capabilities = self._target_rust_usage_capabilities(
+                scoped_pairs,
+                selected_api_signatures=target_public_api_signatures,
+                max_items=16,
+            )
         allowed_target_uuids.update({
             item.get("uuid")
             for item in target_public_api_signatures or []
@@ -1914,86 +1798,59 @@ class TraceReplay3B:
             for item in target_context or []
             if isinstance(item, dict) and item.get("uuid")
         })
+        allowed_target_uuids.update({
+            item.get("uuid")
+            for section_name in (
+                "constructors_and_conversions",
+                "mutation_and_builder_apis",
+                "accessors_and_observers",
+                "public_trait_impls",
+                "other_relevant_public_apis",
+            )
+            for item in (target_usage_capabilities or {}).get(section_name, [])
+            if isinstance(item, dict) and item.get("uuid")
+        })
         return allowed_source_uuids, allowed_target_uuids
 
     def _adapter_state_for_generation_prompt(self, adapter, scoped_pairs=None, targeted_case_ids=None):
-        """Index existing coverage without resending the complete generated harness."""
-        scoped_sources = {
-            pair.get("src_uuid")
-            for pair in scoped_pairs or []
-            if isinstance(pair, dict) and pair.get("src_uuid")
-        }
-        scoped_targets = {
-            tgt_uuid
-            for pair in scoped_pairs or []
-            if isinstance(pair, dict)
-            for tgt_uuid in pair.get("tgt_uuids", [])
-            if tgt_uuid
-        }
+        """Index existing replay coverage without resending generated Rust test bodies."""
+        scoped_sources = {pair.get("src_uuid") for pair in scoped_pairs or [] if isinstance(pair, dict) and pair.get("src_uuid")}
+        scoped_targets = {tgt_uuid for pair in scoped_pairs or [] if isinstance(pair, dict) for tgt_uuid in pair.get("tgt_uuids", []) if tgt_uuid}
         targeted_case_ids = set(targeted_case_ids or [])
-        all_operations = adapter.get("public_operations") or {}
-        all_events = adapter.get("trace_events") or []
-        operations = []
-        selected_operation_names = set()
-        for name, operation in all_operations.items():
-            if not isinstance(operation, dict):
-                continue
-            op_sources = set(operation.get("source_functions", []) or [])
-            op_targets = set(operation.get("target_functions", []) or [])
-            is_relevant = (
-                not scoped_sources
-                or bool(op_sources & scoped_sources)
-                or bool(op_targets & scoped_targets)
-            )
-            if not is_relevant:
-                continue
-            selected_operation_names.add(name)
-            operations.append({
-                "name": name,
-                "source_functions": operation.get("source_functions", []),
-                "target_functions": operation.get("target_functions", []),
-            })
-        events = []
+        all_events = adapter.get("replay_events") or []
+        relevant_event_ids = []
+        covered_case_ids = set()
+        relevant_covered_case_ids = set()
         omitted_relevant_events = 0
         for event in all_events:
             if not isinstance(event, dict):
                 continue
             event_case_ids = set(event.get("source_case_ids", []) or [])
-            is_relevant = (
-                event.get("operation") in selected_operation_names
-                or bool(event_case_ids & targeted_case_ids)
-            )
+            covered_case_ids.update(case_id for case_id in event_case_ids if case_id)
+            event_sources = set(event.get("source_functions", []) or [])
+            event_targets = set(event.get("target_functions", []) or [])
+            is_relevant = not scoped_sources or bool(event_sources & scoped_sources) or bool(event_targets & scoped_targets) or bool(event_case_ids & targeted_case_ids)
             if not is_relevant:
                 continue
-            if len(events) >= 40:
+            relevant_covered_case_ids.update(case_id for case_id in event_case_ids if case_id)
+            if len(relevant_event_ids) >= 40:
                 omitted_relevant_events += 1
                 continue
-            events.append({
-                "id": event.get("id"),
-                "operation": event.get("operation"),
-                "source_case_ids": event.get("source_case_ids", []),
-            })
-        exclusions = []
-        for exclusion in adapter.get("excluded_behavior_cases") or []:
-            if isinstance(exclusion, dict):
-                exclusions.append({
-                    "case_id": exclusion.get("case_id"),
-                    "reason": exclusion.get("reason"),
-                })
+            if event.get("id"):
+                relevant_event_ids.append(event.get("id"))
+        unresolved_case_ids = {(item.get("case_id") or item.get("source_behavior_case_id")) for item in adapter.get("unresolved_behavior_cases") or [] if isinstance(item, dict) and (item.get("case_id") or item.get("source_behavior_case_id"))}
         return {
-            "total_operation_count": len(all_operations),
-            "total_event_count": len(all_events),
-            "relevant_operation_count": len(operations),
-            "relevant_event_count": len(events),
+            "total_replay_event_count": len(all_events),
+            "relevant_replay_event_count": len(relevant_event_ids),
             "omitted_relevant_event_count": omitted_relevant_events,
-            "operation_index": operations,
-            "event_index": events,
-            "exclusion_index": exclusions,
-            "rust_harness_present": bool(str(adapter.get("rust_test_harness", "")).strip()),
-            "instruction": (
-                "This is only a compact relevant index. The full adapter remains in Python and will be merged "
-                "with your additive patch. Use unique operation and test ids."
-            ),
+            "existing_replay_event_ids": [event.get("id") for event in all_events if isinstance(event, dict) and event.get("id")][:300],
+            "relevant_replay_event_ids": relevant_event_ids,
+            "covered_source_case_count": len(covered_case_ids),
+            "unresolved_source_case_count": len(unresolved_case_ids),
+            "targeted_case_ids_already_covered": sorted(targeted_case_ids & covered_case_ids),
+            "targeted_case_ids_already_unresolved": sorted(targeted_case_ids & unresolved_case_ids),
+            "relevant_covered_source_case_count": len(relevant_covered_case_ids),
+            "instruction": "This is only an id/coverage index. The full adapter remains in Python and will be merged with your additive patch. Use unique replay_event ids and do not regenerate already covered cases.",
         }
 
     def _compact_behavior_cases_for_prompt(self, behavior_cases, max_cases=120, include_snippets=False):
@@ -2010,10 +1867,7 @@ class TraceReplay3B:
                     "macro": assertion.get("macro", ""),
                     "expression": assertion.get("expression", assertion.get("text", ""))[:320],
                     "expected_behavior_hint": self._clean_expected_behavior_text(
-                        assertion.get(
-                            "expected_behavior_hint",
-                            assertion.get("oracle_hint", ""),
-                        )
+                        assertion.get("expected_behavior_hint", "")
                     ),
                     "literal_samples": assertion.get("literal_samples", [])[:8],
                     "mentions_aligned_functions": assertion.get("mentions_aligned_functions", False),
@@ -2034,6 +1888,7 @@ class TraceReplay3B:
                 ),
                 "assertions": assertions,
                 "literal_samples": case.get("literal_samples", [])[:10],
+                "referenced_fixtures": case.get("referenced_fixtures", [])[:6],
             }
             if include_snippets:
                 item["relevant_snippet"] = case.get("relevant_snippet", "")[:700]
@@ -2079,10 +1934,10 @@ class TraceReplay3B:
 
     def _build_replay_repair_prompt(self, adapter, replay_plan, replay_result, failed_test_context=None):
         replay_summary = replay_result.get("summary", {})
-        generated_harness = self._rust_inline_harness_from_adapter(adapter)
+        generated_test_source = self._rust_test_source_from_adapter(adapter)
         if failed_test_context is None:
             failed_test_context = self._infrastructure_failed_test_context(
-                generated_harness,
+                generated_test_source,
                 replay_result,
                 max_tests=self._replay_repair_batch_size(),
             )
@@ -2105,17 +1960,19 @@ class TraceReplay3B:
                     "required_test_names and each replacement.rust_test_body must be a complete #[test] function."
                 ),
             },
-            "rust_harness_support_source": self._rust_harness_support_source(generated_harness),
+            "rust_test_support_source": self._rust_test_support_source(generated_test_source),
             "replay_plan_summary": replay_plan.get("summary", {}),
             "replay_status": replay_result.get("status"),
             "replay_reason": replay_result.get("reason", ""),
             "generated_test_file": replay_summary.get("generated_test_file", ""),
             "failed_event_adapter_context": failed_adapter_context,
             "infrastructure_failed_tests": failed_test_context,
-            "failure_reason": self._truncate_text(replay_summary.get("failure_reason", ""), max_chars=6000),
+            "failure_reason": self._truncate_text(replay_summary.get("failure_reason", ""), max_chars=2000),
             "compiler_error_test_context": self._compiler_error_test_context(
-                generated_harness,
+                generated_test_source,
                 replay_summary.get("stderr_tail", ""),
+                max_locations=6,
+                max_tests=min(4, max(1, len(required_test_names))),
             ),
             "rust_integration_test_contract": self._rust_integration_test_contract(),
             "target_repair_context": self._target_repair_context(
@@ -2128,77 +1985,56 @@ class TraceReplay3B:
         )
 
     def _repair_failed_event_adapter_context(self, adapter, failed_test_context):
-        failed_event_ids = {
-            item.get("event_id") or item.get("test_name")
-            for item in failed_test_context or []
-            if isinstance(item, dict) and (item.get("event_id") or item.get("test_name"))
-        }
-        all_events = [
-            event for event in adapter.get("trace_events", [])
-            if isinstance(event, dict) and event.get("id") in failed_event_ids
-        ]
-        operation_names = {
-            event.get("operation")
-            for event in all_events
-            if event.get("operation")
-        }
-        operations = []
+        failed_event_ids = {item.get("event_id") or item.get("test_name") for item in failed_test_context or [] if isinstance(item, dict) and (item.get("event_id") or item.get("test_name"))}
+        all_events = [event for event in adapter.get("replay_events", []) if isinstance(event, dict) and event.get("id") in failed_event_ids]
         target_functions = set()
-        for name, operation in (adapter.get("public_operations") or {}).items():
-            if name not in operation_names or not isinstance(operation, dict):
-                continue
-            op_target_functions = operation.get("target_functions", []) or []
-            target_functions.update(op_target_functions)
-            operations.append(self._compact_report_dict({
-                "name": name,
-                "description": operation.get("description", ""),
-                "source_functions": operation.get("source_functions", []),
-                "target_functions": op_target_functions,
-                "normalization": operation.get("normalization", ""),
-            }))
-
         events = []
         for event in all_events:
+            target_functions.update(event.get("target_functions", []) or [])
+            target_functions.update(event.get("support_target_functions", []) or [])
             events.append(self._compact_report_dict({
                 "id": event.get("id"),
-                "operation": event.get("operation"),
+                "description": event.get("description", ""),
                 "source_case_ids": event.get("source_case_ids", []),
+                "source_functions": event.get("source_functions", []),
+                "target_functions": event.get("target_functions", []),
+                "support_target_functions": event.get("support_target_functions", []),
                 "input": event.get("input", {}),
                 "expected": event.get("expected", {}),
                 "expected_behavior_source": self._expected_behavior_source(event),
                 "expected_behavior_confidence": self._expected_behavior_confidence(event),
                 "evidence": event.get("evidence", ""),
+                "normalization": event.get("normalization", ""),
             }))
-
         return {
             "failed_event_ids": sorted(failed_event_ids),
-            "operations": operations,
-            "trace_events": events,
+            "replay_events": events,
             "target_functions": sorted(target_functions),
-            "instruction": (
-                "This is the adapter subset for infrastructure-failed tests only. "
-                "Do not change expected behavior; repair Rust API usage/import/build issues."
-            ),
+            "instruction": "This is the replay-event subset for infrastructure-failed tests only. Do not change expected behavior; repair Rust API usage/import/build issues.",
         }
 
     def _merge_replay_repair_patch(self, current_adapter, candidate):
         candidate = self._normalize_replay_repair_candidate(candidate)
-        patch_version = candidate.get("replay_repair_patch_version")
-        if patch_version == "3b.replay_repair_patch.v2":
-            repaired = json.loads(json.dumps(current_adapter))
-            current_harness = self._rust_inline_harness_from_adapter(current_adapter)
-            repaired["rust_test_harness"] = self._apply_replay_repair_patch_v2(
-                current_harness,
-                candidate,
-            )
-            return repaired
-        if patch_version != "3b.replay_repair_patch.v1":
-            return candidate
-        harness = candidate.get("rust_test_harness_replacement")
-        if not isinstance(harness, str) or not harness.strip():
-            raise ValueError("replay repair patch requires rust_test_harness_replacement")
+        if candidate.get("replay_repair_patch_version") != "3b.replay_repair_patch.v2":
+            raise ValueError("replay repair requires patch version 3b.replay_repair_patch.v2")
+        replacements = candidate.get("rust_test_replacements") or []
+        if not isinstance(replacements, list) or not replacements:
+            raise ValueError("replay repair patch v2 requires non-empty rust_test_replacements")
         repaired = json.loads(json.dumps(current_adapter))
-        repaired["rust_test_harness"] = self._sanitize_rust_harness(harness)
+        event_by_id = {event.get("id"): event for event in repaired.get("replay_events", []) if isinstance(event, dict) and event.get("id")}
+        for item in replacements:
+            if not isinstance(item, dict):
+                raise ValueError("rust_test_replacements items must be objects")
+            test_name = item.get("test_name")
+            body = item.get("rust_test_body")
+            if test_name not in event_by_id:
+                raise ValueError(f"rust_test_replacements references unknown test_name: {test_name}")
+            if not isinstance(body, str) or not body.strip():
+                raise ValueError(f"rust_test_replacements[{test_name}] missing rust_test_body")
+            event_by_id[test_name]["rust_test_body"] = self._normalize_case_rust_test(body, test_name)
+        support_replacement = candidate.get("shared_support_source_replacement")
+        if isinstance(support_replacement, str):
+            repaired["rust_support_source"] = self._strip_markdown_fence(support_replacement).strip()
         return repaired
 
     def _normalize_replay_repair_candidate(self, candidate):
@@ -2240,13 +2076,13 @@ class TraceReplay3B:
             normalized["replay_repair_patch_version"] = "3b.replay_repair_patch.v2"
         return normalized
 
-    def _apply_replay_repair_patch_v2(self, current_harness, patch):
+    def _apply_replay_repair_patch_v2(self, current_test_source, patch):
         replacements = patch.get("rust_test_replacements", [])
         if not isinstance(replacements, list) or not replacements:
             raise ValueError("replay repair patch v2 requires non-empty rust_test_replacements")
-        spans = self._rust_test_block_spans_by_name(current_harness)
+        spans = self._rust_test_block_spans_by_name(current_test_source)
         if not spans:
-            raise ValueError("current Rust harness has no replaceable #[test] functions")
+            raise ValueError("current Rust test source has no replaceable #[test] functions")
 
         replacement_by_name = {}
         for item in replacements:
@@ -2270,26 +2106,20 @@ class TraceReplay3B:
             for test_name, (start, end, original_block) in sorted(spans.items(), key=lambda item: item[1][0]):
                 blocks.append(replacement_by_name.get(test_name, original_block.strip()))
             merged = support_source + "\n\n".join(blocks) + "\n"
-            return self._sanitize_rust_harness(merged)
+            return self._sanitize_rust_test_source(merged)
 
         pieces = []
         cursor = 0
         for test_name, (start, end, original_block) in sorted(spans.items(), key=lambda item: item[1][0]):
-            pieces.append(current_harness[cursor:start])
+            pieces.append(current_test_source[cursor:start])
             pieces.append(replacement_by_name.get(test_name, original_block).rstrip())
             cursor = end
-        pieces.append(current_harness[cursor:])
-        return self._sanitize_rust_harness("".join(pieces))
+        pieces.append(current_test_source[cursor:])
+        return self._sanitize_rust_test_source("".join(pieces))
 
     def _target_repair_context(self, adapter, target_functions=None):
         if target_functions is None:
-            target_functions = sorted({
-                target
-                for operation in (adapter.get("public_operations") or {}).values()
-                if isinstance(operation, dict)
-                for target in operation.get("target_functions", [])
-                if target
-            })
+            target_functions = sorted({target for event in (adapter.get("replay_events") or []) if isinstance(event, dict) for target in ((event.get("target_functions", []) or []) + (event.get("support_target_functions", []) or [])) if target})
         else:
             target_functions = sorted({target for target in target_functions if target})
         scoped_pairs = [{"tgt_uuids": target_functions}]
@@ -2297,15 +2127,9 @@ class TraceReplay3B:
             "adapter_declared_target_functions": target_functions,
             "target_crate_import_hint": self._target_crate_import_hint(),
             "rust_integration_test_contract": self._rust_integration_test_contract(),
-            "target_public_api_signatures": self._target_public_api_signatures_for_synthesis(
-                scoped_pairs,
-                max_items=100,
-            ),
-            "target_aligned_api_context": self._target_aligned_api_context(
-                scoped_pairs,
-                max_items=80,
-                max_body_chars=700,
-            ),
+            "target_public_api_signatures": self._target_public_api_signatures_for_synthesis(scoped_pairs, max_items=32),
+            "target_rust_usage_capabilities": self._target_rust_usage_capabilities(scoped_pairs, max_items=16),
+            "target_aligned_api_context": self._target_aligned_api_context(scoped_pairs, max_items=32, max_body_chars=180),
         }
 
     def _compiler_error_test_context(self, harness, stderr, max_locations=12, max_tests=8):
@@ -2376,8 +2200,8 @@ class TraceReplay3B:
                     "test_name": test_name,
                     "event_id": test_name,
                     "test_source": blocks.get(test_name, item.get("test_source_excerpt", "")),
-                    "stderr_tail": (replay_result.get("summary", {}) or {}).get("stderr_tail", "")[-4000:],
-                    "stdout_tail": (replay_result.get("summary", {}) or {}).get("stdout_tail", "")[-2000:],
+                    "stderr_tail": (replay_result.get("summary", {}) or {}).get("stderr_tail", "")[-1800:],
+                    "stdout_tail": (replay_result.get("summary", {}) or {}).get("stdout_tail", "")[-800:],
                 }))
             return affected
 
@@ -2389,13 +2213,12 @@ class TraceReplay3B:
             context.append(self._compact_report_dict({
                 "test_name": test_name,
                 "event_id": item.get("event_id", test_name),
-                "operation": item.get("operation", ""),
                 "source_case_ids": item.get("source_case_ids", []),
                 "test_source": blocks.get(test_name, ""),
                 "command": " ".join(item.get("command", [])) if isinstance(item.get("command"), list) else item.get("command", ""),
                 "returncode": item.get("returncode"),
-                "stdout_tail": self._truncate_text(item.get("stdout_tail", ""), max_chars=3000),
-                "stderr_tail": self._truncate_text(item.get("stderr_tail", ""), max_chars=5000),
+                "stdout_tail": self._truncate_text(item.get("stdout_tail", ""), max_chars=1000),
+                "stderr_tail": self._truncate_text(item.get("stderr_tail", ""), max_chars=1800),
                 "failure_reason": item.get("failure_reason", ""),
             }))
         return context
@@ -2446,186 +2269,88 @@ class TraceReplay3B:
         context = self._last_synthesis_context or {}
         behavior_cases = context.get("source_evidence", {}).get("behavior_cases", [])
         has_behavior_case_obligations = isinstance(behavior_cases, list) and bool(behavior_cases)
+        if adapter.get("adapter_schema_version") != "3b.replay_adapter.v2":
+            errors.append("adapter_schema_version must be 3b.replay_adapter.v2")
         if adapter.get("target_language") != "rust":
-            errors.append("target_language must be rust for v1 synthesis")
-        if adapter.get("recorder") != "adapter_declared_trace_events_v1":
-            errors.append("recorder must be adapter_declared_trace_events_v1")
-        if adapter.get("replay_generator") != "rust_inline_harness_v1":
-            errors.append("replay_generator must be rust_inline_harness_v1")
-        operations = adapter.get("public_operations")
-        if not isinstance(operations, dict) or not operations:
-            errors.append("public_operations must be a non-empty object")
-        events = adapter.get("trace_events")
+            errors.append("target_language must be rust")
+        events = adapter.get("replay_events")
         if not isinstance(events, list) or not events:
-            errors.append("trace_events must be a non-empty list")
-        target_replay_harness = adapter.get("target_replay_harness", {})
-        if not isinstance(target_replay_harness, dict):
-            target_replay_harness = {}
-        harness = adapter.get("rust_test_harness") or target_replay_harness.get("rust_test_file", "")
-        test_names = self._extract_rust_test_function_names(harness) if isinstance(harness, str) else []
-        if not isinstance(harness, str) or "#[test]" not in harness:
-            errors.append("rust_test_harness must be Rust source containing at least one #[test]")
-        elif isinstance(events, list) and events:
-            test_count = len(re.findall(r"#\s*\[\s*test\s*\]", harness))
-            if test_count > len(events):
-                errors.append(
-                    "rust_test_harness defines more #[test] functions than trace_events; "
-                    "remove undeclared tests or declare matching operations/trace_events"
-                )
-            event_ids = [
-                event.get("id")
-                for event in events
-                if isinstance(event, dict) and event.get("id")
-            ]
-            duplicate_event_ids = sorted({event_id for event_id in event_ids if event_ids.count(event_id) > 1})
-            if duplicate_event_ids:
-                errors.append(f"trace_events contain duplicate ids: {duplicate_event_ids}")
-            for index, event_id in enumerate(event_ids):
-                if not self._is_rust_identifier(event_id):
-                    errors.append(f"trace_events[{index}].id must be a valid Rust test function identifier")
-            missing_tests = sorted(set(event_ids) - set(test_names))
-            extra_tests = sorted(set(test_names) - set(event_ids))
-            if missing_tests:
-                errors.append(
-                    "rust_test_harness must define one #[test] fn for every trace_events[].id; "
-                    f"missing tests: {missing_tests[:10]}"
-                )
-            if extra_tests:
-                errors.append(
-                    "rust_test_harness contains #[test] functions without matching trace_events[].id; "
-                    f"extra tests: {extra_tests[:10]}"
-                )
-        if isinstance(operations, dict) and isinstance(events, list):
-            operation_names = set(operations.keys())
-            for index, event in enumerate(events):
-                if not isinstance(event, dict):
-                    errors.append(f"trace_events[{index}] must be an object")
-                    continue
-                operation = event.get("operation")
-                if operation not in operation_names:
-                    errors.append(f"trace_events[{index}].operation is missing from public_operations")
-                op_for_event = operations.get(operation, {}) if operation in operation_names else {}
-                event_source_functions = op_for_event.get("source_functions", []) if isinstance(op_for_event, dict) else []
-                event_has_l1_source = not allowed_source_uuids or bool(set(event_source_functions or []) & allowed_source_uuids)
-                if not event.get("evidence"):
-                    if event_has_l1_source:
-                        errors.append(f"trace_events[{index}].evidence must cite source test evidence")
-                if not event.get("expected"):
-                    errors.append(f"trace_events[{index}].expected must describe observable behavior")
-                source_case_ids = event.get("source_case_ids", [])
-                if source_case_ids and not isinstance(source_case_ids, list):
-                    errors.append(f"trace_events[{index}].source_case_ids must be a list when present")
-                elif has_behavior_case_obligations and not source_case_ids:
-                    errors.append(
-                        f"trace_events[{index}].source_case_ids must list covered source_evidence.behavior_cases; "
-                        "events without source_case_ids do not count as behavior coverage"
-                    )
-                for case_id in source_case_ids if isinstance(source_case_ids, list) else []:
-                    case = next(
-                        (
-                            item for item in behavior_cases
-                            if isinstance(item, dict) and item.get("case_id") == case_id
-                        ),
-                        {},
-                    )
-                    required_substitutions = case.get("required_internal_public_substitutions", [])
-                    required_targets = {
-                        target_uuid
-                        for substitution in required_substitutions
-                        if isinstance(substitution, dict)
-                        for target_uuid in substitution.get("target_public_functions", [])
-                        if target_uuid
-                    }
-                    declared_targets = set(op_for_event.get("target_functions", [])) if isinstance(op_for_event, dict) else set()
-                    missing_required_targets = sorted(required_targets - declared_targets)
-                    if missing_required_targets:
-                        errors.append(
-                            f"trace_events[{index}] case {case_id} requires target public substitutions missing "
-                            f"from operation target_functions: {missing_required_targets}"
-                        )
-                expected_behavior_confidence = (
-                    event.get("expected_behavior_confidence")
-                    or event.get("oracle_confidence")
-                    or "medium"
-                )
-                if expected_behavior_confidence not in {"high", "medium", "low"}:
-                    errors.append(
-                        f"trace_events[{index}].expected_behavior_confidence must be one of high|medium|low"
-                    )
-                if not (event.get("expected_behavior_source") or event.get("oracle_source")):
-                    errors.append(f"trace_events[{index}].expected_behavior_source is required")
-            for name, op in operations.items():
-                if not isinstance(op, dict):
-                    errors.append(f"public_operations.{name} must be an object")
-                    continue
-                source_functions = op.get("source_functions")
-                target_functions = op.get("target_functions")
-                if not isinstance(source_functions, list) or not source_functions:
-                    errors.append(f"public_operations.{name}.source_functions must be non-empty")
-                if not isinstance(target_functions, list) or not target_functions:
-                    errors.append(f"public_operations.{name}.target_functions must be non-empty")
-                if not op.get("normalization"):
-                    errors.append(f"public_operations.{name}.normalization must explain observable behavior")
-                if known_source_uuids:
-                    unknown_sources = sorted(set(source_functions or []) - known_source_uuids)
-                    if unknown_sources:
-                        errors.append(
-                            f"public_operations.{name}.source_functions include unknown source functions: "
-                            f"{unknown_sources[:10]}"
-                        )
-                if allowed_source_uuids and source_functions:
-                    outside_l1_sources = sorted(set(source_functions) - allowed_source_uuids)
-                    if outside_l1_sources:
-                        errors.append(
-                            f"public_operations.{name}.source_functions are outside the eligible L1 scope: "
-                            f"{outside_l1_sources[:20]}"
-                        )
-                if allowed_target_uuids:
-                    unknown_targets = sorted(set(target_functions or []) - allowed_target_uuids)
-                    if unknown_targets:
-                        errors.append(
-                            f"public_operations.{name}.target_functions include unknown/non-public target APIs: "
-                            f"{unknown_targets[:10]}"
-                        )
-                if expected_targets_by_source and source_functions and target_functions:
-                    declared_targets = set(target_functions)
-                    missing_expected_targets = []
-                    for source_function in source_functions:
-                        for expected_target in sorted(expected_targets_by_source.get(source_function, set())):
-                            if expected_target not in declared_targets:
-                                missing_expected_targets.append({
-                                    "src_uuid": source_function,
-                                    "missing_tgt_uuid": expected_target,
-                                })
-                    if missing_expected_targets:
-                        errors.append(
-                            f"public_operations.{name}.target_functions omit 3A target functions required by "
-                            f"declared source_functions: {missing_expected_targets[:10]}"
-                        )
-            behavior_coverage = self._adapter_behavior_case_coverage(adapter)
-            adapter["_behavior_case_coverage"] = behavior_coverage
-            if behavior_coverage.get("unknown_source_case_ids"):
-                errors.append(
-                    "trace_events/excluded_behavior_cases reference unknown source case ids: "
-                    f"{behavior_coverage.get('unknown_source_case_ids', [])[:20]}"
-                )
-            if behavior_coverage.get("invalid_excluded_behavior_cases"):
-                errors.append(
-                    "excluded_behavior_cases contain invalid or unsupported exclusions: "
-                    f"{behavior_coverage.get('invalid_excluded_behavior_cases', [])[:20]}"
-                )
-            if behavior_coverage.get("invalid_event_case_bindings"):
-                errors.append(
-                    "trace_events contain invalid source behavior-case bindings: "
-                    f"{behavior_coverage.get('invalid_event_case_bindings', [])[:20]}"
-                )
-            if behavior_coverage.get("replayed_and_excluded_case_ids"):
-                errors.append(
-                    "source behavior cases cannot be both replayed and excluded: "
-                    f"{behavior_coverage.get('replayed_and_excluded_case_ids', [])[:20]}"
-                )
-            # Missing behavior cases are an explicit generation outcome, not
-            # an adapter schema error.
+            errors.append("replay_events must be a non-empty list")
+            return errors
+        event_ids = [event.get("id") for event in events if isinstance(event, dict) and event.get("id")]
+        duplicate_event_ids = sorted({event_id for event_id in event_ids if event_ids.count(event_id) > 1})
+        if duplicate_event_ids:
+            errors.append(f"replay_events contain duplicate ids: {duplicate_event_ids}")
+        for index, event in enumerate(events):
+            if not isinstance(event, dict):
+                errors.append(f"replay_events[{index}] must be an object")
+                continue
+            event_id = event.get("id")
+            if not event_id or not self._is_rust_identifier(event_id):
+                errors.append(f"replay_events[{index}].id must be a valid Rust test function identifier")
+            source_functions = event.get("source_functions")
+            target_functions = event.get("target_functions")
+            if not isinstance(source_functions, list) or not source_functions:
+                errors.append(f"replay_events[{index}].source_functions must be non-empty")
+            if not isinstance(target_functions, list) or not target_functions:
+                errors.append(f"replay_events[{index}].target_functions must be non-empty")
+            if known_source_uuids:
+                unknown_sources = sorted(set(source_functions or []) - known_source_uuids)
+                if unknown_sources:
+                    errors.append(f"replay_events[{index}].source_functions include unknown source functions: {unknown_sources[:10]}")
+            if allowed_source_uuids and source_functions:
+                outside_l1_sources = sorted(set(source_functions) - allowed_source_uuids)
+                if outside_l1_sources:
+                    errors.append(f"replay_events[{index}].source_functions are outside the eligible L1 scope: {outside_l1_sources[:20]}")
+            if allowed_target_uuids and target_functions:
+                all_declared_targets = set(target_functions or []) | set(event.get("support_target_functions") or [])
+                unknown_targets = sorted(all_declared_targets - allowed_target_uuids)
+                if unknown_targets:
+                    errors.append(f"replay_events[{index}].target/support functions include unknown/non-public target APIs: {unknown_targets[:10]}")
+            if expected_targets_by_source and source_functions and target_functions:
+                declared_targets = set(target_functions)
+                missing_expected_targets = []
+                for source_function in source_functions:
+                    for expected_target in sorted(expected_targets_by_source.get(source_function, set())):
+                        if expected_target not in declared_targets:
+                            missing_expected_targets.append({"src_uuid": source_function, "missing_tgt_uuid": expected_target})
+                if missing_expected_targets:
+                    errors.append(f"replay_events[{index}].target_functions omit 3A target functions required by declared source_functions: {missing_expected_targets[:10]}")
+            if not event.get("evidence"):
+                errors.append(f"replay_events[{index}].evidence must cite source test evidence")
+            if not event.get("expected"):
+                errors.append(f"replay_events[{index}].expected must describe observable behavior")
+            if not event.get("normalization"):
+                errors.append(f"replay_events[{index}].normalization must explain observable behavior")
+            source_case_ids = event.get("source_case_ids", [])
+            if source_case_ids and not isinstance(source_case_ids, list):
+                errors.append(f"replay_events[{index}].source_case_ids must be a list when present")
+            elif has_behavior_case_obligations and not source_case_ids:
+                errors.append(f"replay_events[{index}].source_case_ids must list covered source_evidence.behavior_cases; events without source_case_ids do not count as behavior coverage")
+            for case_id in source_case_ids if isinstance(source_case_ids, list) else []:
+                case = next((item for item in behavior_cases if isinstance(item, dict) and item.get("case_id") == case_id), {})
+                required_targets = {target_uuid for substitution in case.get("required_internal_public_substitutions", []) if isinstance(substitution, dict) for target_uuid in substitution.get("target_public_functions", []) if target_uuid}
+                missing_required_targets = sorted(required_targets - (set(target_functions or []) | set(event.get("support_target_functions") or [])))
+                if missing_required_targets:
+                    errors.append(f"replay_events[{index}] case {case_id} requires target public substitutions missing from target/support functions: {missing_required_targets}")
+            expected_behavior_confidence = event.get("expected_behavior_confidence") or "medium"
+            if expected_behavior_confidence not in {"high", "medium", "low"}:
+                errors.append(f"replay_events[{index}].expected_behavior_confidence must be one of high|medium|low")
+            if not event.get("expected_behavior_source"):
+                errors.append(f"replay_events[{index}].expected_behavior_source is required")
+            rust_test_body = event.get("rust_test_body")
+            if not isinstance(rust_test_body, str) or "#[test]" not in rust_test_body:
+                errors.append(f"replay_events[{index}].rust_test_body must be a complete #[test] function")
+            elif event_id and event_id not in self._extract_rust_test_function_names(rust_test_body):
+                errors.append(f"replay_events[{index}].rust_test_body must define #[test] fn {event_id}")
+        behavior_coverage = self._adapter_behavior_case_coverage(adapter)
+        adapter["_behavior_case_coverage"] = behavior_coverage
+        if behavior_coverage.get("unknown_source_case_ids"):
+            errors.append("replay_events/unresolved_behavior_cases reference unknown source case ids: " f"{behavior_coverage.get('unknown_source_case_ids', [])[:20]}")
+        if behavior_coverage.get("invalid_event_case_bindings"):
+            errors.append("replay_events contain invalid source behavior-case bindings: " f"{behavior_coverage.get('invalid_event_case_bindings', [])[:20]}")
+        if behavior_coverage.get("replayed_and_unresolved_case_ids"):
+            errors.append("source behavior cases cannot be both replayed and unresolved: " f"{behavior_coverage.get('replayed_and_unresolved_case_ids', [])[:20]}")
         return errors
 
     def _adapter_behavior_case_coverage(self, adapter):
@@ -2636,60 +2361,32 @@ class TraceReplay3B:
         source_evidence = context.get("source_evidence", {}) if isinstance(context.get("source_evidence", {}), dict) else {}
         source_summary = source_evidence.get("summary", {}) if isinstance(source_evidence.get("summary", {}), dict) else {}
         quality_checks = source_evidence.get("quality_checks", {}) if isinstance(source_evidence.get("quality_checks", {}), dict) else {}
-        available_behavior_case_count = int(
-            source_summary.get(
-                "available_behavior_case_candidates",
-                quality_checks.get("available_behavior_case_candidates", len(behavior_cases)),
-            )
-            or 0
-        )
-        context_case_by_id = {
-            case.get("case_id"): case
-            for case in behavior_cases
-            if isinstance(case, dict) and case.get("case_id")
-        }
+        available_behavior_case_count = int(source_summary.get("available_behavior_case_candidates", quality_checks.get("available_behavior_case_candidates", len(behavior_cases))) or 0)
+        context_case_by_id = {case.get("case_id"): case for case in behavior_cases if isinstance(case, dict) and case.get("case_id")}
         all_case_details = getattr(self, "_last_behavior_case_details", {}) or {}
-        case_by_id = {
-            case_id: case
-            for case_id, case in all_case_details.items()
-            if case_id and isinstance(case, dict)
-        } or context_case_by_id
+        case_by_id = {case_id: case for case_id, case in all_case_details.items() if case_id and isinstance(case, dict)} or context_case_by_id
         required_ids = set(case_by_id)
         context_ids = set(context_case_by_id)
         available_behavior_case_count = max(available_behavior_case_count, len(required_ids))
-        operations = adapter.get("public_operations", {}) if isinstance(adapter.get("public_operations"), dict) else {}
-        trace_events = adapter.get("trace_events", []) if isinstance(adapter.get("trace_events"), list) else []
         covered_ids = set()
         unknown_ids = set()
         events_without_source_case_ids = []
         invalid_event_case_bindings = []
-
-        for event_index, event in enumerate(trace_events):
+        for event_index, event in enumerate(adapter.get("replay_events", []) if isinstance(adapter.get("replay_events"), list) else []):
             if not isinstance(event, dict):
                 continue
             explicit_ids = event.get("source_case_ids", [])
             if not isinstance(explicit_ids, list) or not explicit_ids:
-                event_id = event.get("id")
-                if event_id:
-                    events_without_source_case_ids.append(event_id)
+                if event.get("id"):
+                    events_without_source_case_ids.append(event.get("id"))
                 continue
             event_id = event.get("id", "")
-            operation = operations.get(event.get("operation"), {})
-            operation_sources = set(operation.get("source_functions", [])) if isinstance(operation, dict) else set()
+            event_sources = set(event.get("source_functions", []))
             if len(explicit_ids) != len(set(explicit_ids)):
-                invalid_event_case_bindings.append({
-                    "event_index": event_index,
-                    "event_id": event_id,
-                    "reason": "duplicate_source_case_ids",
-                })
+                invalid_event_case_bindings.append({"event_index": event_index, "event_id": event_id, "reason": "duplicate_source_case_ids"})
                 continue
             if len(explicit_ids) > 1 and not str(event.get("case_grouping_rationale", "")).strip():
-                invalid_event_case_bindings.append({
-                    "event_index": event_index,
-                    "event_id": event_id,
-                    "source_case_ids": explicit_ids,
-                    "reason": "multiple_cases_require_case_grouping_rationale",
-                })
+                invalid_event_case_bindings.append({"event_index": event_index, "event_id": event_id, "source_case_ids": explicit_ids, "reason": "multiple_cases_require_case_grouping_rationale"})
                 continue
             for case_id in explicit_ids:
                 if case_id not in required_ids:
@@ -2697,86 +2394,34 @@ class TraceReplay3B:
                         unknown_ids.add(case_id)
                     continue
                 case_sources = set(case_by_id.get(case_id, {}).get("aligned_source_functions", []))
-                if not operation_sources or not case_sources or not (operation_sources & case_sources):
+                if not event_sources or not case_sources or not (event_sources & case_sources):
                     invalid_event_case_bindings.append({
                         "event_index": event_index,
                         "event_id": event_id,
                         "case_id": case_id,
-                        "reason": "case_source_functions_do_not_match_operation",
+                        "reason": "case_source_functions_do_not_match_replay_event",
                         "case_source_functions": sorted(case_sources),
-                        "operation_source_functions": sorted(operation_sources),
+                        "event_source_functions": sorted(event_sources),
                     })
                     continue
-                if case_id:
-                    covered_ids.add(case_id)
-
-        excluded_ids = set()
-        invalid_exclusions = []
-        allowed_exclusion_reasons = self._behavior_case_exclusion_reasons()
-        expected_targets_by_source = self._synthesis_expected_targets_by_source()
-        public_target_uuids = self._synthesis_target_public_uuids()
-        excluded_cases = adapter.get("excluded_behavior_cases", [])
-        if isinstance(excluded_cases, list):
-            for index, item in enumerate(excluded_cases):
-                if not isinstance(item, dict):
-                    invalid_exclusions.append({"index": index, "reason": "entry_must_be_object"})
-                    continue
-                case_id = item.get("case_id")
-                exclusion_reason = item.get("reason")
-                details = str(item.get("details", "")).strip()
-                if not case_id:
-                    invalid_exclusions.append({"index": index, "reason": "case_id_missing"})
-                    continue
-                if exclusion_reason not in allowed_exclusion_reasons:
-                    invalid_exclusions.append({
-                        "index": index,
-                        "case_id": case_id,
-                        "reason": "unsupported_exclusion_reason",
-                        "provided_reason": exclusion_reason,
-                    })
-                    continue
-                if not details:
-                    invalid_exclusions.append({
-                        "index": index,
-                        "case_id": case_id,
-                        "reason": "details_missing",
-                    })
-                    continue
-                if exclusion_reason == "target_missing_public_api" and case_id in required_ids:
-                    case_sources = set(case_by_id.get(case_id, {}).get("aligned_source_functions", []))
-                    aligned_public_targets = {
-                        target_uuid
-                        for source_uuid in case_sources
-                        for target_uuid in expected_targets_by_source.get(source_uuid, set())
-                        if target_uuid in public_target_uuids
-                    }
-                    if aligned_public_targets:
-                        invalid_exclusions.append({
-                            "index": index,
-                            "case_id": case_id,
-                            "reason": "aligned_target_public_api_available",
-                            "aligned_public_target_functions": sorted(aligned_public_targets),
-                            "policy": (
-                                "A callable aligned public target must be replayed even when its behavior or "
-                                "feature range differs from the source."
-                            ),
-                        })
-                        continue
-                if case_id in excluded_ids:
-                    invalid_exclusions.append({
-                        "index": index,
-                        "case_id": case_id,
-                        "reason": "duplicate_exclusion",
-                    })
-                    continue
-                if case_id in required_ids:
-                    excluded_ids.add(case_id)
-                elif case_id:
-                    unknown_ids.add(case_id)
-
-        replayed_and_excluded_ids = sorted(covered_ids & excluded_ids)
-        excluded_ids -= covered_ids
-        missing_id_set = required_ids - covered_ids - excluded_ids
+                covered_ids.add(case_id)
+        unresolved_ids = set()
+        invalid_unresolved = []
+        for index, item in enumerate(adapter.get("unresolved_behavior_cases", []) if isinstance(adapter.get("unresolved_behavior_cases"), list) else []):
+            if not isinstance(item, dict):
+                invalid_unresolved.append({"index": index, "reason": "entry_must_be_object"})
+                continue
+            case_id = item.get("case_id") or item.get("source_behavior_case_id")
+            if not case_id:
+                invalid_unresolved.append({"index": index, "reason": "case_id_missing"})
+                continue
+            if case_id in required_ids:
+                unresolved_ids.add(case_id)
+            else:
+                unknown_ids.add(case_id)
+        replayed_and_unresolved_ids = sorted(covered_ids & unresolved_ids)
+        unresolved_ids -= covered_ids
+        missing_id_set = required_ids - covered_ids - unresolved_ids
         missing_ids = sorted(missing_id_set)
         initial_context_unlisted_ids = required_ids - context_ids
         unresolved_unlisted_ids = sorted(initial_context_unlisted_ids & missing_id_set)
@@ -2790,20 +2435,17 @@ class TraceReplay3B:
             "behavior_case_context_truncated": bool(initial_context_unlisted_ids),
             "replayed_behavior_case_count": len(covered_ids),
             "replayed_behavior_case_ids": sorted(covered_ids),
-            "excluded_behavior_case_count": len(excluded_ids),
-            "excluded_behavior_case_ids": sorted(excluded_ids),
-            "accounted_behavior_case_ids": sorted(covered_ids | excluded_ids),
+            "unresolved_behavior_case_count": len(unresolved_ids),
+            "unresolved_behavior_case_ids": sorted(unresolved_ids),
+            "accounted_behavior_case_ids": sorted(covered_ids | unresolved_ids),
             "missing_behavior_case_count": len(missing_ids),
             "missing_behavior_case_ids": missing_ids,
             "unknown_source_case_ids": sorted(unknown_ids),
-            "replayed_and_excluded_case_ids": replayed_and_excluded_ids,
+            "replayed_and_unresolved_case_ids": replayed_and_unresolved_ids,
             "invalid_event_case_bindings": invalid_event_case_bindings,
-            "invalid_excluded_behavior_cases": invalid_exclusions,
+            "invalid_unresolved_behavior_cases": invalid_unresolved,
             "events_without_source_case_ids": sorted(events_without_source_case_ids),
-            "event_source_case_id_policy": (
-                "Only explicit trace_events[].source_case_ids count as behavior-case replay coverage. "
-                "Function-name fallback is intentionally not used because one function can have many source test behavior variants."
-            ),
+            "event_source_case_id_policy": "Only explicit replay_events[].source_case_ids count as behavior-case replay coverage. Function-name fallback is intentionally not used because one function can have many source test behavior variants.",
         }
 
     def _behavior_case_exclusion_reasons(self):
@@ -3003,8 +2645,8 @@ class TraceReplay3B:
                 "Derive observable behavior from source tests, fixtures, expected files, and assertion intent.",
                 "Use only public target APIs for L1 replay.",
                 "Every behavior case in source_evidence.behavior_cases already passed structural public replay screening.",
-                "Required target substitutions for mixed public/internal cases must be called explicitly in the Rust harness.",
-                "Adapter generation should convert eligible cases into replay events; generation failures remain unresolved_adapter_generation rather than semantic exclusions.",
+                "Required target substitutions for mixed public/internal cases must be called explicitly in the generated Rust replay test body.",
+                "Adapter generation should convert eligible cases into replay events; generation failures remain unresolved_behavior_case_conversion rather than semantic exclusions.",
                 "The LLM generates a replay hypothesis; correctness is decided only by compiling and running target replay.",
             ],
             "generation_policy": {
@@ -3020,7 +2662,7 @@ class TraceReplay3B:
                 "coverage_rule": (
                     "Cover every eligible source behavior case listed in source_evidence.behavior_cases when it "
                     "can be converted into a reliable Rust replay. Cases that cannot be converted by the adapter "
-                    "generator are reported as unresolved_adapter_generation; behavior differences should be "
+                    "generator are reported as unresolved_behavior_case_conversion; behavior differences should be "
                     "replayed rather than hidden as exclusions."
                 ),
             },
@@ -3041,6 +2683,8 @@ class TraceReplay3B:
             "rust_integration_test_contract": self._rust_integration_test_contract(),
             "target_api_scope": self._target_api_scope(scoped_pairs),
             "target_public_api_signatures": self._target_public_api_signatures_for_synthesis(scoped_pairs),
+            "target_rust_usage_capabilities": self._target_rust_usage_capabilities(scoped_pairs),
+            "source_fixture_access": self._source_fixture_access_context(source_evidence.get("behavior_cases", [])),
             "target_aligned_api_context": self._target_aligned_api_context(scoped_pairs),
             "required_adapter_shape": self._adapter_synthesis_schema_hint(),
         }
@@ -3348,7 +2992,7 @@ class TraceReplay3B:
                 "behavior_case_selection_policy": (
                     "Include all eligible source behavior cases up to the context budget. These are behavior "
                     "coverage obligations for adapter synthesis: each case should either be replayed through "
-                    "trace_events[].source_case_ids or remain unresolved_adapter_generation after bounded "
+                    "replay_events[].source_case_ids or remain unresolved_behavior_case_conversion after bounded "
                     "conversion attempts. Mixed public/internal cases may support L1 only when the internal "
                     "state transition is naturally included in the target public API behavior or can be expressed "
                     "through an explicit target public equivalent."
@@ -3363,7 +3007,7 @@ class TraceReplay3B:
             ),
             "field_guide": {
                 "behavior_cases": (
-                    "Primary evidence for operation/expected-behavior design. Each case has concrete source assertions, "
+                    "Primary evidence for replay-event/expected-behavior design. Each case has concrete source assertions, "
                     "literals, and aligned source function UUIDs. Full snippets are intentionally omitted from "
                     "the initial context to keep all eligible cases visible; targeted agent passes receive "
                     "snippets for the specific missing cases they are asked to cover. Mixed cases expose "
@@ -3431,8 +3075,11 @@ class TraceReplay3B:
             if self._is_target_public(func):
                 items.append({
                     "uuid": uid,
+                    "name": func.get("name", "") or self._uuid_leaf_name(uid),
+                    "owner_type": self._rust_owner_type_from_uuid(uid),
                     "signature": func.get("signature", ""),
                     "trait_name": func.get("_rust_trait_name", ""),
+                    "integration_test_call_hint": self._rust_call_hint_from_signature(uid, func.get("signature", "")),
                 })
         items = sorted(items, key=lambda item: item["uuid"])
         if max_items is None:
@@ -3527,6 +3174,183 @@ class TraceReplay3B:
 
         return selected
 
+    def _target_rust_usage_capabilities(self, scoped_pairs=None, selected_api_signatures=None, max_items=24):
+        selected_api_signatures = selected_api_signatures or self._target_public_api_signatures_for_synthesis(
+            scoped_pairs or [],
+            max_items=max_items,
+        )
+        selected_api_signatures = [item for item in selected_api_signatures if isinstance(item, dict)]
+        public_by_uuid = {
+            item.get("uuid"): item
+            for item in self._target_public_api_signatures(max_items=None)
+            if item.get("uuid")
+        }
+        scoped_owners = {
+            self._rust_owner_type_from_uuid(tgt_uuid)
+            for pair in scoped_pairs or []
+            if isinstance(pair, dict)
+            for tgt_uuid in pair.get("tgt_uuids", [])
+            if self._rust_owner_type_from_uuid(tgt_uuid)
+        }
+        selected_uuids = {item.get("uuid") for item in selected_api_signatures if item.get("uuid")}
+        support_patterns = {
+            "new", "default", "from", "try_from", "from_iter", "clone",
+            "push", "insert", "append", "extend", "clear", "remove", "pop", "resize",
+            "get", "get_mut", "has_key", "contains", "len", "size", "is_empty",
+            "iter", "iter_mut", "as_ref", "as_mut", "index", "index_mut",
+        }
+        support_limit = max(max_items, len(selected_uuids)) + max_items
+        for uuid_value, item in public_by_uuid.items():
+            if len(selected_uuids) >= support_limit:
+                break
+            leaf = self._uuid_leaf_name(uuid_value)
+            owner = self._rust_owner_type_from_uuid(uuid_value)
+            trait_root = self._rust_trait_root(item.get("trait_name", ""))
+            if owner and owner in scoped_owners and (leaf in support_patterns or trait_root):
+                selected_uuids.add(uuid_value)
+            elif leaf in support_patterns and trait_root in {"From", "Default", "Index", "IndexMut", "FromIterator"}:
+                selected_uuids.add(uuid_value)
+
+        selected = [public_by_uuid[uuid_value] for uuid_value in sorted(selected_uuids) if uuid_value in public_by_uuid]
+
+        def compact_api(item):
+            uuid_value = item.get("uuid", "")
+            call_hint = (
+                item.get("integration_test_call_hint")
+                or self._rust_call_hint_from_signature(uuid_value, item.get("signature", ""))
+            )
+            return self._compact_report_dict({
+                "uuid": uuid_value,
+                "owner_type": item.get("owner_type") or self._rust_owner_type_from_uuid(uuid_value),
+                "signature": self._truncate_text(item.get("signature", ""), max_chars=220),
+                "trait_name": item.get("trait_name", ""),
+                "call_hint": self._truncate_text(call_hint, max_chars=180),
+            })
+
+        constructors = []
+        mutators = []
+        accessors = []
+        trait_impls = []
+        other = []
+        constructor_names = {"new", "default", "from", "try_from", "from_iter", "new_with_capacity"}
+        mutator_prefixes = ("push", "insert", "append", "extend", "clear", "remove", "pop", "set", "resize")
+        accessor_prefixes = ("get", "has_", "contains", "len", "size", "is_", "as_", "to_", "iter", "entries", "members", "index")
+        for item in selected:
+            uuid_value = item.get("uuid", "")
+            leaf = self._uuid_leaf_name(uuid_value)
+            trait_root = self._rust_trait_root(item.get("trait_name", ""))
+            compact = compact_api(item)
+            if trait_root:
+                trait_impls.append(compact)
+            if leaf in constructor_names or leaf.startswith("new_") or trait_root in {"From", "TryFrom", "Default", "FromIterator", "Into", "TryInto"}:
+                constructors.append(compact)
+            elif leaf.startswith(mutator_prefixes):
+                mutators.append(compact)
+            elif leaf.startswith(accessor_prefixes):
+                accessors.append(compact)
+            else:
+                other.append(compact)
+
+        per_section_limit = max(4, max_items // 2)
+        symbols = self._target_rust_public_symbols(scoped_owners=scoped_owners, max_items=max(6, max_items // 3))
+        return {
+            "usage_rules": [
+                "Capability entries are target-call hints only; source expected behavior must still come from source tests.",
+                "List UUID-bearing public functions used by rust_test_body in target_functions/support_target_functions.",
+                "Use non_uuid_public_constructs in rust_test_body when needed, but do not list them as target/support functions.",
+            ],
+            "constructors_and_conversions": constructors[:per_section_limit],
+            "mutation_and_builder_apis": mutators[:per_section_limit],
+            "accessors_and_observers": accessors[:per_section_limit],
+            "public_trait_impls": trait_impls[:per_section_limit],
+            "non_uuid_public_constructs": symbols,
+            "other_relevant_public_apis": other[:per_section_limit],
+        }
+
+    def _rust_trait_root(self, trait_name):
+        trait_name = str(trait_name or "").strip()
+        if not trait_name:
+            return ""
+        return trait_name.split("<", 1)[0].rsplit("::", 1)[-1].strip()
+
+    def _target_rust_public_symbols(self, scoped_owners=None, max_items=40):
+        if not self.tgt_db_path:
+            return {}
+        scoped_owners = {owner for owner in (scoped_owners or set()) if owner}
+        try:
+            db = self._load_json(self.tgt_db_path)
+        except Exception:
+            return {}
+        macros = []
+        types = []
+        type_aliases = []
+        constants = []
+        for file_path, file_data in db.get("files", {}).items():
+            for macro in file_data.get("macros", []) or []:
+                if not isinstance(macro, dict):
+                    continue
+                visibility = str(macro.get("visibility") or "").lower()
+                if visibility not in {"pub", "public", "macro_export"}:
+                    continue
+                macros.append(self._compact_report_dict({
+                    "name": macro.get("name", ""),
+                    "visibility": macro.get("visibility", ""),
+                }))
+            for type_item in file_data.get("types", []) or []:
+                if not isinstance(type_item, dict):
+                    continue
+                visibility = str(type_item.get("visibility") or "").lower()
+                if visibility not in {"pub", "public"}:
+                    continue
+                type_name = type_item.get("name", "")
+                if scoped_owners and type_name not in scoped_owners:
+                    # Keep non-scoped public types only when budget remains; scoped
+                    # owner types are more relevant to current replay generation.
+                    pass
+                variants = []
+                for variant in type_item.get("variants", []) or []:
+                    if isinstance(variant, dict) and variant.get("name"):
+                        variants.append(variant.get("name"))
+                    elif isinstance(variant, str):
+                        variants.append(variant)
+                types.append(self._compact_report_dict({
+                    "name": type_name,
+                    "kind": type_item.get("kind", ""),
+                    "variants": variants[:12],
+                }))
+            for alias in file_data.get("type_aliases", []) or []:
+                if not isinstance(alias, dict):
+                    continue
+                visibility = str(alias.get("visibility") or "").lower()
+                if visibility not in {"pub", "public"}:
+                    continue
+                type_aliases.append(self._compact_report_dict({
+                    "name": alias.get("name", ""),
+                    "underlying_type": alias.get("underlying_type", ""),
+                }))
+            for state in file_data.get("global_states", []) or []:
+                if not isinstance(state, dict):
+                    continue
+                visibility = str(state.get("visibility") or "").lower()
+                if visibility not in {"pub", "public"}:
+                    continue
+                constants.append(self._compact_report_dict({
+                    "name": state.get("name", ""),
+                    "kind": state.get("kind", ""),
+                    "type": state.get("type", ""),
+                }))
+        if scoped_owners:
+            types = sorted(
+                types,
+                key=lambda item: (0 if item.get("name") in scoped_owners else 1, item.get("file", ""), item.get("name", "")),
+            )
+        return {
+            "public_macros": macros[:max_items],
+            "public_types_and_variants": types[:max_items],
+            "public_type_aliases": type_aliases[:max(3, max_items // 2)],
+            "public_constants_or_statics": constants[:max(3, max_items // 2)],
+        }
+
     def _source_behavior_cases(self, inventory, scoped_source_uuids, max_cases=120, max_chars_per_case=650):
         scoped_names_to_uuids = {}
         for src_uuid in sorted(scoped_source_uuids or []):
@@ -3576,6 +3400,10 @@ class TraceReplay3B:
                     "case_complexity": self._test_case_complexity(calls),
                     "assertions": assertions,
                     "literal_samples": case.get("literal_samples", [])[:14],
+                    "referenced_fixtures": self._referenced_fixture_evidence_for_case(
+                        body,
+                        case.get("path", entry.get("path", "")),
+                    ),
                     "relevant_snippet": self._relevant_case_snippet(body, calls, max_chars=max_chars_per_case),
                 }
                 cases.append(item)
@@ -3917,10 +3745,7 @@ class TraceReplay3B:
                             "case_id": case.get("case_id", ""),
                             "expression": expression,
                             "expected_behavior_hint": self._clean_expected_behavior_text(
-                                assertion.get(
-                                    "expected_behavior_hint",
-                                    assertion.get("oracle_hint", ""),
-                                )
+                                assertion.get("expected_behavior_hint", "")
                             ),
                             "literal_samples": assertion.get("literal_samples", [])[:6],
                         })
@@ -4166,18 +3991,29 @@ class TraceReplay3B:
             if not root.exists() or not root.is_dir():
                 continue
             for path in sorted(root.iterdir()):
-                if not path.is_file() or path.name in seen:
+                if not path.is_file():
                     continue
                 rel_fixture_path = path.relative_to(self.src_repo_path).as_posix()
+                if rel_fixture_path in seen:
+                    continue
                 if self._looks_like_build_or_ci_file(rel_fixture_path):
                     continue
                 suffix = path.suffix.lower()
-                if suffix not in fixture_exts and not any(path.name.endswith(ext) for ext in fixture_exts):
+                is_extensionless_fixture = (
+                    not suffix
+                    and path.stat().st_size <= 1_000_000
+                    and any(part.lower() in {"inputs", "fixtures", "data"} for part in path.relative_to(self.src_repo_path).parts)
+                )
+                if (
+                    suffix not in fixture_exts
+                    and not any(path.name.endswith(ext) for ext in fixture_exts)
+                    and not is_extensionless_fixture
+                ):
                     continue
                 text = self._read_text(path, max_chars=max_chars_per_file)
                 if not text:
                     continue
-                seen.add(path.name)
+                seen.add(rel_fixture_path)
                 evidence.append({
                     "path": rel_fixture_path,
                     "size_bytes": path.stat().st_size if path.exists() else 0,
@@ -4186,6 +4022,191 @@ class TraceReplay3B:
                 if len(evidence) >= max_files:
                     return evidence
         return evidence
+
+    def _referenced_fixture_evidence_for_case(self, body, case_path="", max_items=8, max_chars_per_file=1200):
+        if not self.src_repo_path or not isinstance(body, str) or not body:
+            return []
+        candidates = []
+        for raw in self._literal_samples(body, max_items=80):
+            value = self._decode_source_string_literal(raw)
+            if not value or len(value) > 260:
+                continue
+            for rel_path in self._candidate_fixture_paths_from_literal(value, case_path):
+                if rel_path not in candidates:
+                    candidates.append(rel_path)
+            if len(candidates) >= max_items:
+                break
+
+        primary_candidates = list(candidates)
+        candidates = self._expand_fixture_companion_candidates(candidates)
+
+        evidence = []
+        for rel_path in candidates[:max_items]:
+            path = self.src_repo_path / rel_path
+            if not path.exists() or not path.is_file():
+                continue
+            if self._looks_like_build_or_ci_file(rel_path):
+                continue
+            evidence.append({
+                "path": rel_path,
+                "size_bytes": path.stat().st_size,
+                "content_excerpt": self._read_text(path, max_chars=max_chars_per_file),
+                "replay_worktree_path": rel_path,
+                "fixture_role": self._fixture_role(rel_path, primary_candidates),
+            })
+        return evidence
+
+    def _expand_fixture_companion_candidates(self, candidates):
+        """Add likely expected-output companions for explicitly referenced fixtures."""
+        expanded = []
+        for rel_path in candidates or []:
+            if rel_path and rel_path not in expanded:
+                expanded.append(rel_path)
+            for companion in self._fixture_companion_paths(rel_path):
+                if companion not in expanded:
+                    expanded.append(companion)
+        return expanded
+
+    def _fixture_companion_paths(self, rel_path):
+        if not rel_path or not self.src_repo_path:
+            return []
+        original = Path(rel_path)
+        parent = original.parent
+        name = original.name
+        stem = original.stem if original.suffix else original.name
+        suffix = original.suffix
+        raw_candidates = []
+        companion_suffixes = [".expected", ".golden", ".out", ".output"]
+        for companion_suffix in companion_suffixes:
+            raw_candidates.append(parent / f"{name}{companion_suffix}")
+            if suffix:
+                raw_candidates.append(parent / f"{stem}{companion_suffix}")
+        sibling_dirs = ["expected", "expects", "outputs", "golden"]
+        if parent.name.lower() in {"input", "inputs", "fixture", "fixtures", "data"}:
+            for sibling in sibling_dirs:
+                sibling_parent = parent.parent / sibling
+                raw_candidates.append(sibling_parent / name)
+                for companion_suffix in companion_suffixes:
+                    raw_candidates.append(sibling_parent / f"{name}{companion_suffix}")
+                    if suffix:
+                        raw_candidates.append(sibling_parent / f"{stem}{companion_suffix}")
+        companions = []
+        for raw in raw_candidates:
+            normalized = raw.as_posix().lstrip("./")
+            if not normalized or normalized.startswith("../") or "/../" in normalized:
+                continue
+            path = self.src_repo_path / normalized
+            if path.exists() and path.is_file() and normalized not in companions:
+                companions.append(normalized)
+        return companions
+
+    def _fixture_role(self, rel_path, primary_candidates):
+        if not rel_path:
+            return ""
+        is_primary = rel_path in set(primary_candidates or [])
+        name = Path(rel_path).name.lower()
+        if any(marker in name for marker in (".expected", ".golden", ".out", ".output")):
+            return "expected_output_candidate"
+        if is_primary:
+            return "source_literal_reference"
+        return "expected_output_candidate"
+
+    def _candidate_fixture_paths_from_literal(self, value, case_path=""):
+        value = str(value or "").strip()
+        if not value or "\n" in value or "\r" in value:
+            return []
+        if value.startswith(("{", "[", "<")):
+            return []
+        candidates = []
+        raw_candidates = [value]
+        case_parent = Path(case_path or "").parent
+        if case_parent.as_posix() not in {"", "."}:
+            raw_candidates.append((case_parent / value).as_posix())
+            raw_candidates.append((case_parent / "inputs" / value).as_posix())
+            raw_candidates.append((case_parent / "fixtures" / value).as_posix())
+            raw_candidates.append((case_parent / "data" / value).as_posix())
+        for raw in raw_candidates:
+            normalized = Path(raw).as_posix().lstrip("./")
+            if not normalized or normalized.startswith("../") or "/../" in normalized:
+                continue
+            path = self.src_repo_path / normalized
+            if path.exists() and path.is_file() and normalized not in candidates:
+                candidates.append(normalized)
+        return candidates
+
+    def _decode_source_string_literal(self, literal):
+        literal = str(literal or "").strip()
+        if len(literal) < 2:
+            return ""
+        if literal.startswith(("R\"", "r\"")):
+            literal = literal[1:]
+        if literal[0] not in {"'", '"'} or literal[-1] != literal[0]:
+            return literal
+        inner = literal[1:-1]
+        try:
+            return bytes(inner, "utf-8").decode("unicode_escape")
+        except UnicodeDecodeError:
+            return inner
+
+    def _source_fixture_access_context(self, behavior_cases=None):
+        fixtures_by_path = {}
+        for case in behavior_cases or []:
+            if not isinstance(case, dict):
+                continue
+            for fixture in case.get("referenced_fixtures", []) or []:
+                if isinstance(fixture, dict) and fixture.get("path"):
+                    fixtures_by_path.setdefault(fixture["path"], fixture)
+        fixtures = [
+            self._compact_report_dict({
+                "path": fixture.get("path"),
+                "size_bytes": fixture.get("size_bytes"),
+                "content_excerpt": fixture.get("content_excerpt", "")[:1200],
+                "replay_worktree_path": fixture.get("replay_worktree_path") or fixture.get("path"),
+            })
+            for fixture in fixtures_by_path.values()
+        ]
+        return {
+            "policy": (
+                "When a source behavior case references a fixture file, the replay runner copies that file from "
+                "the source repository into the temporary target worktree using the same relative path. "
+                "Rust tests may either embed the provided content excerpt when complete enough, or read the "
+                "fixture through replay_worktree_path."
+            ),
+            "referenced_fixtures": fixtures[:20],
+        }
+
+    def _copy_source_fixtures_to_target_worktree(self, target_copy):
+        if not self.src_repo_path or not target_copy:
+            return []
+        copied = []
+        fixtures = []
+        context = self._last_synthesis_context or {}
+        source_evidence = context.get("source_evidence", {}) if isinstance(context.get("source_evidence", {}), dict) else {}
+        fixtures.extend(source_evidence.get("fixtures", []) or [])
+        last_inventory = getattr(self, "_last_inventory", None)
+        if isinstance(last_inventory, dict):
+            fixtures.extend(self._source_fixture_evidence(last_inventory, max_files=500, max_chars_per_file=1))
+        for case in source_evidence.get("behavior_cases", []) or []:
+            if isinstance(case, dict):
+                fixtures.extend(case.get("referenced_fixtures", []) or [])
+        seen = set()
+        for fixture in fixtures:
+            if not isinstance(fixture, dict) or not fixture.get("path"):
+                continue
+            rel_path = Path(str(fixture.get("path"))).as_posix().lstrip("./")
+            if not rel_path or rel_path in seen or rel_path.startswith("../") or "/../" in rel_path:
+                continue
+            source_path = self.src_repo_path / rel_path
+            if not source_path.exists() or not source_path.is_file():
+                continue
+            target_path = Path(target_copy) / rel_path
+            target_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source_path, target_path)
+            seen.add(rel_path)
+            copied.append(rel_path)
+        if copied:
+            self._progress("REPLAY", f"copied source fixtures into target worktree: files={len(copied)}")
+        return copied
 
     def _looks_like_test_source_path(self, rel_path):
         path = Path(rel_path)
@@ -4470,47 +4491,34 @@ class TraceReplay3B:
 
     def _adapter_synthesis_schema_hint(self):
         return {
-            "adapter_schema_version": "3b.adapter.v1",
-            "name": "llm_synthesized_<src>_to_<tgt>_public_v1",
+            "adapter_schema_version": "3b.replay_adapter.v2",
+            "name": "llm_synthesized_<src>_to_<tgt>_public_v2",
             "status": "loaded",
-            "adapter_role": "repo_specific_behavior_recipe",
-            "generation_status": "llm_synthesized_v1",
-            "recorder": "adapter_declared_trace_events_v1",
-            "replay_generator": "rust_inline_harness_v1",
+            "adapter_role": "repo_specific_public_replay_plan",
+            "generation_status": "llm_synthesized_v2",
             "target_language": "rust",
             "target_test_command": ["cargo", "test", "--test", "cp2rs_3b_public"],
-            "public_operations": {
-                "operation_name": {
+            "rust_support_source": "Optional shared Rust support code outside #[test] functions. Prefer empty; each event should be self-contained when practical.",
+            "replay_events": [
+                {
+                    "id": "stable_valid_rust_test_fn_name",
                     "description": "Behavior scenario derived from source tests.",
+                    "source_case_ids": ["case_id values from source_evidence.behavior_cases"],
                     "source_functions": ["source uuid from 3A"],
                     "target_functions": ["target uuid from 3A or support public target uuid"],
+                    "support_target_functions": ["optional target public APIs used only to construct/check the behavior"],
                     "normalization": "Observable behavior comparison rule grounded in source test evidence.",
-                    "evidence": ["source test path or fixture"],
-                }
-            },
-            "trace_events": [
-                {
-                    "id": "stable_trace_id_that_is_also_a_valid_rust_test_fn_name",
-                    "operation": "operation_name",
-                    "evidence": "source test or fixture evidence",
-                    "source_case_ids": [
-                        "required: explicit case_id values from source_evidence.behavior_cases covered by this replay; events without source_case_ids do not count toward behavior-case coverage"
-                    ],
-                    "case_grouping_rationale": "required only when source_case_ids contains more than one case: explain why their normalized inputs and expected observable behavior are equivalent",
-                    "input": {"case": "short description"},
-                    "expected": {"observable_behavior": "short expected behavior summary"},
+                    "evidence": "source test path/name/assertion summary",
+                    "input": {"case": "short input summary"},
+                    "expected": {"observable_behavior": "source-test-derived expected behavior"},
                     "expected_behavior_source": "source_test_assertion|source_fixture|source_test_property",
-                    "expected_behavior_confidence": "high|medium|low"
+                    "expected_behavior_confidence": "high|medium|low",
+                    "rust_test_body": "complete #[test] fn whose function name equals id",
                 }
             ],
-            "excluded_behavior_cases": [
-                {
-                    "case_id": "case_id from source_evidence.behavior_cases",
-                    "reason": "target_missing_public_api|cannot_public_replay_internal_state_transition|expected_behavior_not_precise|requires_function_boundary_or_adapter_wrapper|source_test_requires_device",
-                    "details": "required: concrete source/target evidence explaining why public replay is not possible",
-                }
+            "unresolved_behavior_cases": [
+                {"case_id": "case id", "reason": "unresolved_behavior_case_conversion", "details": "why no reliable public replay event was generated"}
             ],
-            "rust_test_harness": "Complete Rust integration test source for tests/cp2rs_3b_public.rs. It must define exactly one #[test] fn for each trace_events[].id, using the id as the function name.",
         }
 
     def _build_adapter_synthesis_prompt(self, context):
@@ -4585,12 +4593,18 @@ class TraceReplay3B:
         prompt_context["target_api_scope"] = self._target_api_scope(selected_pairs)
         prompt_context["target_public_api_signatures"] = self._target_public_api_signatures_for_synthesis(
             selected_pairs,
-            max_items=80,
+            max_items=24,
         )
+        prompt_context["target_rust_usage_capabilities"] = self._target_rust_usage_capabilities(
+            selected_pairs,
+            selected_api_signatures=prompt_context["target_public_api_signatures"],
+            max_items=16,
+        )
+        prompt_context["source_fixture_access"] = self._source_fixture_access_context(selected)
         prompt_context["target_aligned_api_context"] = self._target_aligned_api_context(
             selected_pairs,
-            max_items=50,
-            max_body_chars=700,
+            max_items=24,
+            max_body_chars=180,
         )
         self._initial_prompt_case_ids = [case.get("case_id") for case in selected if case.get("case_id")]
         return prompt_context
@@ -4907,11 +4921,12 @@ class TraceReplay3B:
                 return {
                     "name": self._display_path(self.adapter_path),
                     "status": "adapter_file_missing",
-                    "public_operations": {},
+                    "replay_events": [],
                 }
             data = self._load_json(self.adapter_path)
             data.setdefault("status", "loaded")
-            data.setdefault("public_operations", {})
+            data.setdefault("replay_events", [])
+            data.setdefault("unresolved_behavior_cases", [])
             data["_adapter_source_path"] = self._display_path(self.adapter_path)
             data["_adapter_resolution"] = "explicit_adapter"
             self._normalize_expected_behavior_field_names(data)
@@ -4924,7 +4939,7 @@ class TraceReplay3B:
         return {
             "name": "none",
             "status": "adapter_missing",
-            "public_operations": {},
+            "replay_events": [],
         }
 
     def _load_default_adapter(self):
@@ -4940,12 +4955,13 @@ class TraceReplay3B:
                 return {
                     "name": self._display_path(path),
                     "status": "adapter_file_invalid",
-                    "public_operations": {},
+                    "replay_events": [],
                 }
             if is_cache and not self._is_reusable_generated_adapter_cache(data):
                 continue
             data.setdefault("status", "loaded")
-            data.setdefault("public_operations", {})
+            data.setdefault("replay_events", [])
+            data.setdefault("unresolved_behavior_cases", [])
             data["_adapter_source_path"] = self._display_path(path)
             data["_adapter_resolution"] = "generated_adapter_cache" if is_cache else "static_adapter"
             self._normalize_expected_behavior_field_names(data)
@@ -5005,6 +5021,8 @@ class TraceReplay3B:
 
     @classmethod
     def _is_reusable_generated_adapter_cache_static(cls, adapter):
+        if adapter.get("adapter_schema_version") != "3b.replay_adapter.v2":
+            return False
         if adapter.get("_adapter_cache_status") != "reusable_after_validated_replay":
             return False
         if adapter.get("_eligibility_schema_version") != "3b.public_replay_eligibility.v1":
@@ -5027,7 +5045,7 @@ class TraceReplay3B:
         required_behavior_keys = {
             "required_behavior_case_count",
             "replayed_behavior_case_count",
-            "excluded_behavior_case_count",
+            "unresolved_behavior_case_count",
             "missing_behavior_case_count",
             "unresolved_unlisted_behavior_case_count",
         }
@@ -5042,7 +5060,7 @@ class TraceReplay3B:
         required_behavior_cases = coverage_scope.get("required_behavior_case_count", 0)
         accounted_behavior_cases = (
             coverage_scope.get("replayed_behavior_case_count", 0)
-            + coverage_scope.get("excluded_behavior_case_count", 0)
+            + coverage_scope.get("unresolved_behavior_case_count", 0)
         )
         if required_behavior_cases and accounted_behavior_cases != required_behavior_cases:
             return False
@@ -5518,12 +5536,10 @@ class TraceReplay3B:
     def build_replay_plan(self, inventory, alignment_stats, adapter):
         if adapter.get("status") != "loaded":
             return self._empty_replay_plan("adapter_missing")
-
-        if adapter.get("recorder") == "adapter_declared_trace_events_v1":
+        if isinstance(adapter.get("replay_events"), list) and adapter.get("replay_events"):
             allowed_source_functions = self._adapter_replay_source_scope(alignment_stats, inventory)
             return self._build_replay_plan_from_adapter_events(adapter, allowed_source_functions=allowed_source_functions)
-
-        return self._empty_replay_plan("adapter_has_no_recorder")
+        return self._empty_replay_plan("adapter_declared_no_replay_events")
 
     def _empty_replay_plan(self, reason):
         return {
@@ -5543,8 +5559,11 @@ class TraceReplay3B:
             },
         }
 
-    def _operation_available(self, adapter, operation):
-        return operation in adapter.get("public_operations", {})
+    def _replay_event_available(self, adapter, event_id):
+        return any(
+            isinstance(event, dict) and event.get("id") == event_id
+            for event in adapter.get("replay_events", [])
+        )
 
     def _adapter_replay_source_scope(self, alignment_stats, inventory):
         public_eligible_src = set(alignment_stats.get("public_eligible_source_functions", []))
@@ -5558,142 +5577,74 @@ class TraceReplay3B:
         events = []
         skipped_scope_events = []
         allowed_source_functions = set(allowed_source_functions or [])
-        declared_events = adapter.get("trace_events") or []
-        if declared_events:
-            for declared in declared_events:
-                operation = declared.get("operation")
-                if not operation or not self._operation_available(adapter, operation):
-                    continue
-                scoped_source_functions = self._operation_scoped_source_functions(
-                    adapter,
-                    operation,
-                    allowed_source_functions,
-                )
-                if allowed_source_functions and not scoped_source_functions:
-                    skipped_scope_events.append(declared.get("id") or operation)
-                    continue
-                events.append(self._replay_plan_event_from_adapter_event(
-                    adapter,
-                    declared,
-                    scoped_source_functions=scoped_source_functions,
-                ))
-        else:
-            for operation, op in adapter.get("public_operations", {}).items():
-                scoped_source_functions = self._operation_scoped_source_functions(
-                    adapter,
-                    operation,
-                    allowed_source_functions,
-                )
-                if allowed_source_functions and not scoped_source_functions:
-                    skipped_scope_events.append(operation)
-                    continue
-                events.append(self._replay_plan_event_from_adapter_event(adapter, {
-                    "operation": operation,
-                    "evidence": "; ".join(op.get("evidence", [])) if isinstance(op.get("evidence"), list) else op.get("evidence", ""),
-                    "input": {"case": operation},
-                    "expected": {"observable_behavior": op.get("normalization", "")},
-                }, scoped_source_functions=scoped_source_functions))
-
+        for declared in adapter.get("replay_events") or []:
+            if not isinstance(declared, dict):
+                continue
+            scoped_source_functions = self._event_scoped_source_functions(declared, allowed_source_functions)
+            if allowed_source_functions and not scoped_source_functions:
+                skipped_scope_events.append(declared.get("id") or "unnamed_replay_event")
+                continue
+            events.append(self._replay_plan_event_from_adapter_event(declared, adapter, scoped_source_functions=scoped_source_functions))
         if not events:
-            return self._empty_replay_plan("adapter_declared_no_trace_events")
-
+            return self._empty_replay_plan("adapter_declared_no_replay_events")
         return {
-            "schema_version": "3b.replay_plan.v1",
+            "schema_version": "3b.replay_plan.v2",
             "status": "recorded",
-            "recording_strategy": "adapter_declared_trace_events_v1",
-            "note": "Replay plan events were derived from effective adapter trace_events generated from source test evidence.",
+            "recording_strategy": "adapter_replay_events_v2",
+            "note": "Replay plan events were derived from effective adapter replay_events generated from source test evidence.",
             "skipped_scope_events": skipped_scope_events[:100],
             "skipped_scope_event_count": len(skipped_scope_events),
             "events": events,
             "summary": self._build_replay_plan_summary(events),
         }
 
-    def _operation_scoped_source_functions(self, adapter, operation, allowed_source_functions):
-        op = adapter.get("public_operations", {}).get(operation, {})
-        source_functions = op.get("source_functions", []) if isinstance(op, dict) else []
+    def _event_scoped_source_functions(self, event, allowed_source_functions):
+        source_functions = event.get("source_functions", []) if isinstance(event, dict) else []
         if not source_functions:
             return []
         if not allowed_source_functions:
             return list(source_functions)
         return [src_uuid for src_uuid in source_functions if src_uuid in allowed_source_functions]
 
-    def _replay_plan_event_from_adapter_event(self, adapter, declared, scoped_source_functions=None):
-        operation = declared["operation"]
-        op = adapter["public_operations"][operation]
-        event_id = declared.get("id") or f"trace_{operation}_{uuid.uuid4().hex[:8]}"
-        source_functions = scoped_source_functions if scoped_source_functions is not None else op.get("source_functions", [])
-        omitted_source_functions = [
-            src_uuid for src_uuid in op.get("source_functions", [])
-            if src_uuid not in set(source_functions)
-        ]
+    def _replay_plan_event_from_adapter_event(self, declared, adapter=None, scoped_source_functions=None):
+        event_id = declared.get("id") or f"replay_{uuid.uuid4().hex[:8]}"
+        source_functions = scoped_source_functions if scoped_source_functions is not None else declared.get("source_functions", [])
+        omitted_source_functions = [src_uuid for src_uuid in declared.get("source_functions", []) if src_uuid not in set(source_functions)]
         return {
             "id": event_id,
             "layer": "public_behavior",
-            "operation": operation,
+            "description": declared.get("description", ""),
             "evidence": declared.get("evidence", ""),
             "source_functions": source_functions,
-            "target_functions": op.get("target_functions", []),
-            "operation_metadata": {
-                "description": op.get("description", ""),
-                "normalization": op.get("normalization", ""),
-                "normalization_status": "adapter_declared_v1",
-                "adapter_generation_status": adapter.get("generation_status", ""),
+            "target_functions": declared.get("target_functions", []),
+            "support_target_functions": declared.get("support_target_functions", []),
+            "event_metadata": {
+                "normalization": declared.get("normalization", ""),
+                "normalization_status": "adapter_declared_v2",
+                "adapter_generation_status": (adapter or {}).get("generation_status", "") if isinstance(adapter, dict) else "",
                 "scope_filtered_source_functions": bool(omitted_source_functions),
                 "omitted_source_functions_outside_l1_scope": omitted_source_functions,
             },
             "input": declared.get("input", {}),
             "expected": declared.get("expected", {}),
             "source_case_ids": declared.get("source_case_ids", []),
-            "expected_behavior_source": (
-                declared.get("expected_behavior_source")
-                or declared.get("oracle_source")
-                or "adapter_declared_from_source_test_evidence"
-            ),
-            "expected_behavior_confidence": (
-                declared.get("expected_behavior_confidence")
-                or declared.get("oracle_confidence")
-                or "medium"
-            ),
+            "expected_behavior_source": declared.get("expected_behavior_source") or "adapter_declared_from_source_test_evidence",
+            "expected_behavior_confidence": declared.get("expected_behavior_confidence") or "medium",
         }
 
     def _ensure_replay_plan_alignment_validation(self, replay_plan, alignment_stats, adapter):
         if replay_plan.get("status") != "recorded":
             return replay_plan
-
         for event in replay_plan.get("events", []):
-            operation = event.get("operation")
-            op = adapter.get("public_operations", {}).get(operation)
-            if op is None:
-                event["alignment_validation"] = {
-                    "status": "adapter_operation_missing",
-                    "covered_pairs": [],
-                    "covered_source_functions": [],
-                    "covered_target_functions": [],
-                    "missing_source_alignments": event.get("source_functions", []),
-                    "non_public_alignments": [],
-                    "missing_target_recipe": [],
-                    "support_target_functions": event.get("target_functions", []),
-                }
-                continue
-
-            event["alignment_validation"] = self._validate_operation_alignment(
-                operation,
-                {
-                    **op,
-                    "source_functions": event.get("source_functions", []),
-                    "target_functions": event.get("target_functions", op.get("target_functions", [])),
-                },
-                alignment_stats,
-            )
-
+            event["alignment_validation"] = self._validate_replay_event_alignment(event, alignment_stats)
         replay_plan["summary"] = self._build_replay_plan_summary(replay_plan.get("events", []))
-        replay_plan["schema_version"] = "3b.replay_plan.v1"
+        replay_plan["schema_version"] = "3b.replay_plan.v2"
         return replay_plan
 
-    def _validate_operation_alignment(self, operation, op, alignment_stats):
+    def _validate_replay_event_alignment(self, event, alignment_stats):
         pair_by_src = self._alignment_pairs_by_source(alignment_stats)
-        source_functions = op.get("source_functions", [])
-        recipe_targets = set(op.get("target_functions", []))
+        source_functions = event.get("source_functions", [])
+        recipe_targets = set(event.get("target_functions", []))
         expected_targets = set()
         covered_pairs = []
         covered_source_functions = set()
@@ -5701,21 +5652,14 @@ class TraceReplay3B:
         missing_source_alignments = []
         non_public_alignments = []
         missing_target_recipe = []
-
         for src_uuid in source_functions:
             pair = pair_by_src.get(src_uuid)
             if not pair or not pair.get("tgt_uuids"):
                 missing_source_alignments.append(src_uuid)
                 continue
-
             if not pair.get("is_public_eligible"):
-                non_public_alignments.append({
-                    "src_uuid": src_uuid,
-                    "tgt_uuids": pair.get("tgt_uuids", []),
-                    "reason": "not_public_eligible",
-                })
+                non_public_alignments.append({"src_uuid": src_uuid, "tgt_uuids": pair.get("tgt_uuids", []), "reason": "not_public_eligible"})
                 continue
-
             expected_targets.update(pair.get("tgt_uuids", []))
             missing_for_src = []
             for tgt_uuid in pair.get("tgt_uuids", []):
@@ -5725,27 +5669,18 @@ class TraceReplay3B:
                     covered_target_functions.add(tgt_uuid)
                 else:
                     missing_for_src.append(tgt_uuid)
-
             if missing_for_src:
-                missing_target_recipe.append({
-                    "src_uuid": src_uuid,
-                    "expected_tgt_uuids": pair.get("tgt_uuids", []),
-                    "missing_tgt_uuids": missing_for_src,
-                })
-
-        support_targets = sorted(recipe_targets - expected_targets)
+                missing_target_recipe.append({"src_uuid": src_uuid, "expected_tgt_uuids": pair.get("tgt_uuids", []), "missing_tgt_uuids": missing_for_src})
+        support_targets = sorted((recipe_targets | set(event.get("support_target_functions", []) or [])) - expected_targets)
         if not source_functions:
-            status = "adapter_operation_empty"
+            status = "adapter_event_empty"
         elif missing_source_alignments or non_public_alignments or missing_target_recipe:
             status = "partial_alignment" if covered_pairs else "missing_alignment"
         else:
             status = "fully_aligned"
-        mapping_shape = self._mapping_shape(covered_source_functions, covered_target_functions)
-
         return {
-            "operation": operation,
             "status": status,
-            "mapping_shape": mapping_shape,
+            "mapping_shape": self._mapping_shape(covered_source_functions, covered_target_functions),
             "covered_pairs": covered_pairs,
             "covered_source_functions": sorted(covered_source_functions),
             "covered_target_functions": sorted(covered_target_functions),
@@ -5843,6 +5778,7 @@ class TraceReplay3B:
             shutil.rmtree(run_dir)
         target_copy.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(self.tgt_repo_path, target_copy, ignore=self._copy_ignore)
+        copied_fixtures = self._copy_source_fixtures_to_target_worktree(target_copy)
 
         tests_dir = target_copy / "tests"
         tests_dir.mkdir(exist_ok=True)
@@ -5898,6 +5834,7 @@ class TraceReplay3B:
                 "failure_reason": "target_replay_build_or_environment_failure",
                 "stdout_tail": stdout,
                 "stderr_tail": stderr,
+                "copied_source_fixtures": copied_fixtures,
             }
             return self._replay_public_plan_per_event(
                 replay_plan=replay_plan,
@@ -5925,10 +5862,10 @@ class TraceReplay3B:
             )
             replay_event = {
                 "id": event["id"],
-                "operation": event["operation"],
                 "status": event_status,
                 "source_functions": event["source_functions"],
                 "target_functions": event["target_functions"],
+                "support_target_functions": event.get("support_target_functions", []),
                 "source_case_ids": event.get("source_case_ids", []),
                 "alignment_validation": event.get("alignment_validation", {}),
                 "expected_behavior_source": self._expected_behavior_source(event),
@@ -5955,6 +5892,7 @@ class TraceReplay3B:
             "parsed_test_result_counts": result_counts,
             "stdout_tail": stdout,
             "stderr_tail": stderr,
+            "copied_source_fixtures": copied_fixtures,
         }
         return {"status": overall_status, "events": events, "summary": summary}
 
@@ -5968,7 +5906,7 @@ class TraceReplay3B:
         full_failure_summary,
     ):
         spans = self._rust_test_block_spans_by_name(harness)
-        support_source = self._rust_harness_support_source(harness)
+        support_source = self._rust_test_support_source(harness)
         events = []
         per_event_infra = []
         per_event_outputs = {}
@@ -5990,7 +5928,6 @@ class TraceReplay3B:
                 per_event_infra.append({
                     "event_id": event_id,
                     "test_name": event_id,
-                    "operation": plan_event.get("operation", ""),
                     "source_case_ids": plan_event.get("source_case_ids", []),
                     "failure_reason": "generated_test_block_missing",
                 })
@@ -6048,7 +5985,6 @@ class TraceReplay3B:
                 per_event_infra.append({
                     "event_id": event_id,
                     "test_name": event_id,
-                    "operation": plan_event.get("operation", ""),
                     "source_case_ids": plan_event.get("source_case_ids", []),
                     "test_file": self._display_path(event_test_file),
                     "command": cmd,
@@ -6097,6 +6033,7 @@ class TraceReplay3B:
             "per_event_outputs": per_event_outputs,
             "stdout_tail": full_failure_summary.get("stdout_tail", ""),
             "stderr_tail": full_failure_summary.get("stderr_tail", ""),
+            "copied_source_fixtures": full_failure_summary.get("copied_source_fixtures", []),
         }
         return {
             "status": status,
@@ -6153,6 +6090,7 @@ class TraceReplay3B:
             shutil.rmtree(run_dir)
         target_copy.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(self.tgt_repo_path, target_copy, ignore=self._copy_ignore)
+        copied_fixtures = self._copy_source_fixtures_to_target_worktree(target_copy)
 
         tests_dir = target_copy / "tests"
         tests_dir.mkdir(exist_ok=True)
@@ -6179,6 +6117,7 @@ class TraceReplay3B:
                 "failure_reason": "targeted_repair_subset_replay",
                 "stdout_tail": "",
                 "stderr_tail": "",
+                "copied_source_fixtures": copied_fixtures,
             },
         )
 
@@ -6261,10 +6200,10 @@ class TraceReplay3B:
     def _replay_event_from_plan_event(self, event, status, extra=None):
         replay_event = {
             "id": event["id"],
-            "operation": event["operation"],
             "status": status,
             "source_functions": event["source_functions"],
             "target_functions": event["target_functions"],
+            "support_target_functions": event.get("support_target_functions", []),
             "source_case_ids": event.get("source_case_ids", []),
             "alignment_validation": event.get("alignment_validation", {}),
             "expected_behavior_source": self._expected_behavior_source(event),
@@ -6400,31 +6339,29 @@ class TraceReplay3B:
         }
 
     def _rust_public_test_from_adapter(self, adapter):
-        if adapter and adapter.get("replay_generator") == "rust_inline_harness_v1":
-            return self._rust_inline_harness_from_adapter(adapter)
-        return """#[test]
-fn cp2rs_3b_missing_generated_harness() {
-    panic!("3B requires replay_generator=rust_inline_harness_v1");
-}
-"""
+        return self._rust_test_source_from_adapter(adapter)
 
-    def _rust_inline_harness_from_adapter(self, adapter):
-        harness = adapter.get("rust_test_harness", "")
-        if not harness and isinstance(adapter.get("target_replay_harness"), dict):
-            harness = adapter.get("target_replay_harness", {}).get("rust_test_file", "")
-        harness = self._strip_markdown_fence(harness)
-        if not harness.strip():
-            return """#[test]
-fn cp2rs_3b_missing_generated_harness() {
-    panic!("3B adapter replay_generator=rust_inline_harness_v1 but rust_test_harness is empty");
-}
-"""
-        return self._sanitize_rust_harness(harness)
+    def _rust_test_source_from_adapter(self, adapter):
+        pieces = []
+        support = self._strip_markdown_fence(adapter.get("rust_support_source", "") if isinstance(adapter, dict) else "").strip()
+        if support:
+            pieces.append(support)
+        for event in adapter.get("replay_events", []) if isinstance(adapter, dict) else []:
+            if not isinstance(event, dict):
+                continue
+            event_id = event.get("id") or ""
+            body = event.get("rust_test_body", "")
+            if not isinstance(body, str) or not body.strip():
+                continue
+            pieces.append(self._normalize_case_rust_test(body, event_id).strip())
+        if not pieces:
+            return """#[test]\nfn cp2rs_3b_missing_generated_replay_event_body() {\n    panic!(\"3B replay adapter has no replay_events[].rust_test_body\");\n}\n"""
+        return self._sanitize_rust_test_source("\n\n".join(pieces) + "\n")
 
-    def _sanitize_rust_harness(self, harness):
-        if not isinstance(harness, str) or not harness:
-            return harness or ""
-        sanitized = self._strip_markdown_fence(harness)
+    def _sanitize_rust_test_source(self, source):
+        if not isinstance(source, str) or not source:
+            return source or ""
+        sanitized = self._strip_markdown_fence(source)
         sanitized = self._fix_rust_adjacent_string_literals(sanitized)
         sanitized = self._fix_rust_string_literal_syntax(sanitized)
         sanitized = self._fix_rust_index_mut_alias_borrows(sanitized)
@@ -6619,8 +6556,9 @@ fn cp2rs_3b_missing_generated_harness() {
         source_tested_non_public_internal = sorted(tested_aligned_src - public_eligible_src)
         mixed_public_internal_cases = self._mixed_public_internal_cases(inventory)
         adapter_src = set()
-        for operation in adapter.get("public_operations", {}).values():
-            adapter_src.update(operation.get("source_functions", []))
+        for event in adapter.get("replay_events", []) or []:
+            if isinstance(event, dict):
+                adapter_src.update(event.get("source_functions", []))
 
         adapter_missing_src = sorted(tested_public_src - public_plan_src)
         adapter_missing_count = len(adapter_missing_src)
@@ -6663,16 +6601,16 @@ fn cp2rs_3b_missing_generated_harness() {
             "source_behavior_cases_available": behavior_case_coverage.get("available_behavior_case_count", 0),
             "source_behavior_cases_eligible_for_replay": behavior_case_coverage.get("required_behavior_case_count", 0),
             "source_behavior_cases_replayed": behavior_case_coverage.get("replayed_behavior_case_count", 0),
-            "source_behavior_cases_excluded_by_adapter_conversion": behavior_case_coverage.get("excluded_behavior_case_count", 0),
+            "source_behavior_cases_marked_unresolved_by_conversion": behavior_case_coverage.get("unresolved_behavior_case_count", 0),
             "source_behavior_cases_unresolved_after_conversion": behavior_case_coverage.get("missing_behavior_case_count", 0),
         })
         eligibility = self._public_replay_eligibility or {}
         eligibility_summary = eligibility.get("summary", {})
         metrics.setdefault("ratio_metrics", {})["behavior_case_accounting_rate"] = self._ratio(
             behavior_case_coverage.get("replayed_behavior_case_count", 0)
-            + behavior_case_coverage.get("excluded_behavior_case_count", 0),
+            + behavior_case_coverage.get("unresolved_behavior_case_count", 0),
             behavior_case_coverage.get("required_behavior_case_count", 0),
-            "eligible source behavior cases 中，已 replay 或经有效原因排除的比例",
+            "eligible source behavior cases 中，已 replay 或明确标记为无法转换的比例",
         )
         metrics.setdefault("ratio_metrics", {})["behavior_case_replay_coverage"] = self._ratio(
             behavior_case_coverage.get("replayed_behavior_case_count", 0),
@@ -6707,7 +6645,7 @@ fn cp2rs_3b_missing_generated_harness() {
                     "structurally_ineligible_for_public_replay_cases", 0
                 ),
                 "public_replay_eligible_cases": behavior_case_coverage.get("required_behavior_case_count", 0),
-                "cases_excluded_by_adapter_conversion": behavior_case_coverage.get("excluded_behavior_case_count", 0),
+                "cases_marked_unresolved_by_adapter_conversion": behavior_case_coverage.get("unresolved_behavior_case_count", 0),
                 "unresolved_after_conversion_attempts": behavior_case_coverage.get("missing_behavior_case_count", 0),
                 "replayed_cases": behavior_case_coverage.get("replayed_behavior_case_count", 0),
                 "mixed_public_internal_candidates": eligibility_summary.get("mixed_public_internal_candidates", 0),
@@ -6777,30 +6715,24 @@ fn cp2rs_3b_missing_generated_harness() {
         }
 
     def _adapter_summary(self, adapter):
-        operations = adapter.get("public_operations", {})
-        if not isinstance(operations, dict):
-            operations = {}
-        events = adapter.get("trace_events", [])
+        events = adapter.get("replay_events", [])
         if not isinstance(events, list):
             events = []
-        referenced_operations = {
-            event.get("operation")
-            for event in events
-            if isinstance(event, dict) and event.get("operation")
-        }
+        event_ids = [event.get("id") for event in events if isinstance(event, dict) and event.get("id")]
+        covered_cases = sorted({case_id for event in events if isinstance(event, dict) for case_id in event.get("source_case_ids", []) or [] if case_id})
         return {
-            "public_operation_count": len(operations),
-            "trace_event_count": len(events),
-            "referenced_operation_count": len(referenced_operations),
-            "unreferenced_operation_count": len(set(operations) - referenced_operations),
+            "replay_event_count": len(events),
+            "unique_replay_event_id_count": len(set(event_ids)),
+            "covered_source_behavior_case_count": len(covered_cases),
+            "rust_support_source_present": bool(str(adapter.get("rust_support_source", "")).strip()),
         }
 
     def _adapter_event_binding_checks(self, behavior_case_coverage):
         checks = {
             "unknown_source_behavior_case_ids": behavior_case_coverage.get("unknown_source_case_ids", []),
-            "replayed_and_excluded_source_behavior_case_ids": behavior_case_coverage.get("replayed_and_excluded_case_ids", []),
+            "replayed_and_unresolved_source_behavior_case_ids": behavior_case_coverage.get("replayed_and_unresolved_case_ids", []),
             "invalid_event_case_bindings": behavior_case_coverage.get("invalid_event_case_bindings", []),
-            "invalid_excluded_behavior_cases": behavior_case_coverage.get("invalid_excluded_behavior_cases", []),
+            "invalid_unresolved_behavior_cases": behavior_case_coverage.get("invalid_unresolved_behavior_cases", []),
             "events_without_source_behavior_case_ids": behavior_case_coverage.get("events_without_source_case_ids", []),
         }
         return self._compact_report_dict(checks)
@@ -6822,7 +6754,6 @@ fn cp2rs_3b_missing_generated_harness() {
         if isinstance(value, str):
             replacements = {
                 "adapter_case_generation": "behavior_case_conversion",
-                "unresolved_adapter_generation": "unresolved_behavior_case_conversion",
             }
             for old, new in replacements.items():
                 value = value.replace(old, new)
@@ -6868,7 +6799,6 @@ fn cp2rs_3b_missing_generated_harness() {
         source_cases = self._source_case_briefs_for_event(event, max_cases=4)
         return self._compact_report_dict({
             "replay_event_id": event.get("replay_event_id", ""),
-            "operation": event.get("operation", ""),
             "status": event.get("status", ""),
             "review_status": review.get("review_status", ""),
             "review_reason": review.get("reason", ""),
@@ -6944,48 +6874,32 @@ fn cp2rs_3b_missing_generated_harness() {
         return unresolved
 
     def _public_replay_event_summaries(self, adapter, replay_result):
-        trace_events = {
-            event.get("id"): event
-            for event in adapter.get("trace_events", [])
-            if isinstance(event, dict) and event.get("id")
-        }
-        operations = adapter.get("public_operations", {}) if isinstance(adapter.get("public_operations"), dict) else {}
+        adapter_events = {event.get("id"): event for event in adapter.get("replay_events", []) if isinstance(event, dict) and event.get("id")}
         summaries = []
         for event in replay_result.get("events", []):
             event_id = event.get("id", "")
-            trace_event = trace_events.get(event_id, {})
-            operation_name = event.get("operation") or trace_event.get("operation", "")
-            operation = operations.get(operation_name, {}) if isinstance(operations, dict) else {}
+            adapter_event = adapter_events.get(event_id, {})
             alignment = event.get("alignment_validation", {}) or {}
-            adapter_source_functions = event.get("source_functions", [])
-            adapter_target_recipe_functions = event.get("target_functions", [])
             summary = {
                 "replay_event_id": event_id,
-                "operation": operation_name,
                 "status": event.get("status", ""),
                 "aligned_source_functions": alignment.get("covered_source_functions", []),
                 "aligned_target_functions": alignment.get("covered_target_functions", []),
                 "mapping_shape": alignment.get("mapping_shape", ""),
                 "alignment_status": alignment.get("status", ""),
-                "source_behavior_case_ids": event.get("source_case_ids") or trace_event.get("source_case_ids", []),
+                "source_behavior_case_ids": event.get("source_case_ids") or adapter_event.get("source_case_ids", []),
             }
             if event.get("status") != "passed":
                 summary.update({
-                    "support_target_functions_used": alignment.get("support_target_functions", []),
-                    "operation_source_functions": adapter_source_functions,
-                    "operation_target_functions": adapter_target_recipe_functions,
-                    "evidence": trace_event.get("evidence", operation.get("evidence", [])),
-                    "input": trace_event.get("input", {}),
-                    "expected": event.get("expected") or trace_event.get("expected", {}),
-                    "expected_behavior_source": (
-                        self._expected_behavior_source(event)
-                        or self._expected_behavior_source(trace_event)
-                    ),
-                    "expected_behavior_confidence": (
-                        self._expected_behavior_confidence(event)
-                        or self._expected_behavior_confidence(trace_event)
-                    ),
-                    "normalization": operation.get("normalization", ""),
+                    "support_target_functions_used": alignment.get("support_target_functions", event.get("support_target_functions", [])),
+                    "event_source_functions": event.get("source_functions", []),
+                    "event_target_functions": event.get("target_functions", []),
+                    "evidence": adapter_event.get("evidence", ""),
+                    "input": adapter_event.get("input", {}),
+                    "expected": event.get("expected") or adapter_event.get("expected", {}),
+                    "expected_behavior_source": self._expected_behavior_source(event) or self._expected_behavior_source(adapter_event),
+                    "expected_behavior_confidence": self._expected_behavior_confidence(event) or self._expected_behavior_confidence(adapter_event),
+                    "normalization": adapter_event.get("normalization", ""),
                 })
             summaries.append(self._compact_report_dict(summary))
         return summaries
@@ -7004,7 +6918,6 @@ fn cp2rs_3b_missing_generated_harness() {
         }
         event_haystack = " ".join([
             str(event.get("replay_event_id", event.get("id", ""))),
-            str(event.get("operation", "")),
             str(event.get("evidence", "")),
             json.dumps(event.get("input", {}), ensure_ascii=False),
             json.dumps(event.get("expected", {}), ensure_ascii=False),
@@ -7040,30 +6953,16 @@ fn cp2rs_3b_missing_generated_harness() {
 
     def _target_replay_summary(self, adapter, replay_plan, replay_result):
         replay_summary = replay_result.get("summary", {}) or {}
-        replay_plan_event_ids = [
-            str(event.get("id", ""))
-            for event in replay_plan.get("events", [])
-            if isinstance(event, dict) and event.get("id")
-        ]
-        operations = [
-            str(event.get("operation", ""))
-            for event in replay_plan.get("events", [])
-            if isinstance(event, dict) and event.get("operation")
-        ]
+        replay_plan_event_ids = [str(event.get("id", "")) for event in replay_plan.get("events", []) if isinstance(event, dict) and event.get("id")]
         fingerprint_payload = {
             "adapter_generation_status": adapter.get("generation_status", ""),
             "event_ids": replay_plan_event_ids,
-            "operations": operations,
             "replay_plan_alignment_status_counts": replay_plan.get("summary", {}).get("alignment_status_counts", {}),
         }
-        fingerprint = hashlib.sha256(
-            json.dumps(fingerprint_payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
-        ).hexdigest()[:16]
-
+        fingerprint = hashlib.sha256(json.dumps(fingerprint_payload, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()[:16]
         command = replay_summary.get("command", [])
         if isinstance(command, list):
             command = " ".join(str(part) for part in command)
-
         return self._compact_report_dict({
             "status": replay_result.get("status"),
             "replay_plan_fingerprint": fingerprint,
@@ -7075,10 +6974,7 @@ fn cp2rs_3b_missing_generated_harness() {
             "replay_events_passed": replay_summary.get("passed", 0),
             "replay_events_failed": replay_summary.get("failed", 0),
             "infrastructure_failures": replay_summary.get("infrastructure_failures", 0),
-            "note": (
-                "public_replay_pass_rate only describes this replay plan; compare "
-                "replay_plan_fingerprint across runs before comparing pass rates."
-            ),
+            "note": "public_replay_pass_rate only describes this replay plan; compare replay_plan_fingerprint across runs before comparing pass rates.",
         })
 
     def _mixed_public_internal_cases(self, inventory):
@@ -7140,7 +7036,7 @@ fn cp2rs_3b_missing_generated_harness() {
         if executed == 0:
             reasons.append("no_public_replay_events_executed")
         if missing_alignment:
-            reasons.append("adapter_operations_missing_3a_alignment")
+            reasons.append("replay_events_missing_3a_alignment")
 
         if executed > 0 and passed < executed:
             review_items.append("public_replay_failures_present")
@@ -7156,7 +7052,7 @@ fn cp2rs_3b_missing_generated_harness() {
         if missing_behavior_cases:
             coverage_gaps.append("not_all_eligible_source_behavior_cases_replayed_or_excluded")
         if partial_alignment:
-            coverage_gaps.append("some_operations_cover_only_part_of_3a_target_recipe")
+            coverage_gaps.append("some_replay_events_cover_only_part_of_3a_target_recipe")
         if scoped_sources and planned_sources < scoped_sources:
             coverage_gaps.append("not_all_source_tested_public_functions_traced")
 
@@ -7183,7 +7079,7 @@ fn cp2rs_3b_missing_generated_harness() {
         elif status == "partial":
             summary = (
                 "3B public replay passed for generated events, but adapter coverage/alignment gaps remain; "
-                "treat results as scoped to covered operations."
+                "treat results as scoped to covered replay events."
             )
         elif status == "review_required":
             summary = (
@@ -7218,7 +7114,6 @@ fn cp2rs_3b_missing_generated_harness() {
                 reason = "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch."
             reviews.append({
                 "replay_event_id": failure.get("id", ""),
-                "operation": failure.get("operation", ""),
                 "review_status": status,
                 "reason": reason,
                 "expected_behavior_source": self._expected_behavior_source(failure),
@@ -7228,10 +7123,10 @@ fn cp2rs_3b_missing_generated_harness() {
         return reviews
 
     def _expected_behavior_source(self, event):
-        return event.get("expected_behavior_source") or event.get("oracle_source", "")
+        return event.get("expected_behavior_source", "")
 
     def _expected_behavior_confidence(self, event):
-        return event.get("expected_behavior_confidence") or event.get("oracle_confidence", "")
+        return event.get("expected_behavior_confidence", "")
 
     def _source_functions_with_test_evidence(
         self,
@@ -7420,10 +7315,10 @@ fn cp2rs_3b_missing_generated_harness() {
         for filename, data in files.items():
             with open(artifacts_dir / filename, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
-        generated_harness = self._rust_inline_harness_from_adapter(adapter)
-        if generated_harness.strip() and replay_plan.get("status") == "recorded":
+        generated_test_source = self._rust_test_source_from_adapter(adapter)
+        if generated_test_source.strip() and replay_plan.get("status") == "recorded":
             (artifacts_dir / "generated_public_replay.rs").write_text(
-                generated_harness,
+                generated_test_source,
                 encoding="utf-8",
             )
         self._write_generated_adapter_cache_if_reusable(
@@ -7441,7 +7336,7 @@ fn cp2rs_3b_missing_generated_harness() {
     def _failure_cause_features(self, event, include_source_hints=True):
         input_payload = self._dict_or_wrapped_text(event.get("input", {}), "input")
         expected = self._dict_or_wrapped_text(event.get("expected", {}), "observable_behavior")
-        metadata = self._dict_or_wrapped_text(event.get("operation_metadata", {}), "description")
+        metadata = self._dict_or_wrapped_text(event.get("event_metadata", {}), "description")
         evidence = event.get("evidence", "")
 
         text_parts = [
@@ -7678,7 +7573,7 @@ fn cp2rs_3b_missing_generated_harness() {
             required_behavior_cases = coverage_scope.get("required_behavior_case_count", 0)
             accounted_behavior_cases = (
                 coverage_scope.get("replayed_behavior_case_count", 0)
-                + coverage_scope.get("excluded_behavior_case_count", 0)
+                + coverage_scope.get("unresolved_behavior_case_count", 0)
             )
             if required_behavior_cases and accounted_behavior_cases != required_behavior_cases:
                 reasons.append("behavior_case_accounting_incomplete")

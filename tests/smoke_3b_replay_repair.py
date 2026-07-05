@@ -1,12 +1,4 @@
-"""Smoke test for Phase 3B replay infrastructure repair.
-
-The fake LLM first returns a schema-valid adapter whose Rust harness calls the
-target API with the wrong argument types. Schema validation passes because the
-declared target API name is present, but cargo replay fails. The replay repair
-prompt then receives cargo feedback and the fake LLM returns a harness patch.
-This verifies that replay repair has a budget separate from schema
-synthesis attempts.
-"""
+"""Smoke test for Phase 3B replay-event infrastructure repair."""
 
 import json
 import shutil
@@ -28,78 +20,50 @@ class FakeReplayRepairLLM:
     def chat_completion(self, messages, temperature=0.1, model=None, max_tokens=8192):
         self.calls += 1
         prompt = messages[-1]["content"]
-        repaired = "Phase 3B Replay Repair" in prompt
-        if not repaired:
-            context = json.loads(prompt.split("Generation context:", 1)[1].strip())
-            behavior_cases = context.get("targeted_behavior_cases", [])
-            self.case_id = behavior_cases[0]["case_id"]
-        adapter = self._adapter(repaired)
-        if repaired:
+        if "Replay Event Repair" in prompt:
             return json.dumps({
-                "replay_repair_patch_version": "3b.replay_repair_patch.v1",
-                "rust_test_harness_replacement": adapter["rust_test_harness"],
+                "replay_repair_patch_version": "3b.replay_repair_patch.v2",
+                "rust_test_replacements": [{
+                    "test_name": "trace_add_positive",
+                    "rust_test_body": (
+                        "#[test]\n"
+                        "fn trace_add_positive() {\n"
+                        "    use mini_calc::add;\n"
+                        "    assert_eq!(add(2, 3), 5);\n"
+                        "}\n"
+                    ),
+                }],
             }, indent=2)
+
+        context = json.loads(prompt.split("Generation context:", 1)[1].strip())
+        self.case_id = context["targeted_behavior_case_ids"][0]
         return json.dumps({
-            "adapter_patch_version": "3b.adapter_patch.v1",
-            "public_operations_add": adapter["public_operations"],
-            "trace_events_add": adapter["trace_events"],
-            "excluded_behavior_cases_add": [],
-            "rust_test_harness_append": adapter["rust_test_harness"],
-        }, indent=2)
-
-    def _adapter(self, repaired):
-        if repaired:
-            body = (
-                "use mini_calc::add;\n\n"
-                "#[test]\n"
-                "fn trace_add_positive() {\n"
-                "    assert_eq!(add(2, 3), 5);\n"
-                "}\n"
-            )
-            generation_status = "llm_synthesized_repaired_fake_smoke"
-        else:
-            body = (
-                "use mini_calc::add;\n\n"
-                "#[test]\n"
-                "fn trace_add_positive() {\n"
-                "    assert_eq!(add(\"2\", \"3\"), 5);\n"
-                "}\n"
-            )
-            generation_status = "llm_synthesized_needs_replay_repair_fake_smoke"
-
-        return {
-            "adapter_schema_version": "3b.adapter.v1",
-            "name": "fake_replay_repair_minicalc_public_v1",
-            "status": "loaded",
-            "adapter_role": "repo_specific_behavior_recipe",
-            "generation_status": generation_status,
-            "recorder": "adapter_declared_trace_events_v1",
-            "replay_generator": "rust_inline_harness_v1",
-            "target_language": "rust",
-            "target_test_command": ["cargo", "test", "--test", "cp2rs_3b_public"],
-            "public_operations": {
-                "add_positive_numbers": {
+            "adapter_case_generation_version": "3b.replay_events.v1",
+            "case_results": [{
+                "case_id": self.case_id,
+                "status": "replay_generated",
+                "replay_event": {
+                    "id": "trace_add_positive",
                     "description": "Add two positive integers and observe the returned sum.",
+                    "source_case_ids": [self.case_id],
                     "source_functions": ["calc.c::add_i32"],
                     "target_functions": ["src/lib.rs::add"],
-                    "normalization": "C int return and Rust i32 return are normalized to the observable numeric sum.",
-                    "evidence": ["tests/test_calc.c::test_add_positive"],
-                }
-            },
-            "trace_events": [
-                {
-                    "id": "trace_add_positive",
-                    "operation": "add_positive_numbers",
+                    "normalization": "Compare returned integer sum.",
                     "evidence": "tests/test_calc.c::test_add_positive asserts add_i32(2, 3) == 5",
                     "input": {"left": 2, "right": 3},
                     "expected": {"sum": 5},
-                    "oracle_source": "source_test_assertion",
-                    "oracle_confidence": "high",
-                    "source_case_ids": [self.case_id],
-                }
-            ],
-            "rust_test_harness": body,
-        }
+                    "expected_behavior_source": "source_test_assertion",
+                    "expected_behavior_confidence": "high",
+                    "rust_test_body": (
+                        "#[test]\n"
+                        "fn trace_add_positive() {\n"
+                        "    use mini_calc::add;\n"
+                        "    assert_eq!(add(\"2\", \"3\"), 5);\n"
+                        "}\n"
+                    ),
+                },
+            }],
+        }, indent=2)
 
 
 def write_json(path, data):
@@ -120,28 +84,19 @@ def build_inputs(output_dir):
     )
     (src_repo / "tests" / "test_calc.c").write_text(
         "#include <assert.h>\n"
-        "int add_i32(int left, int right);\n\n"
-        "void test_add_positive(void) {\n"
-        "    assert(add_i32(2, 3) == 5);\n"
-        "}\n",
+        "int add_i32(int left, int right);\n"
+        "void test_add_positive(void) { assert(add_i32(2, 3) == 5); }\n",
         encoding="utf-8",
     )
 
     (tgt_repo / "src").mkdir(parents=True)
     (tgt_repo / "Cargo.toml").write_text(
-        "[package]\n"
-        "name = \"mini-calc\"\n"
-        "version = \"0.1.0\"\n"
-        "edition = \"2021\"\n\n"
-        "[lib]\n"
-        "name = \"mini_calc\"\n"
-        "path = \"src/lib.rs\"\n",
+        "[package]\nname = \"mini-calc\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n"
+        "[lib]\nname = \"mini_calc\"\npath = \"src/lib.rs\"\n",
         encoding="utf-8",
     )
     (tgt_repo / "src" / "lib.rs").write_text(
-        "pub fn add(left: i32, right: i32) -> i32 {\n"
-        "    left + right\n"
-        "}\n",
+        "pub fn add(left: i32, right: i32) -> i32 { left + right }\n",
         encoding="utf-8",
     )
 
@@ -209,18 +164,17 @@ def main():
     report = evaluator.run(mode="run", layer="public", artifacts_dir=output_dir)
     write_json(output_dir / "report.json", report)
 
-    attempts = json.loads((output_dir / "adapter_synthesis_attempts.json").read_text()).get("attempts", [])
+    adapter = json.loads((output_dir / "effective_adapter.json").read_text(encoding="utf-8"))
     summary = report.get("metrics", {}).get("basic_counts", {})
     assert llm.calls == 2, llm.calls
-    assert any(item.get("stage") == "replay_infrastructure_repair" for item in attempts), attempts
-    assert report.get("public_behavior", {}).get("status") == "passed", report.get("public_behavior", {})
+    assert adapter["replay_events"][0]["rust_test_body"].count('add("2", "3")') == 0
+    assert report.get("target_replay", {}).get("summary", {}).get("status") == "passed", report.get("target_replay", {})
     assert summary.get("replay_events_passed") == 1, summary
-    assert summary.get("replayed_behavior_cases") == 1, summary
+    assert summary.get("source_behavior_cases_replayed") == 1, summary
 
     print(json.dumps({
         "status": "passed",
         "llm_calls": llm.calls,
-        "attempts": attempts,
         "summary": summary,
     }, indent=2))
 

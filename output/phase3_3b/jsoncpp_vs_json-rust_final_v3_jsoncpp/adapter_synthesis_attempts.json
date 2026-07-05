@@ -1,0 +1,1395 @@
+{
+  "schema_version": "3b.adapter_synthesis_attempts.v2",
+  "source_repository": "jsoncpp",
+  "target_repository": "json-rust",
+  "attempt_count": 44,
+  "attempts": [
+    {
+      "attempt": 1,
+      "stage": "behavior_case_conversion",
+      "iteration": 1,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_charreaderallowdropnulltest_issue178",
+        "main_charreaderallownumerickeystest_allownumerickeys",
+        "main_charreaderallowsinglequotestest_issue182",
+        "main_charreaderallowspecialfloatstest_issue209",
+        "main_charreaderallowspecialfloatstest_specialfloat",
+        "main_charreaderallowzeroestest_issue176",
+        "main_charreaderfailifextratest_commentafterarray",
+        "main_charreaderfailifextratest_commentafterbool",
+        "main_charreaderfailifextratest_commentafterobject",
+        "main_charreaderfailifextratest_issue107"
+      ],
+      "accepted_case_ids": [
+        "main_charreaderallowdropnulltest_issue178",
+        "main_charreaderallownumerickeystest_allownumerickeys",
+        "main_charreaderallowsinglequotestest_issue182",
+        "main_charreaderallowspecialfloatstest_issue209",
+        "main_charreaderallowspecialfloatstest_specialfloat",
+        "main_charreaderallowzeroestest_issue176",
+        "main_charreaderfailifextratest_commentafterarray",
+        "main_charreaderfailifextratest_commentafterbool",
+        "main_charreaderfailifextratest_commentafterobject",
+        "main_charreaderfailifextratest_issue107"
+      ],
+      "replay_generated_case_ids": [
+        "main_charreaderallowdropnulltest_issue178",
+        "main_charreaderallownumerickeystest_allownumerickeys",
+        "main_charreaderallowsinglequotestest_issue182",
+        "main_charreaderallowspecialfloatstest_issue209",
+        "main_charreaderallowspecialfloatstest_specialfloat",
+        "main_charreaderallowzeroestest_issue176",
+        "main_charreaderfailifextratest_commentafterarray",
+        "main_charreaderfailifextratest_commentafterbool",
+        "main_charreaderfailifextratest_commentafterobject",
+        "main_charreaderfailifextratest_issue107"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 2,
+      "stage": "behavior_case_conversion",
+      "iteration": 2,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_charreaderfailifextratest_issue164",
+        "main_charreaderfailifextratest_parsecomment",
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parsechinesewithoneerror",
+        "main_charreadertest_parsecomment",
+        "main_charreadertest_parsenumber",
+        "main_charreadertest_parseobjectwitherrors",
+        "main_charreadertest_parsestring",
+        "main_charreadertest_parsewithdetailerror"
+      ],
+      "accepted_case_ids": [
+        "main_charreaderfailifextratest_issue164",
+        "main_charreaderfailifextratest_parsecomment",
+        "main_charreadertest_parsechinesewithoneerror",
+        "main_charreadertest_parsewithdetailerror"
+      ],
+      "replay_generated_case_ids": [
+        "main_charreaderfailifextratest_issue164",
+        "main_charreaderfailifextratest_parsecomment",
+        "main_charreadertest_parsechinesewithoneerror",
+        "main_charreadertest_parsewithdetailerror"
+      ],
+      "unresolved_case_ids": [
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parsecomment",
+        "main_charreadertest_parsenumber",
+        "main_charreadertest_parseobjectwitherrors",
+        "main_charreadertest_parsestring"
+      ],
+      "errors": [
+        "case main_charreaderstrictmodetest_dupkeys: model returned unresolved, reason=Required target API for object indexing or value comparison not available in allowed target API set (missing JsonValue PartialEq and Index implementations for objects)., details=Source test checks root[\"key\"] after error parse; target does not provide means to access object members without indexing, which is not in allowed UUIDs.",
+        "case main_charreadertest_parsearraywitherrors: model returned unresolved, reason=Required target API for array indexing or value comparison not available in allowed target API set (missing JsonValue Index<usize> and PartialEq for non-primitive comparison)., details=Source test checks root[0] after error parse and after second parse; target cannot replicate these checks with allowed APIs.",
+        "case main_charreadertest_parsecomment: model returned unresolved, reason=Required target API for object member access and value comparison not available in allowed target API set., details=Source test checks root[\"property\"] equality with \"value\" after successful parse; target provides no way to retrieve object member value without indexing or PartialEq, which are not in allowed UUIDs.",
+        "case main_charreadertest_parsenumber: model returned unresolved, reason=Required target API for array element access and floating-point comparison not available in allowed target API set., details=Source test checks root[0] equality with a double; target lacks array indexing and JsonValue PartialEq for floating-point numbers (only as_f64 is available but does not directly compare to expected literal).",
+        "case main_charreadertest_parseobjectwitherrors: model returned unresolved, reason=Required target API for object indexing or value comparison not available in allowed target API set., details=Source test checks root[\"property\"] after error parse; target cannot replicate this check with allowed APIs.",
+        "case main_charreadertest_parsestring: model returned unresolved, reason=Required target API for array indexing and value comparison not available in allowed target API set., details=Source test checks root[0] equality with empty string and unicode character; target provides no array indexing or PartialEq for JsonValue elements."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 3,
+      "stage": "behavior_case_conversion",
+      "iteration": 3,
+      "scheduling": "immediate_retry",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parsecomment",
+        "main_charreadertest_parsenumber",
+        "main_charreadertest_parseobjectwitherrors",
+        "main_charreadertest_parsestring"
+      ],
+      "accepted_case_ids": [
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parsecomment",
+        "main_charreadertest_parsenumber",
+        "main_charreadertest_parseobjectwitherrors",
+        "main_charreadertest_parsestring"
+      ],
+      "replay_generated_case_ids": [
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parsecomment",
+        "main_charreadertest_parsenumber",
+        "main_charreadertest_parseobjectwitherrors",
+        "main_charreadertest_parsestring"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 4,
+      "stage": "behavior_case_conversion",
+      "iteration": 4,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_charreadertest_parsewithnoerrors",
+        "main_charreadertest_parsewithnoerrorstestingoffsets",
+        "main_charreadertest_parsewithoneerror",
+        "main_charreadertest_parsewithstacklimit",
+        "main_escapesequencetest_charreaderparseescapesequence",
+        "main_escapesequencetest_readerparseescapesequence",
+        "main_escapesequencetest_writeescapesequence",
+        "main_fastwritertest_dropnullplaceholders",
+        "main_fastwritertest_enableyamlcompatibility",
+        "main_fastwritertest_omitendinglinefeed"
+      ],
+      "accepted_case_ids": [
+        "main_charreadertest_parsewithnoerrors",
+        "main_charreadertest_parsewithnoerrorstestingoffsets",
+        "main_charreadertest_parsewithoneerror",
+        "main_charreadertest_parsewithstacklimit",
+        "main_escapesequencetest_charreaderparseescapesequence",
+        "main_escapesequencetest_readerparseescapesequence",
+        "main_escapesequencetest_writeescapesequence",
+        "main_fastwritertest_dropnullplaceholders",
+        "main_fastwritertest_enableyamlcompatibility",
+        "main_fastwritertest_omitendinglinefeed"
+      ],
+      "replay_generated_case_ids": [
+        "main_charreadertest_parsewithnoerrors",
+        "main_charreadertest_parsewithnoerrorstestingoffsets",
+        "main_charreadertest_parsewithoneerror",
+        "main_charreadertest_parsewithstacklimit",
+        "main_escapesequencetest_charreaderparseescapesequence",
+        "main_escapesequencetest_readerparseescapesequence",
+        "main_escapesequencetest_writeescapesequence",
+        "main_fastwritertest_dropnullplaceholders",
+        "main_fastwritertest_enableyamlcompatibility",
+        "main_fastwritertest_omitendinglinefeed"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 5,
+      "stage": "behavior_case_conversion",
+      "iteration": 5,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_fastwritertest_writearrays",
+        "main_fastwritertest_writenestedobjects",
+        "main_fastwritertest_writenumericvalue",
+        "main_fuzztest_fuzzdoesntcrash",
+        "main_iteratortest_constness",
+        "main_iteratortest_convert",
+        "main_iteratortest_decrement",
+        "main_iteratortest_distance",
+        "main_iteratortest_indexes",
+        "main_iteratortest_names"
+      ],
+      "accepted_case_ids": [
+        "main_fastwritertest_writearrays",
+        "main_fastwritertest_writenestedobjects",
+        "main_fastwritertest_writenumericvalue",
+        "main_iteratortest_decrement",
+        "main_iteratortest_distance"
+      ],
+      "replay_generated_case_ids": [
+        "main_fastwritertest_writearrays",
+        "main_fastwritertest_writenestedobjects",
+        "main_fastwritertest_writenumericvalue",
+        "main_iteratortest_decrement",
+        "main_iteratortest_distance"
+      ],
+      "unresolved_case_ids": [
+        "main_fuzztest_fuzzdoesntcrash",
+        "main_iteratortest_constness",
+        "main_iteratortest_convert",
+        "main_iteratortest_indexes",
+        "main_iteratortest_names"
+      ],
+      "errors": [
+        "case main_fuzztest_fuzzdoesntcrash: model returned unresolved, reason=The source test's primary function LLVMFuzzerTestOneInput is not aligned; only the internal function Value::size is aligned, which is insufficient to reproduce the fuzz-test behavior., details=Cannot map the source test because it calls an unaligned function (LLVMFuzzerTestOneInput) as the main action. The aligned function size is not exercised directly. The target crate has no equivalent fuzz entry point.",
+        "case main_iteratortest_constness: model returned unresolved, reason=The source test relies on C++ exception handling and ostringstream formatting that have no direct Rust equival\n...<truncated 3 chars>...\n. The aligned function begin (mutable) cannot reproduce the constness check or the formatted iteration output., details=The first part requires runtime throw when constructing a mutable iterator from a const value, which Rust's type system prevents. The second part uses std::setw and ostringstream to format integers; the target crate's dump does not support width formatting. Cannot replicate expected string output.",
+        "case main_iteratortest_convert: model returned unresolved, reason=The test verifies that a mutable iterator can be converted to a const iterator and compared. The target's MembersMut and Members are different types and do not support direct assignment or equality comparison as in C++., details=In Rust, iter_mut() and iter() return different iterator types. There is no implicit conversion or PartialEq between them. Cannot replicate the assertion that cit == cj.begin().",
+        "case main_iteratortest_indexes: model returned unresolved, reason=The source test uses iterator methods key(), name(), and index() which are not available on the target's MembersMut iterator. Target iterator yields only values, not keys or indices., details=Cannot replicate the assertions on key, name, and index for array elements. The target's MembersMut does not have those methods.",
+        "case main_iteratortest_names: model returned unresolved, reason=The source test uses iterator methods key(), name(), and memberName() that are not present on the target's MembersMut., details=Cannot replicate the assertions for object keys. The target iterator yields values only."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 6,
+      "stage": "behavior_case_conversion",
+      "iteration": 6,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_fuzztest_fuzzdoesntcrash",
+        "main_iteratortest_constness",
+        "main_iteratortest_convert",
+        "main_iteratortest_indexes",
+        "main_iteratortest_names"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_fuzztest_fuzzdoesntcrash",
+        "main_iteratortest_constness",
+        "main_iteratortest_convert",
+        "main_iteratortest_indexes",
+        "main_iteratortest_names"
+      ],
+      "errors": [
+        "case main_fuzztest_fuzzdoesntcrash: model returned unresolved, reason=Primary function LLVMFuzzerTestOneInput not aligned; only internal size is aligned which is insufficient to reproduce behavior., details=Cannot replicate assertion that fuzz returns 0 without fuzz entry point. The aligned function size is used only as an argument to the unaligned fuzz function.",
+        "case main_iteratortest_constness: model returned unresolved, reason=Source test requires runtime exception handling and ostringstream formatting not available in target., details=Cannot replicate mutable iterator from const value (Rust type system prevents) and formatted output with setw. Target has no equivalent of ostringstream or width formatting.",
+        "case main_iteratortest_convert: model returned unresolved, reason=Source test relies on implicit conversion between mutable and const iterators which target types lack., details=MembersMut (from members_mut) and Members (from members) are different types with no PartialEq implementation or implicit conversion. Cannot replicate the equality assertion cit == cj.begin().",
+        "case main_iteratortest_indexes: model returned unresolved, reason=Source test uses iterator methods key(), name(), index() not available on target's MembersMut iterator., details=Target's members_mut yields only values (as &mut JsonValue), not keys or indices. Cannot replicate assertions on key, name, and index for array elements.",
+        "case main_iteratortest_names: model returned unresolved, reason=Source test uses iterator methods key(), name(), memberName() not available on target's MembersMut iterator., details=Target's members_mut for object yields only values (as &mut JsonValue), not key-value pairs. Cannot replicate assertions on key, name, and memberName."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 7,
+      "stage": "behavior_case_conversion",
+      "iteration": 7,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_fuzztest_fuzzdoesntcrash",
+        "main_iteratortest_constness",
+        "main_iteratortest_convert",
+        "main_iteratortest_indexes",
+        "main_iteratortest_names"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_fuzztest_fuzzdoesntcrash",
+        "main_iteratortest_constness",
+        "main_iteratortest_convert",
+        "main_iteratortest_indexes",
+        "main_iteratortest_names"
+      ],
+      "errors": [
+        "case main_fuzztest_fuzzdoesntcrash: model returned unresolved, reason=Primary function LLVMFuzzerTestOneInput not aligned; only internal size is aligned which is insufficient to reproduce behavior., details=Cannot replicate assertion that fuzz returns 0 without fuzz entry point. The aligned function size is used only as an argument to the unaligned fuzz function.",
+        "case main_iteratortest_constness: model returned unresolved, reason=Source test requires runtime exception handling and ostringstream formatting not available in target., details=Cannot replicate mutable iterator from const value (Rust type system prevents) and formatted output with setw. Target has no equivalent of ostringstream or width formatting.",
+        "case main_iteratortest_convert: model returned unresolved, reason=Source test relies on implicit conversion between mutable and const iterators which target types lack., details=MembersMut (from members_mut) and Members (from members) are different types with no PartialEq implementation or implicit conversion. Cannot replicate the equality assertion cit == cj.begin().",
+        "case main_iteratortest_indexes: model returned unresolved, reason=Source test uses iterator methods key(), name(), index() not available on target's MembersMut iterator., details=Target's members_mut yields only values (as &mut JsonValue), not keys or indices. Cannot replicate assertions on key, name, and index for array elements.",
+        "case main_iteratortest_names: model returned unresolved, reason=Source test uses iterator methods key(), name(), memberName() not available on target's MembersMut iterator., details=Target's members_mut yields only values (as &mut JsonValue), not keys or names. Cannot replicate assertions on key, name, and index for object elements."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 8,
+      "stage": "behavior_case_conversion",
+      "iteration": 8,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_iteratortest_reverseiterator",
+        "main_iteratortest_staticstringkey",
+        "main_membertemplateas_behavessameasnamedas",
+        "main_membertemplateis_behavessameasnamedis",
+        "main_parsewithstructurederrorstest_singleerror",
+        "main_parsewithstructurederrorstest_success",
+        "main_readertest_allowdroppednullplaceholders",
+        "main_readertest_allownumerickeystest",
+        "main_readertest_parsearray",
+        "main_readertest_parsechinesewithoneerror"
+      ],
+      "accepted_case_ids": [
+        "main_iteratortest_reverseiterator",
+        "main_membertemplateas_behavessameasnamedas",
+        "main_membertemplateis_behavessameasnamedis",
+        "main_parsewithstructurederrorstest_singleerror",
+        "main_parsewithstructurederrorstest_success",
+        "main_readertest_allownumerickeystest",
+        "main_readertest_parsearray",
+        "main_readertest_parsechinesewithoneerror"
+      ],
+      "replay_generated_case_ids": [
+        "main_iteratortest_reverseiterator",
+        "main_membertemplateas_behavessameasnamedas",
+        "main_membertemplateis_behavessameasnamedis",
+        "main_parsewithstructurederrorstest_singleerror",
+        "main_parsewithstructurederrorstest_success",
+        "main_readertest_allownumerickeystest",
+        "main_readertest_parsearray",
+        "main_readertest_parsechinesewithoneerror"
+      ],
+      "unresolved_case_ids": [
+        "main_iteratortest_staticstringkey",
+        "main_readertest_allowdroppednullplaceholders"
+      ],
+      "errors": [
+        "case main_iteratortest_staticstringkey: model returned unresolved, reason=Missing target API: key() method on iterator to retrieve key as JsonValue, details=Source test calls json.begin().key() and compares to Json::Value(\"k1\"). Target provides members_mut() which yields only values, not keys. Cannot replicate key assertion.",
+        "case main_readertest_allowdroppednullplaceholders: model returned unresolved, reason=Missing target API for array indexing (operator[] equivalent) to access elements by index, details=Source uses root[0].asInt() and root[2].asInt(); target does not expose a public method to index into array variant. Cannot replicate element-wise assertions."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 9,
+      "stage": "behavior_case_conversion",
+      "iteration": 9,
+      "scheduling": "immediate_retry",
+      "status": "split_due_output_limit",
+      "targeted_case_ids": [
+        "main_iteratortest_staticstringkey",
+        "main_readertest_allowdroppednullplaceholders"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_iteratortest_staticstringkey",
+        "main_readertest_allowdroppednullplaceholders"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "json_failure_kind": "completion_hit_max_output",
+      "split_retry_batches": [
+        [
+          "main_iteratortest_staticstringkey"
+        ],
+        [
+          "main_readertest_allowdroppednullplaceholders"
+        ]
+      ],
+      "llm_output_limit": 4000
+    },
+    {
+      "attempt": 10,
+      "stage": "behavior_case_conversion",
+      "iteration": 10,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_iteratortest_staticstringkey"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_iteratortest_staticstringkey"
+      ],
+      "errors": [
+        "case main_iteratortest_staticstringkey: model returned unresolved, reason=Missing target API: key() method on iterator to retrieve key as JsonValue, details=Source test calls json.begin().key() and compares to Json::Value(\"k1\"). Target provides members_mut() which yields only values, not keys. Cannot replicate key assertion."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 11,
+      "stage": "behavior_case_conversion",
+      "iteration": 11,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_readertest_allowdroppednullplaceholders"
+      ],
+      "accepted_case_ids": [
+        "main_readertest_allowdroppednullplaceholders"
+      ],
+      "replay_generated_case_ids": [
+        "main_readertest_allowdroppednullplaceholders"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 12,
+      "stage": "behavior_case_conversion",
+      "iteration": 12,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_readertest_parsecomment",
+        "main_readertest_parseobject",
+        "main_readertest_parsespecialfloat",
+        "main_readertest_parsestring",
+        "main_readertest_parsewithdetailerror",
+        "main_readertest_parsewithnoerrors",
+        "main_readertest_parsewithnoerrorstestingoffsets",
+        "main_readertest_parsewithoneerror",
+        "main_readertest_pusherrortest",
+        "main_readertest_streamparsewithnoerrors"
+      ],
+      "accepted_case_ids": [
+        "main_readertest_parsecomment",
+        "main_readertest_parseobject",
+        "main_readertest_parsespecialfloat",
+        "main_readertest_parsestring",
+        "main_readertest_parsewithdetailerror",
+        "main_readertest_parsewithnoerrors",
+        "main_readertest_parsewithnoerrorstestingoffsets",
+        "main_readertest_parsewithoneerror",
+        "main_readertest_streamparsewithnoerrors"
+      ],
+      "replay_generated_case_ids": [
+        "main_readertest_parsecomment",
+        "main_readertest_parseobject",
+        "main_readertest_parsespecialfloat",
+        "main_readertest_parsestring",
+        "main_readertest_parsewithdetailerror",
+        "main_readertest_parsewithnoerrors",
+        "main_readertest_parsewithnoerrorstestingoffsets",
+        "main_readertest_parsewithoneerror",
+        "main_readertest_streamparsewithnoerrors"
+      ],
+      "unresolved_case_ids": [
+        "main_readertest_pusherrortest"
+      ],
+      "errors": [
+        "case main_readertest_pusherrortest: model returned unresolved, reason=Missing target API equivalent for pushError, details=The source test calls Reader::pushError and getFormattedErrorMessages which have no counterpart in the target Rust crate. The target crate provides pa\n...<truncated 20 chars>...\n<JsonValue> and does not support accumulating custom error messages on a reader. Cannot replicate the behavior without inventing target functionality."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 13,
+      "stage": "behavior_case_conversion",
+      "iteration": 13,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_readertest_pusherrortest"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_readertest_pusherrortest"
+      ],
+      "errors": [
+        "case main_readertest_pusherrortest: model returned unresolved, reason=Missing target API equivalents for pushError and getFormattedErrorMessages, details=The source test uses Reader::pushError and Reader::getFormattedErrorMessages, which are not present in the target Rust crate. The target provides pars\n...<truncated 12 chars>...\ning, but does not support accumulating custom error messages on a reader object. Cannot replicate the behavior without inventing target functionality."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 14,
+      "stage": "behavior_case_conversion",
+      "iteration": 14,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_readertest_pusherrortest"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_readertest_pusherrortest"
+      ],
+      "errors": [
+        "case main_readertest_pusherrortest: model returned unresolved, reason=Missing target API equivalents for pushError and getFormattedErrorMessages, details=The source test uses Reader::pushError and Reader::getFormattedErrorMessages to accumulate and retrieve custom error messages. The target Rust crate (\n...<truncated 422 chars>...\ning) have target counterparts (json::parse, JsonValue::is_string), but the core test logic depends on the missing pushError/getFormattedErrorMessages."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 15,
+      "stage": "behavior_case_conversion",
+      "iteration": 15,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_readertest_strictmodeparsenumber",
+        "main_streamwritertest_dropnullplaceholders",
+        "main_streamwritertest_enableyamlcompatibility",
+        "main_streamwritertest_escapecontrolcharacters",
+        "main_streamwritertest_escapetabcharacterwindows",
+        "main_streamwritertest_indentation",
+        "main_streamwritertest_multilinearray",
+        "main_streamwritertest_unicode",
+        "main_streamwritertest_writearrays",
+        "main_streamwritertest_writenestedobjects"
+      ],
+      "accepted_case_ids": [
+        "main_streamwritertest_dropnullplaceholders",
+        "main_streamwritertest_enableyamlcompatibility",
+        "main_streamwritertest_escapecontrolcharacters",
+        "main_streamwritertest_escapetabcharacterwindows",
+        "main_streamwritertest_indentation",
+        "main_streamwritertest_multilinearray",
+        "main_streamwritertest_unicode",
+        "main_streamwritertest_writearrays",
+        "main_streamwritertest_writenestedobjects"
+      ],
+      "replay_generated_case_ids": [
+        "main_streamwritertest_dropnullplaceholders",
+        "main_streamwritertest_enableyamlcompatibility",
+        "main_streamwritertest_escapecontrolcharacters",
+        "main_streamwritertest_escapetabcharacterwindows",
+        "main_streamwritertest_indentation",
+        "main_streamwritertest_multilinearray",
+        "main_streamwritertest_unicode",
+        "main_streamwritertest_writearrays",
+        "main_streamwritertest_writenestedobjects"
+      ],
+      "unresolved_case_ids": [
+        "main_readertest_strictmodeparsenumber"
+      ],
+      "errors": [
+        "case main_readertest_strictmodeparsenumber: model returned unresolved, reason=Target parse function does not support strict mode (root must be object/array). No equivalent setting available., details=Rust parser accepts any valid JSON value as root; cannot enforce strict mode."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 16,
+      "stage": "behavior_case_conversion",
+      "iteration": 16,
+      "scheduling": "immediate_retry",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_readertest_strictmodeparsenumber"
+      ],
+      "accepted_case_ids": [
+        "main_readertest_strictmodeparsenumber"
+      ],
+      "replay_generated_case_ids": [
+        "main_readertest_strictmodeparsenumber"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 17,
+      "stage": "behavior_case_conversion",
+      "iteration": 17,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_streamwritertest_writenumericvalue",
+        "main_streamwritertest_writezeroes",
+        "main_styledstreamwritertest_multilinearray",
+        "main_styledstreamwritertest_writearrays",
+        "main_styledstreamwritertest_writenestedobjects",
+        "main_styledstreamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_writevaluewithcomment",
+        "main_styledwritertest_multilinearray",
+        "main_styledwritertest_writearrays",
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "accepted_case_ids": [
+        "main_streamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_multilinearray",
+        "main_styledstreamwritertest_writearrays",
+        "main_styledstreamwritertest_writenestedobjects",
+        "main_styledstreamwritertest_writenumericvalue",
+        "main_styledwritertest_multilinearray",
+        "main_styledwritertest_writearrays",
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "replay_generated_case_ids": [
+        "main_streamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_multilinearray",
+        "main_styledstreamwritertest_writearrays",
+        "main_styledstreamwritertest_writenestedobjects",
+        "main_styledstreamwritertest_writenumericvalue",
+        "main_styledwritertest_multilinearray",
+        "main_styledwritertest_writearrays",
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "unresolved_case_ids": [
+        "main_streamwritertest_writezeroes",
+        "main_styledstreamwritertest_writevaluewithcomment"
+      ],
+      "errors": [
+        "case main_streamwritertest_writezeroes: model returned unresolved, reason=Insufficient source context to reconstruct input and expected output, details=The provided snippet does not show the initialization of 'binary' and 'expected' variables. Without these, the exact input Json::Value and expected string cannot be determined.",
+        "case main_styledstreamwritertest_writevaluewithcomment: model returned unresolved, reason=Target API does not support comment operations, details=The source test uses root.setComment() which has no equivalent in the target JsonValue API. No comment-related functions are present in the allowed target UUID set."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 18,
+      "stage": "behavior_case_conversion",
+      "iteration": 18,
+      "scheduling": "immediate_retry",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_streamwritertest_writezeroes",
+        "main_styledstreamwritertest_writevaluewithcomment"
+      ],
+      "accepted_case_ids": [
+        "main_styledstreamwritertest_writevaluewithcomment"
+      ],
+      "replay_generated_case_ids": [
+        "main_styledstreamwritertest_writevaluewithcomment"
+      ],
+      "unresolved_case_ids": [
+        "main_streamwritertest_writezeroes"
+      ],
+      "errors": [
+        "case main_streamwritertest_writezeroes: model returned unresolved, reason=Insufficient source context to reconstruct input and expected output, details=The provided snippet does not show the initialization of 'binary' and 'expected' variables. Without these, the exact input Json::Value and expected string cannot be determined."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 19,
+      "stage": "behavior_case_conversion",
+      "iteration": 19,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_streamwritertest_writezeroes"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_streamwritertest_writezeroes"
+      ],
+      "errors": [
+        "case main_streamwritertest_writezeroes: model returned unresolved, reason=Insufficient source context to reconstruct input and expected output, details=The provided snippet does not define the variables 'binary' and 'expected'. While we know binary.length() == 3 from an assertion, the actual content o\n...<truncated 282 chars>...\nknowing the exact input and expected output, a reliable Rust replay test cannot be constructed. Source fixture access returned no referenced fixtures."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 20,
+      "stage": "behavior_case_conversion",
+      "iteration": 20,
+      "scheduling": "new_batch",
+      "status": "split_due_output_limit",
+      "targeted_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_styledwritertest_writevaluewithcomment",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_arrayissue252",
+        "main_valuetest_arrays",
+        "main_valuetest_bools",
+        "main_valuetest_commentbefore",
+        "main_valuetest_comparearray",
+        "main_valuetest_comparenull",
+        "main_valuetest_compareobject"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_styledwritertest_writevaluewithcomment",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_arrayissue252",
+        "main_valuetest_arrays",
+        "main_valuetest_bools",
+        "main_valuetest_commentbefore",
+        "main_valuetest_comparearray",
+        "main_valuetest_comparenull",
+        "main_valuetest_compareobject"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "json_failure_kind": "completion_hit_max_output",
+      "split_retry_batches": [
+        [
+          "main_styledwritertest_writenumericvalue",
+          "main_styledwritertest_writevaluewithcomment",
+          "main_valuetest_arrayinsertatrandomindex",
+          "main_valuetest_arrayissue252",
+          "main_valuetest_arrays"
+        ],
+        [
+          "main_valuetest_bools",
+          "main_valuetest_commentbefore",
+          "main_valuetest_comparearray",
+          "main_valuetest_comparenull",
+          "main_valuetest_compareobject"
+        ]
+      ],
+      "llm_output_limit": 16000
+    },
+    {
+      "attempt": 21,
+      "stage": "behavior_case_conversion",
+      "iteration": 21,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "split_due_output_limit",
+      "targeted_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_styledwritertest_writevaluewithcomment",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_arrayissue252",
+        "main_valuetest_arrays"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_styledwritertest_writevaluewithcomment",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_arrayissue252",
+        "main_valuetest_arrays"
+      ],
+      "errors": [
+        "JSON extraction failed: Unterminated string starting at: line 1 column 8835 (char 8834)"
+      ],
+      "json_failure_kind": "completion_hit_max_output",
+      "split_retry_batches": [
+        [
+          "main_styledwritertest_writenumericvalue",
+          "main_styledwritertest_writevaluewithcomment",
+          "main_valuetest_arrayinsertatrandomindex"
+        ],
+        [
+          "main_valuetest_arrayissue252",
+          "main_valuetest_arrays"
+        ]
+      ],
+      "llm_output_limit": 9000
+    },
+    {
+      "attempt": 22,
+      "stage": "behavior_case_conversion",
+      "iteration": 22,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "split_due_output_limit",
+      "targeted_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_styledwritertest_writevaluewithcomment",
+        "main_valuetest_arrayinsertatrandomindex"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_styledwritertest_writevaluewithcomment",
+        "main_valuetest_arrayinsertatrandomindex"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "json_failure_kind": "completion_hit_max_output",
+      "split_retry_batches": [
+        [
+          "main_styledwritertest_writenumericvalue",
+          "main_styledwritertest_writevaluewithcomment"
+        ],
+        [
+          "main_valuetest_arrayinsertatrandomindex"
+        ]
+      ],
+      "llm_output_limit": 5400
+    },
+    {
+      "attempt": 23,
+      "stage": "behavior_case_conversion",
+      "iteration": 23,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "split_due_output_limit",
+      "targeted_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_styledwritertest_writevaluewithcomment"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_styledwritertest_writevaluewithcomment"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "json_failure_kind": "completion_hit_max_output",
+      "split_retry_batches": [
+        [
+          "main_styledwritertest_writenumericvalue"
+        ],
+        [
+          "main_styledwritertest_writevaluewithcomment"
+        ]
+      ],
+      "llm_output_limit": 4000
+    },
+    {
+      "attempt": 24,
+      "stage": "behavior_case_conversion",
+      "iteration": 24,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_styledwritertest_writenumericvalue"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_styledwritertest_writenumericvalue"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "json_failure_kind": "completion_hit_max_output"
+    },
+    {
+      "attempt": 25,
+      "stage": "behavior_case_conversion",
+      "iteration": 25,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_styledwritertest_writevaluewithcomment"
+      ],
+      "accepted_case_ids": [
+        "main_styledwritertest_writevaluewithcomment"
+      ],
+      "replay_generated_case_ids": [
+        "main_styledwritertest_writevaluewithcomment"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 26,
+      "stage": "behavior_case_conversion",
+      "iteration": 26,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_arrayinsertatrandomindex"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_arrayinsertatrandomindex"
+      ],
+      "errors": [
+        "JSON extraction failed: Unterminated string starting at: line 1 column 1363 (char 1362)"
+      ],
+      "json_failure_kind": "completion_hit_max_output"
+    },
+    {
+      "attempt": 27,
+      "stage": "behavior_case_conversion",
+      "iteration": 27,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "split_due_output_limit",
+      "targeted_case_ids": [
+        "main_valuetest_arrayissue252",
+        "main_valuetest_arrays"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_arrayissue252",
+        "main_valuetest_arrays"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "json_failure_kind": "completion_hit_max_output",
+      "split_retry_batches": [
+        [
+          "main_valuetest_arrayissue252"
+        ],
+        [
+          "main_valuetest_arrays"
+        ]
+      ],
+      "llm_output_limit": 4000
+    },
+    {
+      "attempt": 28,
+      "stage": "behavior_case_conversion",
+      "iteration": 28,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_valuetest_arrayissue252"
+      ],
+      "accepted_case_ids": [
+        "main_valuetest_arrayissue252"
+      ],
+      "replay_generated_case_ids": [
+        "main_valuetest_arrayissue252"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 29,
+      "stage": "behavior_case_conversion",
+      "iteration": 29,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_arrays"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_arrays"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "json_failure_kind": "completion_hit_max_output"
+    },
+    {
+      "attempt": 30,
+      "stage": "behavior_case_conversion",
+      "iteration": 30,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_valuetest_bools",
+        "main_valuetest_commentbefore",
+        "main_valuetest_comparearray",
+        "main_valuetest_comparenull",
+        "main_valuetest_compareobject"
+      ],
+      "accepted_case_ids": [
+        "main_valuetest_bools",
+        "main_valuetest_commentbefore",
+        "main_valuetest_comparenull"
+      ],
+      "replay_generated_case_ids": [
+        "main_valuetest_bools",
+        "main_valuetest_commentbefore",
+        "main_valuetest_comparenull"
+      ],
+      "unresolved_case_ids": [
+        "main_valuetest_comparearray",
+        "main_valuetest_compareobject"
+      ],
+      "errors": [
+        "case main_valuetest_comparearray: model returned unresolved, reason=insufficient fixture information, details=The targeted behavior case does not include the initialization of array values (emptyArray, l1aArray, l1bArray, l2aArray, l2bArray). Without knowing t\n...<truncated 57 chars>...\n equality assertions (checkIsLess, checkIsEqual) in the Rust replay test. The snippet only shows assertion lines but not the setup of fixture members.",
+        "case main_valuetest_compareobject: model returned unresolved, reason=insufficient fixture information, details=The targeted behavior case does not include the initialization of object values (emptyObject, l1aObject, l1bObject, l2aObject, l2bObject). Without kno\n...<truncated 70 chars>...\n equality assertions (checkIsLess, checkIsEqual) in the Rust replay test. The snippet only shows assertion lines but not the setup of fixture members."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 31,
+      "stage": "behavior_case_conversion",
+      "iteration": 31,
+      "scheduling": "immediate_retry",
+      "status": "split_due_output_limit",
+      "targeted_case_ids": [
+        "main_valuetest_comparearray",
+        "main_valuetest_compareobject"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_comparearray",
+        "main_valuetest_compareobject"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "json_failure_kind": "completion_hit_max_output",
+      "split_retry_batches": [
+        [
+          "main_valuetest_comparearray"
+        ],
+        [
+          "main_valuetest_compareobject"
+        ]
+      ],
+      "llm_output_limit": 4000
+    },
+    {
+      "attempt": 32,
+      "stage": "behavior_case_conversion",
+      "iteration": 32,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_comparearray"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_comparearray"
+      ],
+      "errors": [
+        "case main_valuetest_comparearray: model returned unresolved, reason=insufficient fixture information, details=The source snippet does not include the initialization of array values (emptyArray, l1aArray, l1bArray, l2aArray, l2bArray). Without knowing the exact\n...<truncated 149 chars>...\no for constructing arrays, but we lack the specific element values and order to reproduce the checkIsLess and checkIsEqual assertions from the source."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 33,
+      "stage": "behavior_case_conversion",
+      "iteration": 33,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_compareobject"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_compareobject"
+      ],
+      "errors": [
+        "case main_valuetest_compareobject: model returned unresolved, reason=insufficient fixture information, details=The case does not include the initialization of the object values (emptyObject, l1aObject, l1bObject, l2aObject, l2bObject). The snippet only shows as\n...<truncated 287 chars>...\n ability to compare using `<`, the expected behavior cannot be faithfully reproduced. The previous generation attempt also failed for the same reason."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 34,
+      "stage": "behavior_case_conversion",
+      "iteration": 34,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_compareobject"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_compareobject"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "json_failure_kind": "completion_hit_max_output"
+    },
+    {
+      "attempt": 35,
+      "stage": "behavior_case_conversion",
+      "iteration": 35,
+      "scheduling": "new_batch",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_comparetype",
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_czstringcoverage",
+        "main_valuetest_getarrayvalue",
+        "main_valuetest_integers",
+        "main_valuetest_membercount",
+        "main_valuetest_nonintegers",
+        "main_valuetest_null",
+        "main_valuetest_objects"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_comparetype",
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_czstringcoverage",
+        "main_valuetest_getarrayvalue",
+        "main_valuetest_integers",
+        "main_valuetest_membercount",
+        "main_valuetest_nonintegers",
+        "main_valuetest_null",
+        "main_valuetest_objects"
+      ],
+      "errors": [
+        "case main_valuetest_comparetype: model returned unresolved, reason=Target Rust API does not provide operator< or equivalent comparison predicate required by source assertions checkIsLess, details=Source test uses checkIsLess to compare Json::Value objects of different types, which requires ordering semantics. The aligned target APIs include onl\n...<truncated 75 chars>...\nr Ord implementation is available in the allowed set or detectable in target_rust_usage_capabilities. Cannot replicate the expected ordering behavior.",
+        "case main_valuetest_copymovearray: model returned unresolved, reason=Target Rust API does not provide array indexing (Index<usize>) or `append`/`get` methods for array values, details=Source test creates an array, appends items, copies it, then checks size and element equality via copy[0] and copy[1]. The target provides `len` (size\n...<truncated 60 chars>...\nsize> for JsonValue, and no `append`, `copy` (clone is possible but element access is required for equality assertions). Cannot verify element values.",
+        "case main_valuetest_copyobject: model returned unresolved, reason=Target Rust API does not provide `copy` method for copying objects, and no equivalent for the `checkIsEqual` custom predicate, details=Source test copies objects using a `copy` method and then checks equality with a custom `checkIsEqual` that compares entire Json::Value objects. The t\n...<truncated 98 chars>...\nEq between JsonValue instances (the allowed PartialEq implementations only compare to &str or &&str). Cannot replicate the copying and equality check.",
+        "case main_valuetest_czstringcoverage: model returned unresolved, reason=Test logic is implemented in an external helper function runCZStringTests whose body is not provided, details=The source test only calls runCZStringTests(), which is defined outside the snippet. Without its full source or an equivalent target API mapping, the behavior cannot be converted into a replay test.",
+        "case main_valuetest_getarrayvalue: model returned unresolved, reason=Target Rust API does not provide `get` (with default) or `isValidIndex` methods for array values, details=Source test creates an array, uses `get` with a default value and `isValidIndex` to check bounds. The target provides `len` and array construction, but no `get` or `isValidIndex`. Cannot replicate the specific assertions.",
+        "case main_valuetest_integers: model returned unresolved, reason=Target Rust API does not provide `isConvertibleTo` method or equivalent type-conversion predicates, details=Source test uses `isConvertibleTo` with various ValueType constants (realValue, stringValue, etc.). The target provides is_* type-check methods (is_nu\n...<truncated 115 chars>...\n but in target an integer-valued JsonValue has variant Number, so is_string() would be false. Cannot directly replicate the convertibility assertions.",
+        "case main_valuetest_membercount: model returned unresolved, reason=Target Rust API does not expose an iterator over JsonValue members (e.g., a `members()` method), details=Source test uses checkMemberCount which iterates over begin()/end() to count elements, in addition to size(). The target provides `len()` but no publi\n...<truncated 56 chars>...\nes or allowed_target_api_uuids. The `Members` type alias exists but there is no method to obtain it. Cannot replicate the iteration count expectation.",
+        "case main_valuetest_nonintegers: model returned unresolved, reason=Target Rust API does not provide `isConvertibleTo` method or equivalent type-conversion predicates, details=Same as main_valuetest_integers: source assertions rely on isConvertibleTo with multiple ValueType arguments, which have no direct analog in the target API.",
+        "case main_valuetest_null: model returned unresolved, reason=Target Rust API does not provide `isConvertibleTo` method or type() method for JsonValue, details=Source test uses isConvertibleTo, type(), asInt(), etc. The target provides is_null, is_boolean, etc., but cannot replicate the convertibility checks \n...<truncated 24 chars>...\nleTo(Json::intValue) is true in source; the target has no way to express that a null value is convertible to an integer). Also asInt() is not aligned.",
+        "case main_valuetest_objects: model returned unresolved, reason=Target Rust API does not provide `isConvertibleTo` method or a way to compare JsonValue types beyond is_* booleans, details=Source test uses isConvertibleTo, type(), and a custom checkIs predicate. While the target provides remove and index_mut that correspond to removeMemb\n...<truncated 186 chars>...\nue, but target's is_null() on an empty object would be false, introducing a semantic gap that cannot be expressed as an assertion with available APIs."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 36,
+      "stage": "behavior_case_conversion",
+      "iteration": 36,
+      "scheduling": "immediate_retry",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_valuetest_comparetype",
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_czstringcoverage",
+        "main_valuetest_getarrayvalue",
+        "main_valuetest_integers",
+        "main_valuetest_membercount",
+        "main_valuetest_nonintegers",
+        "main_valuetest_null",
+        "main_valuetest_objects"
+      ],
+      "accepted_case_ids": [
+        "main_valuetest_membercount",
+        "main_valuetest_objects"
+      ],
+      "replay_generated_case_ids": [
+        "main_valuetest_membercount",
+        "main_valuetest_objects"
+      ],
+      "unresolved_case_ids": [
+        "main_valuetest_comparetype",
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_czstringcoverage",
+        "main_valuetest_getarrayvalue",
+        "main_valuetest_integers",
+        "main_valuetest_nonintegers",
+        "main_valuetest_null"
+      ],
+      "errors": [
+        "case main_valuetest_comparetype: model returned unresolved, reason=Target Rust API does not provide operator< or equivalent comparison predicate required by source assertions checkIsLess, details=Source test uses checkIsLess to compare Json::Value objects of different types, which requires ordering semantics. The aligned target APIs include only PartialEq<&str> and no Ord or PartialOrd implementation for JsonValue. Cannot replicate the expected ordering behavior.",
+        "case main_valuetest_copymovearray: model returned unresolved, reason=Target Rust API does not provide array indexing (Index<usize>) or append/get methods, details=Source test creates an array, appends items, copies, then checks size and element equality via copy[0] and copy[1]. The target provides len but no Index<usize> for JsonValue, no append, and no get with default. Cannot verify element values.",
+        "case main_valuetest_copyobject: model returned unresolved, reason=Target Rust API does not provide copy method for JsonValue and no full Equality between JsonValue instances, details=Source test copies objects using a copy method and checks equality with custom checkIsEqual. The target provides clone via Clone trait but no public copy method, and PartialEq is only implemented against &str, not between two JsonValue. Cannot replicate copying and equality check.",
+        "case main_valuetest_czstringcoverage: model returned unresolved, reason=Test logic is implemented in an external helper function runCZStringTests whose body is not provided, details=The source test only calls runCZStringTests(), which is defined outside the snippet. Without its full source or an equivalent target API mapping, the behavior cannot be converted into a replay test.",
+        "case main_valuetest_getarrayvalue: model returned unresolved, reason=Target Rust API does not provide array indexing (Index<usize>), get with default, or isValidIndex, details=Source test uses array[i]=i, array.get(index,default).asInt(), and array.isValidIndex(index). Target lacks Index<usize>, get method, and isValidIndex. Cannot replicate.",
+        "case main_valuetest_integers: model returned unresolved, reason=Target Rust API does not provide isConvertibleTo method required by source assertions, details=Source test uses isConvertibleTo(Json::realValue) etc. Target provides is_number, is_boolean, is_string but not isConvertibleTo which checks cross-type conversion capability. Cannot replicate expected behavior.",
+        "case main_valuetest_nonintegers: model returned unresolved, reason=Target Rust API does not provide isConvertibleTo method required by source assertions, details=Source test uses isConvertibleTo(Json::intValue) etc. Target provides is_number, is_boolean, is_string, but not isConvertibleTo which checks cross-type conversion capability. Cannot replicate expected behavior.",
+        "case main_valuetest_null: model returned unresolved, reason=Target Rust API does not provide type() or isConvertibleTo required by key assertions, details=Source test asserts null_.type() == nullValue, null_.isConvertibleTo(nullValue), null_.isConvertibleTo(intValue). Target has is_null but not type() or isConvertibleTo. Cannot replicate these critical checks."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 37,
+      "stage": "behavior_case_conversion",
+      "iteration": 37,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_comparetype",
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_czstringcoverage",
+        "main_valuetest_getarrayvalue",
+        "main_valuetest_integers",
+        "main_valuetest_nonintegers",
+        "main_valuetest_null"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_comparetype",
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_czstringcoverage",
+        "main_valuetest_getarrayvalue",
+        "main_valuetest_integers",
+        "main_valuetest_nonintegers",
+        "main_valuetest_null"
+      ],
+      "errors": [
+        "case main_valuetest_comparetype: model returned unresolved, reason=Target Rust API does not provide operator< or equivalent comparison predicate required by source assertions checkIsLess, details=Source test uses checkIsLess to compare Json::Value objects of different types, which requires ordering semantics. The aligned target APIs include only PartialEq<&str> and no Ord or PartialOrd implementation for JsonValue. Cannot replicate the expected ordering behavior.",
+        "case main_valuetest_copymovearray: model returned unresolved, reason=Target Rust API does not provide array indexing (Index<usize>) or append/get methods, details=Source test creates an array, appends items via append, copies, then checks size and element equality via copy[0] and copy[1]. The target provides len but no Index<usize> for JsonValue, no append, and no get with default. Cannot verify element values.",
+        "case main_valuetest_copyobject: model returned unresolved, reason=Target Rust API does not provide copy method for JsonValue and no full Equality between JsonValue instances, details=Source test copies objects using a copy method and checks equality with custom checkIsEqual. The target provides clone via Clone trait but no public copy method, and PartialEq is only implemented against &str, not between two JsonValue. Cannot replicate copying and equality check.",
+        "case main_valuetest_czstringcoverage: model returned unresolved, reason=Test logic is implemented in an external helper function runCZStringTests whose body is not provided, details=The source test only calls runCZStringTests(), which is defined outside the snippet. Without its full source or an equivalent target API mapping, the behavior cannot be converted into a replay test.",
+        "case main_valuetest_getarrayvalue: model returned unresolved, reason=Target Rust API does not provide array indexing, get method, or isValidIndex equivalent, details=Source test accesses array elements via operator[], uses get method with default, and calls isValidIndex. The target provides len but no Index<usize>, no get, and no isValidIndex. Cannot verify element values or index validity.",
+        "case main_valuetest_integers: model returned unresolved, reason=Source tests use integer and unsigned constructors that are not aligned to the allowed source functions, details=The aligned source function for Value is only the const char* overload, but the test uses Value(int) and Value(unsigned int). Without aligned constructors for numeric types, the exact input values cannot be created using the allowed target APIs. Additionally, isConvertibleTo mapping is unavailable.",
+        "case main_valuetest_nonintegers: model returned unresolved, reason=Source tests use real-number constructors not aligned to the allowed source functions, and rely on type() and custom checkIs predicate, details=Aligned source functions do not include the double constructor; the test uses Value(double). Also relies on type() method (not available) and a custom checkIs predicate (undefined). Cannot replicate.",
+        "case main_valuetest_null: model returned unresolved, reason=Source tests rely on asInt and asLargestInt methods and isConvertibleTo checks that have no target counterparts, details=The target provides is_null and as_f64, but source expects asInt to return 0. No asInt equivalent exists. Also isConvertibleTo checks for nullValue and intValue cannot be replicated."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 38,
+      "stage": "behavior_case_conversion",
+      "iteration": 38,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_valuetest_precision",
+        "main_valuetest_resizearray",
+        "main_valuetest_resizepopulatesallmissingelements",
+        "main_valuetest_searchvaluebypath",
+        "main_valuetest_specialfloats",
+        "main_valuetest_strings",
+        "main_valuetest_typechecksthrowexceptions",
+        "main_valuetest_widestring",
+        "main_valuetest_zeroes",
+        "main_valuetest_zeroesinkeys"
+      ],
+      "accepted_case_ids": [
+        "main_valuetest_precision",
+        "main_valuetest_resizearray",
+        "main_valuetest_resizepopulatesallmissingelements",
+        "main_valuetest_searchvaluebypath",
+        "main_valuetest_specialfloats",
+        "main_valuetest_strings",
+        "main_valuetest_typechecksthrowexceptions",
+        "main_valuetest_widestring",
+        "main_valuetest_zeroes",
+        "main_valuetest_zeroesinkeys"
+      ],
+      "replay_generated_case_ids": [
+        "main_valuetest_precision",
+        "main_valuetest_resizearray",
+        "main_valuetest_resizepopulatesallmissingelements",
+        "main_valuetest_searchvaluebypath",
+        "main_valuetest_specialfloats",
+        "main_valuetest_strings",
+        "main_valuetest_typechecksthrowexceptions",
+        "main_valuetest_widestring",
+        "main_valuetest_zeroes",
+        "main_valuetest_zeroesinkeys"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 39,
+      "stage": "behavior_case_conversion",
+      "iteration": 39,
+      "scheduling": "new_batch",
+      "status": "split_due_output_limit",
+      "targeted_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_arrays",
+        "main_iteratortest_staticstringkey",
+        "main_valuetest_comparearray"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_arrays",
+        "main_iteratortest_staticstringkey",
+        "main_valuetest_comparearray"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "json_failure_kind": "completion_hit_max_output",
+      "split_retry_batches": [
+        [
+          "main_styledwritertest_writenumericvalue",
+          "main_valuetest_arrayinsertatrandomindex",
+          "main_valuetest_arrays"
+        ],
+        [
+          "main_iteratortest_staticstringkey",
+          "main_valuetest_comparearray"
+        ]
+      ],
+      "llm_output_limit": 9000
+    },
+    {
+      "attempt": 40,
+      "stage": "behavior_case_conversion",
+      "iteration": 40,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "split_due_output_limit",
+      "targeted_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_arrays"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_arrays"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "json_failure_kind": "completion_hit_max_output",
+      "split_retry_batches": [
+        [
+          "main_styledwritertest_writenumericvalue",
+          "main_valuetest_arrayinsertatrandomindex"
+        ],
+        [
+          "main_valuetest_arrays"
+        ]
+      ],
+      "llm_output_limit": 5400
+    },
+    {
+      "attempt": 41,
+      "stage": "behavior_case_conversion",
+      "iteration": 41,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "split_due_output_limit",
+      "targeted_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_valuetest_arrayinsertatrandomindex"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "excluded_case_ids": [],
+      "unresolved_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_valuetest_arrayinsertatrandomindex"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "json_failure_kind": "completion_hit_max_output",
+      "split_retry_batches": [
+        [
+          "main_styledwritertest_writenumericvalue"
+        ],
+        [
+          "main_valuetest_arrayinsertatrandomindex"
+        ]
+      ],
+      "llm_output_limit": 4000
+    },
+    {
+      "attempt": 42,
+      "stage": "behavior_case_conversion",
+      "iteration": 42,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_styledwritertest_writenumericvalue"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_styledwritertest_writenumericvalue"
+      ],
+      "errors": [
+        "JSON extraction failed: Expecting value: line 1 column 1 (char 0)"
+      ],
+      "json_failure_kind": "completion_hit_max_output"
+    },
+    {
+      "attempt": 43,
+      "stage": "behavior_case_conversion",
+      "iteration": 43,
+      "scheduling": "split_retry_after_output_limit",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_arrayinsertatrandomindex"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_arrayinsertatrandomindex"
+      ],
+      "errors": [
+        "case main_valuetest_arrayinsertatrandomindex: model returned unresolved, reason=Required target APIs for array indexing and insertion are not available in allowed_target_api_uuids, details=The source test uses array indexing (array[0], array.front()) and insert operation, which require target Rust APIs (Index<usize>, IndexMut<usize>, and\n...<truncated 102 chars>...\nabilities. The aligned constructor JsonValue::from(&str) is available but insufficient to replicate the test behavior without array manipulation APIs."
+      ],
+      "json_failure_kind": ""
+    },
+    {
+      "attempt": 44,
+      "stage": "replay_infrastructure_repair",
+      "status": "passed",
+      "errors": [],
+      "input_infrastructure_failed_tests": 11,
+      "total_infrastructure_failed_tests_before_attempt": 11,
+      "replay_status": "failed",
+      "replay_reason": "merged_replay_result_after_targeted_repair_subset",
+      "rerun_event_count": 11,
+      "remaining_infrastructure_failures": 0
+    }
+  ]
+}

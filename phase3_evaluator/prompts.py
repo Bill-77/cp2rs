@@ -114,115 +114,83 @@ PROMPT_STRATEGY_ANALYSIS = """
 }}
 """
 
-PROMPT_3B_ADAPTER_SYNTHESIS = """# CP2RS Phase 3B Adapter Synthesis
+PROMPT_3B_ADAPTER_SYNTHESIS = """# CP2RS Phase 3B Replay Adapter Synthesis
 
-You generate a repository-specific 3B public-first adapter.
+You generate a repository-specific 3B public-first replay adapter.
 
 Important rules:
 - Return a single valid JSON object only. No Markdown fences. No explanations outside JSON.
-- Return compact JSON when possible; avoid long comments or duplicated prose so the response is not truncated.
 - Use the adapter shape shown in `required_adapter_shape`.
-- Generate public behavior operations from source test evidence and 3A aligned function pairs.
-- Read `source_language_context` first. For C sources, source calls are usually free functions; for C++ sources, source calls may be namespace-qualified functions, class/struct methods, constructors, fixture helper calls, or overloaded APIs.
-- For C++ source APIs, use `source_aligned_api_context` owner/signature/visibility/body excerpts to disambiguate same-name methods and overloads before claiming a `source_functions` entry is covered.
-- For C++ gtest/HWTEST fixtures, treat SetUp/TearDown/member state as evidence for the source scenario, but the executable L1 replay must still use target public Rust APIs and compare only final observable behavior from source assertions.
-- Prefer `source_evidence.behavior_cases` when designing operations: one operation should reflect a concrete source test case or a tight group of source tests with the same observable behavior.
-- Prefer `source_evidence.behavior_cases[].assertions` when deciding executable expected behavior values: they list source assertion expressions, literals, and aligned functions mentioned by each assertion.
-- Treat `source_evidence.behavior_cases` as behavior coverage obligations, not optional examples. For every listed case whose aligned source functions are L1 public-eligible, try to replay it via one or more `trace_events[].source_case_ids`. Cases that cannot be converted by the generator should remain unresolved for adapter generation, not hidden as semantic exclusions.
-- Process each behavior case in two ordered steps inside the adapter response: first decide whether its complete source behavior can be expressed through target public APIs, including every required internal public substitution; then generate trace events and Rust tests for convertible cases. Runtime feature differences should be replayed so failures are visible.
-- Function coverage alone is not enough: if several source tests exercise different behavior variants of the same aligned public function, include each reusable behavior variant instead of covering the function once with an easier case.
-- Review `source_evidence.mixed_public_internal_cases` before writing operations. These cases are L1 risk cases because the source test explicitly calls non-public aligned functions alongside public calls.
-- Cases that passed the structural mixed-call screen may contain `required_internal_public_substitutions`. Include all listed target public UUIDs in the operation target_functions and preserve the source state transition in the Rust test. Never silently omit it.
-- For mixed public/internal source cases, use this three-way policy: (1) if the target public API naturally includes the internal effect, replay the public API and explain that in `normalization`; (2) if the target has an explicit public equivalent for the internal state transition, include that public call in the replay; (3) if the internal state transition cannot be preserved through target public APIs, leave the case unresolved for L1 adapter generation.
-- Never silently drop an explicit source internal call and replay only the surrounding public calls when that internal call may affect the final observable result.
-- Use `source_evidence.function_index` to ground every `source_functions` entry and to check which source functions still need coverage.
-- Treat `source_evidence.quality_checks` as a context integrity signal. If it reports missing evidence, omit unsupported functions instead of guessing.
-- Use `target_aligned_api_context` and the selected public target API candidates to write Rust calls that actually exist.
-- Read `target_api_scope.selection_policy`: the candidate list is intentionally compact, but validation checks against the full parsed public API set.
-- Use `target_crate_import_hint.crate_name_for_rust_code` when importing the Rust crate in integration tests.
-- Rust integration-test imports are lexical. A `use` inside one `#[test]` function does not apply to other tests. Each `rust_test_body` must either use fully qualified target crate paths or include every needed `use` inside that same test body. Do not rely on imports emitted by another case fragment.
-- Do not rely on target repository tests or examples; the target may have no tests. Infer target API usage from Cargo.toml/lib.rs, parsed public signatures, owner_type, call_hint, and body excerpts only.
-- For every source function listed in a `public_operations.*.source_functions` entry, copy every corresponding `tgt_uuid` from `alignment_scope.public_eligible_pairs_with_src_test_evidence` into that operation's `target_functions`. You may add support public target APIs too, but do not omit the 3A target recipe for a declared source function.
-- Use `source_evidence.fixtures` when source tests rely on input/expected files rather than inline literals.
-- Pay attention to each target API `owner_type`, signature, and `call_hint`; call methods on values of their declared owner type.
-- For target signatures with generic `Into<...>` parameters, pass concrete values directly when possible instead of adding unnecessary `.into()` calls.
-- The `normalization` field is an audit note. The actual executable expected behavior check must appear in `rust_test_harness`.
-- Do not invent target behavior that is not grounded in source tests or fixtures.
-- Maximize reliable coverage of `alignment_scope.public_eligible_pairs_with_src_test_evidence`; do not stop after a few examples if more source-tested public functions have clear assertions or fixtures.
-- Broad coverage is welcome only when each operation is still grounded in concrete source test evidence. Omit a function only when replay would require speculation or non-public target APIs.
-- Do not omit source behavior variants merely because they may expose target feature-scope differences. If the aligned target public API is callable, replay the source input and source expected behavior so runtime results can reveal accepted-input differences, configuration-dependent behavior, container/traversal differences, formatting differences, or narrower target behavior.
-- Avoid brittle exact string-format assertions unless the source test/fixture explicitly provides that exact expected string. For printing/pretty output without exact expected fixtures, prefer parseability, structural checks, or clearly grounded substring/property checks.
-- For every trace event, set `expected_behavior_source` and `expected_behavior_confidence`. Use `high` only for concrete assertions or expected fixtures. Use `medium` for normalized behavior properties inferred from source tests.
-- For every trace event, set `source_case_ids` to the `case_id` values from `source_evidence.behavior_cases` that the event replays. If one Rust test covers a tight group of equivalent source cases, list all covered case ids.
-- Prefer one source behavior case per trace event. If one event claims multiple `source_case_ids`, they must have the same aligned source-function scope and genuinely equivalent normalized inputs/expected behavior; add a concrete `case_grouping_rationale`. Do not attach unrelated case ids merely to increase coverage.
-- Use only public Rust APIs in `rust_test_harness`.
-- Every `trace_events[].id` must be a valid Rust function identifier.
-- The Rust harness must define exactly one `#[test] fn <trace_event_id>()` for each trace event id.
-- Do not add extra `#[test]` functions without a matching trace event id.
-- If you want to test another behavior, declare a matching `public_operations` entry and `trace_events` entry.
-- If a source aligned function is too hard to replay reliably, omit it; the framework will count it as adapter_missing.
-- The `evidence` fields should cite concrete source test paths/names from the context.
-- Every declared target function should appear in the Rust harness through the actual target API call.
-- The Rust integration test must compile as tests/cp2rs_3b_public.rs inside the target crate.
-- Keep `rust_test_harness` JSON encoding valid. Use ordinary Rust syntax appropriate to the target API and avoid unnecessarily complex escaped literals.
+- The adapter schema is `3b.replay_adapter.v2`.
+- The only executable replay units are `replay_events[]`. Do not output separate behavior maps, event maps, or a top-level Rust harness.
+- Each `replay_events[]` item must describe one concrete source-test-derived behavior and include its own complete `rust_test_body`.
+- `rust_test_body` must be a complete `#[test] fn <event.id>() { ... }` function. The function name must exactly equal `event.id`.
+- `rust_support_source` is optional shared Rust support code outside tests. Prefer empty unless several event bodies need the same helper.
+- Read `source_language_context` first. For C++ sources, use owner/signature/body snippets to disambiguate methods, overloads, constructors, and fixtures.
+- Treat `source_evidence.behavior_cases` as behavior coverage obligations. For every listed eligible case, try to produce a replay event; otherwise list it in `unresolved_behavior_cases`.
+- Do not hide semantic differences as exclusions. If callable target public APIs exist, replay the source input and expected observable behavior so runtime results expose differences.
+- For mixed public/internal source cases, preserve required public substitutions listed in the case evidence. If the state transition cannot be expressed through public target APIs, mark that case unresolved.
+- Every `replay_event.source_functions` entry must be grounded in 3A aligned source UUIDs and source test evidence.
+- Every declared source function requires all corresponding 3A target UUIDs in `replay_event.target_functions`. Add UUID-bearing support public APIs in `support_target_functions` when they are used only for setup/checking.
+- Use only public Rust APIs. Use `target_aligned_api_context`, `allowed_target_public_api_signatures`, owner_type, signatures, and `integration_test_call_hint` to write callable integration-test code.
+- Use `target_rust_usage_capabilities` before declaring a target API missing. UUID-bearing public functions go in `target_functions`/`support_target_functions`; `non_uuid_public_constructs` such as enum variants, constants, macros, and trait/operator behavior may be used in `rust_test_body` but must not be listed as UUID functions.
+- Each event body is compiled as Rust integration-test code. Use fully qualified crate paths or imports inside that same test body; imports in one event do not apply to another.
+- Expected behavior must be grounded in source assertions, fixtures, literals, or source snippets. Do not use target tests/examples as expected behavior evidence.
+- Avoid brittle exact string-format checks unless source evidence provides exact expected text. Prefer structural/property checks when source only requires normalized behavior.
+- If one event covers multiple source case ids, they must have equivalent normalized behavior and include `case_grouping_rationale`.
 
 Context:
 {context_json}
 """
 
-PROMPT_3B_REPLAY_REPAIR = """# CP2RS Phase 3B Replay Repair
+PROMPT_3B_REPLAY_REPAIR = """# CP2RS Phase 3B Replay Event Repair
 
-The previous 3B adapter was schema-valid, but some generated Rust replay tests failed before semantic comparison.
+The previous replay adapter was schema-valid, but some generated Rust replay event tests failed before semantic comparison.
 
-Repair only infrastructure/build/API usage issues in rust_test_harness. Do not change source-test-derived observable behavior. Return one compact JSON patch only, with no Markdown fences and no explanations.
+Repair only infrastructure/build/API usage issues in the listed event `rust_test_body` values. Do not change source-test-derived expected behavior. Return one compact JSON patch only, with no Markdown fences and no explanations.
 Return exactly this patch shape:
-{{"replay_repair_patch_version":"3b.replay_repair_patch.v2","shared_support_source_replacement":"optional complete Rust code outside #[test] functions, or omit","rust_test_replacements":[{{"test_name":"existing_test_function_name","rust_test_body":"complete corrected #[test] function"}}]}}
-Python retains public_operations and trace_events and will replace only listed test blocks plus optional shared support/import code.
+{{"replay_repair_patch_version":"3b.replay_repair_patch.v2","shared_support_source_replacement":"optional complete Rust support code outside #[test] functions, or omit","rust_test_replacements":[{{"test_name":"existing_event_id","rust_test_body":"complete corrected #[test] function"}}]}}
+Python will replace only listed `replay_events[].rust_test_body` values plus optional shared support code.
 Do not rewrite tests that are not listed in infrastructure_failed_tests. Do not add extra `#[test]` functions.
 The patch is invalid if `rust_test_replacements` is missing or empty. Use `required_output_contract.required_test_names`; every replacement.test_name must be copied exactly from that list.
-Use the target API owner_type/signature information from target_repair_context. In particular:
-- Call each method on a value of the `owner_type` supplied in target_repair_context.
-- For generic Into<...> parameters, pass concrete values directly when possible; avoid unnecessary .into() calls that create type inference failures.
-- Every declared target function should still appear in the repaired Rust harness through the actual API call.
-- Use `rust_integration_test_contract` and `target_crate_import_hint` to fix unresolved imports/symbols. The repaired source is compiled as an integration test, so target crate public items must be imported from the crate name or called through fully qualified crate paths.
-- Use `infrastructure_failed_tests` first. Each item gives one generated #[test] function and the compile/runtime infrastructure error for that isolated test. Repair those tests/imports, then preserve all other trace-event tests unless a shared import/scope fix is required.
-- Rust does not concatenate adjacent string literals like C/C++. Use one raw string literal or `concat!(...)` for multi-part strings.
-- Rust string literals do not support C/C++ `\\b` or `\\f`; use `\\x08` and `\\x0c`. Rust strings also cannot contain surrogate Unicode escapes such as `\\u{{D806}}`.
-- Do not assume iterator item shape. Use target signatures and owner types to determine whether an iterator yields values, references, pairs, or custom items before destructuring it.
-- Avoid borrowing from a mutable receiver and then reading from the same value again unless the Rust ownership/lifetime shape is clear. Prefer owned values for intermediate collections when that preserves the same expected behavior.
+Use the target API owner_type/signature information from target_repair_context.
+- Call each method on a value of the supplied owner_type.
+- For generic Into<...> parameters, pass concrete values directly when possible.
+- Check target_repair_context.target_rust_usage_capabilities for public constructors, conversions, trait impls, macros, enum variants, constants, accessors, and builders before changing behavior. Non-UUID public constructs may be used in Rust code but must not be listed as UUID functions.
+- Use `rust_integration_test_contract` and `target_crate_import_hint`; compiled code is an integration test, so target crate public items must be imported or crate-qualified.
+- Use `infrastructure_failed_tests` first. Each item gives one generated test body and its compile/runtime infrastructure error.
+- Rust does not concatenate adjacent string literals like C/C++. Use one raw string literal or concat!(...).
 - Any value passed to a `&mut self` method must be declared `mut`.
 
 Replay repair context:
 {repair_context_json}
 """
 
-PROMPT_3B_ADAPTER_CASE_GENERATION = """# CP2RS Phase 3B Adapter Case Generation
+PROMPT_3B_ADAPTER_CASE_GENERATION = """# CP2RS Phase 3B Replay Event Generation
 
-You are generating independently valid per-case replay fragments that convert eligible source behavior cases into executable Rust public replay tests.
+You are generating independently valid replay events that convert eligible source behavior cases into executable Rust public replay tests.
 Every case in `targeted_behavior_cases` has already passed structural public-replay eligibility screening. Process every targeted case independently. Function coverage is only a derived metric; do not stop after one case happens to cover a function.
 
 Return one compact JSON object only. No Markdown fences. No explanations outside JSON.
-Prefer this compact per-case shape. Python expands each event into the internal operation + trace_event adapter format, so do not duplicate the same information in separate operation and trace_event objects:
-{{"adapter_case_generation_version":"3b.case_results.v2","case_results":[{{"case_id":"case id from targeted_behavior_cases","status":"replay_generated","event":{{"id":"valid_rust_test_function_name","source_functions":["source UUIDs from allowed_source_function_uuids_for_this_batch"],"target_functions":["target UUIDs from allowed_target_api_uuids_for_this_batch"],"description":"short behavior scenario","normalization":"observable comparison rule","evidence":"source path/name/assertion summary","input":{{"case":"short input summary"}},"expected":{{"observable_behavior":"source-test-derived expected behavior"}},"expected_behavior_source":"source_test_assertion|source_fixture|source_test_property","expected_behavior_confidence":"high|medium|low"}},"rust_test_body":"complete Rust #[test] function whose name equals event.id"}}]}}
+Return this shape:
+{{"adapter_case_generation_version":"3b.replay_events.v1","case_results":[{{"case_id":"case id from targeted_behavior_cases","status":"replay_generated","replay_event":{{"id":"valid_rust_test_function_name","source_case_ids":["covered case id"],"source_functions":["source UUIDs from allowed_source_function_uuids_for_this_batch"],"target_functions":["target UUIDs from allowed_target_api_uuids_for_this_batch"],"support_target_functions":["optional support target UUIDs used by the test"],"description":"short behavior scenario","normalization":"observable comparison rule","evidence":"source path/name/assertion summary","input":{{"case":"short input summary"}},"expected":{{"observable_behavior":"source-test-derived expected behavior"}},"expected_behavior_source":"source_test_assertion|source_fixture|source_test_property","expected_behavior_confidence":"high|medium|low","rust_test_body":"complete Rust #[test] function whose name equals id"}}}}]}}
 
-The older `3b.case_results.v1` shape with separate `operation` and `trace_event` is still accepted for compatibility, but the compact v2 shape is preferred because it avoids duplicated prose and reduces truncation risk.
-
-For a targeted case that you cannot convert, return `status:"unresolved_adapter_generation"` with `reason` and `details`. Do not output `excluded_behavior_cases`; this stage is not allowed to hide semantic differences. Configuration-dependent behavior, accepted-input extensions, container/traversal differences, output-format differences, target feature gaps, or narrower target behavior must be replayed when callable public target APIs exist, so the runtime result can expose the difference.
-
-Python validates and retains each case fragment independently. A malformed case must not prevent valid cases in the same response from being accepted. Do not repeat existing operations, events, or Rust tests. Use new operation/event names when behavior differs from an existing operation.
-Every targeted case should either produce `status:"replay_generated"` or `status:"unresolved_adapter_generation"`. Function coverage alone is not completion.
+For a targeted case that you cannot convert, return `status:"unresolved_behavior_case_conversion"` with `reason` and `details`. Do not output exclusions; this stage is not allowed to hide semantic differences.
 
 For every replay-generated case:
 - Treat `allowed_source_function_uuids_for_this_batch` and `allowed_target_api_uuids_for_this_batch` as closed sets. Do not use source or target UUIDs outside them.
-- `event.source_functions` must be a non-empty subset of `allowed_source_function_uuids_for_this_batch`.
-- `event.target_functions` must be a non-empty subset of `allowed_target_api_uuids_for_this_batch`.
-- `event.id` must be a valid Rust function identifier and the Rust test function must use exactly that name.
-- Every Rust public API visibly used by the test must be declared in `event.target_functions` using full UUIDs from `targeted_alignment_pairs`, `allowed_target_public_api_signatures`, or `target_aligned_api_context`.
-- For each source function listed in `event.source_functions`, include all of its 3A `tgt_uuids` from `targeted_alignment_pairs` in `event.target_functions`.
+- `replay_event.source_functions` must be a non-empty subset of `allowed_source_function_uuids_for_this_batch`.
+- `replay_event.target_functions` must be a non-empty subset of `allowed_target_api_uuids_for_this_batch`.
+- `replay_event.id` must be a valid Rust function identifier and the Rust test function must use exactly that name.
+- Every UUID-bearing Rust public API visibly used by the test must be declared in `replay_event.target_functions` or `support_target_functions` using full UUIDs from the provided target API context.
+- Non-UUID public constructs listed in `target_rust_usage_capabilities.non_uuid_public_constructs` may be used in `rust_test_body` but must not be placed in `target_functions` or `support_target_functions`.
+- For each source function listed in `replay_event.source_functions`, include all of its 3A `tgt_uuids` from `targeted_alignment_pairs` in `replay_event.target_functions`.
 - If a targeted behavior case contains `required_internal_public_substitutions`, preserve and explicitly call every listed target public function in the Rust test.
-- The executable expected behavior check must be grounded in `targeted_behavior_cases[].assertions`, fixtures, literals, or source snippets. Do not invent target behavior or use target tests as expected behavior evidence.
-- Each `rust_test_body` is merged independently. Include needed imports inside that `#[test]` function or use fully qualified target crate paths. Do not rely on imports from other generated tests.
-- If you use a target public item by its bare Rust name, the same test body must import it from `target_crate_import_hint.crate_name_for_rust_code`.
+- The executable expected behavior check must be grounded in `targeted_behavior_cases[].assertions`, fixtures, literals, or source snippets. Do not invent target behavior.
+- Prefer `integration_test_call_hint` over bare call examples when writing Rust integration-test code.
+- Use `target_rust_usage_capabilities` to find generic Rust construction and observation routes, including public trait impls, macros, enum variants, constants, and support APIs that may not appear as ordinary aligned functions.
+- If a targeted case references fixture files, use `source_fixture_access`: either embed provided content when sufficient or read the copied fixture path from the replay worktree. Entries with `fixture_role=expected_output_candidate` are source-side expected-output evidence, not target-generated behavior. Do not use paths that are not listed or present in the source evidence.
+- Each `rust_test_body` must include needed imports inside that `#[test]` function or use fully qualified target crate paths.
 
 Generation context:
 {repair_context_json}

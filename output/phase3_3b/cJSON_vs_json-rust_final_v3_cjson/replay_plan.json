@@ -1,161 +1,39 @@
 {
-  "schema_version": "3b.replay_plan.v1",
+  "schema_version": "3b.replay_plan.v2",
   "status": "recorded",
-  "recording_strategy": "adapter_declared_trace_events_v1",
-  "note": "Replay plan events were derived from effective adapter trace_events generated from source test evidence.",
+  "recording_strategy": "adapter_replay_events_v2",
+  "note": "Replay plan events were derived from effective adapter replay_events generated from source test evidence.",
   "skipped_scope_events": [],
   "skipped_scope_event_count": 0,
   "events": [
     {
-      "id": "cjson_add_bool_should_add_bool",
+      "id": "cjson_add_array_should_add_array_replay",
       "layer": "public_behavior",
-      "operation": "cjson_add_bool_should_add_bool",
-      "evidence": "tests/cjson_add.c line 446: TEST_ASSERT_NOT_NULL(true_item = cJSON_GetObjectItemCaseSensitive(root, \"true\")); TEST_ASSERT_EQUAL_INT(true_item->type, cJSON_True); similarly for false.",
+      "description": "Replay of cJSON test: add empty array to object, retrieve and verify type",
+      "evidence": "tests/cjson_add.c line 466: TEST_ASSERT_NOT_NULL and TEST_ASSERT_EQUAL_INT(array->type, cJSON_Array)",
       "source_functions": [
         "cJSON.c::cJSON_CreateObject",
         "cJSON.c::cJSON_GetObjectItemCaseSensitive"
       ],
       "target_functions": [
-        "src/value/mod.rs::JsonValue::as_bool",
         "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
-        "src/value/mod.rs::JsonValue::insert",
         "src/value/mod.rs::JsonValue::new_object"
       ],
-      "operation_metadata": {
-        "description": "cJSON add bool to object and retrieve via GetObjectItemCaseSensitive, verify type",
-        "normalization": "equality_expected_behavior",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "create object, add bool keys 'true' and 'false' with values true and false",
-      "expected": "GetObjectItemCaseSensitive returns non-null items, and item types equal cJSON_True and cJSON_False respectively",
-      "source_case_ids": [
-        "cjson_add_cjson_add_bool_should_add_bool"
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::insert"
       ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "operation": "cjson_add_bool_should_add_bool",
-        "status": "fully_aligned",
-        "mapping_shape": "many_to_many",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_CreateObject",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
-          },
-          {
-            "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_CreateObject",
-          "cJSON.c::cJSON_GetObjectItemCaseSensitive"
-        ],
-        "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
-          "src/value/mod.rs::JsonValue::new_object"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/value/mod.rs::JsonValue::as_bool",
-          "src/value/mod.rs::JsonValue::insert"
-        ]
-      }
-    },
-    {
-      "id": "cjson_add_false_should_add_false",
-      "layer": "public_behavior",
-      "operation": "cjson_add_false_should_add_false",
-      "evidence": "tests/cjson_add.c line 442: TEST_ASSERT_NOT_NULL(false_item = cJSON_GetObjectItemCaseSensitive(root, \"false\")); TEST_ASSERT_EQUAL_INT(false_item->type, cJSON_False);",
-      "source_functions": [
-        "cJSON.c::cJSON_CreateObject",
-        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
-      ],
-      "target_functions": [
-        "src/value/mod.rs::JsonValue::as_bool",
-        "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
-        "src/value/mod.rs::JsonValue::insert",
-        "src/value/mod.rs::JsonValue::new_object"
-      ],
-      "operation_metadata": {
-        "description": "cJSON add false to object and retrieve via GetObjectItemCaseSensitive, verify type",
-        "normalization": "equality_expected_behavior",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "create object, add false key with value false",
-      "expected": "GetObjectItemCaseSensitive returns non-null item, and its type equals cJSON_False",
-      "source_case_ids": [
-        "cjson_add_cjson_add_false_should_add_false"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "operation": "cjson_add_false_should_add_false",
-        "status": "fully_aligned",
-        "mapping_shape": "many_to_many",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_CreateObject",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
-          },
-          {
-            "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_CreateObject",
-          "cJSON.c::cJSON_GetObjectItemCaseSensitive"
-        ],
-        "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
-          "src/value/mod.rs::JsonValue::new_object"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/value/mod.rs::JsonValue::as_bool",
-          "src/value/mod.rs::JsonValue::insert"
-        ]
-      }
-    },
-    {
-      "id": "cjson_add_array_should_add_array",
-      "layer": "public_behavior",
-      "operation": "cjson_add_array_should_add_array",
-      "evidence": "tests/cjson_add.c line 466: TEST_ASSERT_NOT_NULL(array = cJSON_GetObjectItemCaseSensitive(...)), TEST_ASSERT_EQUAL_INT(array->type, cJSON_Array)",
-      "source_functions": [
-        "cJSON.c::cJSON_CreateObject",
-        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
-      ],
-      "target_functions": [
-        "src/value/mod.rs::JsonValue::has_key",
-        "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
-        "src/value/mod.rs::JsonValue::insert",
-        "src/value/mod.rs::JsonValue::new_object"
-      ],
-      "operation_metadata": {
-        "description": "Create object, add empty array via insert, retrieve and verify type is array",
-        "normalization": "observable_equality",
-        "normalization_status": "adapter_declared_v1",
+      "event_metadata": {
+        "normalization": "Exact variant equality via pattern matching",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "cJSON_CreateObject(); cJSON_AddArrayToObject(root, \"array\"); cJSON_GetObjectItemCaseSensitive(root, \"array\")"
+        "case": "Create object, call cJSON_AddArrayToObject with key \"array\", then cJSON_GetObjectItemCaseSensitive and check type"
       },
       "expected": {
-        "observable_behavior": "Retrieved item is not null and is an array (type JsonValue::Array)"
+        "observable_behavior": "Retrieved element is non-null and its type equals Array"
       },
       "source_case_ids": [
         "cjson_add_cjson_add_array_should_add_array"
@@ -163,7 +41,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_add_array_should_add_array",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -188,39 +65,164 @@
         "non_public_alignments": [],
         "missing_target_recipe": [],
         "support_target_functions": [
-          "src/value/mod.rs::JsonValue::has_key",
           "src/value/mod.rs::JsonValue::insert"
         ]
       }
     },
     {
-      "id": "cjson_add_null_should_add_null",
+      "id": "cjson_add_bool_should_add_bool_replay",
       "layer": "public_behavior",
-      "operation": "cjson_add_null_should_add_null",
-      "evidence": "tests/cjson_add.c line 429: TEST_ASSERT_NOT_NULL(null = cJSON_GetObjectItemCaseSensitive(...)), TEST_ASSERT_EQUAL_INT(null->type, cJSON_NULL)",
+      "description": "Replay of cJSON test: add true and false booleans to object, retrieve and verify types",
+      "evidence": "tests/cjson_add.c line 446: TEST_ASSERT_NOT_NULL and TEST_ASSERT_EQUAL_INT on both true and false items",
       "source_functions": [
         "cJSON.c::cJSON_CreateObject",
         "cJSON.c::cJSON_GetObjectItemCaseSensitive"
       ],
       "target_functions": [
-        "src/value/mod.rs::JsonValue::has_key",
         "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
-        "src/value/mod.rs::JsonValue::insert",
         "src/value/mod.rs::JsonValue::new_object"
       ],
-      "operation_metadata": {
-        "description": "Create object, add null value via insert, retrieve and verify null type",
-        "normalization": "observable_equality",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "event_metadata": {
+        "normalization": "Exact variant equality via pattern matching",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "cJSON_CreateObject(); cJSON_AddNullToObject(root, \"null\"); cJSON_GetObjectItemCaseSensitive(root, \"null\")"
+        "case": "Create object, call cJSON_AddBoolToObject for true and false, then retrieve via cJSON_GetObjectItemCaseSensitive and check types"
       },
       "expected": {
-        "observable_behavior": "Retrieved item exists and is JsonValue::Null"
+        "observable_behavior": "Retrieved items are non-null and have types Boolean(true) and Boolean(false) respectively"
+      },
+      "source_case_ids": [
+        "cjson_add_cjson_add_bool_should_add_bool"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_CreateObject",
+          "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/value/mod.rs::JsonValue::insert"
+        ]
+      }
+    },
+    {
+      "id": "cjson_add_false_should_add_false_replay",
+      "layer": "public_behavior",
+      "description": "Replay of cJSON test: add false boolean to object, retrieve and verify type",
+      "evidence": "tests/cjson_add.c line 442: TEST_ASSERT_NOT_NULL and TEST_ASSERT_EQUAL_INT(false_item->type, cJSON_False)",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "event_metadata": {
+        "normalization": "Exact variant equality via pattern matching",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "Create object, call cJSON_AddFalseToObject with key \"false\", then retrieve via cJSON_GetObjectItemCaseSensitive and check type"
+      },
+      "expected": {
+        "observable_behavior": "Retrieved item is non-null and has type Boolean(false)"
+      },
+      "source_case_ids": [
+        "cjson_add_cjson_add_false_should_add_false"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_CreateObject",
+          "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/value/mod.rs::JsonValue::insert"
+        ]
+      }
+    },
+    {
+      "id": "cjson_add_null_should_add_null_replay",
+      "layer": "public_behavior",
+      "description": "Replay of cJSON test: add null value to object, retrieve and verify type",
+      "evidence": "tests/cjson_add.c line 429: TEST_ASSERT_NOT_NULL and TEST_ASSERT_EQUAL_INT(null->type, cJSON_NULL)",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject",
+        "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "event_metadata": {
+        "normalization": "Exact variant equality via pattern matching",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "Create object, call cJSON_AddNullToObject with key \"null\", then retrieve via cJSON_GetObjectItemCaseSensitive and check type"
+      },
+      "expected": {
+        "observable_behavior": "Retrieved item is non-null and has type Null"
       },
       "source_case_ids": [
         "cjson_add_cjson_add_null_should_add_null"
@@ -228,7 +230,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_add_null_should_add_null",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -253,16 +254,15 @@
         "non_public_alignments": [],
         "missing_target_recipe": [],
         "support_target_functions": [
-          "src/value/mod.rs::JsonValue::has_key",
           "src/value/mod.rs::JsonValue::insert"
         ]
       }
     },
     {
-      "id": "cjson_add_null_should_fail_on_allocation_failure",
+      "id": "cjson_add_array_should_fail_on_allocation_failure_replay",
       "layer": "public_behavior",
-      "operation": "cjson_add_null_should_fail_on_allocation_failure",
-      "evidence": "tests/cjson_add.c line 431: TEST_ASSERT_NULL(cJSON_AddNullToObject(root, \"null\"))",
+      "description": "Create object and attempt to add array under allocation failure simulation",
+      "evidence": "tests/cjson_add.c:469-470 TEST_ASSERT_NULL(cJSON_AddArrayToObject(root, \"array\"))",
       "source_functions": [
         "cJSON.c::cJSON_CreateObject"
       ],
@@ -270,27 +270,28 @@
         "src/value/mod.rs::JsonValue::insert",
         "src/value/mod.rs::JsonValue::new_object"
       ],
-      "operation_metadata": {
-        "description": "cJSON_AddNullToObject returns NULL on allocation failure when failing_hooks set",
-        "normalization": "null pointer comparison (source) vs error check (target)",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "event_metadata": {
+        "normalization": "null_expected_behavior",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "create object, set failing hooks, add null"
+        "case": "Create object with failing alloc hooks, add array"
       },
       "expected": {
-        "observable_behavior": "function returns null (failure)"
+        "observable_behavior": "insert returns Err"
       },
       "source_case_ids": [
-        "cjson_add_cjson_add_null_should_fail_on_allocation_failure"
+        "cjson_add_cjson_add_array_should_fail_on_allocation_failure"
       ],
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_add_null_should_fail_on_allocation_failure",
         "status": "fully_aligned",
         "mapping_shape": "one_to_one",
         "covered_pairs": [
@@ -314,42 +315,153 @@
       }
     },
     {
-      "id": "cjson_add_number_should_add_number",
+      "id": "cjson_add_bool_should_fail_on_allocation_failure_replay",
       "layer": "public_behavior",
-      "operation": "cjson_add_number_should_add_number",
-      "evidence": "tests/cjson_add.c lines 450-451: TEST_ASSERT_NOT_NULL(number = cJSON_GetObjectItemCaseSensitive(root, \"number\")); TEST_ASSERT_EQUAL_DOUBLE(number->valuedouble, 42); TEST_ASSERT_EQUAL_INT(number->valueint, 42);",
+      "description": "Create object and attempt to add bool false under allocation failure simulation",
+      "evidence": "tests/cjson_add.c:448-449 TEST_ASSERT_NULL(cJSON_AddBoolToObject(root, \"false\", false))",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "event_metadata": {
+        "normalization": "null_expected_behavior",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "Create object with failing alloc hooks, add bool false"
+      },
+      "expected": {
+        "observable_behavior": "insert returns Err"
+      },
+      "source_case_ids": [
+        "cjson_add_cjson_add_bool_should_fail_on_allocation_failure"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/value/mod.rs::JsonValue::insert"
+        ]
+      }
+    },
+    {
+      "id": "cjson_add_false_should_fail_on_allocation_failure_replay",
+      "layer": "public_behavior",
+      "description": "Create object and attempt to add false under allocation failure simulation",
+      "evidence": "tests/cjson_add.c:444-445 TEST_ASSERT_NULL(cJSON_AddFalseToObject(root, \"false\"))",
+      "source_functions": [
+        "cJSON.c::cJSON_CreateObject"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_object"
+      ],
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "event_metadata": {
+        "normalization": "null_expected_behavior",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "Create object with failing alloc hooks, add false"
+      },
+      "expected": {
+        "observable_behavior": "insert returns Err"
+      },
+      "source_case_ids": [
+        "cjson_add_cjson_add_false_should_fail_on_allocation_failure"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::new_object"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/value/mod.rs::JsonValue::insert"
+        ]
+      }
+    },
+    {
+      "id": "cjson_add_number_should_add_number_replay",
+      "layer": "public_behavior",
+      "description": "Add a number to object and verify type and value",
+      "evidence": "tests/cjson_add.c::cjson_add_number_should_add_number (assertions: TEST_ASSERT_NOT_NULL, TEST_ASSERT_EQUAL_INT, TEST_ASSERT_EQUAL_DOUBLE)",
       "source_functions": [
         "cJSON.c::cJSON_CreateObject",
         "cJSON.c::cJSON_GetObjectItemCaseSensitive"
       ],
       "target_functions": [
         "src/value/mod.rs::JsonValue::as_f64",
-        "src/value/mod.rs::JsonValue::as_i32",
+        "src/value/mod.rs::JsonValue::as_i64",
         "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
         "src/value/mod.rs::JsonValue::insert",
         "src/value/mod.rs::JsonValue::new_object"
       ],
-      "operation_metadata": {
-        "description": "cJSON_AddNumberToObject adds a number with value 42",
-        "normalization": "value comparison via as_f64 and as_i32",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::as_f64",
+        "src/value/mod.rs::JsonValue::as_i64",
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "event_metadata": {
+        "normalization": "Rust equality and pattern matching",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "create object, add number 42 with key 'number', retrieve and check type and value"
-      },
-      "expected": {
-        "observable_behavior": "retrieved item is a number with value 42"
-      },
+      "input": "Create object, add number key 'number' with value 42, retrieve and verify.",
+      "expected": "Non-null item with type cJSON_Number, valuedouble 42, valueint 42",
       "source_case_ids": [
         "cjson_add_cjson_add_number_should_add_number"
       ],
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_add_number_should_add_number",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -375,71 +487,16 @@
         "missing_target_recipe": [],
         "support_target_functions": [
           "src/value/mod.rs::JsonValue::as_f64",
-          "src/value/mod.rs::JsonValue::as_i32",
+          "src/value/mod.rs::JsonValue::as_i64",
           "src/value/mod.rs::JsonValue::insert"
         ]
       }
     },
     {
-      "id": "cjson_add_number_should_fail_on_allocation_failure",
+      "id": "cjson_add_object_should_add_object_replay",
       "layer": "public_behavior",
-      "operation": "cjson_add_number_should_fail_on_allocation_failure",
-      "evidence": "tests/cjson_add.c line 452: TEST_ASSERT_NULL(cJSON_AddNumberToObject(root, \"number\", 42));",
-      "source_functions": [
-        "cJSON.c::cJSON_CreateObject"
-      ],
-      "target_functions": [
-        "src/value/mod.rs::JsonValue::insert",
-        "src/value/mod.rs::JsonValue::new_object"
-      ],
-      "operation_metadata": {
-        "description": "cJSON_AddNumberToObject returns NULL on allocation failure when failing_hooks set",
-        "normalization": "null pointer comparison (source) vs error check (target)",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "create object, set failing hooks, add number"
-      },
-      "expected": {
-        "observable_behavior": "function returns null (failure)"
-      },
-      "source_case_ids": [
-        "cjson_add_cjson_add_number_should_fail_on_allocation_failure"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "operation": "cjson_add_number_should_fail_on_allocation_failure",
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_CreateObject",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_CreateObject"
-        ],
-        "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::new_object"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/value/mod.rs::JsonValue::insert"
-        ]
-      }
-    },
-    {
-      "id": "cjson_add_object_should_add_object",
-      "layer": "public_behavior",
-      "operation": "cjson_add_object_should_add_object",
-      "evidence": "tests/cjson_add.c lines 462-463: TEST_ASSERT_NOT_NULL(object = cJSON_GetObjectItemCaseSensitive(root, \"object\")); TEST_ASSERT_EQUAL_INT(object->type, cJSON_Object);",
+      "description": "Add an empty object to object and verify type",
+      "evidence": "tests/cjson_add.c::cJSON_add_object_should_add_object (assertions: TEST_ASSERT_NOT_NULL, TEST_ASSERT_EQUAL_INT)",
       "source_functions": [
         "cJSON.c::cJSON_CreateObject",
         "cJSON.c::cJSON_GetObjectItemCaseSensitive"
@@ -449,27 +506,24 @@
         "src/value/mod.rs::JsonValue::insert",
         "src/value/mod.rs::JsonValue::new_object"
       ],
-      "operation_metadata": {
-        "description": "cJSON_AddObjectToObject adds a sub-object",
-        "normalization": "type check via pattern matching on JsonValue::Object",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "event_metadata": {
+        "normalization": "Rust pattern matching",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "create object, add nested object with key 'object', retrieve and check type"
-      },
-      "expected": {
-        "observable_behavior": "retrieved item is an object"
-      },
+      "input": "Create root, add object key 'object' with empty object, retrieve and verify.",
+      "expected": "Non-null item with type cJSON_Object",
       "source_case_ids": [
         "cjson_add_cjson_add_object_should_add_object"
       ],
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_add_object_should_add_object",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -499,65 +553,10 @@
       }
     },
     {
-      "id": "cjson_add_object_should_fail_on_allocation_failure",
+      "id": "cjson_add_raw_should_add_raw_replay",
       "layer": "public_behavior",
-      "operation": "cjson_add_object_should_fail_on_allocation_failure",
-      "evidence": "tests/cjson_add.c line 464: TEST_ASSERT_NULL(cJSON_AddObjectToObject(root, \"object\"));",
-      "source_functions": [
-        "cJSON.c::cJSON_CreateObject"
-      ],
-      "target_functions": [
-        "src/value/mod.rs::JsonValue::insert",
-        "src/value/mod.rs::JsonValue::new_object"
-      ],
-      "operation_metadata": {
-        "description": "cJSON_AddObjectToObject returns NULL on allocation failure when failing_hooks set",
-        "normalization": "null pointer comparison (source) vs error check (target)",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "create object, set failing hooks, add object"
-      },
-      "expected": {
-        "observable_behavior": "function returns null (failure)"
-      },
-      "source_case_ids": [
-        "cjson_add_cjson_add_object_should_fail_on_allocation_failure"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "operation": "cjson_add_object_should_fail_on_allocation_failure",
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_CreateObject",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_CreateObject"
-        ],
-        "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::new_object"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/value/mod.rs::JsonValue::insert"
-        ]
-      }
-    },
-    {
-      "id": "cjson_add_raw_should_add_raw",
-      "layer": "public_behavior",
-      "operation": "cjson_add_raw_should_add_raw",
-      "evidence": "tests/cjson_add.c lines 458-459: TEST_ASSERT_NOT_NULL(raw = cJSON_GetObjectItemCaseSensitive(root, \"raw\")); TEST_ASSERT_EQUAL_INT(raw->type, cJSON_Raw); TEST_ASSERT_EQUAL_STRING(raw->valuestring, \"{}\");",
+      "description": "Add a raw JSON string to object and verify type and value",
+      "evidence": "tests/cjson_add.c::cjson_add_raw_should_add_raw (assertions: TEST_ASSERT_NOT_NULL, TEST_ASSERT_EQUAL_INT, TEST_ASSERT_EQUAL_STRING)",
       "source_functions": [
         "cJSON.c::cJSON_CreateObject",
         "cJSON.c::cJSON_GetObjectItemCaseSensitive"
@@ -568,27 +567,25 @@
         "src/value/mod.rs::JsonValue::insert",
         "src/value/mod.rs::JsonValue::new_object"
       ],
-      "operation_metadata": {
-        "description": "cJSON_AddRawToObject adds a raw JSON string",
-        "normalization": "string comparison via as_str",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "event_metadata": {
+        "normalization": "Rust equality and pattern matching",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "create object, add raw string '{}' with key 'raw', retrieve and check type and content"
-      },
-      "expected": {
-        "observable_behavior": "retrieved item is a string with content '{}'"
-      },
+      "input": "Create root, add raw key 'raw' with value '{}', retrieve and verify.",
+      "expected": "Non-null item with type cJSON_Raw and valuestring '{}'",
       "source_case_ids": [
         "cjson_add_cjson_add_raw_should_add_raw"
       ],
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_add_raw_should_add_raw",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -619,88 +616,35 @@
       }
     },
     {
-      "id": "cjson_add_raw_should_fail_on_allocation_failure",
+      "id": "cjson_add_string_should_add_string_replay",
       "layer": "public_behavior",
-      "operation": "cjson_add_raw_should_fail_on_allocation_failure",
-      "evidence": "tests/cjson_add.c line 460: TEST_ASSERT_NULL(cJSON_AddRawToObject(root, \"raw\", \"{}\"));",
-      "source_functions": [
-        "cJSON.c::cJSON_CreateObject"
-      ],
-      "target_functions": [
-        "src/value/mod.rs::JsonValue::insert",
-        "src/value/mod.rs::JsonValue::new_object"
-      ],
-      "operation_metadata": {
-        "description": "cJSON_AddRawToObject returns NULL on allocation failure when failing_hooks set",
-        "normalization": "null pointer comparison (source) vs error check (target)",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "create object, set failing hooks, add raw"
-      },
-      "expected": {
-        "observable_behavior": "function returns null (failure)"
-      },
-      "source_case_ids": [
-        "cjson_add_cjson_add_raw_should_fail_on_allocation_failure"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "operation": "cjson_add_raw_should_fail_on_allocation_failure",
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_CreateObject",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_CreateObject"
-        ],
-        "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::new_object"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/value/mod.rs::JsonValue::insert"
-        ]
-      }
-    },
-    {
-      "id": "cjson_add_string_should_add_string",
-      "layer": "public_behavior",
-      "operation": "cjson_add_string_should_add_string",
-      "evidence": "tests/cjson_add.c lines 454-460: TEST_ASSERT_NOT_NULL, TEST_ASSERT_EQUAL_INT, TEST_ASSERT_EQUAL_STRING",
+      "description": "Create object, add a string property, retrieve it, and verify type and value.",
+      "evidence": "tests/cjson_add.c:454-459 (cjson_add_string_should_add_string)",
       "source_functions": [
         "cJSON.c::cJSON_CreateObject",
         "cJSON.c::cJSON_GetObjectItemCaseSensitive"
       ],
       "target_functions": [
-        "src/value/implements.rs::JsonValue::from#sig_85cb0854",
-        "src/value/mod.rs::JsonValue::as_str",
         "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
         "src/value/mod.rs::JsonValue::new_object"
       ],
-      "operation_metadata": {
-        "description": "add a string to an object and verify retrieval",
-        "normalization": "observable type and value equality",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [
+        "src/object.rs::Object::index_mut#sig_ba73fea6",
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+        "src/value/mod.rs::JsonValue::as_str"
+      ],
+      "event_metadata": {
+        "normalization": "observable comparison rule",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "create object, add string 'Hello World!' with key 'string', retrieve and check"
+        "case": "Create object, add string 'Hello World!' under key 'string', then retrieve and assert"
       },
       "expected": {
-        "observable_behavior": "after inserting key 'string' with value 'Hello World!', indexing the object returns a string value 'Hello World!'"
+        "observable_behavior": "After adding a string property, the object item at that key is a string with the correct value."
       },
       "source_case_ids": [
         "cjson_add_cjson_add_string_should_add_string"
@@ -708,7 +652,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_add_string_should_add_string",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -733,39 +676,41 @@
         "non_public_alignments": [],
         "missing_target_recipe": [],
         "support_target_functions": [
-          "src/value/implements.rs::JsonValue::from#sig_85cb0854",
+          "src/object.rs::Object::index_mut#sig_ba73fea6",
+          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
           "src/value/mod.rs::JsonValue::as_str"
         ]
       }
     },
     {
-      "id": "cjson_add_true_should_add_true",
+      "id": "cjson_add_true_should_add_true_replay",
       "layer": "public_behavior",
-      "operation": "cjson_add_true_should_add_true",
-      "evidence": "tests/cjson_add.c lines 433-438: TEST_ASSERT_NOT_NULL, TEST_ASSERT_EQUAL_INT",
+      "description": "Create object, add a boolean true property, retrieve it, and verify type.",
+      "evidence": "tests/cjson_add.c:433-441 (cjson_add_true_should_add_true)",
       "source_functions": [
         "cJSON.c::cJSON_CreateObject",
         "cJSON.c::cJSON_GetObjectItemCaseSensitive"
       ],
       "target_functions": [
-        "src/value/implements.rs::JsonValue::from#sig_85cb0854",
-        "src/value/mod.rs::JsonValue::as_bool",
         "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
         "src/value/mod.rs::JsonValue::new_object"
       ],
-      "operation_metadata": {
-        "description": "add a boolean true to an object and verify retrieval",
-        "normalization": "observable type and value equality",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [
+        "src/object.rs::Object::index_mut#sig_ba73fea6",
+        "src/value/mod.rs::JsonValue::as_bool"
+      ],
+      "event_metadata": {
+        "normalization": "observable comparison rule",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "create object, add true key 'true', retrieve and check type"
+        "case": "Create object, add true under key 'true', then retrieve and assert type is Boolean."
       },
       "expected": {
-        "observable_behavior": "after inserting key 'true' with value true, indexing the object returns a boolean true"
+        "observable_behavior": "After adding a boolean true, the object item at that key is a boolean with value true."
       },
       "source_case_ids": [
         "cjson_add_cjson_add_true_should_add_true"
@@ -773,7 +718,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_add_true_should_add_true",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -798,16 +742,16 @@
         "non_public_alignments": [],
         "missing_target_recipe": [],
         "support_target_functions": [
-          "src/value/implements.rs::JsonValue::from#sig_85cb0854",
+          "src/object.rs::Object::index_mut#sig_ba73fea6",
           "src/value/mod.rs::JsonValue::as_bool"
         ]
       }
     },
     {
-      "id": "cjson_compare_should_compare_arrays",
+      "id": "cjson_compare_arrays_replay",
       "layer": "public_behavior",
-      "operation": "cjson_compare_should_compare_arrays",
-      "evidence": "tests/compare_tests.c lines 204-: multiple TEST_ASSERT_TRUE from compare_from_string helper",
+      "description": "Parse two JSON arrays and verify they are equal with case-sensitive and case-insensitive comparison.",
+      "evidence": "tests/compare_tests.c:204-231 (cjson_compare_should_compare_arrays)",
       "source_functions": [
         "cJSON.c::cJSON_Compare",
         "cJSON.c::cJSON_Parse"
@@ -816,19 +760,19 @@
         "src/parser.rs::parse",
         "src/value/mod.rs::JsonValue::eq"
       ],
-      "operation_metadata": {
-        "description": "compare JSON arrays for equality",
-        "normalization": "observable equality",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "observable comparison rule",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "parse various array strings and compare with eq"
+        "case": "Compare empty arrays [] with [] and complex arrays with mixed types."
       },
       "expected": {
-        "observable_behavior": "cJSON_Compare returns true for equal arrays (case-sensitive and insensitive) as tested"
+        "observable_behavior": "Parsing equal JSON arrays yields values that compare equal (both case-sensitive and case-insensitive)."
       },
       "source_case_ids": [
         "compare_tests_cjson_compare_should_compare_arrays"
@@ -836,7 +780,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_compare_should_compare_arrays",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -864,10 +807,10 @@
       }
     },
     {
-      "id": "cjson_compare_should_compare_booleans",
+      "id": "cjson_compare_booleans_replay",
       "layer": "public_behavior",
-      "operation": "cjson_compare_should_compare_booleans",
-      "evidence": "tests/compare_tests.c lines 199-: multiple TEST_ASSERT_TRUE",
+      "description": "Parse boolean values and verify they compare equal.",
+      "evidence": "tests/compare_tests.c:199-213 (cjson_compare_should_compare_booleans)",
       "source_functions": [
         "cJSON.c::cJSON_Compare",
         "cJSON.c::cJSON_Parse"
@@ -876,19 +819,19 @@
         "src/parser.rs::parse",
         "src/value/mod.rs::JsonValue::eq"
       ],
-      "operation_metadata": {
-        "description": "compare JSON booleans for equality",
-        "normalization": "observable equality",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "observable comparison rule",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "parse 'true'/'false' and compare"
+        "case": "Compare \"true\" with \"true\" and \"false\" with \"false\", both case-sensitive and case-insensitive."
       },
       "expected": {
-        "observable_behavior": "cJSON_Compare returns true for equal booleans"
+        "observable_behavior": "Parsing equal boolean JSON values yields values that compare equal."
       },
       "source_case_ids": [
         "compare_tests_cjson_compare_should_compare_booleans"
@@ -896,7 +839,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_compare_should_compare_booleans",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -924,48 +866,49 @@
       }
     },
     {
-      "id": "cjson_compare_should_compare_invalid_as_not_equal",
+      "id": "cjson_create_string_array_fail_alloc_replay",
       "layer": "public_behavior",
-      "operation": "cjson_compare_should_compare_invalid_as_not_equal",
-      "evidence": "tests/compare_tests.c line 197: TEST_ASSERT_FALSE(cJSON_Compare(invalid, invalid, false)) and TEST_ASSERT_FALSE(cJSON_Compare(invalid, invalid, true))",
+      "description": "Create a string array from a list of strings under allocation failure condition, expecting null.",
+      "evidence": "tests/cjson_add.c line 440: TEST_ASSERT_NULL(cJSON_CreateStringArray(strings, 3))",
       "source_functions": [
-        "cJSON.c::cJSON_Compare"
+        "cJSON.c::cJSON_CreateStringArray"
       ],
       "target_functions": [
-        "src/value/mod.rs::JsonValue::eq"
+        "src/value/implements.rs::JsonValue::from#sig_9bca93f0"
       ],
-      "operation_metadata": {
-        "description": "Compare two invalid cJSON items should be not equal",
-        "normalization": "observable equality comparison",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "equality with JsonValue::Null",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "invalid, invalid, false and invalid, invalid, true",
+      "input": {
+        "case": "const char* strings[] = {\"1\", \"2\", \"3\"}; count=3"
+      },
       "expected": {
-        "observable_behavior": "false"
+        "observable_behavior": "JsonValue::Null (equivalent to C NULL pointer)"
       },
       "source_case_ids": [
-        "compare_tests_cjson_compare_should_compare_invalid_as_not_equal"
+        "cjson_add_cjson_create_string_array_should_fail_on_allocation_failure"
       ],
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_compare_should_compare_invalid_as_not_equal",
         "status": "fully_aligned",
         "mapping_shape": "one_to_one",
         "covered_pairs": [
           {
-            "src_uuid": "cJSON.c::cJSON_Compare",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::eq"
+            "src_uuid": "cJSON.c::cJSON_CreateStringArray",
+            "tgt_uuid": "src/value/implements.rs::JsonValue::from#sig_9bca93f0"
           }
         ],
         "covered_source_functions": [
-          "cJSON.c::cJSON_Compare"
+          "cJSON.c::cJSON_CreateStringArray"
         ],
         "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::eq"
+          "src/value/implements.rs::JsonValue::from#sig_9bca93f0"
         ],
         "missing_source_alignments": [],
         "non_public_alignments": [],
@@ -974,10 +917,10 @@
       }
     },
     {
-      "id": "cjson_compare_should_compare_null",
+      "id": "cjson_compare_null_replay",
       "layer": "public_behavior",
-      "operation": "cjson_compare_should_compare_null",
-      "evidence": "tests/compare_tests.c line 200: compare_from_string(\"null\", \"null\", true) should be true",
+      "description": "Compare null JSON values",
+      "evidence": "Source file tests/compare_tests.c, assertions TEST_ASSERT_TRUE(compare_from_string(\"null\",\"null\",true)) and TEST_ASSERT_FALSE(compare_from_string(\"null\",\"true\",true))",
       "source_functions": [
         "cJSON.c::cJSON_Compare",
         "cJSON.c::cJSON_Parse"
@@ -986,17 +929,19 @@
         "src/parser.rs::parse",
         "src/value/mod.rs::JsonValue::eq"
       ],
-      "operation_metadata": {
-        "description": "Compare two null JSON values",
-        "normalization": "observable equality comparison",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "observable: equality of JsonValue",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "null vs null, null vs true",
+      "input": {
+        "case": "parse \"null\" and \"null\", then compare; also parse \"null\" and \"true\", then compare"
+      },
       "expected": {
-        "observable_behavior": "true for null==null, false for null!=true"
+        "observable_behavior": "true for equal nulls, false for null vs true"
       },
       "source_case_ids": [
         "compare_tests_cjson_compare_should_compare_null"
@@ -1004,7 +949,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_compare_should_compare_null",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -1032,60 +976,10 @@
       }
     },
     {
-      "id": "cjson_compare_should_compare_null_pointer_as_not_equal",
+      "id": "cjson_compare_numbers_replay",
       "layer": "public_behavior",
-      "operation": "cjson_compare_should_compare_null_pointer_as_not_equal",
-      "evidence": "tests/compare_tests.c line 196: TEST_ASSERT_FALSE(cJSON_Compare(NULL, NULL, true)) and TEST_ASSERT_FALSE(cJSON_Compare(NULL, NULL, false))",
-      "source_functions": [
-        "cJSON.c::cJSON_Compare"
-      ],
-      "target_functions": [
-        "src/value/mod.rs::JsonValue::eq"
-      ],
-      "operation_metadata": {
-        "description": "Compare two null pointers should be not equal",
-        "normalization": "observable equality comparison",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "NULL, NULL, true and NULL, NULL, false",
-      "expected": {
-        "observable_behavior": "false"
-      },
-      "source_case_ids": [
-        "compare_tests_cjson_compare_should_compare_null_pointer_as_not_equal"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "operation": "cjson_compare_should_compare_null_pointer_as_not_equal",
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_Compare",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::eq"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_Compare"
-        ],
-        "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::eq"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "cjson_compare_should_compare_numbers",
-      "layer": "public_behavior",
-      "operation": "cjson_compare_should_compare_numbers",
-      "evidence": "tests/compare_tests.c line 198: compare_from_string(\"1\", \"1\", true) true and compare_from_string(\"0.0001\", \"0.0001\", true) true",
+      "description": "Compare number JSON values",
+      "evidence": "Source file tests/compare_tests.c, assertions TEST_ASSERT_TRUE(compare_from_string(\"1\",\"1\",true)), TEST_ASSERT_TRUE(compare_from_string(\"0.0001\",\"0.0001\",true))",
       "source_functions": [
         "cJSON.c::cJSON_Compare",
         "cJSON.c::cJSON_Parse"
@@ -1094,17 +988,19 @@
         "src/parser.rs::parse",
         "src/value/mod.rs::JsonValue::eq"
       ],
-      "operation_metadata": {
-        "description": "Compare numbers 1 and 0.0001",
-        "normalization": "observable equality comparison",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "observable: equality of JsonValue",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "1 vs 1, 0.0001 vs 0.0001",
+      "input": {
+        "case": "parse number strings and compare"
+      },
       "expected": {
-        "observable_behavior": "true"
+        "observable_behavior": "equal numbers compare as true, unequal as false"
       },
       "source_case_ids": [
         "compare_tests_cjson_compare_should_compare_numbers"
@@ -1112,7 +1008,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_compare_should_compare_numbers",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -1140,10 +1035,10 @@
       }
     },
     {
-      "id": "cjson_compare_should_compare_objects",
+      "id": "cjson_compare_objects_replay",
       "layer": "public_behavior",
-      "operation": "cjson_compare_should_compare_objects",
-      "evidence": "tests/compare_tests.c line 205: compare_from_string(\"{}\", \"{}\", true) true",
+      "description": "Compare object JSON values",
+      "evidence": "Source file tests/compare_tests.c, assertions TEST_ASSERT_TRUE(compare_from_string(\"{}\",\"{}\",true)), TEST_ASSERT_FALSE(compare_from_string(...))",
       "source_functions": [
         "cJSON.c::cJSON_Compare",
         "cJSON.c::cJSON_Parse"
@@ -1152,17 +1047,19 @@
         "src/parser.rs::parse",
         "src/value/mod.rs::JsonValue::eq"
       ],
-      "operation_metadata": {
-        "description": "Compare objects with same and different keys",
-        "normalization": "observable equality comparison",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "observable: equality of JsonValue",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "{} vs {}, mismatched objects",
+      "input": {
+        "case": "parse object strings and compare"
+      },
       "expected": {
-        "observable_behavior": "true for equal, false for different"
+        "observable_behavior": "equal objects compare as true, unequal as false"
       },
       "source_case_ids": [
         "compare_tests_cjson_compare_should_compare_objects"
@@ -1170,7 +1067,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_compare_should_compare_objects",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -1198,10 +1094,10 @@
       }
     },
     {
-      "id": "cjson_compare_should_compare_raw",
+      "id": "cjson_compare_strings_replay",
       "layer": "public_behavior",
-      "operation": "cjson_compare_should_compare_raw",
-      "evidence": "tests/compare_tests.c line 203: TEST_ASSERT_TRUE(cJSON_Compare(raw1, raw2, true)) and TEST_ASSERT_TRUE(cJSON_Compare(raw1, raw2, false))",
+      "description": "Compare string JSON values",
+      "evidence": "Source file tests/compare_tests.c, assertions TEST_ASSERT_TRUE(compare_from_string(\"\\\"abcdefg\\\"\",\"\\\"abcdefg\\\"\",true)), TEST_ASSERT_FALSE(compare_from_string(\"\\\"ABCDEFG\\\"\",\"\\\"abcdefg\\\"\",true))",
       "source_functions": [
         "cJSON.c::cJSON_Compare",
         "cJSON.c::cJSON_Parse"
@@ -1210,75 +1106,19 @@
         "src/parser.rs::parse",
         "src/value/mod.rs::JsonValue::eq"
       ],
-      "operation_metadata": {
-        "description": "Compare raw string values",
-        "normalization": "observable equality comparison",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "observable: equality of JsonValue",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "parsed string \"[true, false]\", same",
-      "expected": {
-        "observable_behavior": "true"
+      "input": {
+        "case": "parse string literals and compare"
       },
-      "source_case_ids": [
-        "compare_tests_cjson_compare_should_compare_raw"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "operation": "cjson_compare_should_compare_raw",
-        "status": "fully_aligned",
-        "mapping_shape": "many_to_many",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_Compare",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::eq"
-          },
-          {
-            "src_uuid": "cJSON.c::cJSON_Parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_Compare",
-          "cJSON.c::cJSON_Parse"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse",
-          "src/value/mod.rs::JsonValue::eq"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "cjson_compare_should_compare_strings",
-      "layer": "public_behavior",
-      "operation": "cjson_compare_should_compare_strings",
-      "evidence": "tests/compare_tests.c line 202: compare_from_string(\"\\\"abcdefg\\\"\", \"\\\"abcdefg\\\"\", true) true",
-      "source_functions": [
-        "cJSON.c::cJSON_Compare",
-        "cJSON.c::cJSON_Parse"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::eq"
-      ],
-      "operation_metadata": {
-        "description": "Compare strings with and without case sensitivity",
-        "normalization": "observable equality comparison",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "abcdefg vs abcdefg, ABCDEFG vs abcdefg",
       "expected": {
-        "observable_behavior": "true for same, false for different case (case-sensitive)"
+        "observable_behavior": "equal strings compare as true, case-sensitive comparison (source uses case_sensitive=true) returns false for different case"
       },
       "source_case_ids": [
         "compare_tests_cjson_compare_should_compare_strings"
@@ -1286,7 +1126,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_compare_should_compare_strings",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -1314,88 +1153,38 @@
       }
     },
     {
-      "id": "cjson_compare_should_not_accept_invalid_types",
+      "id": "cjson_add_item_to_object_no_uaf_replay",
       "layer": "public_behavior",
-      "operation": "cjson_compare_should_not_accept_invalid_types",
-      "evidence": "tests/compare_tests.c line 201: TEST_ASSERT_FALSE(cJSON_Compare(invalid, invalid, true)) and TEST_ASSERT_FALSE(cJSON_Compare(invalid, invalid, false))",
-      "source_functions": [
-        "cJSON.c::cJSON_Compare"
-      ],
-      "target_functions": [
-        "src/value/mod.rs::JsonValue::eq"
-      ],
-      "operation_metadata": {
-        "description": "Compare items with invalid type should return false",
-        "normalization": "observable equality comparison",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "invalid type items",
-      "expected": {
-        "observable_behavior": "false"
-      },
-      "source_case_ids": [
-        "compare_tests_cjson_compare_should_not_accept_invalid_types"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "operation": "cjson_compare_should_not_accept_invalid_types",
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_Compare",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::eq"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_Compare"
-        ],
-        "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::eq"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased",
-      "layer": "public_behavior",
-      "operation": "cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased",
-      "evidence": "tests/misc_tests.c line 831: cJSON_AddItemToObject(object, number->string, number) no use-after-free",
+      "description": "Add item to object with aliased string (no use-after-free in Rust)",
+      "evidence": "Source file tests/misc_tests.c, test that creating an object, a number with aliased string, and inserting does not cause use-after-free. In Rust, ownership prevents aliasing issues.",
       "source_functions": [
         "cJSON.c::cJSON_AddItemToObject",
         "cJSON.c::cJSON_CreateObject"
       ],
       "target_functions": [
-        "src/parser.rs::parse",
         "src/value/mod.rs::JsonValue::insert",
         "src/value/mod.rs::JsonValue::new_object"
       ],
-      "operation_metadata": {
-        "description": "Add item to object with string aliased to item's string member",
-        "normalization": "observable insertion success",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "observable: insert succeeds without memory errors",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "object, \"number\", number(42)",
+      "input": {
+        "case": "create object, create number, insert with key 'number'"
+      },
       "expected": {
         "observable_behavior": "insert returns Ok(())"
       },
       "source_case_ids": [
         "misc_tests_cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased"
       ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
+      "expected_behavior_source": "source_fixture",
+      "expected_behavior_confidence": "medium",
       "alignment_validation": {
-        "operation": "cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -1419,80 +1208,61 @@
         "missing_source_alignments": [],
         "non_public_alignments": [],
         "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/parser.rs::parse"
-        ]
+        "support_target_functions": []
       }
     },
     {
-      "id": "cjson_add_item_to_object_or_array_should_not_add_itself",
+      "id": "cjson_get_string_value_should_get_a_string_replay",
       "layer": "public_behavior",
-      "operation": "cjson_add_item_to_object_or_array_should_not_add_itself",
-      "evidence": "tests/misc_tests.c lines 6-10: TEST_ASSERT_FALSE_MESSAGE on adding object to itself and array to itself",
+      "description": "cJSON_GetStringValue should return the string value for a string JsonValue, and NULL for number and null",
+      "evidence": "tests/misc_tests.c line 825: TEST_ASSERT_TRUE(cJSON_GetStringValue(string) == string->valuestring); TEST_ASSERT_NULL(cJSON_GetStringValue(number)); TEST_ASSERT_NULL(cJSON_GetStringValue(NULL));",
       "source_functions": [
-        "cJSON.c::cJSON_AddItemToArray",
-        "cJSON.c::cJSON_AddItemToObject",
-        "cJSON.c::cJSON_CreateArray",
-        "cJSON.c::cJSON_CreateObject"
+        "cJSON.c::cJSON_CreateString",
+        "cJSON.c::cJSON_GetStringValue"
       ],
       "target_functions": [
-        "src/value/mod.rs::JsonValue::insert",
-        "src/value/mod.rs::JsonValue::new_array",
-        "src/value/mod.rs::JsonValue::new_object",
-        "src/value/mod.rs::JsonValue::push"
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+        "src/value/mod.rs::JsonValue::as_str"
       ],
-      "operation_metadata": {
-        "description": "add object or array to itself should fail",
-        "normalization": "return value false maps to Result::Err",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "as_str returns Option<&str>: Some corresponds to string equality, None corresponds to NULL",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "Create an object and an array, then attempt to add each to itself."
+        "case": "string='test', number=1, null value"
       },
       "expected": {
-        "observable_behavior": "adding an object to itself or an array to itself should produce an error (false in C, Err in Rust)"
+        "observable_behavior": "JsonValue::from('test').as_str() should return Some('test'); JsonValue::from(1).as_str() should return None; JsonValue::Null.as_str() should return None"
       },
       "source_case_ids": [
-        "misc_tests_cjson_add_item_to_object_or_array_should_not_add_itself"
+        "misc_tests_cjson_get_string_value_should_get_a_string"
       ],
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_add_item_to_object_or_array_should_not_add_itself",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
           {
-            "src_uuid": "cJSON.c::cJSON_AddItemToArray",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::push"
+            "src_uuid": "cJSON.c::cJSON_CreateString",
+            "tgt_uuid": "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
           },
           {
-            "src_uuid": "cJSON.c::cJSON_AddItemToObject",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::insert"
-          },
-          {
-            "src_uuid": "cJSON.c::cJSON_CreateArray",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::new_array"
-          },
-          {
-            "src_uuid": "cJSON.c::cJSON_CreateObject",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::new_object"
+            "src_uuid": "cJSON.c::cJSON_GetStringValue",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::as_str"
           }
         ],
         "covered_source_functions": [
-          "cJSON.c::cJSON_AddItemToArray",
-          "cJSON.c::cJSON_AddItemToObject",
-          "cJSON.c::cJSON_CreateArray",
-          "cJSON.c::cJSON_CreateObject"
+          "cJSON.c::cJSON_CreateString",
+          "cJSON.c::cJSON_GetStringValue"
         ],
         "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::insert",
-          "src/value/mod.rs::JsonValue::new_array",
-          "src/value/mod.rs::JsonValue::new_object",
-          "src/value/mod.rs::JsonValue::push"
+          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+          "src/value/mod.rs::JsonValue::as_str"
         ],
         "missing_source_alignments": [],
         "non_public_alignments": [],
@@ -1501,10 +1271,10 @@
       }
     },
     {
-      "id": "cjson_delete_item_from_array_should_not_broken_list_structure",
+      "id": "cjson_delete_item_from_array_should_not_broken_list_structure_replay",
       "layer": "public_behavior",
-      "operation": "cjson_delete_item_from_array_should_not_broken_list_structure",
-      "evidence": "tests/misc_tests.c line 832: TEST_ASSERT_EQUAL_STRING(expected_json1, str1); etc.",
+      "description": "Parse an object, add an array 'rd' with two items, delete first item, and verify output strings",
+      "evidence": "tests/misc_tests.c lines 832-: TEST_ASSERT_EQUAL_STRING with expected_json1, expected_json2, expected_json3",
       "source_functions": [
         "cJSON.c::cJSON_AddItemToArray",
         "cJSON.c::cJSON_DeleteItemFromArray",
@@ -1515,21 +1285,25 @@
         "src/parser.rs::parse",
         "src/value/mod.rs::JsonValue::array_remove",
         "src/value/mod.rs::JsonValue::dump",
-        "src/value/mod.rs::JsonValue::insert",
-        "src/value/mod.rs::JsonValue::new_array",
         "src/value/mod.rs::JsonValue::push"
       ],
-      "operation_metadata": {
-        "description": "Delete an item from an array inside an object and verify serialization matches expected strings",
-        "normalization": "exact string equality of JSON output",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::new_array"
+      ],
+      "event_metadata": {
+        "normalization": "string equality after dump",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "Parse empty object, add array with two items, delete first item, print after each operation",
+      "input": {
+        "case": "Parse '{}', create array, add two JSON objects, delete index 0"
+      },
       "expected": {
-        "observable_behavior": "After each operation, dump returns the corresponding expected JSON string: first with one item, then two, then the remaining item, and finally empty."
+        "observable_behavior": "After each step, dump of root matches the expected JSON strings: first with one item, then with two items, then with second item remaining"
       },
       "source_case_ids": [
         "misc_tests_cjson_delete_item_from_array_should_not_broken_list_structure"
@@ -1537,7 +1311,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_delete_item_from_array_should_not_broken_list_structure",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -1574,74 +1347,17 @@
         "non_public_alignments": [],
         "missing_target_recipe": [],
         "support_target_functions": [
+          "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
           "src/value/mod.rs::JsonValue::insert",
           "src/value/mod.rs::JsonValue::new_array"
         ]
       }
     },
     {
-      "id": "cjson_get_number_value_should_get_a_number",
+      "id": "cjson_get_object_item_case_sensitive_should_not_crash_with_array_replay",
       "layer": "public_behavior",
-      "operation": "cjson_get_number_value_should_get_a_number",
-      "evidence": "tests/misc_tests.c line 826: TEST_ASSERT_EQUAL_DOUBLE(cJSON_GetNumberValue(number), number->valuedouble); TEST_ASSERT_DOUBLE_IS_NAN(cJSON_GetNumberValue(string));",
-      "source_functions": [
-        "cJSON.c::cJSON_CreateString",
-        "cJSON.c::cJSON_GetNumberValue"
-      ],
-      "target_functions": [
-        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-        "src/value/mod.rs::JsonValue::as_f64"
-      ],
-      "operation_metadata": {
-        "description": "Test that as_f64 returns Some(f64) for a number and None for a string",
-        "normalization": "Option<f64> equality: Some(expected) vs None",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "Create a number 1 and a string 'test'",
-      "expected": {
-        "observable_behavior": "as_f64 on number returns Some(1.0), on string returns None"
-      },
-      "source_case_ids": [
-        "misc_tests_cjson_get_number_value_should_get_a_number"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "operation": "cjson_get_number_value_should_get_a_number",
-        "status": "fully_aligned",
-        "mapping_shape": "many_to_many",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_CreateString",
-            "tgt_uuid": "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
-          },
-          {
-            "src_uuid": "cJSON.c::cJSON_GetNumberValue",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::as_f64"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_CreateString",
-          "cJSON.c::cJSON_GetNumberValue"
-        ],
-        "covered_target_functions": [
-          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-          "src/value/mod.rs::JsonValue::as_f64"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "cjson_get_object_item_case_sensitive_should_get_object_items",
-      "layer": "public_behavior",
-      "operation": "cjson_get_object_item_case_sensitive_should_get_object_items",
-      "evidence": "tests/misc_tests.c line 809: TEST_ASSERT_NOT_NULL_MESSAGE and TEST_ASSERT_EQUAL_DOUBLE for 'one'; TEST_ASSERT_NULL_MESSAGE for 'One'",
+      "description": "Parse an array and attempt to get a string key; expect Null variant",
+      "evidence": "tests/misc_tests.c line 811: TEST_ASSERT_NULL(found) after cJSON_GetObjectItemCaseSensitive(array, \"name\")",
       "source_functions": [
         "cJSON.c::cJSON_GetObjectItemCaseSensitive",
         "cJSON.c::cJSON_Parse"
@@ -1650,75 +1366,19 @@
         "src/parser.rs::parse",
         "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
       ],
-      "operation_metadata": {
-        "description": "Test case-sensitive object item lookup for existing and missing keys",
-        "normalization": "Resulting JsonValue is checked via is_null() and as_f64()",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "value equality with JsonValue::Null",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "Parse object '{\"one\":1, \"Two\":2, \"tHree\":3}', then index with 'one', 'Two', 'tHree', 'One'",
-      "expected": {
-        "observable_behavior": "index(\"one\") returns JsonValue::Number(1), index(\"Two\") returns Number(2), index(\"tHree\") returns Number(3), index(\"One\") returns Null"
+      "input": {
+        "case": "Parse '[1]' and index with 'name'"
       },
-      "source_case_ids": [
-        "misc_tests_cjson_get_object_item_case_sensitive_should_get_object_items"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "operation": "cjson_get_object_item_case_sensitive_should_get_object_items",
-        "status": "fully_aligned",
-        "mapping_shape": "many_to_many",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_GetObjectItemCaseSensitive",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
-          },
-          {
-            "src_uuid": "cJSON.c::cJSON_Parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_GetObjectItemCaseSensitive",
-          "cJSON.c::cJSON_Parse"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse",
-          "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "cjson_get_object_item_case_sensitive_should_not_crash_with_array",
-      "layer": "public_behavior",
-      "operation": "cjson_get_object_item_case_sensitive_should_not_crash_with_array",
-      "evidence": "tests/misc_tests.c line 811: TEST_ASSERT_NULL(found);",
-      "source_functions": [
-        "cJSON.c::cJSON_GetObjectItemCaseSensitive",
-        "cJSON.c::cJSON_Parse"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
-      ],
-      "operation_metadata": {
-        "description": "Test that index on an array does not panic and returns Null",
-        "normalization": "Result is Null",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "Parse array [1], then index with 'name'",
       "expected": {
-        "observable_behavior": "index(\"name\") on array returns JsonValue::Null"
+        "observable_behavior": "The result of indexing with a string key on an array is JsonValue::Null"
       },
       "source_case_ids": [
         "misc_tests_cjson_get_object_item_case_sensitive_should_not_crash_with_array"
@@ -1726,7 +1386,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_get_object_item_case_sensitive_should_not_crash_with_array",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -1754,81 +1413,31 @@
       }
     },
     {
-      "id": "cjson_get_object_item_should_get_object_items",
+      "id": "cjson_get_object_item_should_not_crash_with_array_replay",
       "layer": "public_behavior",
-      "operation": "cjson_get_object_item_should_get_object_items",
-      "evidence": "tests/misc_tests.c line 808: TEST_ASSERT_NOT_NULL_MESSAGE for 'tWo'; source expects non-null for case-insensitive match",
+      "description": "Parse an array and attempt to get a string key; expect Null variant",
+      "evidence": "tests/misc_tests.c line 810: TEST_ASSERT_NULL(found) after cJSON_GetObjectItem(array, \"name\")",
       "source_functions": [
         "cJSON.c::cJSON_Parse"
       ],
       "target_functions": [
-        "src/parser.rs::parse",
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [
         "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
       ],
-      "operation_metadata": {
-        "description": "Test case-insensitive object item lookup (target only provides case-sensitive, exposing difference)",
-        "normalization": "Result is null (target returns Null for case-mismatched keys)",
-        "normalization_status": "adapter_declared_v1",
+      "event_metadata": {
+        "normalization": "value equality with JsonValue::Null",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "Parse object '{\"one\":1, \"Two\":2, \"tHree\":3}', then index with 'one', 'tWo', 'three', 'four'",
-      "expected": {
-        "observable_behavior": "index(\"one\") returns Number(1), index(\"tWo\") returns Null (difference), index(\"three\") returns Null (difference), index(\"four\") returns Null"
+      "input": {
+        "case": "Parse '[1]' and index with 'name'"
       },
-      "source_case_ids": [
-        "misc_tests_cjson_get_object_item_should_get_object_items"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "operation": "cjson_get_object_item_should_get_object_items",
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_Parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_Parse"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
-        ]
-      }
-    },
-    {
-      "id": "cjson_get_object_item_should_not_crash_with_array",
-      "layer": "public_behavior",
-      "operation": "cjson_get_object_item_should_not_crash_with_array",
-      "evidence": "tests/misc_tests.c line 810: TEST_ASSERT_NULL(found);",
-      "source_functions": [
-        "cJSON.c::cJSON_Parse"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::index#sig_f2a28c71"
-      ],
-      "operation_metadata": {
-        "description": "Test that index on array returns Null without crash",
-        "normalization": "Result is Null",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "Parse array [1], then index with 'name'",
       "expected": {
-        "observable_behavior": "index(\"name\") on array returns JsonValue::Null"
+        "observable_behavior": "The result of indexing with a string key on an array is JsonValue::Null"
       },
       "source_case_ids": [
         "misc_tests_cjson_get_object_item_should_not_crash_with_array"
@@ -1836,7 +1445,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_get_object_item_should_not_crash_with_array",
         "status": "fully_aligned",
         "mapping_shape": "one_to_one",
         "covered_pairs": [
@@ -1860,87 +1468,29 @@
       }
     },
     {
-      "id": "cjson_get_string_value_should_get_a_string",
+      "id": "cjson_parse_big_numbers_should_not_report_error_replay",
       "layer": "public_behavior",
-      "operation": "cjson_get_string_value_should_get_a_string",
-      "evidence": "tests/misc_tests.c line 825: TEST_ASSERT_TRUE(cJSON_GetStringValue(string) == string->valuestring); TEST_ASSERT_NULL(cJSON_GetStringValue(number));",
-      "source_functions": [
-        "cJSON.c::cJSON_CreateString",
-        "cJSON.c::cJSON_GetStringValue"
-      ],
-      "target_functions": [
-        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-        "src/value/mod.rs::JsonValue::as_str"
-      ],
-      "operation_metadata": {
-        "description": "Test that as_str returns Some(&str) for a string and None for a number",
-        "normalization": "Option<&str> equality",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "Create a string 'test' and a number 1",
-      "expected": {
-        "observable_behavior": "as_str on string returns Some(\"test\"), on number returns None"
-      },
-      "source_case_ids": [
-        "misc_tests_cjson_get_string_value_should_get_a_string"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "operation": "cjson_get_string_value_should_get_a_string",
-        "status": "fully_aligned",
-        "mapping_shape": "many_to_many",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_CreateString",
-            "tgt_uuid": "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
-          },
-          {
-            "src_uuid": "cJSON.c::cJSON_GetStringValue",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::as_str"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_CreateString",
-          "cJSON.c::cJSON_GetStringValue"
-        ],
-        "covered_target_functions": [
-          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-          "src/value/mod.rs::JsonValue::as_str"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "misc_tests_cjson_parse_big_numbers_should_not_report_error",
-      "layer": "public_behavior",
-      "operation": "misc_tests_cjson_parse_big_numbers_should_not_report_error",
-      "evidence": "tests/misc_tests.c line 835: TEST_ASSERT_NOT_NULL on valid big number parse, TEST_ASSERT_NULL_MESSAGE on invalid",
+      "description": "Parse valid and invalid big number JSON strings",
+      "evidence": "misc_tests.c line 835: TEST_ASSERT_NOT_NULL on valid, TEST_ASSERT_NULL on invalid",
       "source_functions": [
         "cJSON.c::cJSON_Parse"
       ],
       "target_functions": [
         "src/parser.rs::parse"
       ],
-      "operation_metadata": {
-        "description": "Parse valid and invalid big number JSON strings",
-        "normalization": "observable comparison rule",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "parse returns Result",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "valid and invalid big number JSONs"
+        "case": "valid and invalid big number JSON strings"
       },
       "expected": {
-        "observable_behavior": "Valid big number JSONs parse successfully, invalid ones return error"
+        "observable_behavior": "Valid big number JSON strings parse successfully, invalid big number JSON strings return error"
       },
       "source_case_ids": [
         "misc_tests_cjson_parse_big_numbers_should_not_report_error"
@@ -1948,7 +1498,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "misc_tests_cjson_parse_big_numbers_should_not_report_error",
         "status": "fully_aligned",
         "mapping_shape": "one_to_one",
         "covered_pairs": [
@@ -1970,41 +1519,40 @@
       }
     },
     {
-      "id": "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+      "id": "cjson_replace_item_in_object_should_preserve_name_replay",
       "layer": "public_behavior",
-      "operation": "misc_tests_cjson_replace_item_in_object_should_preserve_name",
-      "evidence": "tests/misc_tests.c line 819: TEST_ASSERT_TRUE(root->child == replacement) and TEST_ASSERT_EQUAL_STRING(\"child\", replacement->string)",
+      "description": "Replace item in object preserves key name",
+      "evidence": "misc_tests.c line 819: TEST_ASSERT_TRUE(root->child == replacement) and TEST_ASSERT_EQUAL_STRING(\"child\", replacement->string)",
       "source_functions": [
         "cJSON.c::cJSON_AddItemToObject",
         "cJSON.c::cJSON_ReplaceItemInObject"
       ],
       "target_functions": [
-        "src/parser.rs::parse",
         "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
-        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "support_target_functions": [
         "src/value/mod.rs::JsonValue::new_object"
       ],
-      "operation_metadata": {
-        "description": "Replace item in object preserves key name",
-        "normalization": "observable comparison rule",
-        "normalization_status": "adapter_declared_v1",
+      "event_metadata": {
+        "normalization": "object insert and index mutation",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "object with one item, replace it"
+        "case": "object with a child number replaced by another number"
       },
       "expected": {
-        "observable_behavior": "After replace, key 'child' still exists and its value is the replacement number"
+        "observable_behavior": "After replacement, the object's key 'child' maps to the new value (2) and the key name is preserved."
       },
       "source_case_ids": [
         "misc_tests_cjson_replace_item_in_object_should_preserve_name"
       ],
       "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "medium",
+      "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "misc_tests_cjson_replace_item_in_object_should_preserve_name",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -2029,35 +1577,93 @@
         "non_public_alignments": [],
         "missing_target_recipe": [],
         "support_target_functions": [
-          "src/parser.rs::parse",
           "src/value/mod.rs::JsonValue::new_object"
         ]
       }
     },
     {
-      "id": "misc_tests_cjson_should_not_parse_to_deeply_nested_jsons",
+      "id": "cjson_replace_item_via_pointer_should_replace_items_replay",
       "layer": "public_behavior",
-      "operation": "misc_tests_cjson_should_not_parse_to_deeply_nested_jsons",
-      "evidence": "tests/misc_tests.c line 813: TEST_ASSERT_NULL_MESSAGE(cJSON_Parse(deep_json), ...)",
+      "description": "Replace items in array via indexing",
+      "evidence": "misc_tests.c line 818: TEST_ASSERT_NOT_NULL on array and items, and replacement checks",
+      "source_functions": [
+        "cJSON.c::cJSON_AddItemToArray",
+        "cJSON.c::cJSON_CreateArray"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::new_array",
+        "src/value/mod.rs::JsonValue::push"
+      ],
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "array push and indexing assignment",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "array with three null items replaced by numbers 0,1,2"
+      },
+      "expected": {
+        "observable_behavior": "After replacement, array contains the new values at corresponding indices."
+      },
+      "source_case_ids": [
+        "misc_tests_cjson_replace_item_via_pointer_should_replace_items"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "medium",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_AddItemToArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::push"
+          },
+          {
+            "src_uuid": "cJSON.c::cJSON_CreateArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::new_array"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_CreateArray"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::new_array",
+          "src/value/mod.rs::JsonValue::push"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "cjson_should_not_parse_to_deeply_nested_jsons_replay",
+      "layer": "public_behavior",
+      "description": "Parse rejects deeply nested JSON",
+      "evidence": "misc_tests.c line 813: TEST_ASSERT_NULL_MESSAGE(cJSON_Parse(deep_json), \"To deep JSONs should not be parsed.\")",
       "source_functions": [
         "cJSON.c::cJSON_Parse"
       ],
       "target_functions": [
         "src/parser.rs::parse"
       ],
-      "operation_metadata": {
-        "description": "Parse deeply nested JSON should fail",
-        "normalization": "observable comparison rule",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "parse returns Err for too deep nesting",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "256-level nested JSON"
+        "case": "deeply nested JSON string exceeding depth limit"
       },
       "expected": {
-        "observable_behavior": "Parsing a deeply nested JSON returns error"
+        "observable_behavior": "parse returns Err when input nesting exceeds depth limit"
       },
       "source_case_ids": [
         "misc_tests_cjson_should_not_parse_to_deeply_nested_jsons"
@@ -2065,7 +1671,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "misc_tests_cjson_should_not_parse_to_deeply_nested_jsons",
         "status": "fully_aligned",
         "mapping_shape": "one_to_one",
         "covered_pairs": [
@@ -2087,10 +1692,10 @@
       }
     },
     {
-      "id": "misc_tests_typecheck_functions_should_check_type",
+      "id": "cjson_typecheck_functions_should_check_type_replay",
       "layer": "public_behavior",
-      "operation": "misc_tests_typecheck_functions_should_check_type",
-      "evidence": "tests/misc_tests.c line 812: TEST_ASSERT_TRUE/FALSE on typecheck functions",
+      "description": "Type check functions correctly identify each JSON type",
+      "evidence": "misc_tests.c line 812: TEST_ASSERT_TRUE/FALSE on type check functions for various item types",
       "source_functions": [
         "cJSON.c::cJSON_IsArray",
         "cJSON.c::cJSON_IsBool",
@@ -2100,7 +1705,6 @@
         "cJSON.c::cJSON_IsString"
       ],
       "target_functions": [
-        "src/parser.rs::parse",
         "src/value/mod.rs::JsonValue::is_array",
         "src/value/mod.rs::JsonValue::is_boolean",
         "src/value/mod.rs::JsonValue::is_null",
@@ -2108,19 +1712,19 @@
         "src/value/mod.rs::JsonValue::is_object",
         "src/value/mod.rs::JsonValue::is_string"
       ],
-      "operation_metadata": {
-        "description": "Type-checking functions return correct results for various JSON types",
-        "normalization": "observable comparison rule",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "is_* methods return bool",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "null, bool, number, string, array, object values"
+        "case": "null, boolean, number, string, array, object values"
       },
       "expected": {
-        "observable_behavior": "Each typecheck function returns true for its corresponding type and false for others, including null"
+        "observable_behavior": "Each type check function returns true for its own type and false for others"
       },
       "source_case_ids": [
         "misc_tests_typecheck_functions_should_check_type"
@@ -2128,7 +1732,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "misc_tests_typecheck_functions_should_check_type",
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
         "covered_pairs": [
@@ -2176,43 +1779,417 @@
         "missing_source_alignments": [],
         "non_public_alignments": [],
         "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "cjson_print_replay_file_test10",
+      "layer": "public_behavior",
+      "description": "Parse test10 input, pretty-print, and compare parsed result with expected parsed JSON",
+      "evidence": "tests/parse_examples.c: file_test10_should_be_parsed_and_printed parses test10 input, prints with cJSON_Print, and asserts equality with expected file content.",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "event_metadata": {
+        "normalization": "json_value_equality",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "Parse JSON array from file test10, print formatted, compare with expected"
+      },
+      "expected": {
+        "observable_behavior": "Parsed JsonValue from input equals parsed JsonValue from expected output file"
+      },
+      "source_case_ids": [
+        "parse_examples_file_test10_should_be_parsed_and_printed"
+      ],
+      "expected_behavior_source": "source_fixture",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Print",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
         "support_target_functions": [
           "src/parser.rs::parse"
         ]
       }
     },
     {
-      "id": "cjson_parse_should_not_parse_incomplete_json",
+      "id": "cjson_print_replay_file_test11",
       "layer": "public_behavior",
-      "operation": "cjson_parse_should_not_parse_incomplete_json",
-      "evidence": "source test asserts tree is NULL and error pointer is at end of string; Rust replay asserts parse returns Err",
+      "description": "Parse test11 input, pretty-print, and compare parsed result with expected parsed JSON",
+      "evidence": "tests/parse_examples.c: file_test11_should_be_parsed_and_printed parses test11 input, prints with cJSON_Print, and asserts equality with expected file content.",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "event_metadata": {
+        "normalization": "json_value_equality",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "Parse JSON object from file test11, print formatted, compare with expected"
+      },
+      "expected": {
+        "observable_behavior": "Parsed JsonValue from input equals parsed JsonValue from expected output file"
+      },
+      "source_case_ids": [
+        "parse_examples_file_test11_should_be_parsed_and_printed"
+      ],
+      "expected_behavior_source": "source_fixture",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Print",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/parser.rs::parse"
+        ]
+      }
+    },
+    {
+      "id": "cjson_print_replay_file_test1",
+      "layer": "public_behavior",
+      "description": "Parse test1 input, pretty-print, and compare parsed result with expected parsed JSON",
+      "evidence": "tests/parse_examples.c: file_test1_should_be_parsed_and_printed parses test1 input, prints with cJSON_Print, and asserts equality with expected file content.",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "event_metadata": {
+        "normalization": "json_value_equality",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "Parse JSON object from file test1 (glossary example), print formatted, compare with expected"
+      },
+      "expected": {
+        "observable_behavior": "Parsed JsonValue from input equals parsed JsonValue from expected output file"
+      },
+      "source_case_ids": [
+        "parse_examples_file_test1_should_be_parsed_and_printed"
+      ],
+      "expected_behavior_source": "source_fixture",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Print",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/parser.rs::parse"
+        ]
+      }
+    },
+    {
+      "id": "cjson_print_replay_file_test2",
+      "layer": "public_behavior",
+      "description": "Parse test2 input, pretty-print, and compare parsed result with expected parsed JSON",
+      "evidence": "tests/parse_examples.c: file_test2_should_be_parsed_and_printed parses test2 input, prints with cJSON_Print, and asserts equality with expected file content.",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "event_metadata": {
+        "normalization": "json_value_equality",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "Parse JSON object from file test2 (menu example), print formatted, compare with expected"
+      },
+      "expected": {
+        "observable_behavior": "Parsed JsonValue from input equals parsed JsonValue from expected output file"
+      },
+      "source_case_ids": [
+        "parse_examples_file_test2_should_be_parsed_and_printed"
+      ],
+      "expected_behavior_source": "source_fixture",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Print",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/parser.rs::parse"
+        ]
+      }
+    },
+    {
+      "id": "cjson_print_replay_file_test3",
+      "layer": "public_behavior",
+      "description": "Parse test3 input, pretty-print, and compare parsed result with expected parsed JSON",
+      "evidence": "tests/parse_examples.c: file_test3_should_be_parsed_and_printed parses test3 input, prints with cJSON_Print, and asserts equality with expected file content.",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "event_metadata": {
+        "normalization": "json_value_equality",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "Parse JSON object from file test3 (widget example), print formatted, compare with expected"
+      },
+      "expected": {
+        "observable_behavior": "Parsed JsonValue from input equals parsed JsonValue from expected output file"
+      },
+      "source_case_ids": [
+        "parse_examples_file_test3_should_be_parsed_and_printed"
+      ],
+      "expected_behavior_source": "source_fixture",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Print",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/parser.rs::parse"
+        ]
+      }
+    },
+    {
+      "id": "parse_examples_file_test4_replay",
+      "layer": "public_behavior",
+      "description": "Parse file test4.json and print with default formatting, then compare to expected output",
+      "evidence": "tests/parse_examples.c line 286: cJSON_Print call followed by TEST_ASSERT_EQUAL_STRING(expected, actual)",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "exact string equality",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "parse file content from tests/inputs/test4"
+      },
+      "expected": {
+        "observable_behavior": "printed string equals tests/inputs/test4.expected"
+      },
+      "source_case_ids": [
+        "parse_examples_file_test4_should_be_parsed_and_printed"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Print",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "parse_examples_file_test5_replay",
+      "layer": "public_behavior",
+      "description": "Parse file test5.json and print with default formatting, then compare to expected output",
+      "evidence": "tests/parse_examples.c line 287: cJSON_Print call followed by TEST_ASSERT_EQUAL_STRING(expected, actual)",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "exact string equality",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "parse file content from tests/inputs/test5"
+      },
+      "expected": {
+        "observable_behavior": "printed string equals tests/inputs/test5.expected"
+      },
+      "source_case_ids": [
+        "parse_examples_file_test5_should_be_parsed_and_printed"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Print",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "parse_examples_file_test6_should_not_be_parsed_replay",
+      "layer": "public_behavior",
+      "description": "Parse non-JSON input (HTML) and expect failure",
+      "evidence": "tests/parse_examples.c line 288: cJSON_Parse call and TEST_ASSERT_NULL_MESSAGE",
       "source_functions": [
         "cJSON.c::cJSON_Parse"
       ],
       "target_functions": [
         "src/parser.rs::parse"
       ],
-      "operation_metadata": {
-        "description": "Should fail to parse incomplete JSON string",
-        "normalization": "observable comparison rule",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "parse returns Err",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "parse incomplete JSON '{ \"name\": '"
+        "case": "parse file content from tests/inputs/test6 (HTML)"
       },
       "expected": {
         "observable_behavior": "parse returns an error"
       },
       "source_case_ids": [
-        "parse_examples_test12_should_not_be_parsed"
+        "parse_examples_file_test6_should_not_be_parsed"
       ],
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_parse_should_not_parse_incomplete_json",
         "status": "fully_aligned",
         "mapping_shape": "one_to_one",
         "covered_pairs": [
@@ -2234,30 +2211,235 @@
       }
     },
     {
-      "id": "cjson_parse_with_opts_should_parse_utf8_bom",
+      "id": "parse_examples_file_test7_replay",
       "layer": "public_behavior",
-      "operation": "cjson_parse_with_opts_should_parse_utf8_bom",
-      "evidence": "source test parses BOM and non-BOM JSON strings and asserts cJSON_Compare returns true",
+      "description": "Parse file test7.json and print with default formatting, then compare to expected output",
+      "evidence": "tests/parse_examples.c line 289: cJSON_Print call followed by TEST_ASSERT_EQUAL_STRING(expected, actual)",
       "source_functions": [
-        "cJSON.c::cJSON_Compare"
+        "cJSON.c::cJSON_Print"
       ],
       "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::eq"
+        "src/value/mod.rs::JsonValue::pretty"
       ],
-      "operation_metadata": {
-        "description": "Should parse JSON with UTF-8 BOM and compare equal to without BOM",
-        "normalization": "observable comparison rule",
-        "normalization_status": "adapter_declared_v1",
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "exact string equality",
+        "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "parse BOM and non-BOM strings"
+        "case": "parse file content from tests/inputs/test7"
       },
       "expected": {
-        "observable_behavior": "both parsed objects are equal"
+        "observable_behavior": "printed string equals tests/inputs/test7.expected"
+      },
+      "source_case_ids": [
+        "parse_examples_file_test7_should_be_parsed_and_printed"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Print",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "parse_examples_file_test8_replay",
+      "layer": "public_behavior",
+      "description": "Parse file test8.json and print with default formatting, then compare to expected output",
+      "evidence": "tests/parse_examples.c line 290: cJSON_Print call followed by TEST_ASSERT_EQUAL_STRING(expected, actual)",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "exact string equality",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "parse file content from tests/inputs/test8"
+      },
+      "expected": {
+        "observable_behavior": "printed string equals tests/inputs/test8.expected"
+      },
+      "source_case_ids": [
+        "parse_examples_file_test8_should_be_parsed_and_printed"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Print",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "parse_examples_file_test9_replay",
+      "layer": "public_behavior",
+      "description": "Parse file test9.json and print with default formatting, then compare to expected output",
+      "evidence": "tests/parse_examples.c line 291: cJSON_Print call followed by TEST_ASSERT_EQUAL_STRING(expected, actual)",
+      "source_functions": [
+        "cJSON.c::cJSON_Print"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "exact string equality",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "parse file content from tests/inputs/test9"
+      },
+      "expected": {
+        "observable_behavior": "printed string equals tests/inputs/test9.expected"
+      },
+      "source_case_ids": [
+        "parse_examples_file_test9_should_be_parsed_and_printed"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Print",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "parse_examples_test12_should_not_be_parsed_replay",
+      "layer": "public_behavior",
+      "description": "Parse incomplete JSON string '{ \"name\": ' and expect failure",
+      "evidence": "tests/parse_examples.c line 294: cJSON_Parse call and TEST_ASSERT_NULL_MESSAGE",
+      "source_functions": [
+        "cJSON.c::cJSON_Parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "parse returns Err",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "parse literal string '{ \"name\": '"
+      },
+      "expected": {
+        "observable_behavior": "parse returns an error"
+      },
+      "source_case_ids": [
+        "parse_examples_test12_should_not_be_parsed"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "cJSON.c::cJSON_Parse",
+            "tgt_uuid": "src/parser.rs::parse"
+          }
+        ],
+        "covered_source_functions": [
+          "cJSON.c::cJSON_Parse"
+        ],
+        "covered_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "parse_with_opts_utf8_bom_replay",
+      "layer": "public_behavior",
+      "description": "Parse JSON with BOM and without, then compare the parsed results using equality",
+      "evidence": "tests/parse_with_opts.c line 109: cJSON_Compare call with both parsed trees",
+      "source_functions": [
+        "cJSON.c::cJSON_Compare"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::eq"
+      ],
+      "support_target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "event_metadata": {
+        "normalization": "JsonValue equality via PartialEq",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "parse strings '\\xEF\\xBB\\xBF{}' and '{}'"
+      },
+      "expected": {
+        "observable_behavior": "both parsed results are equal (cJSON_Compare returns true)"
       },
       "source_case_ids": [
         "parse_with_opts_parse_with_opts_should_parse_utf8_bom"
@@ -2265,7 +2447,6 @@
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
-        "operation": "cjson_parse_with_opts_should_parse_utf8_bom",
         "status": "fully_aligned",
         "mapping_shape": "one_to_one",
         "covered_pairs": [
@@ -2287,327 +2468,12 @@
           "src/parser.rs::parse"
         ]
       }
-    },
-    {
-      "id": "parse_examples_file_test4_should_be_parsed_and_printed",
-      "layer": "public_behavior",
-      "operation": "parse_examples_file_test4_should_be_parsed_and_printed",
-      "evidence": "tests/parse_examples.c: file_test4_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)",
-      "source_functions": [
-        "cJSON.c::cJSON_Print"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::pretty"
-      ],
-      "operation_metadata": {
-        "description": "Parse a JSON file (test4) and print the tree, verifying non-null results as derived from source assertions",
-        "normalization": "not_null and not_empty",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "case: parse test4 JSON file",
-      "expected": {
-        "observable_behavior": "Parse succeeds, pretty returns a non-empty string"
-      },
-      "source_case_ids": [
-        "parse_examples_file_test4_should_be_parsed_and_printed"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "medium",
-      "alignment_validation": {
-        "operation": "parse_examples_file_test4_should_be_parsed_and_printed",
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_Print",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_Print"
-        ],
-        "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::pretty"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/parser.rs::parse"
-        ]
-      }
-    },
-    {
-      "id": "parse_examples_file_test5_should_be_parsed_and_printed",
-      "layer": "public_behavior",
-      "operation": "parse_examples_file_test5_should_be_parsed_and_printed",
-      "evidence": "tests/parse_examples.c: file_test5_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)",
-      "source_functions": [
-        "cJSON.c::cJSON_Print"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::pretty"
-      ],
-      "operation_metadata": {
-        "description": "Parse a JSON file (test5) and print the tree, verifying non-null results as derived from source assertions",
-        "normalization": "not_null and not_empty",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "case: parse test5 JSON file",
-      "expected": {
-        "observable_behavior": "Parse succeeds, pretty returns a non-empty string"
-      },
-      "source_case_ids": [
-        "parse_examples_file_test5_should_be_parsed_and_printed"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "medium",
-      "alignment_validation": {
-        "operation": "parse_examples_file_test5_should_be_parsed_and_printed",
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_Print",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_Print"
-        ],
-        "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::pretty"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/parser.rs::parse"
-        ]
-      }
-    },
-    {
-      "id": "parse_examples_file_test6_should_not_be_parsed",
-      "layer": "public_behavior",
-      "operation": "parse_examples_file_test6_should_not_be_parsed",
-      "evidence": "tests/parse_examples.c: file_test6_should_not_be_parsed asserts tree == NULL after parsing invalid input (replayed as parse returning Err)",
-      "source_functions": [
-        "cJSON.c::cJSON_Parse"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse"
-      ],
-      "operation_metadata": {
-        "description": "Attempt to parse invalid JSON (test6) and verify failure as derived from source assertion that tree is NULL",
-        "normalization": "parse_failure",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "case: parse invalid JSON input \"not json\"",
-      "expected": {
-        "observable_behavior": "parse returns Err"
-      },
-      "source_case_ids": [
-        "parse_examples_file_test6_should_not_be_parsed"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "medium",
-      "alignment_validation": {
-        "operation": "parse_examples_file_test6_should_not_be_parsed",
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_Parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_Parse"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "parse_examples_file_test7_should_be_parsed_and_printed",
-      "layer": "public_behavior",
-      "operation": "parse_examples_file_test7_should_be_parsed_and_printed",
-      "evidence": "tests/parse_examples.c: file_test7_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)",
-      "source_functions": [
-        "cJSON.c::cJSON_Print"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::pretty"
-      ],
-      "operation_metadata": {
-        "description": "Parse a JSON file (test7) and print the tree, verifying non-null results as derived from source assertions",
-        "normalization": "not_null and not_empty",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "case: parse test7 JSON file",
-      "expected": {
-        "observable_behavior": "Parse succeeds, pretty returns a non-empty string"
-      },
-      "source_case_ids": [
-        "parse_examples_file_test7_should_be_parsed_and_printed"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "medium",
-      "alignment_validation": {
-        "operation": "parse_examples_file_test7_should_be_parsed_and_printed",
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_Print",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_Print"
-        ],
-        "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::pretty"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/parser.rs::parse"
-        ]
-      }
-    },
-    {
-      "id": "parse_examples_file_test8_should_be_parsed_and_printed",
-      "layer": "public_behavior",
-      "operation": "parse_examples_file_test8_should_be_parsed_and_printed",
-      "evidence": "tests/parse_examples.c: file_test8_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)",
-      "source_functions": [
-        "cJSON.c::cJSON_Print"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::pretty"
-      ],
-      "operation_metadata": {
-        "description": "Parse a JSON file (test8) and print the tree, verifying non-null results as derived from source assertions",
-        "normalization": "not_null and not_empty",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "case: parse test8 JSON file",
-      "expected": {
-        "observable_behavior": "Parse succeeds, pretty returns a non-empty string"
-      },
-      "source_case_ids": [
-        "parse_examples_file_test8_should_be_parsed_and_printed"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "medium",
-      "alignment_validation": {
-        "operation": "parse_examples_file_test8_should_be_parsed_and_printed",
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_Print",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_Print"
-        ],
-        "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::pretty"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/parser.rs::parse"
-        ]
-      }
-    },
-    {
-      "id": "parse_examples_file_test9_should_be_parsed_and_printed",
-      "layer": "public_behavior",
-      "operation": "parse_examples_file_test9_should_be_parsed_and_printed",
-      "evidence": "tests/parse_examples.c: file_test9_should_be_parsed_and_printed asserts tree != NULL, actual != NULL, actual matches expected (replayed as not_null on parse result and non-empty pretty output)",
-      "source_functions": [
-        "cJSON.c::cJSON_Print"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::pretty"
-      ],
-      "operation_metadata": {
-        "description": "Parse a JSON file (test9) and print the tree, verifying non-null results as derived from source assertions",
-        "normalization": "not_null and not_empty",
-        "normalization_status": "adapter_declared_v1",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "case: parse test9 JSON file",
-      "expected": {
-        "observable_behavior": "Parse succeeds, pretty returns a non-empty string"
-      },
-      "source_case_ids": [
-        "parse_examples_file_test9_should_be_parsed_and_printed"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "medium",
-      "alignment_validation": {
-        "operation": "parse_examples_file_test9_should_be_parsed_and_printed",
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "cJSON.c::cJSON_Print",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
-          }
-        ],
-        "covered_source_functions": [
-          "cJSON.c::cJSON_Print"
-        ],
-        "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::pretty"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/parser.rs::parse"
-        ]
-      }
     }
   ],
   "summary": {
-    "events": 44,
+    "events": 42,
     "planned_source_functions": 20,
-    "planned_target_functions": 24,
+    "planned_target_functions": 22,
     "planned_source_function_ids": [
       "cJSON.c::cJSON_AddItemToArray",
       "cJSON.c::cJSON_AddItemToObject",
@@ -2615,8 +2481,8 @@
       "cJSON.c::cJSON_CreateArray",
       "cJSON.c::cJSON_CreateObject",
       "cJSON.c::cJSON_CreateString",
+      "cJSON.c::cJSON_CreateStringArray",
       "cJSON.c::cJSON_DeleteItemFromArray",
-      "cJSON.c::cJSON_GetNumberValue",
       "cJSON.c::cJSON_GetObjectItemCaseSensitive",
       "cJSON.c::cJSON_GetStringValue",
       "cJSON.c::cJSON_IsArray",
@@ -2632,16 +2498,14 @@
     ],
     "planned_target_function_ids": [
       "src/parser.rs::parse",
-      "src/value/implements.rs::JsonValue::from#sig_85cb0854",
+      "src/value/implements.rs::JsonValue::from#sig_9bca93f0",
       "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
       "src/value/mod.rs::JsonValue::array_remove",
-      "src/value/mod.rs::JsonValue::as_bool",
       "src/value/mod.rs::JsonValue::as_f64",
-      "src/value/mod.rs::JsonValue::as_i32",
+      "src/value/mod.rs::JsonValue::as_i64",
       "src/value/mod.rs::JsonValue::as_str",
       "src/value/mod.rs::JsonValue::dump",
       "src/value/mod.rs::JsonValue::eq",
-      "src/value/mod.rs::JsonValue::has_key",
       "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
       "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
       "src/value/mod.rs::JsonValue::insert",
@@ -2665,8 +2529,8 @@
       "cJSON.c::cJSON_CreateArray",
       "cJSON.c::cJSON_CreateObject",
       "cJSON.c::cJSON_CreateString",
+      "cJSON.c::cJSON_CreateStringArray",
       "cJSON.c::cJSON_DeleteItemFromArray",
-      "cJSON.c::cJSON_GetNumberValue",
       "cJSON.c::cJSON_GetObjectItemCaseSensitive",
       "cJSON.c::cJSON_GetStringValue",
       "cJSON.c::cJSON_IsArray",
@@ -2682,9 +2546,9 @@
     ],
     "validated_aligned_target_function_ids": [
       "src/parser.rs::parse",
+      "src/value/implements.rs::JsonValue::from#sig_9bca93f0",
       "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
       "src/value/mod.rs::JsonValue::array_remove",
-      "src/value/mod.rs::JsonValue::as_f64",
       "src/value/mod.rs::JsonValue::as_str",
       "src/value/mod.rs::JsonValue::dump",
       "src/value/mod.rs::JsonValue::eq",
@@ -2704,21 +2568,22 @@
     ],
     "covered_aligned_pairs": 20,
     "alignment_status_counts": {
-      "fully_aligned": 44
+      "fully_aligned": 42
     },
     "mapping_shape_counts": {
-      "many_to_many": 25,
-      "one_to_one": 19
+      "many_to_many": 22,
+      "one_to_one": 20
     },
     "support_target_functions": [
+      "src/object.rs::Object::index_mut#sig_ba73fea6",
       "src/parser.rs::parse",
-      "src/value/implements.rs::JsonValue::from#sig_85cb0854",
+      "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
       "src/value/mod.rs::JsonValue::as_bool",
       "src/value/mod.rs::JsonValue::as_f64",
-      "src/value/mod.rs::JsonValue::as_i32",
+      "src/value/mod.rs::JsonValue::as_i64",
       "src/value/mod.rs::JsonValue::as_str",
-      "src/value/mod.rs::JsonValue::has_key",
       "src/value/mod.rs::JsonValue::index#sig_f2a28c71",
+      "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
       "src/value/mod.rs::JsonValue::insert",
       "src/value/mod.rs::JsonValue::new_array",
       "src/value/mod.rs::JsonValue::new_object"
