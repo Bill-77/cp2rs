@@ -128,6 +128,9 @@ Important rules:
 - `rust_support_source` is optional shared Rust support code outside tests. Prefer empty unless several event bodies need the same helper.
 - Read `source_language_context` first. For C++ sources, use owner/signature/body snippets to disambiguate methods, overloads, constructors, and fixtures.
 - Treat `source_evidence.behavior_cases` as behavior coverage obligations. For every listed eligible case, try to produce a replay event; otherwise list it in `unresolved_behavior_cases`.
+- For source behavior cases, treat `source_test_code.full_test_definition` as the primary source evidence. It contains the complete discovered source test definition and may include resolved helper evidence.
+- If `resolved_source_helpers` is present, treat those helpers as source-side evidence that may affect setup, inputs, assertions, or fixture paths. They are separate from the test definition to avoid confusing unrelated tests with the current case.
+- Use `source_test_files` / `source_fixture_access` when a source test depends on fixture, input, expected-output, config, or golden files. Do not invent file contents or paths.
 - Do not hide semantic differences as exclusions. If callable target public APIs exist, replay the source input and expected observable behavior so runtime results expose differences.
 - For mixed public/internal source cases, preserve required public substitutions listed in the case evidence. If the state transition cannot be expressed through public target APIs, mark that case unresolved.
 - Every `replay_event.source_functions` entry must be grounded in 3A aligned source UUIDs and source test evidence.
@@ -135,7 +138,7 @@ Important rules:
 - Use only public Rust APIs. Use `target_aligned_api_context`, `allowed_target_public_api_signatures`, owner_type, signatures, and `integration_test_call_hint` to write callable integration-test code.
 - Use `target_rust_usage_capabilities` before declaring a target API missing. UUID-bearing public functions go in `target_functions`/`support_target_functions`; `non_uuid_public_constructs` such as enum variants, constants, macros, and trait/operator behavior may be used in `rust_test_body` but must not be listed as UUID functions.
 - Each event body is compiled as Rust integration-test code. Use fully qualified crate paths or imports inside that same test body; imports in one event do not apply to another.
-- Expected behavior must be grounded in source assertions, fixtures, literals, or source snippets. Do not use target tests/examples as expected behavior evidence.
+- Expected behavior must be grounded in source_test_code.full_test_definition, source_test_files/source_fixture_access, or explicit source assertions in that code. Do not use target tests/examples as expected behavior evidence.
 - Avoid brittle exact string-format checks unless source evidence provides exact expected text. Prefer structural/property checks when source only requires normalized behavior.
 - If one event covers multiple source case ids, they must have equivalent normalized behavior and include `case_grouping_rationale`.
 
@@ -178,6 +181,8 @@ Return this shape:
 For a targeted case that you cannot convert, return `status:"unresolved_behavior_case_conversion"` with `reason` and `details`. Do not output exclusions; this stage is not allowed to hide semantic differences.
 
 For every replay-generated case:
+- A source test body may contain several public API behaviors. Only replay the observable behavior that is relevant to the case's `aligned_source_functions` and `required_internal_public_substitutions`. Other calls in the same source test are context, not obligations for this case.
+- If a case contains `required_internal_public_substitutions`, those target public functions are mandatory for preserving mixed public/internal behavior. Do not add unrelated source/target functions just because they appear elsewhere in the same source test body.
 - Treat `allowed_source_function_uuids_for_this_batch` and `allowed_target_api_uuids_for_this_batch` as closed sets. Do not use source or target UUIDs outside them.
 - `replay_event.source_functions` must be a non-empty subset of `allowed_source_function_uuids_for_this_batch`.
 - `replay_event.target_functions` must be a non-empty subset of `allowed_target_api_uuids_for_this_batch`.
@@ -186,12 +191,30 @@ For every replay-generated case:
 - Non-UUID public constructs listed in `target_rust_usage_capabilities.non_uuid_public_constructs` may be used in `rust_test_body` but must not be placed in `target_functions` or `support_target_functions`.
 - For each source function listed in `replay_event.source_functions`, include all of its 3A `tgt_uuids` from `targeted_alignment_pairs` in `replay_event.target_functions`.
 - If a targeted behavior case contains `required_internal_public_substitutions`, preserve and explicitly call every listed target public function in the Rust test.
-- The executable expected behavior check must be grounded in `targeted_behavior_cases[].assertions`, fixtures, literals, or source snippets. Do not invent target behavior.
+- The executable expected behavior check must be grounded in each case's `source_test_code.full_test_definition` and, when present, `source_test_files` / `source_fixture_access`. Do not invent target behavior.
+- Use batch-level `source_test_framework_semantics` to interpret source assertion/test macros; do not require each case to repeat framework explanations.
 - Prefer `integration_test_call_hint` over bare call examples when writing Rust integration-test code.
 - Use `target_rust_usage_capabilities` to find generic Rust construction and observation routes, including public trait impls, macros, enum variants, constants, and support APIs that may not appear as ordinary aligned functions.
-- If a targeted case references fixture files, use `source_fixture_access`: either embed provided content when sufficient or read the copied fixture path from the replay worktree. Entries with `fixture_role=expected_output_candidate` are source-side expected-output evidence, not target-generated behavior. Do not use paths that are not listed or present in the source evidence.
+- If a targeted case references fixture files, use `source_test_files` and `source_fixture_access`: either embed provided content when sufficient or read the copied fixture path from the replay worktree. Entries with `role`/`fixture_role` indicating expected output are source-side expected-output evidence, not target-generated behavior. Do not use paths that are not listed or present in the source evidence.
 - Each `rust_test_body` must include needed imports inside that `#[test]` function or use fully qualified target crate paths.
 
 Generation context:
 {repair_context_json}
+"""
+
+PROMPT_3B_ADAPTER_JSON_FORMAT_REPAIR = """# CP2RS Phase 3B JSON Format Repair
+
+The previous response was intended to be a `3b.replay_events.v1` JSON object, but Python could not parse it as JSON.
+
+Repair JSON formatting only. Do not redesign replay behavior, do not change semantics, do not add new cases, and do not consult source-test context. Preserve the previous response's intended fields and values as much as possible while making it valid JSON.
+
+Return one valid JSON object only. No Markdown fences. No explanations outside JSON.
+Required top-level shape:
+{{"adapter_case_generation_version":"3b.replay_events.v1","case_results":[...]}}
+
+JSON parser error:
+{json_error}
+
+Previous invalid response:
+{raw_response}
 """

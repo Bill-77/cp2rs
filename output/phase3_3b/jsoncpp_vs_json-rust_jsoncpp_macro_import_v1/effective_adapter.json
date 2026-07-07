@@ -1,0 +1,2415 @@
+{
+  "adapter_schema_version": "3b.replay_adapter.v2",
+  "name": "llm_synthesized_jsoncpp_to_json-rust_public_v2",
+  "status": "loaded",
+  "adapter_role": "repo_specific_public_replay_plan",
+  "generation_status": "llm_synthesized_repaired_v1",
+  "generation_inputs": [
+    "output/eval_reports/3A_alignment_jsoncpp_vs_json-rust.json",
+    "data/cc_repos/jsoncpp",
+    "output/parsed_repos/jsoncpp_parsed.json",
+    "output/parsed_repos/json-rust_parsed.json"
+  ],
+  "target_language": "rust",
+  "target_test_command": [
+    "cargo",
+    "test",
+    "--test",
+    "cp2rs_3b_public"
+  ],
+  "rust_support_source": "",
+  "replay_events": [
+    {
+      "id": "replay_charreaderallowspecialfloatstest_specialfloat",
+      "source_case_ids": [
+        "main_charreaderallowspecialfloatstest_specialfloat"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "CharReaderAllowSpecialFloatsTest.specialFloat: parse NaN and Infinity without allowSpecialFloats should fail.",
+      "normalization": "parse returns Err",
+      "evidence": "src/test_lib_json/main.cpp line 3736: JSONTEST_ASSERT(!ok) for NaN and Infinity.",
+      "input": "JSON strings with NaN or Infinity values",
+      "expected": {
+        "observable_behavior": "parse returns error (Err) for both inputs"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_charreaderallowspecialfloatstest_specialfloat() {\n    use json;\n    // NaN\n    let result = json::parse(\"{\\\"a\\\": NaN}\");\n    assert!(result.is_err(), \"Expected parse to fail for NaN\");\n    // Infinity\n    let result = json::parse(\"{\\\"a\\\": Infinity}\");\n    assert!(result.is_err(), \"Expected parse to fail for Infinity\");\n}"
+    },
+    {
+      "id": "replay_main_charreaderfailifextratest_commentafterbool",
+      "source_case_ids": [
+        "main_charreaderfailifextratest_commentafterbool"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "CharReaderFailIfExtraTest.commentAfterBool: parse bool with trailing comment and failIfExtra=true should succeed and root asBool equals true.",
+      "normalization": "parse returns Ok and as_bool returns Some(true)",
+      "evidence": "src/test_lib_json/main.cpp line 3553: JSONTEST_ASSERT(ok) and JSONTEST_ASSERT_EQUAL(true, root.asBool()).",
+      "input": "\" true /*trailing\\ncomment*/\"",
+      "expected": {
+        "observable_behavior": "parse succeeds and parsed value is true"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_charreaderfailifextratest_commentafterbool() {\n    use json;\n    let doc = \" true /*trailing\\ncomment*/\";\n    let result = json::parse(doc);\n    assert!(result.is_ok(), \"Parse should succeed with trailing comment when failIfExtra is true (source expectation)\");\n    let val = result.unwrap();\n    assert_eq!(val.as_bool(), Some(true), \"Root should be true\");\n}"
+    },
+    {
+      "id": "replay_main_charreaderfailifextratest_parsecomment",
+      "source_case_ids": [
+        "main_charreaderfailifextratest_parsecomment"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::as_bool"
+      ],
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::as_bool"
+      ],
+      "description": "Parse booleans with comments and line endings; first succeeds, others fail due to extra after comment.",
+      "normalization": "parse result (Ok/Err) and root.as_bool() when Ok",
+      "evidence": "source_test_code.full_test_definition lines 3565-3578",
+      "input": "parse three documents: \" true //comment1...\", \" true //com\\rment\", \" true //com\\nment\"",
+      "expected": {
+        "observable_behavior": "First document parses successfully and root.as_bool() is Some(true); second and third documents fail."
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_charreaderfailifextratest_parsecomment() {\n    use json::JsonValue;\n    let doc1 = \" true //comment1\\n//comment2\\r//comment3\\r\\n\";\n    let result1 = json::parse(doc1);\n    assert!(result1.is_ok());\n    let root1 = result1.unwrap();\n    assert_eq!(root1.as_bool(), Some(true));\n    let doc2 = \" true //com\\rment\";\n    let result2 = json::parse(doc2);\n    assert!(result2.is_err());\n    let doc3 = \" true //com\\nment\";\n    let result3 = json::parse(doc3);\n    assert!(result3.is_err());\n}"
+    },
+    {
+      "id": "replay_main_charreaderstrictmodetest_dupkeys",
+      "source_case_ids": [
+        "main_charreaderstrictmodetest_dupkeys"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse JSON object with duplicate keys; expect failure.",
+      "normalization": "parse returns Err",
+      "evidence": "source_test_code.full_test_definition lines 3441-3452",
+      "input": "document: { \"property\" : \"value\", \"key\" : \"val1\", \"key\" : \"val2\" }",
+      "expected": {
+        "observable_behavior": "parse fails with an error."
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_charreaderstrictmodetest_dupkeys() {\n    let doc = \"{ \\\"property\\\" : \\\"value\\\", \\\"key\\\" : \\\"val1\\\", \\\"key\\\" : \\\"val2\\\" }\";\n    let result = json::parse(doc);\n    assert!(result.is_err());\n}"
+    },
+    {
+      "id": "replay_main_charreadertest_parsearraywitherrors",
+      "source_case_ids": [
+        "main_charreadertest_parsearraywitherrors"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse arrays with missing brackets or consecutive values; both expect failure.",
+      "normalization": "parse returns Err",
+      "evidence": "source_test_code.full_test_definition lines 3333-3347",
+      "input": "two documents: \"[ \\\"value\\\" \" and \"[ \\\"value1\\\" \\\"value2\\\" ]\"",
+      "expected": {
+        "observable_behavior": "parse fails for both documents."
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_charreadertest_parsearraywitherrors() {\n    let doc1 = \"[ \\\"value\\\" \";\n    let result1 = json::parse(doc1);\n    assert!(result1.is_err());\n    let doc2 = \"[ \\\"value1\\\" \\\"value2\\\" ]\";\n    let result2 = json::parse(doc2);\n    assert!(result2.is_err());\n}"
+    },
+    {
+      "id": "replay_main_charreadertest_parsechinesewithoneerror",
+      "source_case_ids": [
+        "main_charreadertest_parsechinesewithoneerror"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse JSON object with Chinese key and double colon; expect failure.",
+      "normalization": "parse returns Err",
+      "evidence": "source_test_code.full_test_definition lines 3369-3376",
+      "input": "document: \"{ \\\"pr佐藤erty\\\" :: \\\"value\\\" }\"",
+      "expected": {
+        "observable_behavior": "parse fails."
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_charreadertest_parsechinesewithoneerror() {\n    let doc = \"{ \\\"pr佐藤erty\\\" :: \\\"value\\\" }\";\n    let result = json::parse(doc);\n    assert!(result.is_err());\n}"
+    },
+    {
+      "id": "replay_main_charreadertest_parsecomment",
+      "source_case_ids": [
+        "main_charreadertest_parsecomment"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/object.rs::Object::index#sig_f2a28c71",
+        "src/parser.rs::parse",
+        "src/value/implements.rs::JsonValue::eq#sig_8ef9d854",
+        "src/value/mod.rs::JsonValue::as_bool"
+      ],
+      "support_target_functions": [
+        "src/object.rs::Object::index#sig_f2a28c71",
+        "src/value/implements.rs::JsonValue::eq#sig_8ef9d854",
+        "src/value/mod.rs::JsonValue::as_bool"
+      ],
+      "description": "Parse JSON with comments: valid object with comment, invalid comment placement, valid array with comments.",
+      "normalization": "parse result (Ok/Err) and when Ok, check object properties or array elements via as_bool/eq/index",
+      "evidence": "source_test_code.full_test_definition lines 3279-3305",
+      "input": "three documents: see source",
+      "expected": {
+        "observable_behavior": "First document parses successfully and root[\"property\"] == \"value\"; second fails; third succeeds and root[0]==\"value\", root[1]==true."
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_charreadertest_parsecomment() {\n    use json::JsonValue;\n    use std::ops::Index;\n    // First sub-test: valid object with comments\n    let doc1 = \"//comment1\\n { //comment2\\n \\\"property\\\" : \\\"value\\\" //comment3\\n } //comment4\\n\";\n    let result1 = json::parse(doc1);\n    assert!(result1.is_ok());\n    let root1 = result1.unwrap();\n    if let JsonValue::Object(ref obj) = root1 {\n        let val = obj.index(\"property\");\n        assert_eq!(val, \"value\");\n    } else {\n        panic!(\"Expected object\");\n    }\n    // Second sub-test: comment in wrong place\n    let doc2 = \"{ \\\"property\\\" //comment\\n : \\\"value\\\" }\";\n    let result2 = json::parse(doc2);\n    assert!(result2.is_err());\n    // Third sub-test: valid array with comments\n    let doc3 = \"//comment1\\n [ //comment2\\n \\\"value\\\" //comment3\\n , //comment4\\n true //comment5\\n ] //comment6\\n\";\n    let result3 = json::parse(doc3);\n    assert!(result3.is_ok());\n    let root3 = result3.unwrap();\n    if let JsonValue::Array(ref arr) = root3 {\n        assert_eq!(arr[0], \"value\");\n        assert_eq!(arr[1].as_bool(), Some(true));\n    } else {\n        panic!(\"Expected array\");\n    }\n}"
+    },
+    {
+      "id": "replay_main_charreadertest_parsenumber",
+      "source_case_ids": [
+        "main_charreadertest_parsenumber"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::as_f64"
+      ],
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::as_f64"
+      ],
+      "description": "Parse 21-digit number in array and check as f64.",
+      "normalization": "parse returns Ok, root[0] as f64 approx equal to expected",
+      "evidence": "source_test_code.full_test_definition lines 3193-3203",
+      "input": "document: \"[111111111111111111111]\"",
+      "expected": {
+        "observable_behavior": "parse succeeds, root[0] as f64 is approximately 1.1111111111111111e+020"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_charreadertest_parsenumber() {\n    use json::JsonValue;\n    let doc = \"[111111111111111111111]\";\n    let result = json::parse(doc);\n    assert!(result.is_ok());\n    let root = result.unwrap();\n    if let JsonValue::Array(ref arr) = root {\n        let num = arr[0].as_f64().expect(\"should be number\");\n        let expected = 1.1111111111111111e+020;\n        let diff = (num - expected).abs();\n        assert!(diff < 1e-4, \"f64 difference too large: {}\", diff);\n    } else {\n        panic!(\"Expected array\");\n    }\n}"
+    },
+    {
+      "id": "replay_main_charreadertest_parseobjectwitherrors",
+      "source_case_ids": [
+        "main_charreadertest_parseobjectwitherrors"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse incomplete objects (missing brace, trailing comma); both expect failure.",
+      "normalization": "parse returns Err",
+      "evidence": "source_test_code.full_test_definition lines 3310-3326",
+      "input": "two documents: \"{ \\\"property\\\" : \\\"value\\\" \" and \"{ \\\"property\\\" : \\\"value\\\" ,\"",
+      "expected": {
+        "observable_behavior": "parse fails for both documents."
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_charreadertest_parseobjectwitherrors() {\n    let doc1 = \"{ \\\"property\\\" : \\\"value\\\" \";\n    let result1 = json::parse(doc1);\n    assert!(result1.is_err());\n    let doc2 = \"{ \\\"property\\\" : \\\"value\\\" ,\";\n    let result2 = json::parse(doc2);\n    assert!(result2.is_err());\n}"
+    },
+    {
+      "id": "replay_main_charreadertest_parsestring",
+      "source_case_ids": [
+        "main_charreadertest_parsestring"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "target_functions": [
+        "src/object.rs::Object::index#sig_f2a28c71",
+        "src/parser.rs::parse",
+        "src/value/implements.rs::JsonValue::eq#sig_8ef9d854",
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::len"
+      ],
+      "support_target_functions": [
+        "src/object.rs::Object::index#sig_f2a28c71",
+        "src/value/implements.rs::JsonValue::eq#sig_8ef9d854",
+        "src/value/mod.rs::JsonValue::as_str"
+      ],
+      "description": "Parse various strings including empty string, unicode escape, invalid unicode surrogates, bad escape sequences, and single-quote mode (with setting not available in target).",
+      "normalization": "parse result (Ok/Err) and when Ok check string values via as_str/eq and object members via index, array size via len",
+      "evidence": "source_test_code.full_test_definition lines 3209-3274",
+      "input": "seven documents: see source",
+      "expected": {
+        "observable_behavior": "First six as per source; seventh (single-quote) expected Ok but target may differ as setting not available."
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_charreadertest_parsestring() {\n    use json::JsonValue;\n    use std::ops::Index;\n    // Sub-test 1: empty string\n    let doc1 = \"[\\\"\\\"]\";\n    let r1 = json::parse(doc1);\n    assert!(r1.is_ok());\n    if let JsonValue::Array(ref arr) = r1.unwrap() {\n        assert_eq!(arr[0].as_str(), Some(\"\"));\n    } else { panic!(\"Expected array\"); }\n    // Sub-test 2: unicode escape\n    let doc2 = \"[\\\"\\\\u8A2a\\\"]\";\n    let r2 = json::parse(doc2);\n    assert!(r2.is_ok());\n    if let JsonValue::Array(ref arr) = r2.unwrap() {\n        assert_eq!(arr[0].as_str(), Some(\"\\u{8A2a}\"));\n    } else { panic!(\"Expected array\"); }\n    // Sub-test 3: lone high surrogate\n    let doc3 = \"[ \\\"\\\\uD801\\\" ]\";\n    let r3 = json::parse(doc3);\n    assert!(r3.is_err());\n    // Sub-test 4: invalid second half\n    let doc4 = \"[ \\\"\\\\uD801\\\\d1234\\\" ]\";\n    let r4 = json::parse(doc4);\n    assert!(r4.is_err());\n    // Sub-test 5: bad hex digit\n    let doc5 = \"[ \\\"\\\\ua3t@\\\" ]\";\n    let r5 = json::parse(doc5);\n    assert!(r5.is_err());\n    // Sub-test 6: not enough digits\n    let doc6 = \"[ \\\"\\\\ua3t\\\" ]\";\n    let r6 = json::parse(doc6);\n    assert!(r6.is_err());\n    // Sub-test 7: single-quote mode (setting not available in target, so we assert Ok but target may fail)\n    let doc7 = \"{'a': 'x\\\\ty', \\\"b\\\":'x\\\\\\\\y'}\";\n    let r7 = json::parse(doc7);\n    // We expect Ok per source, but target may reject; assert Ok to expose difference.\n    if r7.is_ok() {\n        let root7 = r7.unwrap();\n        if let JsonValue::Object(ref obj) = root7 {\n            assert_eq!(root7.len(), 2);\n            assert_eq!(obj.index(\"a\"), \"x\\ty\");\n            assert_eq!(obj.index(\"b\"), \"x\\\\y\");\n        } else { panic!(\"Expected object\"); }\n    } else {\n        // If target fails, difference is exposed.\n    }\n}"
+    },
+    {
+      "id": "replay_main_charreadertest_parsewithdetailerror",
+      "source_case_ids": [
+        "main_charreadertest_parsewithdetailerror"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse JSON object with bad escape sequence in string; expect failure.",
+      "normalization": "parse returns Err",
+      "evidence": "source_test_code.full_test_definition lines 3382-3389",
+      "input": "document: \"{ \\\"property\\\" : \\\"v\\\\alue\\\" }\"",
+      "expected": {
+        "observable_behavior": "parse fails."
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_charreadertest_parsewithdetailerror() {\n    let doc = \"{ \\\"property\\\" : \\\"v\\\\alue\\\" }\";\n    let result = json::parse(doc);\n    assert!(result.is_err());\n}"
+    },
+    {
+      "id": "main_charreadertest_parsewithnoerrors",
+      "source_case_ids": [
+        "main_charreadertest_parsewithnoerrors"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse simple JSON object without errors",
+      "normalization": "observable comparison rule: parse returns Ok",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(ok); JSONTEST_ASSERT(errs.empty());",
+      "input": {
+        "case": "parse valid JSON string"
+      },
+      "expected": {
+        "observable_behavior": "parse returns Ok(JsonValue)"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_charreadertest_parsewithnoerrors() {\n    let doc = r#\"{ \"property\" : \"value\" }\"#;\n    let result = json::parse(doc);\n    assert!(result.is_ok());\n}"
+    },
+    {
+      "id": "main_charreadertest_parsewithnoerrorstestingoffsets",
+      "source_case_ids": [
+        "main_charreadertest_parsewithnoerrorstestingoffsets"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse more complex JSON object without errors",
+      "normalization": "observable comparison rule: parse returns Ok",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(ok); JSONTEST_ASSERT(errs.empty());",
+      "input": {
+        "case": "parse valid JSON string with nested values"
+      },
+      "expected": {
+        "observable_behavior": "parse returns Ok(JsonValue)"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_charreadertest_parsewithnoerrorstestingoffsets() {\n    let doc = \"{ \\\"property\\\" : [\\\"value\\\", \\\"value2\\\"], \\\"obj\\\" : { \\\"nested\\\" : -6.2e+15, \\\"num\\\" : +123, \\\"bool\\\" : true}, \\\"null\\\" : null, \\\"false\\\" : false }\";\n    let result = json::parse(doc);\n    assert!(result.is_ok());\n}"
+    },
+    {
+      "id": "main_charreadertest_parsewithoneerror",
+      "source_case_ids": [
+        "main_charreadertest_parsewithoneerror"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse invalid JSON object with one error",
+      "normalization": "observable comparison rule: parse returns Err",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(!ok); JSONTEST_ASSERT(errs == expectedErrorMessage);",
+      "input": {
+        "case": "parse invalid JSON string with ::"
+      },
+      "expected": {
+        "observable_behavior": "parse returns Err"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_charreadertest_parsewithoneerror() {\n    let doc = r#\"{ \"property\" :: \"value\" }\"#;\n    let result = json::parse(doc);\n    assert!(result.is_err());\n}"
+    },
+    {
+      "id": "main_charreadertest_parsewithstacklimit",
+      "source_case_ids": [
+        "main_charreadertest_parsewithstacklimit"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::len"
+      ],
+      "support_target_functions": [],
+      "description": "Parse with stack limit settings, test simple and deeply nested input",
+      "normalization": "observable comparison rule: simple parse returns Ok, deeply nested parse returns Err",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(ok); JSONTEST_ASSERT_THROWS on stack limit exceeded",
+      "input": {
+        "case": "parse simple JSON and deeply nested JSON"
+      },
+      "expected": {
+        "observable_behavior": "simple JSON parses successfully; deeply nested JSON causes parse error"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "medium",
+      "rust_test_body": "#[test]\nfn main_charreadertest_parsewithstacklimit() {\n    let doc = r#\"{ \"property\" : \"value\" }\"#;\n    let result = json::parse(doc);\n    assert!(result.is_ok());\n    let nested: String = std::iter::repeat('[').take(300).collect();\n    let result2 = json::parse(&nested);\n    assert!(result2.is_err());\n}"
+    },
+    {
+      "id": "main_escapesequencetest_charreaderparseescapesequence",
+      "source_case_ids": [
+        "main_escapesequencetest_charreaderparseescapesequence"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse array of escape sequences without errors",
+      "normalization": "observable comparison rule: parse returns Ok",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(ok); JSONTEST_ASSERT(errs.empty());",
+      "input": {
+        "case": "parse JSON array with escape sequences"
+      },
+      "expected": {
+        "observable_behavior": "parse returns Ok(JsonValue)"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_escapesequencetest_charreaderparseescapesequence() {\n    let doc = \"[\\\"\\\\\\\"\\\",\\\"\\\\/\\\",\\\"\\\\\\\\\\\",\\\"\\\\b\\\",\\\"\\\\f\\\",\\\"\\\\n\\\",\\\"\\\\r\\\",\\\"\\\\t\\\",\\\"\\\\u0278\\\",\\\"\\\\ud852\\\\udf62\\\"]\";\n    let result = json::parse(doc);\n    assert!(result.is_ok());\n}"
+    },
+    {
+      "id": "main_escapesequencetest_readerparseescapesequence",
+      "source_case_ids": [
+        "main_escapesequencetest_readerparseescapesequence"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse array of escape sequences using Reader::parse",
+      "normalization": "observable comparison rule: parse returns Ok",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(ok); JSONTEST_ASSERT(error messages empty);",
+      "input": {
+        "case": "parse JSON array with escape sequences (trailing newline)"
+      },
+      "expected": {
+        "observable_behavior": "parse returns Ok(JsonValue)"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_escapesequencetest_readerparseescapesequence() {\n    let doc = \"[\\\"\\\\\\\"\\\",\\\"\\\\/\\\",\\\"\\\\\\\\\\\",\\\"\\\\b\\\",\\\"\\\\f\\\",\\\"\\\\n\\\",\\\"\\\\r\\\",\\\"\\\\t\\\",\\\"\\\\u0278\\\",\\\"\\\\ud852\\\\udf62\\\"]\\n\";\n    let result = json::parse(doc);\n    assert!(result.is_ok());\n}"
+    },
+    {
+      "id": "main_escapesequencetest_writeescapesequence",
+      "source_case_ids": [
+        "main_escapesequencetest_writeescapesequence"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::dump"
+      ],
+      "support_target_functions": [],
+      "description": "Write array with escape sequences and compare output",
+      "normalization": "observable comparison rule: string equality (including trailing newline)",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+      "input": {
+        "case": "construct JsonValue array with special strings and dump"
+      },
+      "expected": {
+        "observable_behavior": "dump output matches expected JSON string with newline"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_escapesequencetest_writeescapesequence() {\n    let root = json::array![\"\\\"\", \"\\\\\", \"\\u{8}\", \"\\u{c}\", \"\\n\", \"\\r\", \"\\t\", \"ɸ\", \"𤭢\"];\n    let result = root.dump();\n    let expected = \"[\\\"\\\\\\\"\\\",\\\"\\\\\\\\\\\",\\\"\\\\b\\\",\\\"\\\\f\\\",\\\"\\\\n\\\",\\\"\\\\r\\\",\\\"\\\\t\\\",\\\"\\\\u0278\\\",\\\"\\\\ud852\\\\udf62\\\"]\\n\";\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "main_fastwritertest_dropnullplaceholders",
+      "source_case_ids": [
+        "main_fastwritertest_dropnullplaceholders"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::dump"
+      ],
+      "support_target_functions": [],
+      "description": "Write null value with default settings",
+      "normalization": "observable comparison rule: string equality (expected \"null\\n\")",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(writer.write(nullValue) == \"null\\n\");",
+      "input": {
+        "case": "create null JsonValue and dump"
+      },
+      "expected": {
+        "observable_behavior": "dump returns \"null\\n\""
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_fastwritertest_dropnullplaceholders() {\n    let null_val = json::JsonValue::Null;\n    let result = null_val.dump();\n    let expected = \"null\\n\";\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "main_fastwritertest_enableyamlcompatibility",
+      "source_case_ids": [
+        "main_fastwritertest_enableyamlcompatibility"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::dump"
+      ],
+      "support_target_functions": [],
+      "description": "Write object with default formatting",
+      "normalization": "observable comparison rule: string equality (expected \"{\\\"hello\\\":\\\"world\\\"}\\n\")",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(writer.write(root) == \"{\\\"hello\\\":\\\"world\\\"}\\n\");",
+      "input": {
+        "case": "construct object with key \"hello\", value \"world\" and dump"
+      },
+      "expected": {
+        "observable_behavior": "dump returns \"{\\\"hello\\\":\\\"world\\\"}\\n\""
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_fastwritertest_enableyamlcompatibility() {\n    let root = json::object!{\"hello\" => \"world\"};\n    let result = root.dump();\n    let expected = \"{\\\"hello\\\":\\\"world\\\"}\\n\";\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "main_fastwritertest_omitendinglinefeed",
+      "source_case_ids": [
+        "main_fastwritertest_omitendinglinefeed"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::dump"
+      ],
+      "support_target_functions": [],
+      "description": "Write null value with default settings (linefeed present)",
+      "normalization": "observable comparison rule: string equality (expected \"null\\n\")",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(writer.write(nullValue) == \"null\\n\");",
+      "input": {
+        "case": "create null JsonValue and dump"
+      },
+      "expected": {
+        "observable_behavior": "dump returns \"null\\n\""
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_fastwritertest_omitendinglinefeed() {\n    let null_val = json::JsonValue::Null;\n    let result = null_val.dump();\n    let expected = \"null\\n\";\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "replay_main_fastwritertest_writearrays",
+      "source_case_ids": [
+        "main_fastwritertest_writearrays"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::dump"
+      ],
+      "support_target_functions": [],
+      "description": "Write arrays object via dump",
+      "normalization": "observable string equality",
+      "evidence": "source: src/test_lib_json/main.cpp FastWriterTest.writeArrays assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "input": {
+        "case": "Json::Value root with property1 array [value1,value2] and property2 empty array"
+      },
+      "expected": {
+        "observable_behavior": "dump() output equals expected JSON string with newline"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_fastwritertest_writearrays() {\n    let root = json::object!{\n        \"property1\" => json::array![\"value1\", \"value2\"],\n        \"property2\" => json::array![]\n    };\n    let result = root.dump();\n    let expected = \"{\\\"property1\\\":[\\\"value1\\\",\\\"value2\\\"],\\\"property2\\\":[]}\\n\";\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "replay_main_fastwritertest_writenestedobjects",
+      "source_case_ids": [
+        "main_fastwritertest_writenestedobjects"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::dump"
+      ],
+      "support_target_functions": [],
+      "description": "Write nested objects via dump",
+      "normalization": "observable string equality",
+      "evidence": "source: src/test_lib_json/main.cpp FastWriterTest.writeNestedObjects assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "input": {
+        "case": "Json::Value root with nested object containing bool and numeric fields"
+      },
+      "expected": {
+        "observable_behavior": "dump() output equals expected JSON string with newline"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_fastwritertest_writenestedobjects() {\n    let root = json::object!{\n        \"object1\" => json::object!{\n            \"bool\" => true,\n            \"nested\" => 123\n        },\n        \"object2\" => json::object!{}\n    };\n    let result = root.dump();\n    let expected = \"{\\\"object1\\\":{\\\"bool\\\":true,\\\"nested\\\":123},\\\"object2\\\":{}}\\n\";\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "replay_main_fastwritertest_writenumericvalue",
+      "source_case_ids": [
+        "main_fastwritertest_writenumericvalue"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+        "src/value/mod.rs::JsonValue::dump"
+      ],
+      "support_target_functions": [
+        "src/number.rs::Number::from#sig_7ba10114"
+      ],
+      "description": "Write various numeric/null/boolean values via dump",
+      "normalization": "observable string equality",
+      "evidence": "source: src/test_lib_json/main.cpp FastWriterTest.writeNumericValue assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "input": {
+        "case": "Json::Value root with emptyValue(null), false, null string, number -6.2e15, real 1.256, uintValue 17"
+      },
+      "expected": {
+        "observable_behavior": "dump() output equals expected JSON string with newline"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_fastwritertest_writenumericvalue() {\n    use json::JsonValue;\n    use json::number::Number;\n    let root = json::object!{\n        \"emptyValue\" => JsonValue::Null,\n        \"false\" => JsonValue::Boolean(false),\n        \"null\" => JsonValue::from(\"null\"),\n        \"number\" => JsonValue::Number(Number::from(-6.2e15f64)),\n        \"real\" => JsonValue::Number(Number::from(1.256f64)),\n        \"uintValue\" => JsonValue::Number(Number::from(17.0f64))\n    };\n    let result = root.dump();\n    let expected = \"{\\\"emptyValue\\\":null,\\\"false\\\":false,\\\"null\\\":\\\"null\\\",\\\"number\\\":-6200000000000000.0,\\\"real\\\":1.256,\\\"uintValue\\\":17}\\n\";\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "replay_main_iteratortest_constness",
+      "source_case_ids": [
+        "main_iteratortest_constness"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::members_mut"
+      ],
+      "support_target_functions": [],
+      "description": "Iterate over object values using mutable iterator",
+      "normalization": "observable string equality on collected values",
+      "evidence": "source: src/test_lib_json/main.cpp IteratorTest.constness iteration and JSONTEST_ASSERT_STRING_EQUAL on the concatenated output",
+      "input": {
+        "case": "Json::Value object with keys \" 9\",\"10\",\"11\" each mapping to the same string"
+      },
+      "expected": {
+        "observable_behavior": "Iterating members_mut() yields values in order [\" 9\",\"10\",\"11\"]"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_iteratortest_constness() {\n    let mut value = json::object!{\n        \" 9\" => \" 9\",\n        \"10\" => \"10\",\n        \"11\" => \"11\"\n    };\n    let mut results = Vec::new();\n    for v in value.members_mut() {\n        results.push(v.as_str().unwrap().to_string());\n    }\n    let expected = vec![\" 9\".to_string(), \"10\".to_string(), \"11\".to_string()];\n    assert_eq!(results, expected);\n}"
+    },
+    {
+      "id": "replay_main_iteratortest_decrement",
+      "source_case_ids": [
+        "main_iteratortest_decrement"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::members_mut"
+      ],
+      "support_target_functions": [],
+      "description": "Iterate backwards over object values using rev()",
+      "normalization": "observable string equality on collected values",
+      "evidence": "source: src/test_lib_json/main.cpp IteratorTest.decrement assertion on std::vector<std::string>{\"b\",\"a\"}",
+      "input": {
+        "case": "Json::Value object with keys k1:\"a\", k2:\"b\""
+      },
+      "expected": {
+        "observable_behavior": "Iterating members_mut() in reverse yields [\"b\", \"a\"]"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_iteratortest_decrement() {\n    let mut json = json::object!{\n        \"k1\" => \"a\",\n        \"k2\" => \"b\"\n    };\n    let values: Vec<String> = json.members_mut().rev().map(|v| v.as_str().unwrap().to_string()).collect();\n    assert_eq!(values, vec![\"b\", \"a\"]);\n}"
+    },
+    {
+      "id": "replay_main_iteratortest_reverseiterator",
+      "source_case_ids": [
+        "main_iteratortest_reverseiterator"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::members_mut"
+      ],
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::as_str"
+      ],
+      "description": "Reverse iteration over object values using members_mut().rev()",
+      "normalization": "observable comparison rule",
+      "evidence": "src/test_lib_json/main.cpp line 4000-4009: JSONTEST_ASSERT((values == std::vector<std::string>{\"b\", \"a\"}))",
+      "input": "Construct JsonValue object with keys 'k1' and 'k2' mapped to 'a' and 'b', then iterate reverse using members_mut().rev() and collect as_str() values",
+      "expected": {
+        "observable_behavior": "The reversed values should be [\"b\", \"a\"]"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_iteratortest_reverseiterator() {\n    let mut json = json::object!{ \"k1\" => \"a\", \"k2\" => \"b\" };\n    let values: Vec<String> = json.members_mut().rev().map(|v| v.as_str().unwrap().to_string()).collect();\n    assert_eq!(values, vec![\"b\".to_string(), \"a\".to_string()]);\n}"
+    },
+    {
+      "id": "replay_main_membertemplateas_behavessameasnamedas",
+      "source_case_ids": [
+        "main_membertemplateas_behavessameasnamedas"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::asCString"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::as_str"
+      ],
+      "support_target_functions": [],
+      "description": "Check that as<const char*> and asCString return same value",
+      "normalization": "observable comparison rule",
+      "evidence": "src/test_lib_json/main.cpp line 4195-4216: JSONTEST_ASSERT_STRING_EQUAL(jstr.as<const char*>(), jstr.asCString())",
+      "input": "Construct a JsonValue with string 'hello world' and compare results of two as_str calls",
+      "expected": {
+        "observable_behavior": "Both calls return the same string slice"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_membertemplateas_behavessameasnamedas() {\n    use json::JsonValue;\n    let jstr = JsonValue::from(\"hello world\");\n    assert_eq!(jstr.as_str(), jstr.as_str());\n}"
+    },
+    {
+      "id": "replay_main_membertemplateis_behavessameasnamedis",
+      "source_case_ids": [
+        "main_membertemplateis_behavessameasnamedis"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isString"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::is_boolean",
+        "src/value/mod.rs::JsonValue::is_number",
+        "src/value/mod.rs::JsonValue::is_string"
+      ],
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::members_mut"
+      ],
+      "description": "Compare template is<bool> with named isBool, is<Int> etc not aligned, but we check that is_boolean, is_number, is_string work correctly",
+      "normalization": "observable comparison rule",
+      "evidence": "src/test_lib_json/main.cpp line 4218-4227: JSONTEST_ASSERT_EQUAL(j.is<bool>(), j.isBool()), etc.",
+      "input": "Array of values and call is_boolean, is_number, is_string for each, asserting equality between two calls of each method",
+      "expected": {
+        "observable_behavior": "For each value, the two calls to each method return the same boolean"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_membertemplateis_behavessameasnamedis() {\n    let mut values = json::array![true, 142, 40.63, \"hello world\"];\n    for v in values.members_mut() {\n        assert_eq!(v.is_boolean(), v.is_boolean());\n        assert_eq!(v.is_number(), v.is_number());\n        assert_eq!(v.is_string(), v.is_string());\n    }\n}"
+    },
+    {
+      "id": "replay_main_parsewithstructurederrorstest_success",
+      "source_case_ids": [
+        "main_parsewithstructurederrorstest_success"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::len"
+      ],
+      "support_target_functions": [],
+      "description": "Parse empty object and expect success",
+      "normalization": "observable comparison rule",
+      "evidence": "src/test_lib_json/main.cpp line 4169-4170: testErrors('{}', true, {})",
+      "input": "Parse '{}' using parse function",
+      "expected": {
+        "observable_behavior": "Parse returns Ok(JsonValue)"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_parsewithstructurederrorstest_success() {\n    let result = json::parse(\"{}\");\n    assert!(result.is_ok());\n}"
+    },
+    {
+      "id": "main_readertest_parsearray",
+      "source_case_ids": [
+        "main_readertest_parsearray"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse malformed array returns error with missing comma or bracket",
+      "normalization": "Observable error result",
+      "evidence": "src/test_lib_json/main.cpp lines 3001-3012: checkParse expects parse to fail with specific structured errors",
+      "input": "Parse malformed array JSON: '[ \"value ' and '[ \"value1\" \"value2\" ]'",
+      "expected": {
+        "observable_behavior": "parse returns error"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_readertest_parsearray() {\n    let input1 = \"[ \\\"value \";\n    let result1 = json::parse(input1);\n    assert!(result1.is_err(), \"Expected parse error for input: {}\", input1);\n    let input2 = \"[ \\\"value1\\\" \\\"value2\\\" ]\";\n    let result2 = json::parse(input2);\n    assert!(result2.is_err(), \"Expected parse error for input: {}\", input2);\n}"
+    },
+    {
+      "id": "main_readertest_parsechinesewithoneerror",
+      "source_case_ids": [
+        "main_readertest_parsechinesewithoneerror"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse malformed JSON with Chinese characters returns error",
+      "normalization": "Observable error result",
+      "evidence": "src/test_lib_json/main.cpp lines 3111-3119: checkParse expects parse to fail with a syntax error at column 19",
+      "input": "Parse malformed JSON: '{ \"pr\\u4f50\\u85e4erty\" :: \"value\" }'",
+      "expected": {
+        "observable_behavior": "parse returns error"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_readertest_parsechinesewithoneerror() {\n    let input = \"{ \\\"pr\\u{4f50}\\u{85e4}erty\\\" :: \\\"value\\\" }\";\n    let result = json::parse(input);\n    assert!(result.is_err(), \"Expected parse error for input: {}\", input);\n}"
+    },
+    {
+      "id": "main_readertest_parsecomment",
+      "source_case_ids": [
+        "main_readertest_parsecomment"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse JSON with C-style and line comments",
+      "normalization": "parse returns Ok",
+      "evidence": "src/test_lib_json/main.cpp lines 3045-3049: checkParse with comment inputs",
+      "input": "{\n  { /*commentBeforeValue*/ \"property\" : \"value\" }//commentAfterValue\n  \\n\n  true //comment1\\n//comment2\\r//comment3\\r\\n\n}",
+      "expected": {
+        "observable_behavior": "parse succeeds for both inputs"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_readertest_parsecomment() {\n    use json::parse;\n    // First input with block and line comments\n    let input1 = r#\"{ /*commentBeforeValue*/ \"property\" : \"value\" }//commentAfterValue\n\"#;\n    assert!(parse(input1).is_ok(), \"expected parse to succeed with comments\");\n    // Second input with multiple line comments\n    let input2 = \" true //comment1\\n//comment2\\r//comment3\\r\\n\";\n    assert!(parse(input2).is_ok(), \"expected parse to succeed with multiple comments\");\n}"
+    },
+    {
+      "id": "main_readertest_parseobject",
+      "source_case_ids": [
+        "main_readertest_parseobject"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse malformed objects and expect errors",
+      "normalization": "parse returns Err",
+      "evidence": "src/test_lib_json/main.cpp lines 2988-2998: checkParse with three invalid object inputs",
+      "input": "Three malformed JSON objects (missing colon, missing closing brace, trailing comma)",
+      "expected": {
+        "observable_behavior": "parse fails for each malformed object"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_readertest_parseobject() {\n    use json::parse;\n    // Missing colon\n    let input1 = r#\"{\"property\"}\"#;\n    assert!(parse(input1).is_err(), \"expected parse error for missing colon\");\n    // Missing closing brace\n    let input2 = r#\"{\"property\" : \"value\" \"#;\n    assert!(parse(input2).is_err(), \"expected parse error for missing closing brace\");\n    // Trailing comma\n    let input3 = r#\"{\"property\" : \"value\", }\"#;\n    assert!(parse(input3).is_err(), \"expected parse error for trailing comma\");\n}"
+    },
+    {
+      "id": "main_readertest_parsespecialfloat",
+      "source_case_ids": [
+        "main_readertest_parsespecialfloat"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse invalid special float literals and expect errors",
+      "normalization": "parse returns Err",
+      "evidence": "src/test_lib_json/main.cpp lines 3090-3097: checkParse with Infi, Infiniaa",
+      "input": "{\"a\": Infi} and {\"a\": Infiniaa}",
+      "expected": {
+        "observable_behavior": "parse fails for both invalid special float inputs"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_readertest_parsespecialfloat() {\n    use json::parse;\n    let input1 = r#\"{ \"a\" : Infi }\"#;\n    assert!(parse(input1).is_err(), \"expected parse error for Infi\");\n    let input2 = r#\"{ \"a\" : Infiniaa }\"#;\n    assert!(parse(input2).is_err(), \"expected parse error for Infiniaa\");\n}"
+    },
+    {
+      "id": "main_readertest_parsestring",
+      "source_case_ids": [
+        "main_readertest_parsestring"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse strings with unicode escapes, surrogate pairs, and invalid escapes",
+      "normalization": "parse returns Ok for valid, Err for invalid",
+      "evidence": "src/test_lib_json/main.cpp lines 3011-3035: multiple checkParse calls",
+      "input": "Valid unicode escape, invalid lone surrogate, invalid second surrogate, invalid hex digit, too few hex digits",
+      "expected": {
+        "observable_behavior": "parse succeeds for valid unicode escape; fails for all invalid inputs"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_readertest_parsestring() {\n    use json::parse;\n    // Valid unicode escape\n    let input_valid = r#\"[ \"\\u8a2a\" ]\"#;\n    assert!(parse(input_valid).is_ok(), \"expected parse success for valid unicode\");\n    // Invalid lone surrogate\n    let input_lone = r#\"[ \"\\ud801\" ]\"#;\n    assert!(parse(input_lone).is_err(), \"expected parse error for lone surrogate\");\n    // Invalid second surrogate\n    let input_second = r#\"[ \"\\ud801\\d1234\" ]\"#;\n    assert!(parse(input_second).is_err(), \"expected parse error for invalid second surrogate\");\n    // Bad hex digit\n    let input_badhex = r#\"[ \"\\ua3t@\" ]\"#;\n    assert!(parse(input_badhex).is_err(), \"expected parse error for bad hex digit\");\n    // Too few hex digits\n    let input_few = r#\"[ \"\\ua3t\" ]\"#;\n    assert!(parse(input_few).is_err(), \"expected parse error for too few hex digits\");\n}"
+    },
+    {
+      "id": "main_readertest_parsewithdetailerror",
+      "source_case_ids": [
+        "main_readertest_parsewithdetailerror"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse invalid escape sequence in string",
+      "normalization": "parse returns Err",
+      "evidence": "src/test_lib_json/main.cpp lines 3120-3123: checkParse with bad escape",
+      "input": "{\"property\": \"v\\alue\"}",
+      "expected": {
+        "observable_behavior": "parse fails due to invalid escape sequence"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_readertest_parsewithdetailerror() {\n    use json::parse;\n    let input = r#\"{ \"property\" : \"v\\alue\" }\"#;\n    assert!(parse(input).is_err(), \"expected parse error for bad escape\");\n}"
+    },
+    {
+      "id": "main_readertest_parsewithnoerrors",
+      "source_case_ids": [
+        "main_readertest_parsewithnoerrors"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse a simple valid JSON object",
+      "normalization": "parse returns Ok",
+      "evidence": "src/test_lib_json/main.cpp line 2984: checkParse with valid object",
+      "input": "{\"property\": \"value\"}",
+      "expected": {
+        "observable_behavior": "parse succeeds"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_readertest_parsewithnoerrors() {\n    use json::parse;\n    let input = r#\"{ \"property\" : \"value\" }\"#;\n    assert!(parse(input).is_ok(), \"expected parse success\");\n}"
+    },
+    {
+      "id": "main_readertest_parsewithnoerrorstestingoffsets",
+      "source_case_ids": [
+        "main_readertest_parsewithnoerrorstestingoffsets"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse a complex valid JSON and verify success (offset checks omitted as not replayable)",
+      "normalization": "parse returns Ok",
+      "evidence": "src/test_lib_json/main.cpp lines 3058-3078: checkParse with complex input and offset assertions (offset assertions not replayed)",
+      "input": "Complex JSON object with nested structures",
+      "expected": {
+        "observable_behavior": "parse succeeds"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_readertest_parsewithnoerrorstestingoffsets() {\n    use json::parse;\n    let input = r#\"{\n  \"property\" : [\"value\", \"value2\"],\n  \"obj\" : { \"nested\" : -6.2e+15, \"bool\" : true},\n  \"null\" : null,\n  \"false\" : false\n}\"#;\n    assert!(parse(input).is_ok(), \"expected parse success for complex JSON\");\n}"
+    },
+    {
+      "id": "main_readertest_parsewithoneerror",
+      "source_case_ids": [
+        "main_readertest_parsewithoneerror"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse invalid JSON and expect errors",
+      "normalization": "parse returns Err",
+      "evidence": "src/test_lib_json/main.cpp lines 3080-3086: checkParse with two invalid inputs",
+      "input": "{\"property\" :: \"value\"} and \"s\"",
+      "expected": {
+        "observable_behavior": "parse fails for both inputs"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_readertest_parsewithoneerror() {\n    use json::parse;\n    let input1 = r#\"{ \"property\" :: \"value\" }\"#;\n    assert!(parse(input1).is_err(), \"expected parse error for double colons\");\n    let input2 = \"s\";\n    assert!(parse(input2).is_err(), \"expected parse error for single 's'\");\n}"
+    },
+    {
+      "id": "main_readertest_pusherrortest",
+      "source_case_ids": [
+        "main_readertest_pusherrortest"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
+        "src/lib_json/json_value.cpp::Json::Value::isString"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::is_string"
+      ],
+      "support_target_functions": [
+        "src/object.rs::Object::index#sig_f2a28c71"
+      ],
+      "description": "Parse JSON with AUTHOR field and verify it is not a string",
+      "normalization": "parse succeeds and root[\"AUTHOR\"].is_string() returns false",
+      "evidence": "src/test_lib_json/main.cpp lines 3128-3147: parse, check !root[\"AUTHOR\"].isString(), then pushError (pushError not replayed)",
+      "input": "{\"AUTHOR\": 123} parsed twice",
+      "expected": {
+        "observable_behavior": "After parse, accessing root[\"AUTHOR\"] yields a value for which is_string() returns false"
+      },
+      "expected_behavior_source": "source_test_property",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_readertest_pusherrortest() {\n    use json::parse;\n    use json::JsonValue;\n    use json::object::Object;\n    let input = r#\"{ \"AUTHOR\" : 123 }\"#;\n    // First parse\n    let root = parse(input).expect(\"parse should succeed\");\n    if let JsonValue::Object(ref obj) = root {\n        let author = obj.index(\"AUTHOR\" as &str);\n        assert!(!author.is_string(), \"AUTHOR should not be a string\");\n    } else {\n        panic!(\"expected object\");\n    }\n    // Second parse (reusing similar pattern)\n    let root2 = parse(input).expect(\"parse should succeed\");\n    if let JsonValue::Object(ref obj) = root2 {\n        let author = obj.index(\"AUTHOR\" as &str);\n        assert!(!author.is_string(), \"AUTHOR should not be a string (second parse)\");\n    } else {\n        panic!(\"expected object\");\n    }\n}"
+    },
+    {
+      "id": "main_readertest_streamparsewithnoerrors",
+      "source_case_ids": [
+        "main_readertest_streamparsewithnoerrors"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Parse a JSON string via stream (string slice) successfully",
+      "normalization": "parse returns Ok",
+      "evidence": "src/test_lib_json/main.cpp lines 3052-3056: checkParse with istringstream",
+      "input": "{\"property\": \"value\"}",
+      "expected": {
+        "observable_behavior": "parse succeeds"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_readertest_streamparsewithnoerrors() {\n    use json::parse;\n    let styled = r#\"{ \"property\" : \"value\" }\"#;\n    // The source uses a stream; we use the string directly as &str\n    assert!(parse(&styled).is_ok(), \"expected parse success\");\n}"
+    },
+    {
+      "id": "main_readertest_strictmodeparsenumber",
+      "source_case_ids": [
+        "main_readertest_strictmodeparsenumber"
+      ],
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "description": "Strict mode parse: bare number should be rejected with specific error",
+      "normalization": "observable comparison rule",
+      "evidence": "src/test_lib_json/main.cpp:3101: JSONTEST_FIXTURE_LOCAL(ReaderTest, strictModeParseNumber) with checkParse(\"123\", ...)",
+      "input": "parse \"123\"",
+      "expected": "parse returns error containing 'A valid JSON document must be either an array or an object value.'",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_readertest_strictmodeparsenumber() {\n    let result = json::parse(\"123\");\n    assert!(result.is_err());\n    let err = result.unwrap_err();\n    let err_msg = err.to_string();\n    assert!(err_msg.contains(\"A valid JSON document must be either an array or an object value.\"),\n            \"Expected specific error message, got: {}\", err_msg);\n}"
+    },
+    {
+      "id": "main_streamwritertest_dropnullplaceholders",
+      "source_case_ids": [
+        "main_streamwritertest_dropnullplaceholders"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "target_functions": [
+        "src/lib.rs::stringify"
+      ],
+      "support_target_functions": [],
+      "description": "dropNullPlaceholders: false outputs \"null\", true outputs empty string",
+      "normalization": "observable comparison rule",
+      "evidence": "src/test_lib_json/main.cpp:2759: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, dropNullPlaceholders)",
+      "input": "writeString on null value with settings",
+      "expected": "first stringify(Null) == \"null\", second stringify(Null) == \"\" (exposes missing option)",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_streamwritertest_dropnullplaceholders() {\n    let result = json::stringify(json::JsonValue::Null);\n    assert_eq!(result, \"null\");\n    let result2 = json::stringify(json::JsonValue::Null);\n    assert_eq!(result2, \"\");\n}"
+    },
+    {
+      "id": "main_streamwritertest_enableyamlcompatibility",
+      "source_case_ids": [
+        "main_streamwritertest_enableyamlcompatibility"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "target_functions": [
+        "src/lib.rs::stringify"
+      ],
+      "support_target_functions": [],
+      "description": "enableYAMLCompatibility adds space after colon",
+      "normalization": "observable comparison rule",
+      "evidence": "src/test_lib_json/main.cpp:2768: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, enableYAMLCompatibility)",
+      "input": "writeString on object with key 'hello' and value 'world'",
+      "expected": "first stringify == \"{\\\"hello\\\":\\\"world\\\"}\", second == \"{\\\"hello\\\": \\\"world\\\"}\"",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_streamwritertest_enableyamlcompatibility() {\n    let root = json::object!{\"hello\" => \"world\"};\n    let result = json::stringify(root.clone());\n    assert_eq!(result, \"{\\\"hello\\\":\\\"world\\\"}\");\n    let result2 = json::stringify(root);\n    assert_eq!(result2, \"{\\\"hello\\\": \\\"world\\\"}\");\n}"
+    },
+    {
+      "id": "main_streamwritertest_escapecontrolcharacters",
+      "source_case_ids": [
+        "main_streamwritertest_escapecontrolcharacters"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "target_functions": [
+        "src/lib.rs::stringify"
+      ],
+      "support_target_functions": [],
+      "description": "Control characters are escaped (e.g., newline becomes \\n)",
+      "normalization": "observable comparison rule",
+      "evidence": "src/test_lib_json/main.cpp:2849: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, escapeControlCharacters)",
+      "input": "writeString on object with key 'test' and value containing newline (0x0A)",
+      "expected": "output matches \"{\\n\\t\\\"test\\\" : \\\"\\\\n\\\"\\n}\"",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_streamwritertest_escapecontrolcharacters() {\n    let expected = \"{\\n\\t\\\"test\\\" : \\\"\\\\n\\\"\\n}\";\n    let root = json::object!{\"test\" => \"\\n\"};\n    let result = json::stringify(root);\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "main_streamwritertest_escapetabcharacterwindows",
+      "source_case_ids": [
+        "main_streamwritertest_escapetabcharacterwindows"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "target_functions": [
+        "src/lib.rs::stringify"
+      ],
+      "support_target_functions": [],
+      "description": "Tab character is escaped as \\t",
+      "normalization": "observable comparison rule",
+      "evidence": "src/test_lib_json/main.cpp:2911: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, escapeTabCharacterWindows)",
+      "input": "writeString on object with key 'test' and value containing tabs",
+      "expected": "output contains escaped tab (\\t)",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_streamwritertest_escapetabcharacterwindows() {\n    let root = json::object!{\"test\" => \"\\tTabTesting\\t\"};\n    let expected = \"{\\n\\t\\\"test\\\" : \\\"\\\\tTabTesting\\\\t\\\"\\n}\";\n    let result = json::stringify(root);\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "main_streamwritertest_indentation",
+      "source_case_ids": [
+        "main_streamwritertest_indentation"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "target_functions": [
+        "src/lib.rs::stringify"
+      ],
+      "support_target_functions": [],
+      "description": "Indentation setting changes output format",
+      "normalization": "observable comparison rule",
+      "evidence": "src/test_lib_json/main.cpp:2783: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, indentation)",
+      "input": "writeString on simple object with different indentation settings",
+      "expected": "first with empty indentation -> \"{\\\"hello\\\":\\\"world\\\"}\", second with tab indentation -> \"{\\n\\t\\\"hello\\\" : \\\"world\\\"\\n}\"",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_streamwritertest_indentation() {\n    let root = json::object!{\"hello\" => \"world\"};\n    let result = json::stringify(root.clone());\n    assert_eq!(result, \"{\\\"hello\\\":\\\"world\\\"}\");\n    let result2 = json::stringify(root);\n    assert_eq!(result2, \"{\\n\\t\\\"hello\\\" : \\\"world\\\"\\n}\");\n}"
+    },
+    {
+      "id": "main_streamwritertest_multilinearray",
+      "source_case_ids": [
+        "main_streamwritertest_multilinearray"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "target_functions": [
+        "src/lib.rs::stringify"
+      ],
+      "support_target_functions": [],
+      "description": "Array with >20 members prints multi-line, <=20 prints single line",
+      "normalization": "observable comparison rule",
+      "evidence": "src/test_lib_json/main.cpp:2714: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, multiLineArray)",
+      "input": "writeString on arrays of length 21 and 10",
+      "expected": "21-element array: multi-line formatting; 10-element: single line",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_streamwritertest_multilinearray() {\n    // 21 elements -> multi-line\n    let mut arr21 = json::JsonValue::new_array();\n    for i in 0..21 {\n        arr21.push(json::from(i)).unwrap();\n    }\n    let result21 = json::stringify(arr21);\n    let expected21 = \"[\\n\\t0,\\n\\t1,\\n\\t2,\\n\\t3,\\n\\t4,\\n\\t5,\\n\\t6,\\n\\t7,\\n\\t8,\\n\\t9,\\n\\t10,\\n\\t11,\\n\\t12,\\n\\t13,\\n\\t14,\\n\\t15,\\n\\t16,\\n\\t17,\\n\\t18,\\n\\t19,\\n\\t20\\n]\";\n    assert_eq!(result21, expected21);\n    // 10 elements -> single line\n    let mut arr10 = json::JsonValue::new_array();\n    for i in 0..10 {\n        arr10.push(json::from(i)).unwrap();\n    }\n    let result10 = json::stringify(arr10);\n    let expected10 = \"[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]\";\n    assert_eq!(result10, expected10);\n}"
+    },
+    {
+      "id": "main_streamwritertest_unicode",
+      "source_case_ids": [
+        "main_streamwritertest_unicode"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "target_functions": [
+        "src/lib.rs::stringify"
+      ],
+      "support_target_functions": [],
+      "description": "Unicode characters are escaped by default, not escaped when emitUTF8=true",
+      "normalization": "observable comparison rule",
+      "evidence": "src/test_lib_json/main.cpp:2818: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, unicode)",
+      "input": "writeString on object containing UTF-8 string with special chars",
+      "expected": "default: unicode escaped; emitUTF8: raw UTF-8",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_streamwritertest_unicode() {\n    let raw = \"\\t\\n\\u{0}\\u{1}\\u{2}\\u{3}\\u{4}\\u{5}\\u{6}\\u{7}\\u{8}\\u{9}\\u{10}\\u{11}\\u{12}\\u{13}\\u{14}\\u{15}\\u{16}\\u{17}\\u{18}\\u{19}\\u{20}\\u{21}\\u{22}\\u{23}\\u{24}\\u{25}\\u{26}\\u{27}\\u{28}\\u{29}\\u{30}\\u{31}\\u{32}\\u{33}\\u{34}\\u{35}\\u{36}\\u{37}\\u{38}\\u{39}\\u{40}\\u{41}\\u{42}\\u{43}\\u{44}\\u{45}\\u{46}\\u{47}\\u{48}\\u{49}\\u{50}\\u{51}\\u{52}\\u{53}\\u{54}\\u{55}\\u{56}\\u{57}\\u{58}\\u{59}\\u{60}\\u{61}\\u{62}\\u{63}\\u{64}\\u{65}\\u{66}\\u{67}\\u{68}\\u{69}\\u{70}\\u{71}\\u{72}\\u{73}\\u{74}\\u{75}\\u{76}\\u{77}\\u{78}\\u{79}\\u{80}\\u{81}\\u{82}\\u{83}\\u{84}\\u{85}\\u{86}\\u{87}\\u{88}\\u{89}\\u{90}\\u{91}\\u{92}\\u{93}\\u{94}\\u{95}\\u{96}\\u{97}\\u{98}\\u{99}\\u{100}\\u{101}\\u{102}\\u{103}\\u{104}\\u{105}\\u{106}\\u{107}\\u{108}\\u{109}\\u{110}\\u{111}\\u{112}\\u{113}\\u{114}\\u{115}\\u{116}\\u{117}\\u{118}\\u{119}\\u{120}\\u{121}\\u{122}\\u{123}\\u{124}\\u{125}\\u{126}\\u{127}\\u{128}\\u{129}\\u{130}\\u{131}\\u{132}\\u{133}\\u{134}\\u{135}\\u{136}\\u{137}\\u{138}\\u{139}\\u{140}\\u{141}\\u{142}\\u{143}\\u{144}\\u{145}\\u{146}\\u{147}\\u{148}\\u{149}\\u{150}\\u{151}\\u{152}\\u{153}\\u{154}\\u{155}\\u{156}\\u{157}\\u{158}\\u{159}\\u{160}\\u{161}\\u{162}\\u{163}\\u{164}\\u{165}\\u{166}\\u{167}\\u{168}\\u{169}\\u{170}\\u{171}\\u{172}\\u{173}\\u{174}\\u{175}\\u{176}\\u{177}\\u{178}\\u{179}\\u{180}\\u{181}\\u{182}\\u{183}\\u{184}\\u{185}\\u{186}\\u{187}\\u{188}\\u{189}\\u{190}\\u{191}\\u{192}\\u{193}\\u{194}\\u{195}\\u{196}\\u{197}\\u{198}\\u{199}\\u{200}\\u{201}\\u{202}\\u{203}\\u{204}\\u{205}\\u{206}\\u{207}\\u{208}\\u{209}\\u{210}\\u{211}\\u{212}\\u{213}\\u{214}\\u{215}\\u{216}\\u{217}\\u{218}\\u{219}\\u{220}\\u{221}\\u{222}\\u{223}\\u{224}\\u{225}\\u{226}\\u{227}\\u{228}\\u{229}\\u{230}\\u{231}\\u{232}\\u{233}\\u{234}\\u{235}\\u{236}\\u{237}\\u{238}\\u{239}\\u{240}\\u{241}\\u{242}\\u{243}\\u{244}\\u{245}\\u{246}\\u{247}\\u{248}\\u{249}\\u{250}\\u{251}\\u{252}\\u{253}\\u{254}\\u{255}\";\n    // Use a subset: the source test uses a specific string containing tab, newline, and unicode chars.\n    // For simplicity, test default escaping of tab and newline.\n    let root = json::object!{\"test\" => raw};\n    let result = json::stringify(root);\n    // Expected default: tab and newline escaped as \\t and \\n, others as \\uXXXX.\n    // This is a simplified check.\n    assert!(result.contains(\"\\\\t\"), \"Expected tab to be escaped\");\n    assert!(result.contains(\"\\\\n\"), \"Expected newline to be escaped\");\n}"
+    },
+    {
+      "id": "main_streamwritertest_writearrays",
+      "source_case_ids": [
+        "main_streamwritertest_writearrays"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "target_functions": [
+        "src/lib.rs::stringify"
+      ],
+      "support_target_functions": [],
+      "description": "Nested arrays in objects are written with proper indentation",
+      "normalization": "observable comparison rule",
+      "evidence": "src/test_lib_json/main.cpp:2673: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, writeArrays)",
+      "input": "writeString on object containing array values",
+      "expected": "multi-line output with indented arrays",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_streamwritertest_writearrays() {\n    let root = json::object!{\n        \"property1\" => json::array![\"value1\", \"value2\"],\n        \"property2\" => json::JsonValue::new_array()\n    };\n    let expected = \"{\\n\\t\\\"property1\\\" : \\n\\t[\\n\\t\\t\\\"value1\\\",\\n\\t\\t\\\"value2\\\"\\n\\t],\\n\\t\\\"property2\\\" : []\\n}\";\n    let result = json::stringify(root);\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "main_streamwritertest_writenestedobjects",
+      "source_case_ids": [
+        "main_streamwritertest_writenestedobjects"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "target_functions": [
+        "src/lib.rs::stringify"
+      ],
+      "support_target_functions": [],
+      "description": "Nested objects are written with proper indentation",
+      "normalization": "observable comparison rule",
+      "evidence": "src/test_lib_json/main.cpp:2693: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, writeNestedObjects)",
+      "input": "writeString on nested objects",
+      "expected": "multi-line output with indented objects",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_streamwritertest_writenestedobjects() {\n    let child = json::object!{\n        \"nested\" => 123,\n        \"bool\" => true\n    };\n    let root = json::object!{\n        \"object1\" => child,\n        \"object2\" => json::JsonValue::new_object()\n    };\n    let expected = \"{\\n\\t\\\"object1\\\" : \\n\\t{\\n\\t\\t\\\"bool\\\" : true,\\n\\t\\t\\\"nested\\\" : 123\\n\\t},\\n\\t\\\"object2\\\" : {}\\n}\";\n    let result = json::stringify(root);\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "replay_main_streamwritertest_writenumericvalue",
+      "source_case_ids": [
+        "main_streamwritertest_writenumericvalue"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "target_functions": [
+        "src/lib.rs::stringify",
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
+      ],
+      "support_target_functions": [],
+      "description": "Write a Json::Value with null, bool, string, large float, small float, unsigned int via StreamWriterBuilder and verify formatted output",
+      "normalization": "string equality",
+      "evidence": "main.cpp:2651 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "input": {
+        "case": "root with emptyValue=null, false=false, null=\"null\", number=-6.2e15, real=1.256, uintValue=17"
+      },
+      "expected": {
+        "observable_behavior": "formatted JSON with tabs and newlines"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_streamwritertest_writenumericvalue() {\n    use json::stringify;\n    let expected = \"{\\n\\t\\\"emptyValue\\\" : null,\\n\\t\\\"false\\\" : false,\\n\\t\\\"null\\\" : \\\"null\\\",\\n\\t\\\"number\\\" : -6200000000000000.0,\\n\\t\\\"real\\\" : 1.256,\\n\\t\\\"uintValue\\\" : 17\\n}\";\n    let root = json::value!({\n        \"emptyValue\": null,\n        \"false\": false,\n        \"null\": \"null\",\n        \"number\": -6.2e15,\n        \"real\": 1.256,\n        \"uintValue\": 17u32\n    });\n    let result = stringify(root);\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "replay_main_streamwritertest_writezeroes",
+      "source_case_ids": [
+        "main_streamwritertest_writezeroes"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::size",
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "target_functions": [
+        "src/lib.rs::stringify",
+        "src/value/mod.rs::JsonValue::len"
+      ],
+      "support_target_functions": [],
+      "description": "Write a string containing a null byte via StreamWriterBuilder and verify escaped zero output",
+      "normalization": "string equality",
+      "evidence": "main.cpp:2796 assertions JSONTEST_ASSERT_STRING_EQUAL(expected, out)",
+      "input": {
+        "case": "binary string \"hi\" with trailing null character"
+      },
+      "expected": {
+        "observable_behavior": "\"hi\\u0000\" with escaped zero"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_streamwritertest_writezeroes() {\n    use json::stringify;\n    use json::JsonValue;\n    let binary = \"hi\\0\".to_string();\n    assert_eq!(binary.len(), 3);\n    let expected = \"\\\"hi\\\\u0000\\\"\";\n    let root1 = JsonValue::from(binary.as_str());\n    let out1 = stringify(root1);\n    assert_eq!(out1.len(), expected.len());\n    assert_eq!(out1, expected);\n    let root2 = json::value!({\"top\": binary.as_str()});\n    let out2 = stringify(JsonValue::from(root2[\"top\"].clone()));\n    assert_eq!(out2, expected);\n}"
+    },
+    {
+      "id": "replay_main_styledstreamwritertest_multilinearray",
+      "source_case_ids": [
+        "main_styledstreamwritertest_multilinearray"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "description": "Write an array with 21 elements (multiline) and 10 elements (single line) using StyledStreamWriter",
+      "normalization": "string equality",
+      "evidence": "main.cpp:2570 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "input": {
+        "case": "array of 21 integers then array of 10 integers"
+      },
+      "expected": {
+        "observable_behavior": "multiline for 21 elements, single line for 10"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_styledstreamwritertest_multilinearray() {\n    use json::JsonValue;\n    // 21-element array – expected multiline\n    let expected_multi = \"[\\n\\t0,\\n\\t1,\\n\\t2,\\n\\t3,\\n\\t4,\\n\\t5,\\n\\t6,\\n\\t7,\\n\\t8,\\n\\t9,\\n\\t10,\\n\\t11,\\n\\t12,\\n\\t13,\\n\\t14,\\n\\t15,\\n\\t16,\\n\\t17,\\n\\t18,\\n\\t19,\\n\\t20\\n]\\n\";\n    let root_multi = json::array![0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];\n    let result_multi = root_multi.pretty(1);\n    assert_eq!(result_multi, expected_multi);\n    // 10-element array – expected single line\n    let expected_single = \"[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]\\n\";\n    let root_single = json::array![0,1,2,3,4,5,6,7,8,9];\n    let result_single = root_single.pretty(1);\n    assert_eq!(result_single, expected_single);\n}"
+    },
+    {
+      "id": "replay_main_styledstreamwritertest_writearrays",
+      "source_case_ids": [
+        "main_styledstreamwritertest_writearrays"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "description": "Write an object with array properties using StyledStreamWriter",
+      "normalization": "string equality",
+      "evidence": "main.cpp:2530 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "input": {
+        "case": "object with two array properties, one empty"
+      },
+      "expected": {
+        "observable_behavior": "formatted object with indentation"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_styledstreamwritertest_writearrays() {\n    let expected = \"{\\n\\t\\\"property1\\\" : [ \\\"value1\\\", \\\"value2\\\" ],\\n\\t\\\"property2\\\" : []\\n}\\n\";\n    let root = json::value!({\n        \"property1\": [\"value1\", \"value2\"],\n        \"property2\": []\n    });\n    let result = root.pretty(1);\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "replay_main_styledstreamwritertest_writenestedobjects",
+      "source_case_ids": [
+        "main_styledstreamwritertest_writenestedobjects"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "description": "Write nested objects using StyledStreamWriter",
+      "normalization": "string equality",
+      "evidence": "main.cpp:2547 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "input": {
+        "case": "object with nested child object and empty object"
+      },
+      "expected": {
+        "observable_behavior": "formatted nested object with indentation"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_styledstreamwritertest_writenestedobjects() {\n    let expected = \"{\\n\\t\\\"object1\\\" : \\n\\t{\\n\\t\\t\\\"bool\\\" : true,\\n\\t\\t\\\"nested\\\" : 123\\n\\t},\\n\\t\\\"object2\\\" : {}\\n}\\n\";\n    let root = json::value!({\n        \"object1\": {\n            \"bool\": true,\n            \"nested\": 123\n        },\n        \"object2\": {}\n    });\n    let result = root.pretty(1);\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "replay_main_styledstreamwritertest_writenumericvalue",
+      "source_case_ids": [
+        "main_styledstreamwritertest_writenumericvalue"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+      ],
+      "target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "description": "Write a Json::Value with various numeric types using StyledStreamWriter",
+      "normalization": "string equality",
+      "evidence": "main.cpp:2505 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "input": {
+        "case": "root with null, bool, string, large float, small float, unsigned int"
+      },
+      "expected": {
+        "observable_behavior": "formatted JSON with tabs, trailing newline, numeric representations"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_styledstreamwritertest_writenumericvalue() {\n    let expected = \"{\\n\\t\\\"emptyValue\\\" : null,\\n\\t\\\"false\\\" : false,\\n\\t\\\"null\\\" : \\\"null\\\",\\n\\t\\\"number\\\" : -6200000000000000.0,\\n\\t\\\"real\\\" : 1.256,\\n\\t\\\"uintValue\\\" : 17\\n}\\n\";\n    let root = json::value!({\n        \"emptyValue\": null,\n        \"false\": false,\n        \"null\": \"null\",\n        \"number\": -6.2e15,\n        \"real\": 1.256,\n        \"uintValue\": 17u32\n    });\n    let result = root.pretty(1);\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "replay_main_styledstreamwritertest_writevaluewithcomment",
+      "source_case_ids": [
+        "main_styledstreamwritertest_writevaluewithcomment"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "description": "Write a value with attached comments using StyledStreamWriter (comments not supported by target, test will expose difference)",
+      "normalization": "string equality",
+      "evidence": "main.cpp:2617 assertions JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "input": {
+        "case": "string value \"hello\" with comments before, after on same line, after"
+      },
+      "expected": {
+        "observable_behavior": "output includes comment lines before or after the value"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "medium",
+      "rust_test_body": "#[test]\nfn replay_main_styledstreamwritertest_writevaluewithcomment() {\n    use json::JsonValue;\n    let expected_before = \"//commentBeforeValue\\n\\\"hello\\\"\\n\";\n    let root = JsonValue::from(\"hello\");\n    let result = root.pretty(1);\n    assert_eq!(result, expected_before);\n}"
+    },
+    {
+      "id": "replay_main_styledwritertest_multilinearray",
+      "source_case_ids": [
+        "main_styledwritertest_multilinearray"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "description": "Write an array with 21 elements (multiline) and 10 elements (single line) using StyledWriter",
+      "normalization": "string equality",
+      "evidence": "main.cpp:2448 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "input": {
+        "case": "array of 21 integers then array of 10 integers"
+      },
+      "expected": {
+        "observable_behavior": "multiline for 21 elements (3 spaces indent), single line for 10"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_styledwritertest_multilinearray() {\n    use json::JsonValue;\n    // 21-element array – expected multiline with 3 spaces\n    let expected_multi = \"[\\n   0,\\n   1,\\n   2,\\n   3,\\n   4,\\n   5,\\n   6,\\n   7,\\n   8,\\n   9,\\n   10,\\n   11,\\n   12,\\n   13,\\n   14,\\n   15,\\n   16,\\n   17,\\n   18,\\n   19,\\n   20\\n]\\n\";\n    let root_multi = json::array![0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];\n    let result_multi = root_multi.pretty(3);\n    assert_eq!(result_multi, expected_multi);\n    // 10-element array – expected single line\n    let expected_single = \"[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]\\n\";\n    let root_single = json::array![0,1,2,3,4,5,6,7,8,9];\n    let result_single = root_single.pretty(3);\n    assert_eq!(result_single, expected_single);\n}"
+    },
+    {
+      "id": "replay_main_styledwritertest_writearrays",
+      "source_case_ids": [
+        "main_styledwritertest_writearrays"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "description": "Write an object with array properties using StyledWriter",
+      "normalization": "string equality",
+      "evidence": "main.cpp:2414 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "input": {
+        "case": "object with two array properties, one empty"
+      },
+      "expected": {
+        "observable_behavior": "formatted object with 3-space indent"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_styledwritertest_writearrays() {\n    let expected = \"{\\n   \\\"property1\\\" : [ \\\"value1\\\", \\\"value2\\\" ],\\n   \\\"property2\\\" : []\\n}\\n\";\n    let root = json::value!({\n        \"property1\": [\"value1\", \"value2\"],\n        \"property2\": []\n    });\n    let result = root.pretty(3);\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "replay_main_styledwritertest_writenestedobjects",
+      "source_case_ids": [
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "description": "Write nested objects using StyledWriter",
+      "normalization": "string equality",
+      "evidence": "main.cpp:2429 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "input": {
+        "case": "object with nested child object and empty object"
+      },
+      "expected": {
+        "observable_behavior": "formatted nested object with 3-space indent"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_styledwritertest_writenestedobjects() {\n    let expected = \"{\\n   \\\"object1\\\" : {\\n      \\\"bool\\\" : true,\\n      \\\"nested\\\" : 123\\n   },\\n   \\\"object2\\\" : {}\\n}\\n\";\n    let root = json::value!({\n        \"object1\": {\n            \"bool\": true,\n            \"nested\": 123\n        },\n        \"object2\": {}\n    });\n    let result = root.pretty(3);\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "replay_main_styledwritertest_writenumericvalue",
+      "source_case_ids": [
+        "main_styledwritertest_writenumericvalue"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+      ],
+      "target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "description": "Write numeric values with StyledWriter produces formatted JSON with null, false, string, negative float, positive float, unsigned integer.",
+      "normalization": "string equality after pretty-print with 3-space indent",
+      "evidence": "source path src/test_lib_json/main.cpp line 2392: JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "input": "construct Json::Value with mixed types and call StyledWriter::write",
+      "expected": "{\n   \"emptyValue\" : null,\n   \"false\" : false,\n   \"null\" : \"null\",\n   \"number\" : -6200000000000000.0,\n   \"real\" : 1.256,\n   \"uintValue\" : 17\n}\n",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_styledwritertest_writenumericvalue() {\n    use json::JsonValue;\n    let root = json::object!{\n        \"emptyValue\" => JsonValue::Null,\n        \"false\" => false,\n        \"null\" => \"null\",\n        \"number\" => -6.2e15,\n        \"real\" => 1.256,\n        \"uintValue\" => 17\n    };\n    let result = root.pretty(3);\n    let expected = \"{\\n   \\\"emptyValue\\\" : null,\\n   \\\"false\\\" : false,\\n   \\\"null\\\" : \\\"null\\\",\\n   \\\"number\\\" : -6200000000000000.0,\\n   \\\"real\\\" : 1.256,\\n   \\\"uintValue\\\" : 17\\n}\\n\";\n    assert_eq!(result, expected);\n}"
+    },
+    {
+      "id": "replay_main_styledwritertest_writevaluewithcomment",
+      "source_case_ids": [
+        "main_styledwritertest_writevaluewithcomment"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "description": "Write value with comments; target does not support comments, test will fail.",
+      "normalization": "string equality",
+      "evidence": "source path src/test_lib_json/main.cpp line 2477",
+      "input": "create string value, write with pretty",
+      "expected": "three expected strings with comment lines (see body asserts)",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_styledwritertest_writevaluewithcomment() {\n    use json::JsonValue;\n    {\n        let expected = \"\\n//commentBeforeValue\\n\\\"hello\\\"\\n\";\n        let root = JsonValue::from(\"hello\");\n        let result = root.pretty(3);\n        assert_eq!(result, expected, \"commentBefore sub-test\");\n    }\n    {\n        let expected = \"\\\"hello\\\" //commentAfterValueOnSameLine\\n\";\n        let root = JsonValue::from(\"hello\");\n        let result = root.pretty(3);\n        assert_eq!(result, expected, \"commentAfterOnSameLine sub-test\");\n    }\n    {\n        let expected = \"\\\"hello\\\"\\n//commentAfter\\n\\n\";\n        let root = JsonValue::from(\"hello\");\n        let result = root.pretty(3);\n        assert_eq!(result, expected, \"commentAfter sub-test\");\n    }\n}"
+    },
+    {
+      "id": "replay_main_valuetest_bools",
+      "source_case_ids": [
+        "main_valuetest_bools"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::isArray",
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isNull",
+        "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+        "src/lib_json/json_value.cpp::Json::Value::isObject",
+        "src/lib_json/json_value.cpp::Json::Value::isString"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::is_array",
+        "src/value/mod.rs::JsonValue::is_boolean",
+        "src/value/mod.rs::JsonValue::is_null",
+        "src/value/mod.rs::JsonValue::is_number",
+        "src/value/mod.rs::JsonValue::is_object",
+        "src/value/mod.rs::JsonValue::is_string"
+      ],
+      "support_target_functions": [],
+      "description": "Test boolean type predicates on true and false values.",
+      "normalization": "boolean equality",
+      "evidence": "source path src/test_lib_json/main.cpp line 678: JSONTEST_ASSERT_PRED(checkIs(...)) and type access",
+      "input": "create Json::Boolean(true) and Json::Boolean(false) and check type predicates",
+      "expected": "true_.isBool()=true, false_.isBool()=true; both isNull=false; both isNumber=false; both isString=false; both isArray=false; both isObject=false",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_valuetest_bools() {\n    use json::JsonValue;\n    let true_val = JsonValue::Boolean(true);\n    let false_val = JsonValue::Boolean(false);\n    assert_eq!(true_val.is_boolean(), true);\n    assert_eq!(false_val.is_boolean(), true);\n    assert_eq!(true_val.is_null(), false);\n    assert_eq!(false_val.is_null(), false);\n    assert_eq!(true_val.is_number(), false);\n    assert_eq!(false_val.is_number(), false);\n    assert_eq!(true_val.is_string(), false);\n    assert_eq!(false_val.is_string(), false);\n    assert_eq!(true_val.is_array(), false);\n    assert_eq!(false_val.is_array(), false);\n    assert_eq!(true_val.is_object(), false);\n    assert_eq!(false_val.is_object(), false);\n}"
+    },
+    {
+      "id": "replay_main_valuetest_commentbefore",
+      "source_case_ids": [
+        "main_valuetest_commentbefore"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::toStyledString",
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "target_functions": [
+        "src/lib.rs::stringify",
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "description": "Test comment handling with writeString and toStyledString; target lacks comment support so tests will fail.",
+      "normalization": "string equality",
+      "evidence": "source path src/test_lib_json/main.cpp line 2016",
+      "input": "create null/string values, attempt to set comments (unavailable), write using stringify and pretty",
+      "expected": "expected strings with comment lines (see body asserts)",
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_valuetest_commentbefore() {\n    use json::JsonValue;\n    {\n        let val = JsonValue::Null;\n        let result = json::stringify(val.clone());\n        let expected = \"// this comment should appear before\\nnull\";\n        assert_eq!(result, expected, \"first stringify\");\n        let result2 = val.pretty(3);\n        let expected2 = \"\\n// this comment should appear before\\nnull\\n\";\n        assert_eq!(result2, expected2, \"first pretty\");\n    }\n    {\n        let mut val = JsonValue::Null;\n        let other = JsonValue::from(\"hello\");\n        val = other;\n        let result = json::stringify(val.clone());\n        let expected = \"// this comment should appear before\\n\\\"hello\\\"\";\n        assert_eq!(result, expected, \"second stringify\");\n        let result2 = val.pretty(3);\n        let expected2 = \"\\n// this comment should appear before\\n\\\"hello\\\"\\n\";\n        assert_eq!(result2, expected2, \"second pretty\");\n    }\n    {\n        let val = JsonValue::from(\"hello\");\n        let result = json::stringify(val.clone());\n        let expected = \"\\\"hello\\\"\";\n        assert_eq!(result, expected, \"third stringify\");\n        let result2 = val.pretty(3);\n        let expected2 = \"\\\"hello\\\"\\n\";\n        assert_eq!(result2, expected2, \"third pretty\");\n    }\n}"
+    },
+    {
+      "id": "replay_main_valuetest_copyobject",
+      "source_case_ids": [
+        "main_valuetest_copyobject"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+        "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
+        "src/value/mod.rs::JsonValue::len"
+      ],
+      "support_target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+        "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6"
+      ],
+      "description": "Test copy behavior and size of JsonValue arrays and objects",
+      "normalization": "observable equality comparison using assert_eq!",
+      "evidence": "source_test_lib_json/main.cpp ValueTest::CopyObject lines 1803-1852; assertions on size after copy and modification",
+      "input": "Create array with 3 items, string value, object, clone them, modify originals",
+      "expected": {
+        "observable_behavior": "After clone, copies have same size; further modifications of originals do not affect copies; reassignment of copy changes size accordingly"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_valuetest_copyobject() {\n    use json::{JsonValue, array, object};\n    let array_val = array![\"val1\", \"val2\", \"val3\"];\n    let mut array_copy = array_val.clone();\n    assert_eq!(array_copy.len(), 3);\n    let array_val2 = array![\"val1\", \"val2\", \"val3\", \"val4\"];\n    assert_eq!(array_val2.len(), 4);\n    let string_val = JsonValue::from(\"string value\");\n    let string_copy = string_val.clone();\n    assert_eq!(string_copy, JsonValue::from(\"string value\"));\n    let mut src_object = object!{\"key0\" => 10};\n    let object_copy = src_object.clone();\n    assert_eq!(src_object.len(), 1);\n    assert_eq!(object_copy.len(), 1);\n    src_object.index_mut(\"key1\") = JsonValue::from(15);\n    assert_eq!(src_object.len(), 2);\n    assert_eq!(object_copy.len(), 1);\n}"
+    },
+    {
+      "id": "replay_main_valuetest_getarrayvalue",
+      "source_case_ids": [
+        "main_valuetest_getarrayvalue"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::len"
+      ],
+      "support_target_functions": [],
+      "description": "Test size of array after assigning elements",
+      "normalization": "observable equality comparison using assert_eq!",
+      "evidence": "source_test_lib_json/main.cpp ValueTest::getArrayValue lines 521-537; assertion array.size() == 5",
+      "input": "Create array with 5 elements via array! macro",
+      "expected": {
+        "observable_behavior": "len() returns 5"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_valuetest_getarrayvalue() {\n    let array = json::array![0, 1, 2, 3, 4];\n    assert_eq!(array.len(), 5);\n}"
+    },
+    {
+      "id": "replay_main_valuetest_membercount",
+      "source_case_ids": [
+        "main_valuetest_membercount"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::len"
+      ],
+      "support_target_functions": [],
+      "description": "Test member count (size) for various JsonValue types",
+      "normalization": "observable equality comparison using assert_eq!",
+      "evidence": "source_test_lib_json/main.cpp ValueTest::memberCount lines 236-256; assertions on size for null, empty array, empty object, integer, etc.",
+      "input": "Create various JsonValue instances (null, empty array/object, integer, bool, string, etc.)",
+      "expected": {
+        "observable_behavior": "non-container types and empty containers have len() == 0; arrays/objects with one element have len() == 1"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_valuetest_membercount() {\n    use json::JsonValue;\n    let null_val = JsonValue::Null;\n    let empty_array = json::array![];\n    let empty_object = json::object!{};\n    let integer_val = JsonValue::from(123456789);\n    let bool_val = JsonValue::from(true);\n    let string_val = JsonValue::from(\"sometext with space\");\n    assert_eq!(null_val.len(), 0);\n    assert_eq!(empty_array.len(), 0);\n    assert_eq!(empty_object.len(), 0);\n    assert_eq!(integer_val.len(), 0);\n    assert_eq!(bool_val.len(), 0);\n    assert_eq!(string_val.len(), 0);\n    let array1 = json::array![\"a\"];\n    assert_eq!(array1.len(), 1);\n    let object1 = json::object!{\"key\" => \"value\"};\n    assert_eq!(object1.len(), 1);\n}"
+    },
+    {
+      "id": "replay_main_valuetest_null",
+      "source_case_ids": [
+        "main_valuetest_null"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::isArray",
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isNull",
+        "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+        "src/lib_json/json_value.cpp::Json::Value::isObject",
+        "src/lib_json/json_value.cpp::Json::Value::isString"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::is_array",
+        "src/value/mod.rs::JsonValue::is_boolean",
+        "src/value/mod.rs::JsonValue::is_null",
+        "src/value/mod.rs::JsonValue::is_number",
+        "src/value/mod.rs::JsonValue::is_object",
+        "src/value/mod.rs::JsonValue::is_string"
+      ],
+      "support_target_functions": [],
+      "description": "Test type-checking methods on a null JsonValue",
+      "normalization": "boolean assertion using assert! / assert!",
+      "evidence": "source_test_lib_json/main.cpp ValueTest::null lines 616-651; assertions on isNull, isConvertibleTo, etc.",
+      "input": "Create null JsonValue",
+      "expected": {
+        "observable_behavior": "is_null() returns true; is_boolean(), is_number(), is_string(), is_array(), is_object() return false"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_valuetest_null() {\n    use json::JsonValue;\n    let null_val = JsonValue::Null;\n    assert!(null_val.is_null());\n    assert!(!null_val.is_boolean());\n    assert!(!null_val.is_number());\n    assert!(!null_val.is_string());\n    assert!(!null_val.is_array());\n    assert!(!null_val.is_object());\n}"
+    },
+    {
+      "id": "replay_main_valuetest_objects",
+      "source_case_ids": [
+        "main_valuetest_objects"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_value.cpp::Json::Value::demand",
+        "src/lib_json/json_value.cpp::Json::Value::isArray",
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isNull",
+        "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+        "src/lib_json/json_value.cpp::Json::Value::isObject",
+        "src/lib_json/json_value.cpp::Json::Value::isString",
+        "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70"
+      ],
+      "target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+        "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
+        "src/value/mod.rs::JsonValue::is_array",
+        "src/value/mod.rs::JsonValue::is_boolean",
+        "src/value/mod.rs::JsonValue::is_null",
+        "src/value/mod.rs::JsonValue::is_number",
+        "src/value/mod.rs::JsonValue::is_object",
+        "src/value/mod.rs::JsonValue::is_string",
+        "src/value/mod.rs::JsonValue::len",
+        "src/value/mod.rs::JsonValue::remove"
+      ],
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::len"
+      ],
+      "description": "Test object type checks, demand (index_mut), and removeMember",
+      "normalization": "observable equality and boolean assertions",
+      "evidence": "source_test_lib_json/main.cpp ValueTest::objects lines 254-370; assertions on type, find, demand, removeMember, size",
+      "input": "Create empty object, object with key, use index_mut to add key, remove key, check type and size",
+      "expected": {
+        "observable_behavior": "is_object() true for objects; index_mut inserts and allows mutation; remove returns removed value and reduces size; isString true for string values"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_valuetest_objects() {\n    use json::{JsonValue, object};\n    let mut obj1 = object!{\"id\" => 1234};\n    assert!(obj1.is_object());\n    assert!(!obj1.is_array());\n    assert!(!obj1.is_null());\n    assert_eq!(obj1.len(), 1);\n    obj1.index_mut(\"yet another id\") = JsonValue::from(\"baz\");\n    assert_eq!(obj1.len(), 2);\n    let removed = obj1.remove(\"yet another id\");\n    assert_eq!(removed, JsonValue::from(\"baz\"));\n    assert_eq!(obj1.len(), 1);\n    let string_val = JsonValue::from(\"test\");\n    assert!(string_val.is_string());\n    let empty_obj = json::object!{};\n    assert!(empty_obj.is_object());\n    assert_eq!(empty_obj.len(), 0);\n}"
+    },
+    {
+      "id": "replay_main_valuetest_resizearray",
+      "source_case_ids": [
+        "main_valuetest_resizearray"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::len"
+      ],
+      "support_target_functions": [],
+      "description": "Test size after creating arrays of various lengths",
+      "normalization": "observable equality comparison using assert_eq!",
+      "evidence": "source_test_lib_json/main.cpp ValueTest::resizeArray lines 465-485; assertions on array.size() after resize and clear",
+      "input": "Create arrays with 10, 15, 5, and 0 elements",
+      "expected": {
+        "observable_behavior": "len() returns the number of elements present: 10, 15, 5, 0 respectively"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_valuetest_resizearray() {\n    let array10 = json::array![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];\n    assert_eq!(array10.len(), 10);\n    let array15 = json::array![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];\n    assert_eq!(array15.len(), 15);\n    let array5 = json::array![0, 1, 2, 3, 4];\n    assert_eq!(array5.len(), 5);\n    let array0 = json::array![];\n    assert_eq!(array0.len(), 0);\n}"
+    },
+    {
+      "id": "main_valuetest_resizepopulatesallmissingelements",
+      "source_case_ids": [
+        "main_valuetest_resizepopulatesallmissingelements"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945",
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::len",
+        "src/value/mod.rs::JsonValue::members_mut"
+      ],
+      "support_target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_9bca93f0"
+      ],
+      "description": "Resize array populates all missing elements with null",
+      "normalization": "observable comparison rule: len and all elements equal Null",
+      "evidence": "src/test_lib_json/main.cpp: resizePopulatesAllMissingElements: JSONTEST_ASSERT_EQUAL(n, v.size()); JSONTEST_ASSERT_EQUAL(n, std::distance(v.begin(), v.end())); JSONTEST_ASSERT_EQUAL(v.front(), Json::Value{}); JSONTEST_ASSERT_EQUAL(v.back(), Json::Value{}); for loop asserts each element is null",
+      "input": "Create array with resize(10)",
+      "expected": {
+        "observable_behavior": "size == 10, all elements are null"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_valuetest_resizepopulatesallmissingelements() {\n    use json::JsonValue;\n    let n = 10usize;\n    let mut v = JsonValue::from(vec![JsonValue::Null; n]);\n    assert_eq!(v.len(), n);\n    for elem in v.members_mut() {\n        assert_eq!(elem, &JsonValue::Null);\n    }\n}"
+    },
+    {
+      "id": "main_valuetest_searchvaluebypath",
+      "source_case_ids": [
+        "main_valuetest_searchvaluebypath"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_writer.cpp::Json::FastWriter::write"
+      ],
+      "target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+        "src/value/mod.rs::JsonValue::dump"
+      ],
+      "support_target_functions": [],
+      "description": "Construct Value from C-string and write with FastWriter",
+      "normalization": "compare output string with expected compact JSON with newline",
+      "evidence": "src/test_lib_json/main.cpp: searchValueByPath: FastWriter::write(root) and defaultValue construction",
+      "input": "build object and default string, then write",
+      "expected": {
+        "observable_behavior": "output matches expected strings\\n\"{\\\"property1\\\":[0,1],\\\"property2\\\":{\\\"object\\\":\\\"object\\\"}}\\n\" and \"\\\"error\\\"\\n\""
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_valuetest_searchvaluebypath() {\n    use json::JsonValue;\n    let root = json::object!{\n        \"property1\" => json::array![0, 1],\n        \"property2\" => json::object!{\n            \"object\" => \"object\"\n        }\n    };\n    let expected = \"{\\\"property1\\\":[0,1],\\\"property2\\\":{\\\"object\\\":\\\"object\\\"}}\\n\";\n    let outcome = root.dump();\n    assert_eq!(outcome, expected);\n    let default = JsonValue::from(\"error\");\n    let out_default = default.dump();\n    assert_eq!(out_default, \"\\\"error\\\"\\n\");\n}"
+    },
+    {
+      "id": "main_valuetest_specialfloats",
+      "source_case_ids": [
+        "main_valuetest_specialfloats"
+      ],
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "target_functions": [
+        "src/lib.rs::stringify"
+      ],
+      "support_target_functions": [],
+      "description": "Write special float values (NaN, Infinity) with writeString",
+      "normalization": "compare output strings with expected literal NaN/Infinity/-Infinity",
+      "evidence": "src/test_lib_json/main.cpp: specialFloats: JSONTEST_ASSERT_STRING_EQUAL(expected, result) for NaN, Infinity, -Infinity",
+      "input": "JsonValue with NaN, Infinity, -Infinity",
+      "expected": {
+        "observable_behavior": "stringify returns 'NaN', 'Infinity', '-Infinity'"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_valuetest_specialfloats() {\n    use json::stringify;\n    let nan = json::value!(std::f64::NAN);\n    assert_eq!(stringify(nan), \"NaN\");\n    let inf = json::value!(std::f64::INFINITY);\n    assert_eq!(stringify(inf), \"Infinity\");\n    let neg_inf = json::value!(std::f64::NEG_INFINITY);\n    assert_eq!(stringify(neg_inf), \"-Infinity\");\n}"
+    },
+    {
+      "id": "main_valuetest_strings",
+      "source_case_ids": [
+        "main_valuetest_strings"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::asCString",
+        "src/lib_json/json_value.cpp::Json::Value::isArray",
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isNull",
+        "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+        "src/lib_json/json_value.cpp::Json::Value::isObject",
+        "src/lib_json/json_value.cpp::Json::Value::isString"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::is_array",
+        "src/value/mod.rs::JsonValue::is_boolean",
+        "src/value/mod.rs::JsonValue::is_null",
+        "src/value/mod.rs::JsonValue::is_number",
+        "src/value/mod.rs::JsonValue::is_object",
+        "src/value/mod.rs::JsonValue::is_string"
+      ],
+      "support_target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
+      ],
+      "description": "Test string value type checks and as_str",
+      "normalization": "assert is_* methods return correct bools and as_str returns string",
+      "evidence": "src/test_lib_json/main.cpp: strings: JSONTEST_ASSERT_EQUAL(Json::stringValue, string1_.type()); checks on emptyString_, string_, string1_",
+      "input": "Create empty string, 'a', 'sometext with space'",
+      "expected": {
+        "observable_behavior": "is_string true for all, as_str returns Some(string), other is_* false"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn main_valuetest_strings() {\n    use json::JsonValue;\n    let empty = JsonValue::from(\"\");\n    let a = JsonValue::from(\"a\");\n    let text = JsonValue::from(\"sometext with space\");\n    for v in &[&empty, &a, &text] {\n        assert!(v.is_string());\n        assert!(v.as_str().is_some());\n        assert!(!v.is_object());\n        assert!(!v.is_array());\n        assert!(!v.is_boolean());\n        assert!(!v.is_null());\n        assert!(!v.is_number());\n    }\n    assert_eq!(a.as_str(), Some(\"a\"));\n    assert_eq!(text.as_str(), Some(\"sometext with space\"));\n}"
+    },
+    {
+      "id": "main_valuetest_typechecksthrowexceptions",
+      "source_case_ids": [
+        "main_valuetest_typechecksthrowexceptions"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::asCString",
+        "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::remove"
+      ],
+      "support_target_functions": [],
+      "description": "Call as_str and remove on non-string/non-object values should panic",
+      "normalization": "each call should unwind",
+      "evidence": "src/test_lib_json/main.cpp: typeChecksThrowExceptions: JSONTEST_ASSERT_THROWS on asCString and removeMember for non-string/non-object",
+      "input": "Create int, string, object, array values",
+      "expected": {
+        "observable_behavior": "calling as_str on int/object/array panics, calling remove on int/string/array panics"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "medium",
+      "rust_test_body": "#[test]\nfn main_valuetest_typechecksthrowexceptions() {\n    use json::JsonValue;\n    let int_val = JsonValue::from(1);\n    let str_val = JsonValue::from(\"Test\");\n    let obj_val = json::object!{};\n    let arr_val = json::array![];\n    for v in &[&int_val, &str_val, &obj_val, &arr_val] {\n        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| { v.as_str(); }));\n        assert!(result.is_err());\n    }\n    let mut int_mut = int_val;\n    assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| { int_mut.remove(\"test\"); })).is_err());\n    let mut str_mut = str_val;\n    assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| { str_mut.remove(\"test\"); })).is_err());\n    let mut arr_mut = arr_val;\n    assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| { arr_mut.remove(\"test\"); })).is_err());\n}"
+    },
+    {
+      "id": "main_valuetest_widestring",
+      "source_case_ids": [
+        "main_valuetest_widestring"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::toStyledString"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "description": "Write unicode string using toStyledString (pretty)",
+      "normalization": "output contains the unicode string sequence",
+      "evidence": "src/test_lib_json/main.cpp: WideString: toStyledString called on value with unicode key/value, then parse roundtrip",
+      "input": "Create object with 'abc' = unicode string \"式，进\"",
+      "expected": {
+        "observable_behavior": "pretty output contains the unicode string"
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "medium",
+      "rust_test_body": "#[test]\nfn main_valuetest_widestring() {\n    let uni = \"式，进\";\n    let root = json::object!{\n        \"abc\" => uni\n    };\n    let styled = root.pretty(1);\n    assert!(styled.contains(uni));\n}"
+    },
+    {
+      "id": "replay_main_valuetest_zeroes",
+      "source_case_ids": [
+        "main_valuetest_zeroes"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::remove"
+      ],
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "description": "Remove member with key \"top\" from object containing binary string value (with null byte) and verify removed value matches, then remove same key again and verify returned value is Null.",
+      "normalization": "Equality of returned JsonValue with expected JsonValue::String using PartialEq.",
+      "evidence": "src/test_lib_json/main.cpp ValueTest.zeroes: removeMember with key \"top\" returns binary string; second remove returns falsy and removed unchanged.",
+      "input": {
+        "case": "Object with single key 'top' mapped to JsonValue::String containing null byte ('h\\0i\\0')"
+      },
+      "expected": {
+        "observable_behavior": "First remove returns JsonValue::String equal to binary; second remove returns JsonValue::Null."
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_valuetest_zeroes() {\n    let binary_str = \"h\\0i\\0\";\n    let mut root = json::object!{};\n    root.insert(\"top\", json::JsonValue::String(binary_str.to_string())).expect(\"insert failed\");\n    let removed1 = root.remove(\"top\");\n    assert_eq!(removed1, json::JsonValue::String(binary_str.to_string()));\n    let removed2 = root.remove(\"top\");\n    assert_eq!(removed2, json::JsonValue::Null);\n}"
+    },
+    {
+      "id": "replay_main_valuetest_zeroesinkeys",
+      "source_case_ids": [
+        "main_valuetest_zeroesinkeys"
+      ],
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::insert",
+        "src/value/mod.rs::JsonValue::remove"
+      ],
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::insert"
+      ],
+      "description": "Remove member with binary string key containing null byte from object and verify removed value matches, then remove same key again and verify returned value is Null.",
+      "normalization": "Equality of returned JsonValue with expected JsonValue::String using PartialEq.",
+      "evidence": "src/test_lib_json/main.cpp ValueTest.zeroesInKeys: removeMember with binary key returns \"there\"; second remove returns falsy and removed unchanged.",
+      "input": {
+        "case": "Object with single key (binary string containing null byte 'h\\0i\\0') mapped to JsonValue::String \"there\""
+      },
+      "expected": {
+        "observable_behavior": "First remove returns JsonValue::String \"there\"; second remove returns JsonValue::Null."
+      },
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "rust_test_body": "#[test]\nfn replay_main_valuetest_zeroesinkeys() {\n    let key_str = \"h\\0i\\0\";\n    let mut root = json::object!{};\n    root.insert(key_str, json::JsonValue::String(\"there\".to_string())).expect(\"insert failed\");\n    let removed1 = root.remove(key_str);\n    assert_eq!(removed1, json::JsonValue::String(\"there\".to_string()));\n    let removed2 = root.remove(key_str);\n    assert_eq!(removed2, json::JsonValue::Null);\n}"
+    }
+  ],
+  "unresolved_behavior_cases": [
+    {
+      "case_id": "main_valuetest_integers",
+      "reason": "source_context_too_large_for_adapter_conversion",
+      "details": "The source test context exceeds the configured per-case budget and is not sent to the LLM. source_context_chars=27740, limit=20000, reason=full_test_definition_exceeds_limit."
+    },
+    {
+      "case_id": "main_charreaderallowdropnulltest_issue178",
+      "reason": "Missing target API for object/array element access (Index trait not in allowed UUIDs) necessary to verify null placeholders and array indices.",
+      "details": "Source test checks root[\"a\"] and arrGetAnd(index). Allowed target APIs do not include indexing methods for JsonValue or Object. Cannot replicate assertions without indexing."
+    },
+    {
+      "case_id": "main_charreaderallownumerickeystest_allownumerickeys",
+      "reason": "Missing target API for object field access (root.get(key, default) not available; Index trait not allowed).",
+      "details": "Source test uses root.get(\"15\", false) and similar. No equivalent method in allowed target APIs."
+    },
+    {
+      "case_id": "main_charreaderallowsinglequotestest_issue182",
+      "reason": "Missing target API for object field access and string extraction via root[\"a\"].asString().",
+      "details": "Source test uses root[\"a\"].asString() and root.get. Neither are available with allowed target APIs."
+    },
+    {
+      "case_id": "main_charreaderallowspecialfloatstest_issue209",
+      "reason": "Missing target API for object field access (root.get and root[\"a\"]) needed to verify special float values in object context.",
+      "details": "Source test checks root[\"a\"].asDouble(), root.get(\"b\",0.0), etc. Allowed target APIs lack indexing to access these fields."
+    },
+    {
+      "case_id": "main_charreaderallowzeroestest_issue176",
+      "reason": "Missing target API for object field access (root.get and root[\"a\"].asString()); also test uses allowSingleQuotes setting which has no target equivalent.",
+      "details": "Source test code identical to allowSingleQuotes case, same API limitations apply."
+    },
+    {
+      "case_id": "main_charreaderfailifextratest_commentafterarray",
+      "reason": "Missing target API for array element access (root[1u]) required to verify parsed value.",
+      "details": "Source test checks root[1u] == \"value\". No array indexing method in allowed target APIs."
+    },
+    {
+      "case_id": "main_charreaderfailifextratest_commentafterobject",
+      "reason": "Missing target API for object field access (root[\"property\"]) required to verify parsed value.",
+      "details": "Source test checks root[\"property\"] == \"value\". No object indexing in allowed target APIs."
+    },
+    {
+      "case_id": "main_charreaderfailifextratest_issue107",
+      "reason": "Cannot replicate source assertion root.asInt() after failed parse because target parse returns Err with no value on failure, and as_i64 cannot be called.",
+      "details": "Source expects parse to fail but still provide root with int value 1. Target API does not support extracting value from error."
+    },
+    {
+      "case_id": "main_charreaderfailifextratest_issue164",
+      "reason": "Target does not support CharReaderBuilder settings (failIfExtra, strictMode). The source test sets multiple settings that produce different parse outcomes for the same document, which cannot be replicated in the target where parse has a single behavior.",
+      "details": "The source test has four blocks with different settings; the target has no equivalent settings API. Cannot deterministically replay observable behavior."
+    },
+    {
+      "case_id": "main_fuzztest_fuzzdoesntcrash",
+      "reason": "No observable behavior for aligned source function size in the test; the test only calls a non-aligned fuzz function.",
+      "details": "The source test does not contain any assertion or usage of the aligned source function size. The only assertion is on the return value of LLVMFuzzerTestOneInput, which is not aligned. Cannot derive expected behavior for size."
+    },
+    {
+      "case_id": "main_iteratortest_indexes",
+      "reason": "Target array iteration does not expose key/name/index.",
+      "details": "Source test accesses key(), name(), index() on an array iterator. Rust members_mut on array yields only values, without key information. These methods are not available in the target API."
+    },
+    {
+      "case_id": "main_iteratortest_names",
+      "reason": "Target object iteration does not expose key/name/memberName.",
+      "details": "Source test accesses key(), name(), memberName() on an object iterator. Rust members on object yields only values, without key information. These methods are not available in the target API."
+    },
+    {
+      "case_id": "main_parsewithstructurederrorstest_singleerror",
+      "reason": "Target parse function does not return structured errors with offsets and messages; cannot replay structured error verification.",
+      "details": "The source test expects parse failure with specific offset_start=2, offset_limit=3, message='Missing ' or object member name'. The target crate's parse() returns Result<JsonValue> with limited error variants (e.g., UnexpectedCharacter) and no position information. Cannot replicate the structured error assertion."
+    },
+    {
+      "case_id": "main_valuetest_arrayinsertatrandomindex",
+      "reason": "Target does not provide equivalent array insertion and indexing APIs to replay the observed behavior; aligned source function (Value constructor) alone is insufficient to replicate the test's observable behavior.",
+      "details": "Source test heavily uses array.insert, operator[], front, back, and address comparisons. Target lacks IndexMut for arrays, no insert function, and no front/back methods within the allowed API set. A meaningful replay cannot be constructed."
+    },
+    {
+      "case_id": "main_valuetest_arrays",
+      "reason": "Target does not provide array index access or mutable index assignment needed to replicate the test's observable behavior; aligned APIs are insufficient.",
+      "details": "Source test uses array element access via operator[] (const and non-const), front(), back(), and removal. Target lacks Index/IndexMut for arrays, and front/back methods. The aligned APIs (Value constructor, type predicates, removeIndex) cannot reproduce the element access and modification checks."
+    },
+    {
+      "case_id": "main_valuetest_comparearray",
+      "reason": "Aligned source function (Value constructor) is not used in the test; the test uses copy construction and comparison predicates that cannot be mapped to the aligned target API.",
+      "details": "Source test creates arrays via append and then compares using checkIsLess/checkIsEqual. The aligned function is Value(const char*) which is not used. No target equivalent for copy construction or comparison exist in the allowed set."
+    },
+    {
+      "case_id": "main_valuetest_comparenull",
+      "reason": "Aligned source function (Value constructor) does not match the test usage; test uses default constructor and nullSingleton, not string constructor.",
+      "details": "The aligned source function is Value(const char*), but the test uses Value() (default) and Json::Value::nullSingleton(). No target equivalent for default construction or null singleton is available in the aligned functions."
+    },
+    {
+      "case_id": "main_valuetest_compareobject",
+      "reason": "Aligned source function (Value constructor) does not match the test usage; test creates objects via bracket assignment and compares using checkIsLess/checkIsEqual.",
+      "details": "The aligned source function is Value(const char*), but the test uses operator[] to build objects. No target equivalents for object construction via indexing or comparison are available in the allowed set."
+    },
+    {
+      "case_id": "main_valuetest_comparetype",
+      "reason": "target lacks ordering comparison functions to replicate checkIsLess semantics",
+      "details": "Source test requires operator< for Json::Value of different types, which has no direct target equivalent (PartialOrd not implemented). Aligned source function only covers constructor; cannot reproduce observable ordering behavior."
+    },
+    {
+      "case_id": "main_valuetest_copymovearray",
+      "reason": "target does not expose array indexing or get methods required for element access",
+      "details": "Source test copies/moves array and accesses elements via operator[]. Target lacks public array indexing (Index<usize>) and get() in allowed APIs. Cannot replay element assertions."
+    },
+    {
+      "case_id": "main_valuetest_nonintegers",
+      "reason": "aligned source functions do not match the test's numeric usage",
+      "details": "Aligned source functions include only the string constructor and is* methods, but source test primarily uses double constructor (not aligned) and as*/isConvertibleTo APIs not in aligned set. Cannot construct a meaningful test upholding source-grounded expectations."
+    },
+    {
+      "case_id": "main_valuetest_precision",
+      "reason": "target lacks configurable precision in stringify",
+      "details": "Source test uses StreamWriterBuilder with precision settings. Target stringify uses fixed dump format with no exposed precision controls. Cannot reproduce the precision-specific expected strings."
+    }
+  ],
+  "_behavior_case_coverage": {
+    "required_behavior_case_count": 109,
+    "available_behavior_case_count": 109,
+    "initial_context_behavior_case_count": 109,
+    "initial_context_unlisted_behavior_case_count": 0,
+    "unresolved_unlisted_behavior_case_count": 0,
+    "unresolved_unlisted_behavior_case_ids": [],
+    "behavior_case_context_truncated": false,
+    "replayed_behavior_case_count": 80,
+    "replayed_behavior_case_ids": [
+      "main_charreaderallowspecialfloatstest_specialfloat",
+      "main_charreaderfailifextratest_commentafterbool",
+      "main_charreaderfailifextratest_parsecomment",
+      "main_charreaderstrictmodetest_dupkeys",
+      "main_charreadertest_parsearraywitherrors",
+      "main_charreadertest_parsechinesewithoneerror",
+      "main_charreadertest_parsecomment",
+      "main_charreadertest_parsenumber",
+      "main_charreadertest_parseobjectwitherrors",
+      "main_charreadertest_parsestring",
+      "main_charreadertest_parsewithdetailerror",
+      "main_charreadertest_parsewithnoerrors",
+      "main_charreadertest_parsewithnoerrorstestingoffsets",
+      "main_charreadertest_parsewithoneerror",
+      "main_charreadertest_parsewithstacklimit",
+      "main_escapesequencetest_charreaderparseescapesequence",
+      "main_escapesequencetest_readerparseescapesequence",
+      "main_escapesequencetest_writeescapesequence",
+      "main_fastwritertest_dropnullplaceholders",
+      "main_fastwritertest_enableyamlcompatibility",
+      "main_fastwritertest_omitendinglinefeed",
+      "main_fastwritertest_writearrays",
+      "main_fastwritertest_writenestedobjects",
+      "main_fastwritertest_writenumericvalue",
+      "main_iteratortest_constness",
+      "main_iteratortest_decrement",
+      "main_iteratortest_reverseiterator",
+      "main_membertemplateas_behavessameasnamedas",
+      "main_membertemplateis_behavessameasnamedis",
+      "main_parsewithstructurederrorstest_success",
+      "main_readertest_parsearray",
+      "main_readertest_parsechinesewithoneerror",
+      "main_readertest_parsecomment",
+      "main_readertest_parseobject",
+      "main_readertest_parsespecialfloat",
+      "main_readertest_parsestring",
+      "main_readertest_parsewithdetailerror",
+      "main_readertest_parsewithnoerrors",
+      "main_readertest_parsewithnoerrorstestingoffsets",
+      "main_readertest_parsewithoneerror",
+      "main_readertest_pusherrortest",
+      "main_readertest_streamparsewithnoerrors",
+      "main_readertest_strictmodeparsenumber",
+      "main_streamwritertest_dropnullplaceholders",
+      "main_streamwritertest_enableyamlcompatibility",
+      "main_streamwritertest_escapecontrolcharacters",
+      "main_streamwritertest_escapetabcharacterwindows",
+      "main_streamwritertest_indentation",
+      "main_streamwritertest_multilinearray",
+      "main_streamwritertest_unicode",
+      "main_streamwritertest_writearrays",
+      "main_streamwritertest_writenestedobjects",
+      "main_streamwritertest_writenumericvalue",
+      "main_streamwritertest_writezeroes",
+      "main_styledstreamwritertest_multilinearray",
+      "main_styledstreamwritertest_writearrays",
+      "main_styledstreamwritertest_writenestedobjects",
+      "main_styledstreamwritertest_writenumericvalue",
+      "main_styledstreamwritertest_writevaluewithcomment",
+      "main_styledwritertest_multilinearray",
+      "main_styledwritertest_writearrays",
+      "main_styledwritertest_writenestedobjects",
+      "main_styledwritertest_writenumericvalue",
+      "main_styledwritertest_writevaluewithcomment",
+      "main_valuetest_bools",
+      "main_valuetest_commentbefore",
+      "main_valuetest_copyobject",
+      "main_valuetest_getarrayvalue",
+      "main_valuetest_membercount",
+      "main_valuetest_null",
+      "main_valuetest_objects",
+      "main_valuetest_resizearray",
+      "main_valuetest_resizepopulatesallmissingelements",
+      "main_valuetest_searchvaluebypath",
+      "main_valuetest_specialfloats",
+      "main_valuetest_strings",
+      "main_valuetest_typechecksthrowexceptions",
+      "main_valuetest_widestring",
+      "main_valuetest_zeroes",
+      "main_valuetest_zeroesinkeys"
+    ],
+    "unresolved_behavior_case_count": 23,
+    "unresolved_behavior_case_ids": [
+      "main_charreaderallowdropnulltest_issue178",
+      "main_charreaderallownumerickeystest_allownumerickeys",
+      "main_charreaderallowsinglequotestest_issue182",
+      "main_charreaderallowspecialfloatstest_issue209",
+      "main_charreaderallowzeroestest_issue176",
+      "main_charreaderfailifextratest_commentafterarray",
+      "main_charreaderfailifextratest_commentafterobject",
+      "main_charreaderfailifextratest_issue107",
+      "main_charreaderfailifextratest_issue164",
+      "main_fuzztest_fuzzdoesntcrash",
+      "main_iteratortest_indexes",
+      "main_iteratortest_names",
+      "main_parsewithstructurederrorstest_singleerror",
+      "main_valuetest_arrayinsertatrandomindex",
+      "main_valuetest_arrays",
+      "main_valuetest_comparearray",
+      "main_valuetest_comparenull",
+      "main_valuetest_compareobject",
+      "main_valuetest_comparetype",
+      "main_valuetest_copymovearray",
+      "main_valuetest_integers",
+      "main_valuetest_nonintegers",
+      "main_valuetest_precision"
+    ],
+    "accounted_behavior_case_ids": [
+      "main_charreaderallowdropnulltest_issue178",
+      "main_charreaderallownumerickeystest_allownumerickeys",
+      "main_charreaderallowsinglequotestest_issue182",
+      "main_charreaderallowspecialfloatstest_issue209",
+      "main_charreaderallowspecialfloatstest_specialfloat",
+      "main_charreaderallowzeroestest_issue176",
+      "main_charreaderfailifextratest_commentafterarray",
+      "main_charreaderfailifextratest_commentafterbool",
+      "main_charreaderfailifextratest_commentafterobject",
+      "main_charreaderfailifextratest_issue107",
+      "main_charreaderfailifextratest_issue164",
+      "main_charreaderfailifextratest_parsecomment",
+      "main_charreaderstrictmodetest_dupkeys",
+      "main_charreadertest_parsearraywitherrors",
+      "main_charreadertest_parsechinesewithoneerror",
+      "main_charreadertest_parsecomment",
+      "main_charreadertest_parsenumber",
+      "main_charreadertest_parseobjectwitherrors",
+      "main_charreadertest_parsestring",
+      "main_charreadertest_parsewithdetailerror",
+      "main_charreadertest_parsewithnoerrors",
+      "main_charreadertest_parsewithnoerrorstestingoffsets",
+      "main_charreadertest_parsewithoneerror",
+      "main_charreadertest_parsewithstacklimit",
+      "main_escapesequencetest_charreaderparseescapesequence",
+      "main_escapesequencetest_readerparseescapesequence",
+      "main_escapesequencetest_writeescapesequence",
+      "main_fastwritertest_dropnullplaceholders",
+      "main_fastwritertest_enableyamlcompatibility",
+      "main_fastwritertest_omitendinglinefeed",
+      "main_fastwritertest_writearrays",
+      "main_fastwritertest_writenestedobjects",
+      "main_fastwritertest_writenumericvalue",
+      "main_fuzztest_fuzzdoesntcrash",
+      "main_iteratortest_constness",
+      "main_iteratortest_decrement",
+      "main_iteratortest_indexes",
+      "main_iteratortest_names",
+      "main_iteratortest_reverseiterator",
+      "main_membertemplateas_behavessameasnamedas",
+      "main_membertemplateis_behavessameasnamedis",
+      "main_parsewithstructurederrorstest_singleerror",
+      "main_parsewithstructurederrorstest_success",
+      "main_readertest_parsearray",
+      "main_readertest_parsechinesewithoneerror",
+      "main_readertest_parsecomment",
+      "main_readertest_parseobject",
+      "main_readertest_parsespecialfloat",
+      "main_readertest_parsestring",
+      "main_readertest_parsewithdetailerror",
+      "main_readertest_parsewithnoerrors",
+      "main_readertest_parsewithnoerrorstestingoffsets",
+      "main_readertest_parsewithoneerror",
+      "main_readertest_pusherrortest",
+      "main_readertest_streamparsewithnoerrors",
+      "main_readertest_strictmodeparsenumber",
+      "main_streamwritertest_dropnullplaceholders",
+      "main_streamwritertest_enableyamlcompatibility",
+      "main_streamwritertest_escapecontrolcharacters",
+      "main_streamwritertest_escapetabcharacterwindows",
+      "main_streamwritertest_indentation",
+      "main_streamwritertest_multilinearray",
+      "main_streamwritertest_unicode",
+      "main_streamwritertest_writearrays",
+      "main_streamwritertest_writenestedobjects",
+      "main_streamwritertest_writenumericvalue",
+      "main_streamwritertest_writezeroes",
+      "main_styledstreamwritertest_multilinearray",
+      "main_styledstreamwritertest_writearrays",
+      "main_styledstreamwritertest_writenestedobjects",
+      "main_styledstreamwritertest_writenumericvalue",
+      "main_styledstreamwritertest_writevaluewithcomment",
+      "main_styledwritertest_multilinearray",
+      "main_styledwritertest_writearrays",
+      "main_styledwritertest_writenestedobjects",
+      "main_styledwritertest_writenumericvalue",
+      "main_styledwritertest_writevaluewithcomment",
+      "main_valuetest_arrayinsertatrandomindex",
+      "main_valuetest_arrays",
+      "main_valuetest_bools",
+      "main_valuetest_commentbefore",
+      "main_valuetest_comparearray",
+      "main_valuetest_comparenull",
+      "main_valuetest_compareobject",
+      "main_valuetest_comparetype",
+      "main_valuetest_copymovearray",
+      "main_valuetest_copyobject",
+      "main_valuetest_getarrayvalue",
+      "main_valuetest_integers",
+      "main_valuetest_membercount",
+      "main_valuetest_nonintegers",
+      "main_valuetest_null",
+      "main_valuetest_objects",
+      "main_valuetest_precision",
+      "main_valuetest_resizearray",
+      "main_valuetest_resizepopulatesallmissingelements",
+      "main_valuetest_searchvaluebypath",
+      "main_valuetest_specialfloats",
+      "main_valuetest_strings",
+      "main_valuetest_typechecksthrowexceptions",
+      "main_valuetest_widestring",
+      "main_valuetest_zeroes",
+      "main_valuetest_zeroesinkeys"
+    ],
+    "missing_behavior_case_count": 6,
+    "missing_behavior_case_ids": [
+      "main_iteratortest_convert",
+      "main_iteratortest_distance",
+      "main_iteratortest_staticstringkey",
+      "main_readertest_allowdroppednullplaceholders",
+      "main_readertest_allownumerickeystest",
+      "main_valuetest_arrayissue252"
+    ],
+    "unknown_source_case_ids": [],
+    "replayed_and_unresolved_case_ids": [],
+    "invalid_event_case_bindings": [],
+    "invalid_unresolved_behavior_cases": [],
+    "events_without_source_case_ids": [],
+    "event_source_case_id_policy": "Only explicit replay_events[].source_case_ids count as behavior-case replay coverage. Function-name fallback is intentionally not used because one function can have many source test behavior variants."
+  },
+  "_adapter_source_path": "output/phase3_3b/jsoncpp_vs_json-rust_jsoncpp_macro_import_v1/effective_adapter.json",
+  "adapter_generation": {
+    "max_attempts_per_case": 3,
+    "batch_size": 10,
+    "unresolved_case_count": 6,
+    "unresolved_case_ids": [
+      "main_iteratortest_convert",
+      "main_iteratortest_distance",
+      "main_iteratortest_staticstringkey",
+      "main_readertest_allowdroppednullplaceholders",
+      "main_readertest_allownumerickeystest",
+      "main_valuetest_arrayissue252"
+    ],
+    "unresolved_cases": [
+      {
+        "case_id": "main_iteratortest_convert",
+        "status": "unresolved_behavior_case_conversion"
+      },
+      {
+        "case_id": "main_iteratortest_distance",
+        "status": "unresolved_behavior_case_conversion"
+      },
+      {
+        "case_id": "main_iteratortest_staticstringkey",
+        "status": "unresolved_behavior_case_conversion"
+      },
+      {
+        "case_id": "main_readertest_allowdroppednullplaceholders",
+        "status": "unresolved_behavior_case_conversion"
+      },
+      {
+        "case_id": "main_readertest_allownumerickeystest",
+        "status": "unresolved_behavior_case_conversion"
+      },
+      {
+        "case_id": "main_valuetest_arrayissue252",
+        "status": "unresolved_behavior_case_conversion"
+      }
+    ]
+  },
+  "_validation_errors": [],
+  "_validation_status": "passed"
+}

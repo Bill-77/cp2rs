@@ -234,7 +234,7 @@ def main():
         help="3B 每批生成 adapter 的 eligible source behavior case 数，默认 10；旧参数名仍兼容",
     )
     parser.add_argument("--three-b-keep-debug-artifacts", action="store_true",
-                        help="保留 3B LLM 生成/修复过程中的 prompt、raw response、attempt adapter 与运行 worktree；默认不生成这些调试产物，只保留正式产物")
+                        help="保留 3B LLM 生成/修复过程中的 prompt、raw response、attempt adapter 与运行 worktree；默认无调试记录，只生成正式产物")
     parser.add_argument("--three-b-alignment-report", type=str, default=None,
                         help="显式指定 3B 使用的 3A 对齐报告路径；用于非默认目录/任意仓库输入")
     parser.add_argument("--src-repo-path", type=str, default=None,
@@ -325,7 +325,7 @@ def main():
     mode_text = "场景一 (无标杆仓库)" if not args.ans else f"场景二 (引入标杆仓库 [{args.ans}])"
     completion_iteration_text = "auto" if args.three_b_completion_iterations == 0 else ("disabled" if args.three_b_completion_iterations < 0 else str(args.three_b_completion_iterations))
     print(f"🛠️  运行模式: {mode_text}")
-    print(f"📌 执行阶段: {', '.join(sorted(phases))} | 3A策略: {three_a_mode} | 3B策略: {args.three_b_mode}/{args.three_b_layer}/{args.three_b_adapter_mode} | 3B每case生成上限: {args.three_b_synthesis_attempts} | 3B replay修复: {args.three_b_replay_repair_attempts} | 3B生成轮次: {completion_iteration_text} | 3B生成批量: {args.three_b_completion_batch_size} | 3B调试产物: {'保留' if args.three_b_keep_debug_artifacts else '不生成'} | 输出后缀: {normalize_output_suffix(args.output_suffix) or '(无)'}")
+    print(f"📌 执行阶段: {', '.join(sorted(phases))} | 3A策略: {three_a_mode} | 3B策略: {args.three_b_mode}/{args.three_b_layer}/{args.three_b_adapter_mode} | 3B每case生成上限: {args.three_b_synthesis_attempts} | 3B replay修复: {args.three_b_replay_repair_attempts} | 3B生成轮次: {completion_iteration_text} | 3B生成批量: {args.three_b_completion_batch_size} | 3B调试记录: {'保留' if args.three_b_keep_debug_artifacts else '无'} | 输出后缀: {normalize_output_suffix(args.output_suffix) or '(无)'}")
     print("="*60)
 
     try:

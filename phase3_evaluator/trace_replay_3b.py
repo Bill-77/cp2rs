@@ -12,6 +12,7 @@ from pathlib import Path
 from phase3_evaluator.prompts import (
     PROMPT_3B_ADAPTER_SYNTHESIS,
     PROMPT_3B_ADAPTER_CASE_GENERATION,
+    PROMPT_3B_ADAPTER_JSON_FORMAT_REPAIR,
     PROMPT_3B_REPLAY_REPAIR,
 )
 from phase3_evaluator.function_uid import iter_function_records, strip_overload_suffix
@@ -33,6 +34,10 @@ class TraceReplay3B:
     }
     ADAPTER_DIR = Path(__file__).resolve().parent / "adapters"
     GENERATED_ADAPTER_CACHE_DIR = Path("output") / "phase3_3b" / "adapters"
+    SOURCE_TEST_DEFINITION_MAX_CHARS = 12_000
+    SOURCE_TEST_HELPER_MAX_CHARS = 8_000
+    SOURCE_TEST_TOTAL_CONTEXT_MAX_CHARS = 20_000
+    LLM_OUTPUT_WINDOW_TOKENS = 100_000
 
     def __init__(
         self,
@@ -101,6 +106,7 @@ class TraceReplay3B:
         self._last_completion_budget = {
             "mode": "disabled" if self.completion_iterations < 0 else ("auto" if self.completion_iterations == 0 else "fixed"),
         }
+        self.llm_output_window_tokens = self.LLM_OUTPUT_WINDOW_TOKENS
 
     def run(self, mode="run", layer="public", artifacts_dir=None):
         self._run_started_at = time.monotonic()
@@ -288,8 +294,9 @@ class TraceReplay3B:
     def _progress(self, stage, message):
         print(f"[3B +{self._elapsed_since_start():7.1f}s] [{stage}] {message}", flush=True)
 
-    def _call_llm(self, stage, prompt, max_tokens=16000):
+    def _call_llm(self, stage, prompt, max_tokens=None):
         prompt = prompt or ""
+        max_tokens = int(max_tokens or self.llm_output_window_tokens)
         call_number = self._llm_usage["calls"] + 1
         estimated_prompt_tokens = max(1, (len(prompt) + 3) // 4)
         self._progress(
@@ -821,6 +828,7 @@ class TraceReplay3B:
             if stale_attempts_path.exists():
                 stale_attempts_path.unlink()
         current_adapter = adapter
+        self._seed_source_context_unresolved_cases(current_adapter)
         case_attempt_counts = {}
         coverage = self._adapter_behavior_case_coverage(current_adapter)
         initial_missing = list(coverage.get("missing_behavior_case_ids") or [])
@@ -840,11 +848,13 @@ class TraceReplay3B:
             "initial_unresolved_behavior_cases": len(initial_missing),
             "batch_size": self.completion_batch_size,
             "generation_unit": "eligible_source_behavior_case",
+            "llm_output_window_tokens": self.llm_output_window_tokens,
         }
         self._progress(
             "ADAPTER-GENERATION",
             f"worklist={len(initial_missing)}, batch={self.completion_batch_size}, "
-            f"max_attempts_per_case={max_attempts_per_case}, max_iterations={iteration_limit}",
+            f"max_attempts_per_case={max_attempts_per_case}, max_iterations={iteration_limit}, "
+            f"max_output_tokens={self.llm_output_window_tokens}",
         )
 
         retry_case_ids = []
@@ -929,6 +939,8 @@ class TraceReplay3B:
 
             errors = []
             accepted_case_ids = []
+            json_format_repair_used = False
+            json_format_repair_error = ""
             try:
                 candidate = self._extract_json_from_llm_reply(raw_reply)
                 if not isinstance(candidate, dict):
@@ -945,6 +957,39 @@ class TraceReplay3B:
                 errors.append(f"JSON extraction failed: {exc}")
 
             json_failure_kind = self._adapter_generation_json_failure_kind(errors)
+            original_json_failure_kind = json_failure_kind
+            if self._should_attempt_adapter_generation_json_format_repair(
+                errors,
+                raw_reply,
+            ):
+                json_format_repair_used = True
+                repaired_raw_reply = self._repair_adapter_generation_json_format(
+                    raw_reply=raw_reply,
+                    errors=errors,
+                    attempt_number=attempt_number,
+                    artifacts_path=artifacts_path,
+                )
+                if repaired_raw_reply:
+                    errors = []
+                    accepted_case_ids = []
+                    try:
+                        candidate = self._extract_json_from_llm_reply(repaired_raw_reply)
+                        if not isinstance(candidate, dict):
+                            errors.append("JSON format repair did not return a JSON object")
+                        else:
+                            current_adapter, accepted_case_ids, fragment_errors = self._accept_valid_case_fragments(
+                                current_adapter,
+                                candidate,
+                                targeted_ids,
+                                scoped_pairs=targeted_scope.get("targeted_alignment_pairs", []),
+                            )
+                            errors.extend(fragment_errors)
+                    except Exception as exc:
+                        json_format_repair_error = f"JSON extraction failed after format repair: {exc}"
+                        errors.append(json_format_repair_error)
+                    json_failure_kind = self._adapter_generation_json_failure_kind(errors)
+                else:
+                    json_format_repair_error = "JSON format repair returned empty output"
             if self._should_split_adapter_generation_batch_after_json_failure(errors, targeted_ids):
                 for case_id in targeted_ids:
                     case_attempt_counts[case_id] = max(0, case_attempt_counts.get(case_id, 0) - 1)
@@ -964,6 +1009,9 @@ class TraceReplay3B:
                     "unresolved_case_ids": targeted_ids,
                     "errors": errors,
                     "json_failure_kind": json_failure_kind,
+                    "original_json_failure_kind": original_json_failure_kind,
+                    "json_format_repair_used": json_format_repair_used,
+                    "json_format_repair_error": json_format_repair_error,
                     "split_retry_batches": split_batches,
                     "llm_output_limit": (self._llm_usage.get("call_records") or [{}])[-1].get("max_output_tokens"),
                 })
@@ -980,7 +1028,9 @@ class TraceReplay3B:
             replayed_case_ids = sorted(
                 set(targeted_ids) & set(post_coverage.get("replayed_behavior_case_ids", []))
             )
-            unresolved_case_ids = sorted(set(targeted_ids) - set(accepted_case_ids))
+            accounted_case_ids = sorted(set(accepted_case_ids))
+            resolved_as_unresolved_case_ids = sorted(set(accounted_case_ids) - set(replayed_case_ids))
+            unresolved_case_ids = sorted(set(targeted_ids) - set(accounted_case_ids))
             retry_case_ids = [
                 case_id for case_id in unresolved_case_ids
                 if case_attempt_counts.get(case_id, 0) < max_attempts_per_case
@@ -990,24 +1040,31 @@ class TraceReplay3B:
                 "stage": "behavior_case_conversion",
                 "iteration": iteration,
                 "scheduling": scheduling,
-                "status": "partial" if accepted_case_ids and errors else ("accepted" if accepted_case_ids else "failed"),
+                "status": "partial" if accounted_case_ids and errors else ("accepted" if accounted_case_ids else "failed"),
                 "targeted_case_ids": targeted_ids,
-                "accepted_case_ids": accepted_case_ids,
+                "accepted_case_ids": replayed_case_ids,
+                "accounted_case_ids": accounted_case_ids,
                 "replay_generated_case_ids": replayed_case_ids,
+                "resolved_as_unresolved_case_ids": resolved_as_unresolved_case_ids,
                 "unresolved_case_ids": unresolved_case_ids,
                 "errors": errors,
                 "json_failure_kind": json_failure_kind,
+                "original_json_failure_kind": original_json_failure_kind,
+                "json_format_repair_used": json_format_repair_used,
+                "json_format_repair_error": json_format_repair_error,
             })
             for case_id in targeted_ids:
                 if case_id in replayed_case_ids:
                     outcome = "replay_generated"
+                elif case_id in resolved_as_unresolved_case_ids:
+                    outcome = "resolved_as_unresolved"
                 else:
                     outcome = "unresolved"
                 self._note_case_conversion_attempts(
                     [case_id],
                     stage="behavior_case_conversion",
                     outcome=outcome,
-                    errors=errors if case_id not in accepted_case_ids else [],
+                    errors=errors if case_id not in accounted_case_ids else [],
                 )
             self._write_synthesis_attempts(artifacts_path, attempts)
             self._progress(
@@ -1016,7 +1073,7 @@ class TraceReplay3B:
                 f"unresolved_in_batch={len(unresolved_case_ids)}, "
                 f"retry_next={len(retry_case_ids)}",
             )
-            if accepted_case_ids:
+            if accounted_case_ids:
                 self._write_synthesized_adapter(artifacts_path, current_adapter, attempt_number)
 
         final_coverage = self._adapter_behavior_case_coverage(current_adapter)
@@ -1061,12 +1118,55 @@ class TraceReplay3B:
             }
         return feedback
 
+    def _source_context_unresolved_cases(self):
+        details = getattr(self, "_last_behavior_case_details", {}) or {}
+        unresolved = []
+        for case_id, case in sorted(details.items()):
+            if not isinstance(case, dict):
+                continue
+            if case.get("source_context_status") != "too_large_for_adapter_conversion":
+                continue
+            unresolved.append({
+                "case_id": case_id,
+                "reason": "source_context_too_large_for_adapter_conversion",
+                "details": (
+                    "The source test context exceeds the configured per-case budget and is not sent to the LLM. "
+                    f"source_context_chars={case.get('source_context_chars', 0)}, "
+                    f"limit={self.SOURCE_TEST_TOTAL_CONTEXT_MAX_CHARS}, "
+                    f"reason={case.get('source_context_status_reason', '')}."
+                ),
+            })
+        return unresolved
+
+    def _seed_source_context_unresolved_cases(self, adapter):
+        if not isinstance(adapter, dict):
+            return
+        oversized = self._source_context_unresolved_cases()
+        if not oversized:
+            return
+        unresolved = adapter.setdefault("unresolved_behavior_cases", [])
+        existing = {
+            item.get("case_id") or item.get("source_behavior_case_id")
+            for item in unresolved
+            if isinstance(item, dict)
+        }
+        added = 0
+        for item in oversized:
+            if item["case_id"] in existing:
+                continue
+            unresolved.append(item)
+            existing.add(item["case_id"])
+            added += 1
+        if added:
+            self._normalize_unresolved_behavior_cases(adapter)
+            self._progress("ADAPTER-GENERATION", f"pre-marked oversized source contexts unresolved: {added}")
+
     def _adapter_generation_max_output_tokens(self, targeted_case_count):
-        targeted_case_count = max(1, int(targeted_case_count or 1))
-        # Most per-case fragments are compact. Smaller retry batches should not
-        # reserve a 16k completion budget because the API may spend more time
-        # exploring unnecessary prose/variants.
-        return min(16000, max(4000, targeted_case_count * 1800))
+        # Keep the model output budget fixed across batch splits. Splitting
+        # reduces prompt/semantic load; shrinking the completion window at the
+        # same time defeats the purpose and can create false output-limit
+        # failures for smaller retry batches.
+        return self.llm_output_window_tokens
 
     def _adapter_generation_json_failure_kind(self, errors):
         text = "\n".join(str(error) for error in errors or [])
@@ -1099,6 +1199,41 @@ class TraceReplay3B:
             "empty_or_non_json_response",
             "malformed_json_object",
         } and len(targeted_ids or []) > 2
+
+    def _should_attempt_adapter_generation_json_format_repair(self, errors, raw_reply):
+        failure_kind = self._adapter_generation_json_failure_kind(errors)
+        if not failure_kind or failure_kind == "completion_hit_max_output":
+            return False
+        if not isinstance(raw_reply, str) or not raw_reply.strip():
+            return False
+        # Format repair is only for parseable-intent responses. It should not
+        # handle schema/semantic validation errors, and it should not try to
+        # reconstruct content that was truncated by the model output limit.
+        return failure_kind in {
+            "json_parse_error",
+            "unterminated_json_string",
+            "malformed_json_object",
+            "empty_or_non_json_response",
+        }
+
+    def _repair_adapter_generation_json_format(self, raw_reply, errors, attempt_number, artifacts_path):
+        json_error = "\n".join(str(error) for error in (errors or []) if error) or "JSON parse failed"
+        prompt = PROMPT_3B_ADAPTER_JSON_FORMAT_REPAIR.format(
+            json_error=self._truncate_text(json_error, max_chars=1200),
+            raw_response=self._truncate_text(raw_reply or "", max_chars=24000),
+        )
+        if artifacts_path and self.keep_debug_artifacts:
+            prompt_path = artifacts_path / f"behavior_case_conversion_json_format_repair_prompt_attempt_{attempt_number}.md"
+            prompt_path.write_text(prompt, encoding="utf-8")
+        repaired = self._call_llm(
+            f"behavior_case_conversion_json_format_repair_attempt_{attempt_number}",
+            prompt,
+            max_tokens=self.llm_output_window_tokens,
+        )
+        if artifacts_path and self.keep_debug_artifacts:
+            raw_path = artifacts_path / f"behavior_case_conversion_json_format_repair_raw_response_attempt_{attempt_number}.txt"
+            raw_path.write_text(repaired or "", encoding="utf-8")
+        return repaired
 
     def _split_case_batch(self, case_ids):
         case_ids = list(dict.fromkeys(case_ids or []))
@@ -1164,6 +1299,7 @@ class TraceReplay3B:
             return current_adapter, [], ["adapter generation response has invalid replay_events container"]
 
         accepted = set()
+        accepted_unresolved = set()
         errors = []
         current = json.loads(json.dumps(current_adapter))
         allowed_source_uuids, allowed_target_uuids = self._adapter_case_generation_allowed_uuids(scoped_pairs or [])
@@ -1217,6 +1353,7 @@ class TraceReplay3B:
             current = trial
             accepted.update(case_ids)
 
+        structural_unresolved = []
         for item in unresolved if isinstance(unresolved, list) else []:
             if not isinstance(item, dict):
                 continue
@@ -1225,14 +1362,80 @@ class TraceReplay3B:
                 continue
             reason = item.get("reason") or "unresolved_behavior_case_conversion"
             details = item.get("details") or item.get("message") or ""
-            errors.append(f"case {case_id}: model returned unresolved, reason={self._truncate_text(str(reason), 220)}, details={self._truncate_text(str(details), 300)}")
+            if self._is_structural_unresolved_reason(reason, details):
+                structural_unresolved.append({
+                    "case_id": case_id,
+                    "reason": reason,
+                    "details": details,
+                })
+                accepted_unresolved.add(case_id)
+            else:
+                errors.append(f"case {case_id}: model returned unresolved, reason={self._truncate_text(str(reason), 220)}, details={self._truncate_text(str(details), 300)}")
 
-        for case_id in sorted(targeted - accepted):
+        if structural_unresolved:
+            patch = {
+                "adapter_patch_version": "3b.replay_events_patch.v1",
+                "replay_events_add": [],
+                "unresolved_behavior_cases_add": structural_unresolved,
+            }
+            try:
+                current = self._merge_adapter_generation_patch(current, patch)
+            except Exception as exc:
+                errors.append(f"failed to persist structural unresolved cases: {exc}")
+                accepted_unresolved.clear()
+
+        accounted = accepted | accepted_unresolved
+        for case_id in sorted(targeted - accounted):
             if not any(error.startswith(f"case {case_id}:") for error in errors):
                 feedback = case_result_feedback.get(case_id)
                 errors.append(feedback and f"case {case_id}: {feedback}" or f"case {case_id}: no independently valid replay event or unresolved status was returned")
 
-        return current, sorted(accepted), errors
+        return current, sorted(accounted), errors
+
+    def _is_structural_unresolved_reason(self, reason, details):
+        text = f"{reason} {details}".lower()
+        if not text.strip():
+            return False
+        non_structural_markers = {
+            "json extraction failed",
+            "invalid json",
+            "malformed json",
+            "parse error",
+            "empty response",
+            "missing rust_test_body",
+            "invalid_replay_event_shape",
+            "no independently valid replay event",
+        }
+        if any(marker in text for marker in non_structural_markers):
+            return False
+        structural_markers = {
+            "no target",
+            "target lacks",
+            "target does not",
+            "target doesn't",
+            "missing target",
+            "target api unavailable",
+            "target_api_unavailable",
+            "not available",
+            "unavailable",
+            "no corresponding",
+            "no equivalent",
+            "cannot be expressed",
+            "cannot express",
+            "cannot replicate",
+            "cannot reproduce",
+            "can't replicate",
+            "not representable",
+            "not supported",
+            "unsupported",
+            "requires function boundary",
+            "requires adapter wrapper",
+            "source_functions_not_aligned",
+            "not aligned",
+            "missing external",
+            "source_context_too_large_for_adapter_conversion",
+        }
+        return any(marker in text for marker in structural_markers)
 
     def _case_result_feedback_by_id(self, candidate, targeted):
         feedback = {}
@@ -1737,6 +1940,9 @@ class TraceReplay3B:
             ],
             "targeted_behavior_case_ids": scope.get("targeted_missing_behavior_case_ids", []),
             "targeted_behavior_cases": scope.get("missing_behavior_case_evidence", []),
+            "source_test_framework_semantics": self._source_framework_semantics_for_cases(
+                scope.get("missing_behavior_case_evidence", [])
+            ),
             "previous_generation_feedback": scope.get("previous_generation_feedback", {}),
             "targeted_alignment_pairs": scoped_pairs,
             "allowed_source_function_uuids_for_this_batch": sorted(allowed_source_uuids),
@@ -1843,42 +2049,131 @@ class TraceReplay3B:
             "total_replay_event_count": len(all_events),
             "relevant_replay_event_count": len(relevant_event_ids),
             "omitted_relevant_event_count": omitted_relevant_events,
-            "existing_replay_event_ids": [event.get("id") for event in all_events if isinstance(event, dict) and event.get("id")][:300],
             "relevant_replay_event_ids": relevant_event_ids,
             "covered_source_case_count": len(covered_case_ids),
             "unresolved_source_case_count": len(unresolved_case_ids),
             "targeted_case_ids_already_covered": sorted(targeted_case_ids & covered_case_ids),
             "targeted_case_ids_already_unresolved": sorted(targeted_case_ids & unresolved_case_ids),
             "relevant_covered_source_case_count": len(relevant_covered_case_ids),
-            "instruction": "This is only an id/coverage index. The full adapter remains in Python and will be merged with your additive patch. Use unique replay_event ids and do not regenerate already covered cases.",
+            "instruction": (
+                "This is only a compact id/coverage index. The full adapter remains in Python and will be merged "
+                "with your additive patch. Generate ids from the current case_id and do not regenerate already "
+                "covered or unresolved targeted cases."
+            ),
         }
 
-    def _compact_behavior_cases_for_prompt(self, behavior_cases, max_cases=120, include_snippets=False):
+    def _compact_source_test_files(self, fixtures, max_items=8, max_chars_per_file=5000, include_content=True):
+        compact = []
+        for fixture in fixtures[:max_items] if isinstance(fixtures, list) else []:
+            if not isinstance(fixture, dict):
+                continue
+            content = fixture.get("content") or fixture.get("content_excerpt", "")
+            item = {
+                "path": fixture.get("path"),
+                "role": fixture.get("fixture_role") or fixture.get("role") or "unknown",
+                "size_bytes": fixture.get("size_bytes", 0),
+                "replay_worktree_path": fixture.get("replay_worktree_path") or fixture.get("path"),
+            }
+            if include_content:
+                item.update({
+                    "content": content[:max_chars_per_file],
+                    "content_truncated": bool(len(content) > max_chars_per_file),
+                })
+            compact.append(self._compact_report_dict(item))
+        return compact
+
+    def _source_framework_semantics_for_case(self, framework, assertions=None):
+        assertions = assertions or []
+        used_macros = sorted({
+            item.get("macro", "")
+            for item in assertions
+            if isinstance(item, dict) and item.get("macro")
+        })
+        assertion_semantics = {}
+        for macro in used_macros:
+            if macro.startswith(("EXPECT_EQ", "ASSERT_EQ", "JSONTEST_ASSERT_EQUAL", "TEST_ASSERT_EQUAL")):
+                assertion_semantics[macro] = (
+                    "checks equality; do not infer expected/actual order solely from argument position"
+                )
+            elif "NOT_NULL" in macro:
+                assertion_semantics[macro] = "checks that the expression is not null"
+            elif macro.startswith(("EXPECT_TRUE", "ASSERT_TRUE", "JSONTEST_ASSERT", "TEST_ASSERT_TRUE")):
+                assertion_semantics[macro] = "checks that the expression is true"
+            elif macro.startswith(("EXPECT_FALSE", "ASSERT_FALSE", "TEST_ASSERT_FALSE")):
+                assertion_semantics[macro] = "checks that the expression is false"
+            elif "STRING_EQUAL" in macro:
+                assertion_semantics[macro] = "checks string equality"
+            else:
+                assertion_semantics[macro] = "source test assertion macro; use the full source test code for exact meaning"
+
+        framework_notes = {
+            "unity": "Unity C unit test; TEST_ASSERT* macros express expected observable behavior.",
+            "gtest": "GoogleTest C++ test; TEST/TEST_F/TEST_P define tests, EXPECT_* continues on failure, ASSERT_* aborts the current test.",
+            "openharmony_hwtest": "OpenHarmony HWTEST style; HWTEST_F is fixture-based and SetUp/TearDown apply when present.",
+            "jsoncpp_jsontest": "JsonCpp custom test macros; JSONTEST_FIXTURE_LOCAL defines a fixture-style test and JSONTEST_ASSERT* macros express expected behavior.",
+            "function_test": "Standalone C/C++ test-like function discovered by static scanning.",
+        }
+        return self._compact_report_dict({
+            "framework": framework or "unknown",
+            "framework_note": framework_notes.get(framework or "", "Source test framework inferred from test file; use source_test_code.full_test_definition as primary evidence."),
+            "assertion_macros_used": assertion_semantics,
+            "evidence_priority": (
+                "source_test_code.full_test_definition is primary evidence; extracted assertions and literals are not provided as a replacement for source code."
+            ),
+        })
+
+    def _source_framework_semantics_for_cases(self, behavior_cases):
+        by_framework = {}
+        for case in behavior_cases or []:
+            if not isinstance(case, dict):
+                continue
+            framework = case.get("framework") or "unknown"
+            assertions = case.get("assertions") or []
+            entry = by_framework.setdefault(framework, {"framework": framework, "assertions": []})
+            entry["assertions"].extend(assertions if isinstance(assertions, list) else [])
+        return [
+            self._source_framework_semantics_for_case(item["framework"], item["assertions"])
+            for item in sorted(by_framework.values(), key=lambda value: value["framework"])
+        ]
+
+    def _compact_behavior_cases_for_prompt(
+        self,
+        behavior_cases,
+        max_cases=120,
+        include_snippets=False,
+        include_context_debug=False,
+        include_framework_semantics=False,
+        include_fixture_content=False,
+    ):
         compact = []
         for case in behavior_cases[:max_cases] if isinstance(behavior_cases, list) else []:
             if not isinstance(case, dict):
                 continue
-            assertions = []
-            for assertion in case.get("assertions", [])[:4]:
-                if not isinstance(assertion, dict):
-                    continue
-                assertions.append(self._compact_report_dict({
-                    "line": assertion.get("line"),
-                    "macro": assertion.get("macro", ""),
-                    "expression": assertion.get("expression", assertion.get("text", ""))[:320],
-                    "expected_behavior_hint": self._clean_expected_behavior_text(
-                        assertion.get("expected_behavior_hint", "")
-                    ),
-                    "literal_samples": assertion.get("literal_samples", [])[:8],
-                    "mentions_aligned_functions": assertion.get("mentions_aligned_functions", False),
-                }))
+            source_test_code = case.get("source_test_code") if isinstance(case.get("source_test_code"), dict) else {}
+            full_test_definition = source_test_code.get("full_test_definition") or case.get("full_test_definition") or case.get("relevant_snippet", "")
             item = {
                 "case_id": case.get("case_id", ""),
                 "name": case.get("name", ""),
                 "path": case.get("path", ""),
                 "start_line": case.get("start_line"),
+                "framework": case.get("framework", ""),
+                "source_test_code": self._compact_report_dict({
+                    "full_test_definition": full_test_definition,
+                    "content_kind": source_test_code.get("content_kind") or "complete_test_definition_with_resolved_helper_evidence",
+                    "content_is_primary_evidence": True,
+                }),
+                "resolved_source_helpers": [
+                    self._compact_report_dict({
+                        "name": helper.get("name"),
+                        "reason_included": helper.get("reason_included", ""),
+                        "code": helper.get("code", ""),
+                        "too_large": helper.get("too_large", False),
+                        "original_chars": helper.get("original_chars", 0),
+                    })
+                    for helper in (case.get("resolved_source_helpers", []) or [])[:6]
+                    if isinstance(helper, dict)
+                ],
                 "aligned_source_functions": case.get("aligned_source_functions", []),
-                "call_names": case.get("call_names", []),
                 "non_public_aligned_call_names": case.get("non_public_aligned_call_names", []),
                 "has_mixed_public_internal_calls": case.get("has_mixed_public_internal_calls", False),
                 "eligibility_status": case.get("eligibility_status", ""),
@@ -1886,12 +2181,29 @@ class TraceReplay3B:
                     "required_internal_public_substitutions",
                     [],
                 ),
-                "assertions": assertions,
-                "literal_samples": case.get("literal_samples", [])[:10],
-                "referenced_fixtures": case.get("referenced_fixtures", [])[:6],
+                "source_test_files": self._compact_source_test_files(
+                    case.get("source_test_files", []) or case.get("referenced_fixtures", []),
+                    include_content=include_fixture_content,
+                ),
             }
+            if include_framework_semantics:
+                item["framework_semantics"] = self._source_framework_semantics_for_case(
+                    case.get("framework", ""),
+                    case.get("assertions", []),
+                )
+            if include_context_debug:
+                item.update({
+                    "source_context_status": case.get("source_context_status", "ready_for_adapter_conversion"),
+                    "source_context_chars": case.get("source_context_chars", 0),
+                    "source_context_limits": case.get("source_context_limits", {}),
+                    "source_context_status_reason": case.get("source_context_status_reason", ""),
+                })
             if include_snippets:
-                item["relevant_snippet"] = case.get("relevant_snippet", "")[:700]
+                item["source_test_code"]["full_test_definition"] = (
+                    case.get("source_test_code", {}).get("full_test_definition")
+                    if isinstance(case.get("source_test_code"), dict)
+                    else case.get("full_test_definition", "")
+                ) or case.get("relevant_snippet", "")
             compact.append(self._compact_report_dict(item))
         return compact
 
@@ -1930,7 +2242,7 @@ class TraceReplay3B:
         # Keep repair prompts small enough that the model returns structured
         # replacements instead of an empty/prose-only patch. With the default
         # three attempts this still covers the common 20-30 event infra bursts.
-        return 12
+        return 10
 
     def _build_replay_repair_prompt(self, adapter, replay_plan, replay_result, failed_test_context=None):
         replay_summary = replay_result.get("summary", {})
@@ -2343,6 +2655,13 @@ class TraceReplay3B:
                 errors.append(f"replay_events[{index}].rust_test_body must be a complete #[test] function")
             elif event_id and event_id not in self._extract_rust_test_function_names(rust_test_body):
                 errors.append(f"replay_events[{index}].rust_test_body must define #[test] fn {event_id}")
+            elif isinstance(rust_test_body, str):
+                unknown_macros = self._unknown_target_rust_macros(rust_test_body)
+                if unknown_macros:
+                    errors.append(
+                        f"replay_events[{index}].rust_test_body uses macros not declared by target public API: "
+                        f"{unknown_macros[:10]}"
+                    )
         behavior_coverage = self._adapter_behavior_case_coverage(adapter)
         adapter["_behavior_case_coverage"] = behavior_coverage
         if behavior_coverage.get("unknown_source_case_ids"):
@@ -2352,6 +2671,34 @@ class TraceReplay3B:
         if behavior_coverage.get("replayed_and_unresolved_case_ids"):
             errors.append("source behavior cases cannot be both replayed and unresolved: " f"{behavior_coverage.get('replayed_and_unresolved_case_ids', [])[:20]}")
         return errors
+
+    def _unknown_target_rust_macros(self, rust_source):
+        if not isinstance(rust_source, str) or not rust_source.strip():
+            return []
+        symbols = self._target_rust_public_symbols(max_items=500)
+        allowed_target_macros = {
+            item.get("name")
+            for item in symbols.get("public_macros", [])
+            if isinstance(item, dict) and item.get("name")
+        }
+        # Rust built-in/test macros are not target APIs and should remain legal
+        # inside generated integration tests.
+        builtin_macros = {
+            "assert", "assert_eq", "assert_ne", "cfg", "compile_error",
+            "concat", "dbg", "debug_assert", "debug_assert_eq",
+            "debug_assert_ne", "env", "eprint", "eprintln", "file",
+            "format", "format_args", "include", "include_bytes",
+            "include_str", "line", "matches", "module_path", "option_env",
+            "panic", "print", "println", "stringify", "todo", "unimplemented",
+            "unreachable", "vec", "write", "writeln",
+        }
+        cleaned = self._strip_rust_comments_and_strings(rust_source)
+        invoked = set()
+        for match in re.finditer(r"(?:\b[A-Za-z_][A-Za-z0-9_]*::)*\b([A-Za-z_][A-Za-z0-9_]*)\s*!", cleaned):
+            name = match.group(1)
+            if name and name not in builtin_macros:
+                invoked.add(name)
+        return sorted(invoked - allowed_target_macros)
 
     def _adapter_behavior_case_coverage(self, adapter):
         context = self._last_synthesis_context or {}
@@ -3007,12 +3354,12 @@ class TraceReplay3B:
             ),
             "field_guide": {
                 "behavior_cases": (
-                    "Primary evidence for replay-event/expected-behavior design. Each case has concrete source assertions, "
-                    "literals, and aligned source function UUIDs. Full snippets are intentionally omitted from "
-                    "the initial context to keep all eligible cases visible; targeted agent passes receive "
-                    "snippets for the specific missing cases they are asked to cover. Mixed cases expose "
-                    "non_public_aligned_call_names so adapter generation can avoid dropping explicit internal "
-                    "state transitions that affect final observable behavior."
+                    "Primary source-test evidence for replay-event/expected-behavior design. Each case carries "
+                    "source_test_code.full_test_definition as the primary evidence, plus related source_test_files "
+                    "when fixture/input/expected-output files are detected. Derived call/assertion/literal hints are "
+                    "not a replacement for the source test code. Mixed cases expose non_public_aligned_call_names so "
+                    "adapter generation can avoid dropping explicit internal state transitions that affect final "
+                    "observable behavior."
                 ),
                 "function_index": (
                     "Coverage index keyed by source UUID. case_refs point back to behavior_cases.case_id; "
@@ -3029,6 +3376,8 @@ class TraceReplay3B:
                 behavior_cases,
                 max_cases=len(behavior_cases),
                 include_snippets=False,
+                include_context_debug=True,
+                include_fixture_content=True,
             ),
             "function_index": function_index,
             "mixed_public_internal_cases": mixed_public_internal_cases[:20],
@@ -3316,6 +3665,7 @@ class TraceReplay3B:
                 types.append(self._compact_report_dict({
                     "name": type_name,
                     "kind": type_item.get("kind", ""),
+                    "integration_test_import_path": self._rust_public_type_import_path(file_path, type_name),
                     "variants": variants[:12],
                 }))
             for alias in file_data.get("type_aliases", []) or []:
@@ -3378,12 +3728,35 @@ class TraceReplay3B:
                     continue
                 aligned_source_functions = sorted(dict.fromkeys(aligned_source_functions))
                 assertions = self._assertion_evidence_items(body, calls, max_items=10)
+                full_test_definition = case.get("full_test_definition") or case.get("body_excerpt", "") or ""
+                resolved_helpers = case.get("resolved_source_helpers", []) or []
+                source_test_files = self._referenced_fixture_evidence_for_case(
+                    "\n".join(filter(None, [
+                        full_test_definition,
+                        "\n".join(
+                            helper.get("code", "")
+                            for helper in resolved_helpers
+                            if isinstance(helper, dict) and not helper.get("too_large")
+                        ),
+                    ])),
+                    case.get("path", entry.get("path", "")),
+                )
                 item = {
                     "case_id": self._source_case_id(case.get("path", entry.get("path", "")), case.get("name", "")),
                     "path": case.get("path", entry.get("path", "")),
                     "start_line": case.get("start_line"),
                     "framework": case.get("framework", ""),
                     "name": case.get("name", ""),
+                    "source_test_code": {
+                        "full_test_definition": full_test_definition,
+                        "content_kind": case.get("source_test_content_kind", "complete_test_definition_with_resolved_helper_evidence"),
+                        "content_is_primary_evidence": True,
+                    },
+                    "resolved_source_helpers": resolved_helpers,
+                    "source_context_status": case.get("source_context_status", "ready_for_adapter_conversion"),
+                    "source_context_chars": case.get("source_context_chars", len(full_test_definition)),
+                    "source_context_limits": case.get("source_context_limits", {}),
+                    "source_context_status_reason": case.get("source_context_status_reason", ""),
                     "aligned_source_functions": aligned_source_functions,
                     "call_names": calls,
                     "ambiguous_call_names": sorted(dict.fromkeys(ambiguous_calls)),
@@ -3399,11 +3772,8 @@ class TraceReplay3B:
                     ) if case.get("has_mixed_public_internal_calls") else "",
                     "case_complexity": self._test_case_complexity(calls),
                     "assertions": assertions,
-                    "literal_samples": case.get("literal_samples", [])[:14],
-                    "referenced_fixtures": self._referenced_fixture_evidence_for_case(
-                        body,
-                        case.get("path", entry.get("path", "")),
-                    ),
+                    "referenced_fixtures": source_test_files,
+                    "source_test_files": source_test_files,
                     "relevant_snippet": self._relevant_case_snippet(body, calls, max_chars=max_chars_per_case),
                 }
                 cases.append(item)
@@ -4153,14 +4523,16 @@ class TraceReplay3B:
         for case in behavior_cases or []:
             if not isinstance(case, dict):
                 continue
-            for fixture in case.get("referenced_fixtures", []) or []:
+            case_fixtures = list(case.get("referenced_fixtures", []) or [])
+            case_fixtures.extend(case.get("source_test_files", []) or [])
+            for fixture in case_fixtures:
                 if isinstance(fixture, dict) and fixture.get("path"):
                     fixtures_by_path.setdefault(fixture["path"], fixture)
         fixtures = [
             self._compact_report_dict({
                 "path": fixture.get("path"),
                 "size_bytes": fixture.get("size_bytes"),
-                "content_excerpt": fixture.get("content_excerpt", "")[:1200],
+                "content_excerpt": (fixture.get("content_excerpt") or fixture.get("content") or "")[:1200],
                 "replay_worktree_path": fixture.get("replay_worktree_path") or fixture.get("path"),
             })
             for fixture in fixtures_by_path.values()
@@ -4189,6 +4561,7 @@ class TraceReplay3B:
         for case in source_evidence.get("behavior_cases", []) or []:
             if isinstance(case, dict):
                 fixtures.extend(case.get("referenced_fixtures", []) or [])
+                fixtures.extend(case.get("source_test_files", []) or [])
         seen = set()
         for fixture in fixtures:
             if not isinstance(fixture, dict) or not fixture.get("path"):
@@ -4464,19 +4837,94 @@ class TraceReplay3B:
         name = self._uuid_leaf_name(uuid_value)
         owner = self._rust_owner_type_from_uuid(uuid_value)
         suffix = ""
+        owner_import_hint = ""
+        if owner:
+            owner_import_path = self._rust_public_type_import_path_from_uuid(uuid_value, owner)
+            if owner_import_path:
+                owner_import_hint = f" Import owner type with `use {owner_import_path};` when using a short type name."
         if "Into<" in signature:
             suffix = " For generic Into<T> parameters, pass a concrete value directly when possible instead of pre-calling .into()."
         if not signature:
             return ""
         if "&mut self" in signature:
-            return f"Call as a mutable method on a mutable {owner or 'receiver'} value, e.g. value.{name}(...).{suffix}"
+            return f"Call as a mutable method on a mutable {owner or 'receiver'} value, e.g. value.{name}(...).{owner_import_hint}{suffix}"
         if "&self" in signature:
-            return f"Call as a method on a {owner or 'receiver'} value/reference, e.g. value.{name}(...).{suffix}"
+            return f"Call as a method on a {owner or 'receiver'} value/reference, e.g. value.{name}(...).{owner_import_hint}{suffix}"
         if "self" in signature:
-            return f"Call as a consuming method on a {owner or 'receiver'} value if the type exports it, e.g. value.{name}(...).{suffix}"
+            return f"Call as a consuming method on a {owner or 'receiver'} value if the type exports it, e.g. value.{name}(...).{owner_import_hint}{suffix}"
         if owner:
-            return f"Call as an associated function if exported, e.g. {owner}::{name}(...).{suffix}"
+            return f"Call as an associated function if exported, e.g. {owner}::{name}(...).{owner_import_hint}{suffix}"
         return f"Call as a free function if exported, e.g. {name}(...).{suffix}"
+
+    def _rust_public_type_import_path_from_uuid(self, uuid_value, owner):
+        if not owner or not isinstance(uuid_value, str):
+            return ""
+        file_path = uuid_value.split("::", 1)[0]
+        return self._rust_public_type_import_path(file_path, owner)
+
+    def _rust_public_type_import_path(self, file_path, type_name):
+        if not file_path or not type_name:
+            return ""
+        crate_name = (self._target_crate_import_hint().get("crate_name_for_rust_code") or "").strip()
+        if not crate_name:
+            return ""
+        exports = self._rust_public_export_paths()
+        root_export = exports.get(type_name)
+        if root_export:
+            return root_export
+        if file_path == "src/lib.rs":
+            return f"{crate_name}::{type_name}"
+        module = self._rust_module_path_from_file_path(file_path)
+        if module and module in exports.get("__public_modules__", set()):
+            return f"{crate_name}::{module}::{type_name}"
+        return ""
+
+    def _rust_public_export_paths(self):
+        cache_name = "_target_rust_public_export_paths_cache"
+        cached = getattr(self, cache_name, None)
+        if cached is not None:
+            return cached
+        crate_name = (self._target_crate_import_hint().get("crate_name_for_rust_code") or "").strip()
+        result = {"__public_modules__": set()}
+        lib_path = self.tgt_repo_path / "src" / "lib.rs" if self.tgt_repo_path else None
+        if not crate_name or not lib_path or not lib_path.exists():
+            setattr(self, cache_name, result)
+            return result
+        try:
+            lib_source = lib_path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            setattr(self, cache_name, result)
+            return result
+        for match in re.finditer(r"(?m)^\s*pub\s+mod\s+([A-Za-z_][A-Za-z0-9_]*)\s*;", lib_source):
+            result["__public_modules__"].add(match.group(1))
+        for match in re.finditer(
+            r"(?m)^\s*pub\s+use\s+(?:crate::)?([A-Za-z_][A-Za-z0-9_:]*)\s*(?:as\s+([A-Za-z_][A-Za-z0-9_]*))?\s*;",
+            lib_source,
+        ):
+            path, alias = match.groups()
+            parts = [part for part in path.split("::") if part]
+            if not parts:
+                continue
+            public_name = alias or parts[-1]
+            # A root re-export is best imported through the crate root in an
+            # integration test, even if its defining module is private.
+            result[public_name] = f"{crate_name}::{public_name}"
+        setattr(self, cache_name, result)
+        return result
+
+    def _rust_module_path_from_file_path(self, file_path):
+        if not isinstance(file_path, str) or not file_path.startswith("src/"):
+            return ""
+        relative = file_path[len("src/"):]
+        if relative == "lib.rs" or relative == "main.rs":
+            return ""
+        if relative.endswith("/mod.rs"):
+            relative = relative[:-len("/mod.rs")]
+        elif relative.endswith(".rs"):
+            relative = relative[:-3]
+        else:
+            return ""
+        return "::".join(part for part in relative.split("/") if part)
 
     def _rust_owner_type_from_uuid(self, uuid_value):
         if not isinstance(uuid_value, str):
@@ -5370,7 +5818,14 @@ class TraceReplay3B:
     ):
         if not block:
             return None
-        block = self._expand_test_case_with_helpers(block, helper_blocks or {})
+        original_block = block
+        helper_evidence = self._source_test_helper_evidence(original_block, helper_blocks or {})
+        helper_text = "\n".join(
+            item.get("code", "")
+            for item in helper_evidence
+            if isinstance(item, dict) and not item.get("too_large")
+        )
+        block = "\n".join(filter(None, [original_block, helper_text]))
         aligned_names = aligned_names or set(public_names or [])
         all_calls = sorted(name for name in aligned_names if re.search(rf"\b{re.escape(name)}\s*\(", block))
         public_calls = sorted(name for name in public_names if re.search(rf"\b{re.escape(name)}\s*\(", block))
@@ -5380,11 +5835,49 @@ class TraceReplay3B:
         if not require_public and not all_calls:
             return None
         excerpt = self._numbered_excerpt(block, max_chars=max_chars)
+        full_definition = original_block.strip()
+        source_context_chars = len(full_definition) + sum(
+            len(item.get("code", ""))
+            for item in helper_evidence
+            if isinstance(item, dict)
+        )
+        helper_too_large = any(item.get("too_large") for item in helper_evidence if isinstance(item, dict))
+        source_context_too_large = (
+            len(full_definition) > self.SOURCE_TEST_DEFINITION_MAX_CHARS
+            or source_context_chars > self.SOURCE_TEST_TOTAL_CONTEXT_MAX_CHARS
+            or helper_too_large
+        )
+        source_context_status_reason = ""
+        if len(full_definition) > self.SOURCE_TEST_DEFINITION_MAX_CHARS:
+            source_context_status_reason = "full_test_definition_exceeds_limit"
+        elif helper_too_large:
+            source_context_status_reason = "resolved_helper_exceeds_limit"
+        elif source_context_chars > self.SOURCE_TEST_TOTAL_CONTEXT_MAX_CHARS:
+            source_context_status_reason = "total_source_context_exceeds_limit"
         return {
             "framework": framework,
             "name": name,
             "path": rel_path,
             "start_line": start_line or self._line_number_for_offset(block, 0),
+            "full_test_definition": (
+                full_definition
+                if len(full_definition) <= self.SOURCE_TEST_DEFINITION_MAX_CHARS
+                else self._truncate_text(full_definition, self.SOURCE_TEST_DEFINITION_MAX_CHARS)
+            ),
+            "source_test_content_kind": "complete_test_definition",
+            "resolved_source_helpers": helper_evidence,
+            "source_context_chars": source_context_chars,
+            "source_context_limits": {
+                "full_test_definition_chars": self.SOURCE_TEST_DEFINITION_MAX_CHARS,
+                "single_helper_chars": self.SOURCE_TEST_HELPER_MAX_CHARS,
+                "total_source_context_chars": self.SOURCE_TEST_TOTAL_CONTEXT_MAX_CHARS,
+            },
+            "source_context_status": (
+                "too_large_for_adapter_conversion"
+                if source_context_too_large
+                else "ready_for_adapter_conversion"
+            ),
+            "source_context_status_reason": source_context_status_reason,
             "calls_aligned_functions": all_calls,
             "calls_aligned_public_functions": public_calls,
             "calls_aligned_non_public_functions": non_public_calls,
@@ -5393,6 +5886,34 @@ class TraceReplay3B:
             "literal_samples": self._literal_samples(block),
             "body_excerpt": excerpt,
         }
+
+    def _source_test_helper_evidence(self, block, helper_blocks, max_helpers=6):
+        if not block or not helper_blocks:
+            return []
+        helpers = []
+        added = set()
+        for helper_name, helper_block in sorted(helper_blocks.items()):
+            if helper_name in added:
+                continue
+            if not re.search(rf"\b{re.escape(helper_name)}\s*\(", block):
+                continue
+            helper_block = str(helper_block or "").strip()
+            too_large = len(helper_block) > self.SOURCE_TEST_HELPER_MAX_CHARS
+            helpers.append(self._compact_report_dict({
+                "name": helper_name,
+                "reason_included": "directly_called_by_source_test",
+                "code": (
+                    helper_block
+                    if not too_large
+                    else self._truncate_text(helper_block, self.SOURCE_TEST_HELPER_MAX_CHARS)
+                ),
+                "too_large": too_large,
+                "original_chars": len(helper_block),
+            }))
+            added.add(helper_name)
+            if len(added) >= max_helpers:
+                break
+        return helpers
 
     def _aligned_test_helper_blocks(self, content, aligned_names, max_helpers=80):
         helpers = {}
@@ -6320,13 +6841,24 @@ class TraceReplay3B:
         if not isinstance(replay_result, dict):
             return False
         summary = replay_result.get("summary", {}) or {}
+        if int(summary.get("infrastructure_failures", 0) or 0) > 0:
+            return True
+        if summary.get("per_event_infrastructure_failures"):
+            return True
+        if any(
+            isinstance(event, dict) and event.get("status") == "infrastructure_failed"
+            for event in replay_result.get("events", [])
+        ):
+            return True
+        # A whole-file replay may fail before per-event isolation has identified
+        # affected tests. Treat that as infrastructure only when no event-level
+        # execution summary is available; otherwise the explicit counters above
+        # are the source of truth and avoid redundant repair calls after infra
+        # failures have been cleared.
         return (
-            replay_result.get("status") in {"infrastructure_failed", "partial_infrastructure_failed"}
-            or int(summary.get("infrastructure_failures", 0) or 0) > 0
-            or any(
-                isinstance(event, dict) and event.get("status") == "infrastructure_failed"
-                for event in replay_result.get("events", [])
-            )
+            replay_result.get("status") == "infrastructure_failed"
+            and not replay_result.get("events")
+            and not summary.get("per_event_replay_used")
         )
 
     def _empty_replay_summary(self):
@@ -6572,8 +7104,18 @@ class TraceReplay3B:
         if replay_result.get("status") == "infrastructure_failed" and not infrastructure_failures:
             infrastructure_failures.append(replay_summary)
         behavior_case_coverage = self._adapter_behavior_case_coverage(adapter)
-        adapter_conversion_unresolved = self._adapter_conversion_unresolved_cases(
-            behavior_case_coverage.get("missing_behavior_case_ids", []),
+        recorded_unresolved = self._adapter_recorded_unresolved_cases(adapter)
+        recorded_unresolved_ids = {
+            item.get("source_behavior_case_id")
+            for item in recorded_unresolved
+            if isinstance(item, dict) and item.get("source_behavior_case_id")
+        }
+        adapter_conversion_unresolved = recorded_unresolved + self._adapter_conversion_unresolved_cases(
+            [
+                case_id
+                for case_id in behavior_case_coverage.get("missing_behavior_case_ids", [])
+                if case_id not in recorded_unresolved_ids
+            ],
         )
         metrics = self._build_metrics(
             replay_summary=replay_summary,
@@ -6870,6 +7412,34 @@ class TraceReplay3B:
                 "last_attempt_stage": last_attempt.get("stage", ""),
                 "last_attempt_outcome": last_attempt.get("outcome", ""),
                 "last_errors": last_attempt.get("errors", []),
+            })
+        return unresolved
+
+    def _adapter_recorded_unresolved_cases(self, adapter):
+        detail_index = getattr(self, "_last_behavior_case_details", {}) or {}
+        attempt_index = self._case_conversion_attempts or {}
+        unresolved = []
+        for item in adapter.get("unresolved_behavior_cases", []) if isinstance(adapter.get("unresolved_behavior_cases"), list) else []:
+            if not isinstance(item, dict):
+                continue
+            case_id = item.get("case_id") or item.get("source_behavior_case_id")
+            if not case_id:
+                continue
+            case = detail_index.get(case_id, {})
+            attempt = attempt_index.get(case_id, {})
+            attempts = attempt.get("attempts", [])
+            last_attempt = attempts[-1] if attempts else {}
+            unresolved.append({
+                "source_behavior_case_id": case_id,
+                "name": case.get("name", ""),
+                "path": case.get("path", ""),
+                "start_line": case.get("start_line"),
+                "aligned_source_functions": case.get("aligned_source_functions", []),
+                "reason": item.get("reason") or "unresolved_behavior_case_conversion",
+                "attempt_count": attempt.get("attempt_count", 0),
+                "last_attempt_stage": last_attempt.get("stage", "behavior_case_conversion"),
+                "last_attempt_outcome": last_attempt.get("outcome", "unresolved"),
+                "last_errors": [item.get("details", "")] if item.get("details") else last_attempt.get("errors", []),
             })
         return unresolved
 

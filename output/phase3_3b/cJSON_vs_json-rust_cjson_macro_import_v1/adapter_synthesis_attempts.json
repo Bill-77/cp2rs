@@ -1,0 +1,504 @@
+{
+  "schema_version": "3b.adapter_synthesis_attempts.v2",
+  "source_repository": "cJSON",
+  "target_repository": "json-rust",
+  "attempt_count": 14,
+  "attempts": [
+    {
+      "attempt": 1,
+      "stage": "behavior_case_conversion",
+      "iteration": 1,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "cjson_add_cjson_add_array_should_add_array",
+        "cjson_add_cjson_add_array_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_array_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_bool_should_add_bool",
+        "cjson_add_cjson_add_bool_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_bool_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_false_should_add_false",
+        "cjson_add_cjson_add_false_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_false_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_null_should_add_null"
+      ],
+      "accepted_case_ids": [
+        "cjson_add_cjson_add_array_should_add_array",
+        "cjson_add_cjson_add_array_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_array_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_bool_should_add_bool",
+        "cjson_add_cjson_add_bool_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_bool_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_false_should_add_false",
+        "cjson_add_cjson_add_false_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_false_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_null_should_add_null"
+      ],
+      "replay_generated_case_ids": [
+        "cjson_add_cjson_add_array_should_add_array",
+        "cjson_add_cjson_add_bool_should_add_bool",
+        "cjson_add_cjson_add_false_should_add_false",
+        "cjson_add_cjson_add_null_should_add_null"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 2,
+      "stage": "behavior_case_conversion",
+      "iteration": 2,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "cjson_add_cjson_add_null_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_null_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_number_should_add_number",
+        "cjson_add_cjson_add_number_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_number_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_object_should_add_object",
+        "cjson_add_cjson_add_object_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_object_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_raw_should_add_raw",
+        "cjson_add_cjson_add_raw_should_fail_on_allocation_failure"
+      ],
+      "accepted_case_ids": [
+        "cjson_add_cjson_add_null_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_null_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_number_should_add_number",
+        "cjson_add_cjson_add_number_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_number_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_object_should_add_object",
+        "cjson_add_cjson_add_object_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_object_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_raw_should_add_raw",
+        "cjson_add_cjson_add_raw_should_fail_on_allocation_failure"
+      ],
+      "replay_generated_case_ids": [
+        "cjson_add_cjson_add_number_should_add_number",
+        "cjson_add_cjson_add_object_should_add_object",
+        "cjson_add_cjson_add_raw_should_add_raw"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 3,
+      "stage": "behavior_case_conversion",
+      "iteration": 3,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "cjson_add_cjson_add_raw_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_string_should_add_string",
+        "cjson_add_cjson_add_string_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_string_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_true_should_add_true",
+        "cjson_add_cjson_add_true_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_true_should_fail_with_null_pointers",
+        "cjson_add_cjson_create_string_array_should_fail_on_allocation_failure",
+        "compare_tests_cjson_compare_should_compare_arrays",
+        "compare_tests_cjson_compare_should_compare_booleans"
+      ],
+      "accepted_case_ids": [
+        "cjson_add_cjson_add_raw_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_string_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_string_should_fail_with_null_pointers",
+        "cjson_add_cjson_add_true_should_add_true",
+        "cjson_add_cjson_add_true_should_fail_on_allocation_failure",
+        "cjson_add_cjson_add_true_should_fail_with_null_pointers",
+        "compare_tests_cjson_compare_should_compare_arrays",
+        "compare_tests_cjson_compare_should_compare_booleans"
+      ],
+      "replay_generated_case_ids": [
+        "compare_tests_cjson_compare_should_compare_arrays",
+        "compare_tests_cjson_compare_should_compare_booleans"
+      ],
+      "unresolved_case_ids": [
+        "cjson_add_cjson_add_string_should_add_string",
+        "cjson_add_cjson_create_string_array_should_fail_on_allocation_failure"
+      ],
+      "errors": [
+        "case cjson_add_cjson_add_string_should_add_string: model returned unresolved, reason=The aligned source functions (cJSON_CreateObject, cJSON_GetObjectItemCaseSensitive) do not include the functio\n...<truncated 19 chars>...\nObject, which is essential to set up the test. The target API provides no method to add a string to an object., details=The test requires adding a string to an object via cJSON_AddStringToObject, then retrieving it. Without a target analog for AddStringToObject, the scenario cannot be constructed. The alignment pairs do not include any target for AddStringToObject.",
+        "case cjson_add_cjson_create_string_array_should_fail_on_allocation_failure: model returned unresolved, reason=Test uses cJSON_InitHooks for allocation failure and expects NULL from cJSON_CreateStringArray. The target JsonValue::from(Vec<T>) does not support allocation failure and always succeeds., details=The source test's expected behavior relies on memory allocation failure, which the target cannot simulate. The aligned source function cJSON_CreateStringArray has a target (from(Vec<T>)), but the failure scenario is unreproducible."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 4,
+      "stage": "behavior_case_conversion",
+      "iteration": 4,
+      "scheduling": "immediate_retry",
+      "status": "partial",
+      "targeted_case_ids": [
+        "cjson_add_cjson_add_string_should_add_string",
+        "cjson_add_cjson_create_string_array_should_fail_on_allocation_failure"
+      ],
+      "accepted_case_ids": [
+        "cjson_add_cjson_add_string_should_add_string"
+      ],
+      "replay_generated_case_ids": [
+        "cjson_add_cjson_add_string_should_add_string"
+      ],
+      "unresolved_case_ids": [
+        "cjson_add_cjson_create_string_array_should_fail_on_allocation_failure"
+      ],
+      "errors": [
+        "case cjson_add_cjson_create_string_array_should_fail_on_allocation_failure: model returned unresolved, reason=Target API JsonValue::from(Vec<T>) does not support allocation failure; source test expects NULL under memory allocation failure which cannot be reproduced in the target., details=The aligned source function cJSON_CreateStringArray has a target equivalent, but the source test's expected behavior relies on a custom allocation hoo\n...<truncated 102 chars>...\ning allocation failure, making the scenario unreproducible. The target's from(Vec<T>) always succeeds, so the expected NULL result cannot be achieved."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 5,
+      "stage": "behavior_case_conversion",
+      "iteration": 5,
+      "scheduling": "immediate_retry",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "cjson_add_cjson_create_string_array_should_fail_on_allocation_failure"
+      ],
+      "accepted_case_ids": [
+        "cjson_add_cjson_create_string_array_should_fail_on_allocation_failure"
+      ],
+      "replay_generated_case_ids": [
+        "cjson_add_cjson_create_string_array_should_fail_on_allocation_failure"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 6,
+      "stage": "behavior_case_conversion",
+      "iteration": 6,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "compare_tests_cjson_compare_should_compare_invalid_as_not_equal",
+        "compare_tests_cjson_compare_should_compare_null",
+        "compare_tests_cjson_compare_should_compare_null_pointer_as_not_equal",
+        "compare_tests_cjson_compare_should_compare_numbers",
+        "compare_tests_cjson_compare_should_compare_objects",
+        "compare_tests_cjson_compare_should_compare_raw",
+        "compare_tests_cjson_compare_should_compare_strings",
+        "compare_tests_cjson_compare_should_not_accept_invalid_types",
+        "misc_tests_cjson_add_item_to_object_or_array_should_not_add_itself",
+        "misc_tests_cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased"
+      ],
+      "accepted_case_ids": [
+        "compare_tests_cjson_compare_should_compare_invalid_as_not_equal",
+        "compare_tests_cjson_compare_should_compare_null",
+        "compare_tests_cjson_compare_should_compare_numbers",
+        "compare_tests_cjson_compare_should_compare_objects",
+        "compare_tests_cjson_compare_should_compare_raw",
+        "compare_tests_cjson_compare_should_compare_strings",
+        "misc_tests_cjson_add_item_to_object_or_array_should_not_add_itself",
+        "misc_tests_cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased"
+      ],
+      "replay_generated_case_ids": [
+        "compare_tests_cjson_compare_should_compare_null",
+        "compare_tests_cjson_compare_should_compare_numbers",
+        "compare_tests_cjson_compare_should_compare_objects",
+        "compare_tests_cjson_compare_should_compare_raw",
+        "compare_tests_cjson_compare_should_compare_strings",
+        "misc_tests_cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased"
+      ],
+      "unresolved_case_ids": [
+        "compare_tests_cjson_compare_should_compare_null_pointer_as_not_equal",
+        "compare_tests_cjson_compare_should_not_accept_invalid_types"
+      ],
+      "errors": [
+        "case compare_tests_cjson_compare_should_compare_null_pointer_as_not_equal: model returned unresolved, reason=Cannot pass a null pointer equivalent to the target eq method. Rust's JsonValue::eq takes &self and &Self, not optional pointers., details=Source test calls cJSON_Compare(NULL, NULL, ...) expecting false. In target, there is no way to express a null JsonValue reference; calling eq on an Option would require different API.",
+        "case compare_tests_cjson_compare_should_not_accept_invalid_types: model returned unresolved, reason=Cannot create a JsonValue with an invalid type flag (e.g., cJSON_Number | cJSON_String). Rust's JsonValue enforces variant discriminant at compile time., details=Source test sets invalid->type = cJSON_Number | cJSON_String and compares expecting false. Target API provides no way to construct an invalid or mixed-type value."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 7,
+      "stage": "behavior_case_conversion",
+      "iteration": 7,
+      "scheduling": "immediate_retry",
+      "status": "partial",
+      "targeted_case_ids": [
+        "compare_tests_cjson_compare_should_compare_null_pointer_as_not_equal",
+        "compare_tests_cjson_compare_should_not_accept_invalid_types"
+      ],
+      "accepted_case_ids": [
+        "compare_tests_cjson_compare_should_compare_null_pointer_as_not_equal"
+      ],
+      "replay_generated_case_ids": [
+        "compare_tests_cjson_compare_should_compare_null_pointer_as_not_equal"
+      ],
+      "unresolved_case_ids": [
+        "compare_tests_cjson_compare_should_not_accept_invalid_types"
+      ],
+      "errors": [
+        "case compare_tests_cjson_compare_should_not_accept_invalid_types: model returned unresolved, reason=Cannot construct an invalid JsonValue with mixed type flags in the target Rust API, details=Source test creates a cJSON with type = cJSON_Number | cJSON_String (invalid combination) and expects cJSON_Compare to return false. Target JsonValue \n...<truncated 56 chars>...\neate a value with an invalid or mixed variant. The target API cannot express the source scenario, so no replay is possible without inventing behavior."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 8,
+      "stage": "behavior_case_conversion",
+      "iteration": 8,
+      "scheduling": "immediate_retry",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "compare_tests_cjson_compare_should_not_accept_invalid_types"
+      ],
+      "accepted_case_ids": [
+        "compare_tests_cjson_compare_should_not_accept_invalid_types"
+      ],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 9,
+      "stage": "behavior_case_conversion",
+      "iteration": 9,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "misc_tests_cjson_create_array_reference_should_create_an_array_reference",
+        "misc_tests_cjson_create_object_reference_should_create_an_object_reference",
+        "misc_tests_cjson_delete_item_from_array_should_not_broken_list_structure",
+        "misc_tests_cjson_functions_should_not_crash_with_null_pointers",
+        "misc_tests_cjson_get_number_value_should_get_a_number",
+        "misc_tests_cjson_get_object_item_case_sensitive_should_get_object_items",
+        "misc_tests_cjson_get_object_item_case_sensitive_should_not_crash_with_array",
+        "misc_tests_cjson_get_object_item_should_get_object_items",
+        "misc_tests_cjson_get_object_item_should_not_crash_with_array",
+        "misc_tests_cjson_get_string_value_should_get_a_string"
+      ],
+      "accepted_case_ids": [
+        "misc_tests_cjson_create_array_reference_should_create_an_array_reference",
+        "misc_tests_cjson_create_object_reference_should_create_an_object_reference",
+        "misc_tests_cjson_delete_item_from_array_should_not_broken_list_structure",
+        "misc_tests_cjson_functions_should_not_crash_with_null_pointers",
+        "misc_tests_cjson_get_number_value_should_get_a_number",
+        "misc_tests_cjson_get_object_item_case_sensitive_should_get_object_items",
+        "misc_tests_cjson_get_object_item_case_sensitive_should_not_crash_with_array",
+        "misc_tests_cjson_get_object_item_should_get_object_items",
+        "misc_tests_cjson_get_object_item_should_not_crash_with_array",
+        "misc_tests_cjson_get_string_value_should_get_a_string"
+      ],
+      "replay_generated_case_ids": [
+        "misc_tests_cjson_delete_item_from_array_should_not_broken_list_structure",
+        "misc_tests_cjson_get_number_value_should_get_a_number",
+        "misc_tests_cjson_get_object_item_case_sensitive_should_get_object_items",
+        "misc_tests_cjson_get_object_item_case_sensitive_should_not_crash_with_array",
+        "misc_tests_cjson_get_object_item_should_get_object_items",
+        "misc_tests_cjson_get_object_item_should_not_crash_with_array",
+        "misc_tests_cjson_get_string_value_should_get_a_string"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 10,
+      "stage": "behavior_case_conversion",
+      "iteration": 10,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "misc_tests_cjson_parse_big_numbers_should_not_report_error",
+        "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+        "misc_tests_cjson_replace_item_via_pointer_should_replace_items",
+        "misc_tests_cjson_set_bool_value_must_not_break_objects",
+        "misc_tests_cjson_set_valuestring_should_return_null_if_strings_overlap",
+        "misc_tests_cjson_set_valuestring_to_object_should_not_leak_memory",
+        "misc_tests_cjson_should_not_follow_too_deep_circular_references",
+        "misc_tests_cjson_should_not_parse_to_deeply_nested_jsons",
+        "misc_tests_typecheck_functions_should_check_type",
+        "misc_utils_tests_cjson_utils_functions_shouldnt_crash_with_null_pointers"
+      ],
+      "accepted_case_ids": [
+        "misc_tests_cjson_parse_big_numbers_should_not_report_error",
+        "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+        "misc_tests_cjson_replace_item_via_pointer_should_replace_items",
+        "misc_tests_cjson_set_bool_value_must_not_break_objects",
+        "misc_tests_cjson_set_valuestring_should_return_null_if_strings_overlap",
+        "misc_tests_cjson_set_valuestring_to_object_should_not_leak_memory",
+        "misc_tests_cjson_should_not_follow_too_deep_circular_references",
+        "misc_tests_cjson_should_not_parse_to_deeply_nested_jsons",
+        "misc_tests_typecheck_functions_should_check_type",
+        "misc_utils_tests_cjson_utils_functions_shouldnt_crash_with_null_pointers"
+      ],
+      "replay_generated_case_ids": [
+        "misc_tests_cjson_parse_big_numbers_should_not_report_error",
+        "misc_tests_cjson_replace_item_in_object_should_preserve_name",
+        "misc_tests_cjson_replace_item_via_pointer_should_replace_items",
+        "misc_tests_cjson_set_bool_value_must_not_break_objects",
+        "misc_tests_cjson_set_valuestring_should_return_null_if_strings_overlap",
+        "misc_tests_cjson_set_valuestring_to_object_should_not_leak_memory",
+        "misc_tests_cjson_should_not_follow_too_deep_circular_references",
+        "misc_tests_cjson_should_not_parse_to_deeply_nested_jsons",
+        "misc_tests_typecheck_functions_should_check_type",
+        "misc_utils_tests_cjson_utils_functions_shouldnt_crash_with_null_pointers"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 11,
+      "stage": "behavior_case_conversion",
+      "iteration": 11,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "old_utils_tests_generate_merge_tests",
+        "old_utils_tests_json_pointer_tests",
+        "old_utils_tests_merge_tests",
+        "old_utils_tests_misc_tests",
+        "old_utils_tests_sort_tests",
+        "parse_examples_file_test10_should_be_parsed_and_printed",
+        "parse_examples_file_test11_should_be_parsed_and_printed",
+        "parse_examples_file_test1_should_be_parsed_and_printed",
+        "parse_examples_file_test2_should_be_parsed_and_printed",
+        "parse_examples_file_test3_should_be_parsed_and_printed"
+      ],
+      "accepted_case_ids": [
+        "old_utils_tests_generate_merge_tests",
+        "old_utils_tests_json_pointer_tests",
+        "old_utils_tests_merge_tests",
+        "old_utils_tests_misc_tests",
+        "parse_examples_file_test10_should_be_parsed_and_printed",
+        "parse_examples_file_test11_should_be_parsed_and_printed",
+        "parse_examples_file_test1_should_be_parsed_and_printed",
+        "parse_examples_file_test2_should_be_parsed_and_printed",
+        "parse_examples_file_test3_should_be_parsed_and_printed"
+      ],
+      "replay_generated_case_ids": [
+        "old_utils_tests_json_pointer_tests",
+        "old_utils_tests_misc_tests",
+        "parse_examples_file_test10_should_be_parsed_and_printed",
+        "parse_examples_file_test11_should_be_parsed_and_printed",
+        "parse_examples_file_test1_should_be_parsed_and_printed",
+        "parse_examples_file_test2_should_be_parsed_and_printed",
+        "parse_examples_file_test3_should_be_parsed_and_printed"
+      ],
+      "unresolved_case_ids": [
+        "old_utils_tests_sort_tests"
+      ],
+      "errors": [
+        "case old_utils_tests_sort_tests: model returned unresolved, reason=missing aligned function for sorting and iteration, details=The source test uses cJSONUtils_SortObject and direct child-node iteration. Neither operation is covered by the aligned source functions (only CreateObject and AddItemToObject). Cannot verify expected sorted order."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 12,
+      "stage": "behavior_case_conversion",
+      "iteration": 12,
+      "scheduling": "immediate_retry",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "old_utils_tests_sort_tests"
+      ],
+      "accepted_case_ids": [
+        "old_utils_tests_sort_tests"
+      ],
+      "replay_generated_case_ids": [
+        "old_utils_tests_sort_tests"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 13,
+      "stage": "behavior_case_conversion",
+      "iteration": 13,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "parse_examples_file_test4_should_be_parsed_and_printed",
+        "parse_examples_file_test5_should_be_parsed_and_printed",
+        "parse_examples_file_test6_should_not_be_parsed",
+        "parse_examples_file_test7_should_be_parsed_and_printed",
+        "parse_examples_file_test8_should_be_parsed_and_printed",
+        "parse_examples_file_test9_should_be_parsed_and_printed",
+        "parse_examples_test12_should_not_be_parsed",
+        "parse_with_opts_parse_with_opts_should_parse_utf8_bom"
+      ],
+      "accepted_case_ids": [
+        "parse_examples_file_test4_should_be_parsed_and_printed",
+        "parse_examples_file_test5_should_be_parsed_and_printed",
+        "parse_examples_file_test6_should_not_be_parsed",
+        "parse_examples_file_test7_should_be_parsed_and_printed",
+        "parse_examples_file_test8_should_be_parsed_and_printed",
+        "parse_examples_file_test9_should_be_parsed_and_printed",
+        "parse_examples_test12_should_not_be_parsed",
+        "parse_with_opts_parse_with_opts_should_parse_utf8_bom"
+      ],
+      "replay_generated_case_ids": [
+        "parse_examples_file_test4_should_be_parsed_and_printed",
+        "parse_examples_file_test5_should_be_parsed_and_printed",
+        "parse_examples_file_test6_should_not_be_parsed",
+        "parse_examples_file_test7_should_be_parsed_and_printed",
+        "parse_examples_file_test8_should_be_parsed_and_printed",
+        "parse_examples_file_test9_should_be_parsed_and_printed",
+        "parse_examples_test12_should_not_be_parsed",
+        "parse_with_opts_parse_with_opts_should_parse_utf8_bom"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 14,
+      "stage": "replay_infrastructure_repair",
+      "status": "passed",
+      "errors": [],
+      "input_infrastructure_failed_tests": 2,
+      "total_infrastructure_failed_tests_before_attempt": 2,
+      "replay_status": "failed",
+      "replay_reason": "merged_replay_result_after_targeted_repair_subset",
+      "rerun_event_count": 2,
+      "remaining_infrastructure_failures": 0
+    }
+  ]
+}

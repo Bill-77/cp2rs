@@ -1,0 +1,1189 @@
+{
+  "evaluation_type": "Phase 3B - Trace Replay Public-First",
+  "schema_version": "3b.report.v32",
+  "source_repository": "cJSON",
+  "target_repository": "json-rust",
+  "mode": "run",
+  "layer": "public",
+  "artifact_paths": {
+    "effective_adapter": "output/phase3_3b/cJSON_vs_json-rust_cjson_macro_import_v1/effective_adapter.json",
+    "test_inventory": "output/phase3_3b/cJSON_vs_json-rust_cjson_macro_import_v1/test_inventory.json",
+    "replay_plan": "output/phase3_3b/cJSON_vs_json-rust_cjson_macro_import_v1/replay_plan.json",
+    "replay_result": "output/phase3_3b/cJSON_vs_json-rust_cjson_macro_import_v1/replay_result.json",
+    "public_replay_eligibility": "output/phase3_3b/cJSON_vs_json-rust_cjson_macro_import_v1/public_replay_eligibility.json",
+    "llm_usage": "output/phase3_3b/cJSON_vs_json-rust_cjson_macro_import_v1/llm_usage.json",
+    "adapter_synthesis_attempts": "output/phase3_3b/cJSON_vs_json-rust_cjson_macro_import_v1/adapter_synthesis_attempts.json",
+    "generated_test_file": "output/phase3_3b/cJSON_vs_json-rust_cjson_macro_import_v1/generated_public_replay.rs",
+    "adapter_synthesis_context": "output/phase3_3b/cJSON_vs_json-rust_cjson_macro_import_v1/adapter_synthesis_context.json"
+  },
+  "automation_readiness": {
+    "status": "review_required",
+    "summary": "3B replay produced results, but one or more failures require expected-behavior or semantic review before treating the result as automated correctness evidence.",
+    "positive_evidence": [
+      "at_least_one_3a_atomic_pair_replay_covered",
+      "no_replay_infrastructure_failures"
+    ],
+    "blocking_reasons": [],
+    "review_items": [
+      "public_replay_failures_present",
+      "target_semantic_failure_candidate"
+    ],
+    "coverage_gaps": [
+      "some_source_tested_public_functions_not_replayed",
+      "not_all_source_tested_public_functions_traced"
+    ]
+  },
+  "key_findings": {
+    "failed_replay_events": [
+      {
+        "replay_event_id": "cjson_add_cjson_create_string_array_should_fail_on_allocation_failure",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "cjson_add_cjson_create_string_array_should_fail_on_allocation_failure",
+            "name": "cjson_create_string_array_should_fail_on_allocation_failure",
+            "source_location": "tests/cjson_add.c:440",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateStringArray"
+        ],
+        "aligned_target_functions": [
+          "src/value/implements.rs::JsonValue::from#sig_9bca93f0"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "string array with three strings under failing allocator"
+        },
+        "expected": {
+          "observable_behavior": "returns Null (NULL) when allocation fails"
+        },
+        "normalization": "direct equality comparison",
+        "evidence": "tests/cjson_add.c:440 TEST_ASSERT_NULL(cJSON_CreateStringArray(strings, 3))"
+      },
+      {
+        "replay_event_id": "replay_cjson_compare_should_compare_objects",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "compare_tests_cjson_compare_should_compare_objects",
+            "name": "cjson_compare_should_compare_objects",
+            "source_location": "tests/compare_tests.c:205",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Compare",
+          "cJSON.c::cJSON_Parse"
+        ],
+        "aligned_target_functions": [
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::eq"
+        ],
+        "mapping_shape": "many_to_many",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "Parse and compare object strings with various key differences"
+        },
+        "expected": {
+          "observable_behavior": "Equal objects (same keys/values) are equal; objects with different key order are equal (cJSON behavior); case-sensitive compares differ on key case; case-insensitive compares treat 'False' and 'false' as equal; objects with different keys are not equal."
+        },
+        "normalization": "assert_eq and assert_ne on JsonValue",
+        "evidence": "tests/compare_tests.c line 205: multiple compare_from_string calls with objects"
+      },
+      {
+        "replay_event_id": "replay_cjson_compare_null_pointer_not_equal",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "compare_tests_cjson_compare_should_compare_null_pointer_as_not_equal",
+            "name": "cjson_compare_should_compare_null_pointer_as_not_equal",
+            "source_location": "tests/compare_tests.c:196",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Compare"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::eq"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "cJSON_Compare(NULL, NULL, true) and cJSON_Compare(NULL, NULL, false)"
+        },
+        "expected": {
+          "observable_behavior": "cJSON_Compare returns false when both arguments are NULL"
+        },
+        "normalization": "observable comparison rule",
+        "evidence": "tests/compare_tests.c: cJSON_Compare(NULL, NULL, true) asserted false via TEST_ASSERT_FALSE"
+      },
+      {
+        "replay_event_id": "replay_parse_examples_file_test10_should_be_parsed_and_printed",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "parse_examples_file_test10_should_be_parsed_and_printed",
+            "name": "file_test10_should_be_parsed_and_printed",
+            "source_location": "tests/parse_examples.c:292",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "Read and parse tests/inputs/test10, pretty-print with spaces=2"
+        },
+        "expected": {
+          "observable_behavior": "pretty-printed output matches tests/inputs/test10.expected"
+        },
+        "normalization": "string equality",
+        "evidence": "source_test: do_test(\"test10\") reads input, parses, prints, asserts equal to .expected file"
+      },
+      {
+        "replay_event_id": "replay_parse_examples_file_test11_should_be_parsed_and_printed",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "parse_examples_file_test11_should_be_parsed_and_printed",
+            "name": "file_test11_should_be_parsed_and_printed",
+            "source_location": "tests/parse_examples.c:293",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "Read and parse tests/inputs/test11, pretty-print with spaces=2"
+        },
+        "expected": {
+          "observable_behavior": "pretty-printed output matches tests/inputs/test11.expected"
+        },
+        "normalization": "string equality",
+        "evidence": "source_test: do_test(\"test11\") reads input, parses, prints, asserts equal to .expected file"
+      },
+      {
+        "replay_event_id": "replay_parse_examples_file_test1_should_be_parsed_and_printed",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "parse_examples_file_test1_should_be_parsed_and_printed",
+            "name": "file_test1_should_be_parsed_and_printed",
+            "source_location": "tests/parse_examples.c:283",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "Read and parse tests/inputs/test1, pretty-print with spaces=2"
+        },
+        "expected": {
+          "observable_behavior": "pretty-printed output matches tests/inputs/test1.expected"
+        },
+        "normalization": "string equality",
+        "evidence": "source_test: do_test(\"test1\") reads input, parses, prints, asserts equal to .expected file"
+      },
+      {
+        "replay_event_id": "replay_parse_examples_file_test2_should_be_parsed_and_printed",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "parse_examples_file_test2_should_be_parsed_and_printed",
+            "name": "file_test2_should_be_parsed_and_printed",
+            "source_location": "tests/parse_examples.c:284",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "Read and parse tests/inputs/test2, pretty-print with spaces=2"
+        },
+        "expected": {
+          "observable_behavior": "pretty-printed output matches tests/inputs/test2.expected"
+        },
+        "normalization": "string equality",
+        "evidence": "source_test: do_test(\"test2\") reads input, parses, prints, asserts equal to .expected file"
+      },
+      {
+        "replay_event_id": "replay_parse_examples_file_test3_should_be_parsed_and_printed",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "parse_examples_file_test3_should_be_parsed_and_printed",
+            "name": "file_test3_should_be_parsed_and_printed",
+            "source_location": "tests/parse_examples.c:285",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "Read and parse tests/inputs/test3, pretty-print with spaces=2"
+        },
+        "expected": {
+          "observable_behavior": "pretty-printed output matches tests/inputs/test3.expected"
+        },
+        "normalization": "string equality",
+        "evidence": "source_test: do_test(\"test3\") reads input, parses, prints, asserts equal to .expected file"
+      },
+      {
+        "replay_event_id": "replay_parse_examples_file_test4_should_be_parsed_and_printed",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "parse_examples_file_test4_should_be_parsed_and_printed",
+            "name": "file_test4_should_be_parsed_and_printed",
+            "source_location": "tests/parse_examples.c:286",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "read file tests/inputs/test4"
+        },
+        "expected": {
+          "observable_behavior": "printed output equals contents of tests/inputs/test4.expected"
+        },
+        "normalization": "string equality",
+        "evidence": "source_test_code/do_test: parse_file then cJSON_Print then TEST_ASSERT_EQUAL_STRING(expected, actual)"
+      },
+      {
+        "replay_event_id": "replay_parse_examples_file_test5_should_be_parsed_and_printed",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "parse_examples_file_test5_should_be_parsed_and_printed",
+            "name": "file_test5_should_be_parsed_and_printed",
+            "source_location": "tests/parse_examples.c:287",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "read file tests/inputs/test5"
+        },
+        "expected": {
+          "observable_behavior": "printed output equals contents of tests/inputs/test5.expected"
+        },
+        "normalization": "string equality",
+        "evidence": "source_test_code/do_test: parse_file then cJSON_Print then TEST_ASSERT_EQUAL_STRING(expected, actual)"
+      },
+      {
+        "replay_event_id": "replay_parse_examples_file_test7_should_be_parsed_and_printed",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "parse_examples_file_test7_should_be_parsed_and_printed",
+            "name": "file_test7_should_be_parsed_and_printed",
+            "source_location": "tests/parse_examples.c:289",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "read file tests/inputs/test7"
+        },
+        "expected": {
+          "observable_behavior": "printed output equals contents of tests/inputs/test7.expected"
+        },
+        "normalization": "string equality",
+        "evidence": "source_test_code/do_test: parse_file then cJSON_Print then TEST_ASSERT_EQUAL_STRING(expected, actual)"
+      },
+      {
+        "replay_event_id": "replay_parse_examples_file_test8_should_be_parsed_and_printed",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "parse_examples_file_test8_should_be_parsed_and_printed",
+            "name": "file_test8_should_be_parsed_and_printed",
+            "source_location": "tests/parse_examples.c:290",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "read file tests/inputs/test8"
+        },
+        "expected": {
+          "observable_behavior": "printed output equals contents of tests/inputs/test8.expected"
+        },
+        "normalization": "string equality",
+        "evidence": "source_test_code/do_test: parse_file then cJSON_Print then TEST_ASSERT_EQUAL_STRING(expected, actual)"
+      },
+      {
+        "replay_event_id": "replay_parse_examples_file_test9_should_be_parsed_and_printed",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "parse_examples_file_test9_should_be_parsed_and_printed",
+            "name": "file_test9_should_be_parsed_and_printed",
+            "source_location": "tests/parse_examples.c:291",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Print"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "read file tests/inputs/test9"
+        },
+        "expected": {
+          "observable_behavior": "printed output equals contents of tests/inputs/test9.expected"
+        },
+        "normalization": "string equality",
+        "evidence": "source_test_code/do_test: parse_file then cJSON_Print then TEST_ASSERT_EQUAL_STRING(expected, actual)"
+      },
+      {
+        "replay_event_id": "replay_parse_with_opts_parse_with_opts_should_parse_utf8_bom",
+        "status": "failed",
+        "review_status": "target_semantic_failure_candidate",
+        "review_reason": "Replay compiled and ran; failing expected-behavior check is a candidate target semantic mismatch.",
+        "source_cases": [
+          {
+            "source_behavior_case_id": "parse_with_opts_parse_with_opts_should_parse_utf8_bom",
+            "name": "parse_with_opts_should_parse_utf8_bom",
+            "source_location": "tests/parse_with_opts.c:109",
+            "details_artifact": "artifact_paths.adapter_synthesis_context"
+          }
+        ],
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Compare"
+        ],
+        "aligned_target_functions": [
+          "src/value/mod.rs::JsonValue::eq"
+        ],
+        "support_target_functions_used": [
+          "src/parser.rs::parse"
+        ],
+        "mapping_shape": "one_to_one",
+        "expected_behavior_source": "source_test_assertion",
+        "expected_behavior_confidence": "high",
+        "input": {
+          "case": "strings with and without BOM"
+        },
+        "expected": {
+          "observable_behavior": "parsed values are equal"
+        },
+        "normalization": "JsonValue equality (case sensitive)",
+        "evidence": "source_test_code: cJSON_ParseWithOpts with BOM/without, then cJSON_Compare with case_sensitive=true"
+      }
+    ],
+    "unresolved_behavior_cases": [
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_array_should_fail_on_allocation_failure",
+        "name": "cjson_add_array_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:468",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Cannot replicate allocation failure hook mechanism in target Rust crate",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test relies on cJSON_InitHooks(&failing_hooks) to simulate memory allocation failure, which has no equivalent in the target json crate. The target insert operation cannot be made to fail on allocation."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_array_should_fail_with_null_pointers",
+        "name": "cjson_add_array_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:467",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Cannot replicate null pointer arguments in safe Rust",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test passes NULL as root or key to cJSON_AddArrayToObject. Rust's safe type system prevents null references; calling insert on a non-object value returns an error but does not match the specific null-check behavior. The null key case has no safe equivalent."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_bool_should_fail_on_allocation_failure",
+        "name": "cjson_add_bool_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:448",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Cannot replicate allocation failure hook mechanism in target Rust crate",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test uses cJSON_InitHooks(&failing_hooks) to trigger allocation failure; no equivalent in the target crate."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_bool_should_fail_with_null_pointers",
+        "name": "cjson_add_bool_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:447",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Cannot replicate null pointer arguments in safe Rust",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test passes NULL as root or key to cJSON_AddBoolToObject; safe Rust cannot represent null pointers. Partial coverage (non-object insertion) does not match the exact null-check expected behavior."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_false_should_fail_on_allocation_failure",
+        "name": "cjson_add_false_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:444",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Cannot replicate allocation failure hook mechanism in target Rust crate",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test uses cJSON_InitHooks(&failing_hooks); no equivalent in target."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_false_should_fail_with_null_pointers",
+        "name": "cjson_add_false_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:443",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Cannot replicate null pointer arguments in safe Rust",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test passes NULL as root or key to cJSON_AddFalseToObject; safe Rust cannot represent null pointers."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_null_should_fail_on_allocation_failure",
+        "name": "cjson_add_null_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:431",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Cannot simulate allocation failure",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test uses cJSON_InitHooks(&failing_hooks) to make allocations fail. The target crate has no equivalent global memory hook mechanism. Cannot replicate allocation failure scenario using available aligned target APIs."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_null_should_fail_with_null_pointers",
+        "name": "cjson_add_null_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:430",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Cannot pass null pointers",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test passes NULL as the object pointer or NULL as the key string to AddNullToObject. The target Rust APIs require valid references for the object and key; there is no way to pass null pointers. Cannot replicate null pointer handling."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_number_should_fail_on_allocation_failure",
+        "name": "cjson_add_number_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:452",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Cannot simulate allocation failure",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test uses cJSON_InitHooks(&failing_hooks) to make allocations fail. The target crate has no equivalent global memory hook mechanism. Cannot replicate allocation failure scenario using available aligned target APIs."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_number_should_fail_with_null_pointers",
+        "name": "cjson_add_number_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:451",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Cannot pass null pointers",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test passes NULL as the object pointer or NULL as the key string to AddNumberToObject. The target Rust APIs require valid references for the object and key; there is no way to pass null pointers. Cannot replicate null pointer handling."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_object_should_fail_on_allocation_failure",
+        "name": "cjson_add_object_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:464",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Cannot simulate allocation failure",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test uses cJSON_InitHooks(&failing_hooks) to make allocations fail. The target crate has no equivalent global memory hook mechanism. Cannot replicate allocation failure scenario using available aligned target APIs."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_object_should_fail_with_null_pointers",
+        "name": "cjson_add_object_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:463",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Cannot pass null pointers",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test passes NULL as the object pointer or NULL as the key string to AddObjectToObject. The target Rust APIs require valid references for the object and key; there is no way to pass null pointers. Cannot replicate null pointer handling."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_raw_should_fail_on_allocation_failure",
+        "name": "cjson_add_raw_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:460",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Cannot simulate allocation failure",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test uses cJSON_InitHooks(&failing_hooks) to make allocations fail. The target crate has no equivalent global memory hook mechanism. Cannot replicate allocation failure scenario using available aligned target APIs."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_raw_should_fail_with_null_pointers",
+        "name": "cjson_add_raw_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:459",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Aligned source functions do not include the function under test (cJSON_AddRawToObject), making it impossible to reproduce the expected null-pointer failure behavior without a corresponding target API.",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The case's aligned_source_functions only contain cJSON_CreateObject, but the test predominantly tests cJSON_AddRawToObject with null arguments. No target API exists to add raw JSON content to an object, and the allocation failure hooks are not available. Without a target function for AddRawToObject, the observable behavior cannot be replayed."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_string_should_fail_on_allocation_failure",
+        "name": "cjson_add_string_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:456",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "The test relies on cJSON_InitHooks to inject allocation failures, which has no target counterpart. The aligned source functions only include cJSON_CreateObject.",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The expected behavior is failure under allocation failure, simulated via hooks. The target API does not support custom allocators or injection of allocation failures, so the test cannot be replicated."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_string_should_fail_with_null_pointers",
+        "name": "cjson_add_string_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:455",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Aligned source functions only include cJSON_CreateObject; the test focuses on cJSON_AddStringToObject with null pointers. No target API for adding strings to objects.",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "Same as case 2, the primary function under test is not aligned. Cannot reproduce null-pointer behavior."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_true_should_add_true",
+        "name": "cjson_add_true_should_add_true",
+        "source_location": "tests/cjson_add.c:433",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject",
+          "cJSON.c::cJSON_GetObjectItemCaseSensitive"
+        ],
+        "reason": "Aligned source functions (cJSON_CreateObject, cJSON_GetObjectItemCaseSensitive) do not include cJSON_AddTrueToObject. No target API to add a boolean value to an object.",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The test requires adding a true value to an object, then retrieving it. Without an add_true method, the test setup is impossible."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_true_should_fail_on_allocation_failure",
+        "name": "cjson_add_true_should_fail_on_allocation_failure",
+        "source_location": "tests/cjson_add.c:435",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Relies on cJSON_InitHooks for allocation failure; no target equivalent. Aligned source functions only include cJSON_CreateObject.",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "Cannot simulate allocation failure in target. Test cannot be replayed."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "cjson_add_cjson_add_true_should_fail_with_null_pointers",
+        "name": "cjson_add_true_should_fail_with_null_pointers",
+        "source_location": "tests/cjson_add.c:434",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Aligned source functions only include cJSON_CreateObject; test focuses on cJSON_AddTrueToObject with null pointers.",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "No target for AddTrueToObject. Cannot reproduce."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "compare_tests_cjson_compare_should_compare_invalid_as_not_equal",
+        "name": "cjson_compare_should_compare_invalid_as_not_equal",
+        "source_location": "tests/compare_tests.c:197",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Compare"
+        ],
+        "reason": "Cannot create an invalid/uninitialized JsonValue in target Rust API. Rust's JsonValue is an enum with fixed variants; no equivalent to a stack-allocated, zero-filled cJSON struct.",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "Source test uses memset to zero a cJSON on stack and compares it with itself expecting false. In target, any valid JsonValue compared to itself with eq returns true. No target API supports creating an invalid state."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "misc_tests_cjson_add_item_to_object_or_array_should_not_add_itself",
+        "name": "cjson_add_item_to_object_or_array_should_not_add_itself",
+        "source_location": "tests/misc_tests.c:830",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_CreateArray",
+          "cJSON.c::cJSON_CreateObject"
+        ],
+        "reason": "Cannot safely attempt to add a JsonValue to itself due to Rust ownership and borrow rules. The source test checks that adding an object to itself returns false, but in safe Rust it is impossible to pass the same object as both the container and the item because insert and push take ownership of the item.",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "Target APIs JsonValue::insert and JsonValue::push require a value that is moved into the container. Self-referencing would require aliasing and mutable borrowing that violates Rust's borrow checker. No equivalent runtime check exists."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "compare_tests_cjson_compare_should_not_accept_invalid_types",
+        "name": "cjson_compare_should_not_accept_invalid_types",
+        "source_location": "tests/compare_tests.c:201",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Compare"
+        ],
+        "reason": "Cannot construct a JsonValue with an invalid type flag (e.g., cJSON_Number | cJSON_String). Rust's JsonValue enforces variant discriminant at compile time.",
+        "attempt_count": 3,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "Source test creates a cJSON with type = cJSON_Number | cJSON_String (invalid combination) and expects cJSON_Compare to return false. Target JsonValue is an enum with fixed variants; there is no way to create a value with a mixed or invalid variant. The target API cannot express the source scenario without inventing behavior."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "misc_tests_cjson_create_array_reference_should_create_an_array_reference",
+        "name": "cjson_create_array_reference_should_create_an_array_reference",
+        "source_location": "tests/misc_tests.c:829",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_CreateArray",
+          "cJSON.c::cJSON_IsArray",
+          "cJSON.c::cJSON_IsNumber"
+        ],
+        "reason": "Target does not support creating references to array items; internal pointer comparisons not expressible through public API.",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test creates an array reference using cJSON_CreateArrayReference and directly compares internal child pointers and type flags. The Rust target public API provides no equivalent for creating references or inspecting internal pointers. The aligned source functions (cJSON_CreateArray, cJSON_AddItemToArray, cJSON_IsArray, cJSON_IsNumber) alone cannot reproduce the core behavior."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "misc_tests_cjson_create_object_reference_should_create_an_object_reference",
+        "name": "cjson_create_object_reference_should_create_an_object_reference",
+        "source_location": "tests/misc_tests.c:828",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_AddItemToObjectCS",
+          "cJSON.c::cJSON_CreateObject",
+          "cJSON.c::cJSON_IsNumber",
+          "cJSON.c::cJSON_IsObject"
+        ],
+        "reason": "Target does not support creating references to object items; internal pointer comparisons not expressible through public API.",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "Similar to array reference case: the source test uses cJSON_CreateObjectReference and checks child pointer and type flags. The Rust target has no API for creating references or accessing internal links. Aligned functions (cJSON_AddItemToObjectCS, cJSON_CreateObject, cJSON_IsNumber, cJSON_IsObject) do not cover this behavior."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "misc_tests_cjson_functions_should_not_crash_with_null_pointers",
+        "name": "cjson_functions_should_not_crash_with_null_pointers",
+        "source_location": "tests/misc_tests.c:820",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_AddItemToArray",
+          "cJSON.c::cJSON_AddItemToObject",
+          "cJSON.c::cJSON_AddItemToObjectCS",
+          "cJSON.c::cJSON_Compare",
+          "cJSON.c::cJSON_CreateArray",
+          "cJSON.c::cJSON_CreateString",
+          "cJSON.c::cJSON_CreateStringArray",
+          "cJSON.c::cJSON_DeleteItemFromArray",
+          "cJSON.c::cJSON_DeleteItemFromObject",
+          "cJSON.c::cJSON_DeleteItemFromObjectCaseSensitive",
+          "cJSON.c::cJSON_DetachItemFromArray",
+          "cJSON.c::cJSON_DetachItemFromObject",
+          "cJSON.c::cJSON_DetachItemFromObjectCaseSensitive",
+          "cJSON.c::cJSON_GetArrayItem",
+          "cJSON.c::cJSON_GetArraySize",
+          "cJSON.c::cJSON_GetObjectItemCaseSensitive",
+          "cJSON.c::cJSON_IsArray",
+          "cJSON.c::cJSON_IsBool",
+          "cJSON.c::cJSON_IsNull",
+          "cJSON.c::cJSON_IsNumber",
+          "cJSON.c::cJSON_IsObject",
+          "cJSON.c::cJSON_IsString",
+          "cJSON.c::cJSON_Parse",
+          "cJSON.c::cJSON_Print",
+          "cJSON.c::cJSON_PrintUnformatted",
+          "cJSON.c::cJSON_ReplaceItemInArray",
+          "cJSON.c::cJSON_ReplaceItemInObject",
+          "cJSON.c::cJSON_ReplaceItemInObjectCaseSensitive"
+        ],
+        "reason": "Rust's type system prevents passing null pointers as function arguments, making direct null-safety checks inexpressible",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test exercises many public API functions with null pointers and expects graceful handling (returning false, null, etc.). Rust's target APIs take references (&self, &str) that cannot be null; the behavior of calling with null is not representable without unsafe code. Functions like cJSON_IsNumber(NULL) cannot be translated because Rust does not permit calling methods on null references. The required internal public substitution (add_item_to_array -> push) is also impacted because push cannot be called on a null array. This fundamental type-system difference prevents faithful replay."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "old_utils_tests_generate_merge_tests",
+        "name": "generate_merge_tests",
+        "source_location": "tests/old_utils_tests.c:222",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Parse",
+          "cJSON.c::cJSON_PrintUnformatted"
+        ],
+        "reason": "missing source data: merges array not provided",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test loops over an array 'merges' which is not available in the test definition. Without this data, the expected output cannot be derived. Additionally, the test uses cJSONUtils_GenerateMergePatch and cJSONUtils_MergePatch which are not in the aligned source functions. Cannot generate a replay that matches the source behavior."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      },
+      {
+        "source_behavior_case_id": "old_utils_tests_merge_tests",
+        "name": "merge_tests",
+        "source_location": "tests/old_utils_tests.c:221",
+        "aligned_source_functions": [
+          "cJSON.c::cJSON_Parse",
+          "cJSON.c::cJSON_PrintUnformatted"
+        ],
+        "reason": "missing source data: merges array not provided",
+        "attempt_count": 1,
+        "last_attempt_stage": "behavior_case_conversion",
+        "last_attempt_outcome": "unresolved",
+        "last_errors": [
+          "The source test loops over an array 'merges' which is not available. The test also uses cJSONUtils_MergePatch which is not aligned. Cannot reproduce the expected string comparison from the source test."
+        ],
+        "details_artifact": "artifact_paths.adapter_synthesis_context"
+      }
+    ]
+  },
+  "source_test_selection": {
+    "summary": {
+      "test_files_discovered": 24,
+      "source_test_cases_discovered": 162,
+      "aligned_public_test_candidates": 78,
+      "cases_unresolved_after_exact_function_binding": 0,
+      "structurally_ineligible_for_public_replay_cases": 0,
+      "public_replay_eligible_cases": 78,
+      "cases_marked_unresolved_by_adapter_conversion": 27,
+      "unresolved_after_conversion_attempts": 0,
+      "replayed_cases": 51,
+      "mixed_public_internal_candidates": 1,
+      "mixed_cases_eligible_with_public_substitution": 1,
+      "case_conversion_attempt_mode": "per_case_attempt_limit"
+    },
+    "details": {
+      "test_inventory": "artifact_paths.test_inventory",
+      "public_replay_eligibility": "artifact_paths.public_replay_eligibility",
+      "failed_replay_source_cases": "key_findings.failed_replay_events[].source_cases",
+      "unresolved_behavior_cases": "key_findings.unresolved_behavior_cases"
+    }
+  },
+  "target_replay": {
+    "summary": {
+      "status": "failed",
+      "replay_plan_fingerprint": "3089a7bd5ef4ced5",
+      "replay_events_in_plan": 51,
+      "adapter_generation_status": "llm_synthesized_repaired_v1",
+      "command": "cargo test --test cp2rs_3b_public",
+      "returncode": 101,
+      "replay_events_executed": 51,
+      "replay_events_passed": 37,
+      "replay_events_failed": 14,
+      "infrastructure_failures": 0,
+      "note": "public_replay_pass_rate only describes this replay plan; compare replay_plan_fingerprint across runs before comparing pass rates."
+    },
+    "details": {
+      "failed_replay_events": "key_findings.failed_replay_events",
+      "full_replay_result": "artifact_paths.replay_result",
+      "full_replay_plan": "artifact_paths.replay_plan",
+      "generated_rust_tests": "artifact_paths.generated_test_file"
+    }
+  },
+  "adapter": {
+    "schema_version": "3b.replay_adapter.v2",
+    "name": "llm_synthesized_cJSON_to_json-rust_public_v2",
+    "status": "loaded",
+    "generation_status": "llm_synthesized_repaired_v1",
+    "validation_status": "passed",
+    "summary": {
+      "replay_event_count": 51,
+      "unique_replay_event_id_count": 51,
+      "covered_source_behavior_case_count": 51,
+      "rust_support_source_present": false
+    },
+    "path": "output/phase3_3b/cJSON_vs_json-rust_cjson_macro_import_v1/effective_adapter.json"
+  },
+  "llm_usage": {
+    "calls": 14,
+    "prompt_tokens": 193867,
+    "completion_tokens": 97682,
+    "total_tokens": 291549,
+    "elapsed_seconds": 715.133,
+    "usage_source": "api_reported_when_available",
+    "calls_by_stage": {
+      "behavior_case_conversion_batch_1": {
+        "calls": 1,
+        "prompt_tokens": 11113,
+        "completion_tokens": 7666,
+        "total_tokens": 18779
+      },
+      "behavior_case_conversion_batch_2": {
+        "calls": 1,
+        "prompt_tokens": 11092,
+        "completion_tokens": 7081,
+        "total_tokens": 18173
+      },
+      "behavior_case_conversion_batch_3": {
+        "calls": 1,
+        "prompt_tokens": 13100,
+        "completion_tokens": 7443,
+        "total_tokens": 20543
+      },
+      "behavior_case_conversion_batch_4": {
+        "calls": 1,
+        "prompt_tokens": 10349,
+        "completion_tokens": 4095,
+        "total_tokens": 14444
+      },
+      "behavior_case_conversion_batch_5": {
+        "calls": 1,
+        "prompt_tokens": 9080,
+        "completion_tokens": 2492,
+        "total_tokens": 11572
+      },
+      "behavior_case_conversion_batch_6": {
+        "calls": 1,
+        "prompt_tokens": 14781,
+        "completion_tokens": 9971,
+        "total_tokens": 24752
+      },
+      "behavior_case_conversion_batch_7": {
+        "calls": 1,
+        "prompt_tokens": 9504,
+        "completion_tokens": 2048,
+        "total_tokens": 11552
+      },
+      "behavior_case_conversion_batch_8": {
+        "calls": 1,
+        "prompt_tokens": 9232,
+        "completion_tokens": 885,
+        "total_tokens": 10117
+      },
+      "behavior_case_conversion_batch_9": {
+        "calls": 1,
+        "prompt_tokens": 26813,
+        "completion_tokens": 11528,
+        "total_tokens": 38341
+      },
+      "behavior_case_conversion_batch_10": {
+        "calls": 1,
+        "prompt_tokens": 23146,
+        "completion_tokens": 13991,
+        "total_tokens": 37137
+      },
+      "behavior_case_conversion_batch_11": {
+        "calls": 1,
+        "prompt_tokens": 18213,
+        "completion_tokens": 13884,
+        "total_tokens": 32097
+      },
+      "behavior_case_conversion_batch_12": {
+        "calls": 1,
+        "prompt_tokens": 9599,
+        "completion_tokens": 4135,
+        "total_tokens": 13734
+      },
+      "behavior_case_conversion_batch_13": {
+        "calls": 1,
+        "prompt_tokens": 14581,
+        "completion_tokens": 8170,
+        "total_tokens": 22751
+      },
+      "replay_infrastructure_repair_attempt_1": {
+        "calls": 1,
+        "prompt_tokens": 13264,
+        "completion_tokens": 4293,
+        "total_tokens": 17557
+      }
+    },
+    "full_usage_artifact": "artifact_paths.llm_usage"
+  },
+  "metrics": {
+    "basic_counts": {
+      "aligned_source_functions_total": 37,
+      "aligned_source_functions_with_src_test_evidence": 34,
+      "aligned_source_functions_excluded_no_src_test_evidence": 3,
+      "source_tested_non_public_or_internal_functions_excluded_l1": 3,
+      "public_source_functions_with_leaf_name_test_evidence": 31,
+      "public_source_functions_excluded_no_precise_behavior_evidence": 0,
+      "public_source_functions_with_precise_behavior_evidence_l1_scope": 31,
+      "public_target_functions_in_l1_scope": 25,
+      "mixed_public_internal_aligned_test_cases": 1,
+      "source_tested_public_functions_not_replayed": 8,
+      "replay_events_executed": 51,
+      "replay_events_passed": 37,
+      "replay_events_failed": 14,
+      "failed_replay_events_requiring_expected_behavior_review": 0,
+      "target_semantic_failure_candidates": 14,
+      "infrastructure_failures": 0,
+      "validated_aligned_source_functions_replayed": 23,
+      "validated_aligned_target_functions_replayed": 22,
+      "covered_aligned_pairs": 23,
+      "source_behavior_cases_available": 78,
+      "source_behavior_cases_eligible_for_replay": 78,
+      "source_behavior_cases_replayed": 51,
+      "source_behavior_cases_marked_unresolved_by_conversion": 27,
+      "source_behavior_cases_unresolved_after_conversion": 0
+    },
+    "ratio_metrics": {
+      "source_test_evidence_coverage": {
+        "value": "91.89%",
+        "raw_fraction": "34 / 37",
+        "description": "3A aligned source 函数中，有 src 测试证据的比例"
+      },
+      "precise_behavior_evidence_rate": {
+        "value": "100.00%",
+        "raw_fraction": "31 / 31",
+        "description": "public source 函数中，从 leaf-name 测试证据进一步确认有精确行为证据的比例"
+      },
+      "source_tested_public_function_replay_gap_rate": {
+        "value": "25.81%",
+        "raw_fraction": "8 / 31",
+        "description": "L1 scope 中有精确 src 测试证据但 adapter 未 replay 的 source 函数比例"
+      },
+      "public_replay_pass_rate": {
+        "value": "72.55%",
+        "raw_fraction": "37 / 51",
+        "description": "当前已生成 replay plan 内，public replay 通过的 event 数 / public replay 实际执行的 event 数；这是 scoped pass rate，不代表全部 eligible source behavior cases 的全局通过率"
+      },
+      "aligned_source_replay_coverage": {
+        "value": "74.19%",
+        "raw_fraction": "23 / 31",
+        "description": "L1 source scope 中被 replay 覆盖且通过 3A 对齐验证的 source 函数比例"
+      },
+      "aligned_target_replay_coverage": {
+        "value": "88.00%",
+        "raw_fraction": "22 / 25",
+        "description": "L1 target scope 中被 replay 触达且通过 3A 对齐验证的 target 函数比例"
+      },
+      "behavior_case_accounting_rate": {
+        "value": "100.00%",
+        "raw_fraction": "78 / 78",
+        "description": "eligible source behavior cases 中，已 replay 或明确标记为无法转换的比例"
+      },
+      "behavior_case_replay_coverage": {
+        "value": "65.38%",
+        "raw_fraction": "51 / 78",
+        "description": "eligible source behavior cases 中，成功转换为 replay event 并进入 Rust replay plan 的比例"
+      }
+    }
+  }
+}

@@ -1,0 +1,783 @@
+{
+  "schema_version": "3b.adapter_synthesis_attempts.v2",
+  "source_repository": "jsoncpp",
+  "target_repository": "json-rust",
+  "attempt_count": 21,
+  "attempts": [
+    {
+      "attempt": 1,
+      "stage": "behavior_case_conversion",
+      "iteration": 1,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_charreaderallowdropnulltest_issue178",
+        "main_charreaderallownumerickeystest_allownumerickeys",
+        "main_charreaderallowsinglequotestest_issue182",
+        "main_charreaderallowspecialfloatstest_issue209",
+        "main_charreaderallowspecialfloatstest_specialfloat",
+        "main_charreaderallowzeroestest_issue176",
+        "main_charreaderfailifextratest_commentafterarray",
+        "main_charreaderfailifextratest_commentafterbool",
+        "main_charreaderfailifextratest_commentafterobject",
+        "main_charreaderfailifextratest_issue107"
+      ],
+      "accepted_case_ids": [
+        "main_charreaderallowdropnulltest_issue178",
+        "main_charreaderallownumerickeystest_allownumerickeys",
+        "main_charreaderallowsinglequotestest_issue182",
+        "main_charreaderallowspecialfloatstest_issue209",
+        "main_charreaderallowspecialfloatstest_specialfloat",
+        "main_charreaderallowzeroestest_issue176",
+        "main_charreaderfailifextratest_commentafterarray",
+        "main_charreaderfailifextratest_commentafterbool",
+        "main_charreaderfailifextratest_commentafterobject",
+        "main_charreaderfailifextratest_issue107"
+      ],
+      "replay_generated_case_ids": [
+        "main_charreaderallowspecialfloatstest_specialfloat",
+        "main_charreaderfailifextratest_commentafterbool"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 2,
+      "stage": "behavior_case_conversion",
+      "iteration": 2,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_charreaderfailifextratest_issue164",
+        "main_charreaderfailifextratest_parsecomment",
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parsechinesewithoneerror",
+        "main_charreadertest_parsecomment",
+        "main_charreadertest_parsenumber",
+        "main_charreadertest_parseobjectwitherrors",
+        "main_charreadertest_parsestring",
+        "main_charreadertest_parsewithdetailerror"
+      ],
+      "accepted_case_ids": [
+        "main_charreaderfailifextratest_issue164",
+        "main_charreaderfailifextratest_parsecomment",
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parsechinesewithoneerror",
+        "main_charreadertest_parsecomment",
+        "main_charreadertest_parsenumber",
+        "main_charreadertest_parseobjectwitherrors",
+        "main_charreadertest_parsestring",
+        "main_charreadertest_parsewithdetailerror"
+      ],
+      "replay_generated_case_ids": [
+        "main_charreaderfailifextratest_parsecomment",
+        "main_charreaderstrictmodetest_dupkeys",
+        "main_charreadertest_parsearraywitherrors",
+        "main_charreadertest_parsechinesewithoneerror",
+        "main_charreadertest_parsecomment",
+        "main_charreadertest_parsenumber",
+        "main_charreadertest_parseobjectwitherrors",
+        "main_charreadertest_parsestring",
+        "main_charreadertest_parsewithdetailerror"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 3,
+      "stage": "behavior_case_conversion",
+      "iteration": 3,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_charreadertest_parsewithnoerrors",
+        "main_charreadertest_parsewithnoerrorstestingoffsets",
+        "main_charreadertest_parsewithoneerror",
+        "main_charreadertest_parsewithstacklimit",
+        "main_escapesequencetest_charreaderparseescapesequence",
+        "main_escapesequencetest_readerparseescapesequence",
+        "main_escapesequencetest_writeescapesequence",
+        "main_fastwritertest_dropnullplaceholders",
+        "main_fastwritertest_enableyamlcompatibility",
+        "main_fastwritertest_omitendinglinefeed"
+      ],
+      "accepted_case_ids": [
+        "main_charreadertest_parsewithnoerrors",
+        "main_charreadertest_parsewithnoerrorstestingoffsets",
+        "main_charreadertest_parsewithoneerror",
+        "main_charreadertest_parsewithstacklimit",
+        "main_escapesequencetest_charreaderparseescapesequence",
+        "main_escapesequencetest_readerparseescapesequence",
+        "main_escapesequencetest_writeescapesequence",
+        "main_fastwritertest_dropnullplaceholders",
+        "main_fastwritertest_enableyamlcompatibility",
+        "main_fastwritertest_omitendinglinefeed"
+      ],
+      "replay_generated_case_ids": [
+        "main_charreadertest_parsewithnoerrors",
+        "main_charreadertest_parsewithnoerrorstestingoffsets",
+        "main_charreadertest_parsewithoneerror",
+        "main_charreadertest_parsewithstacklimit",
+        "main_escapesequencetest_charreaderparseescapesequence",
+        "main_escapesequencetest_readerparseescapesequence",
+        "main_escapesequencetest_writeescapesequence",
+        "main_fastwritertest_dropnullplaceholders",
+        "main_fastwritertest_enableyamlcompatibility",
+        "main_fastwritertest_omitendinglinefeed"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 4,
+      "stage": "behavior_case_conversion",
+      "iteration": 4,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_fastwritertest_writearrays",
+        "main_fastwritertest_writenestedobjects",
+        "main_fastwritertest_writenumericvalue",
+        "main_fuzztest_fuzzdoesntcrash",
+        "main_iteratortest_constness",
+        "main_iteratortest_convert",
+        "main_iteratortest_decrement",
+        "main_iteratortest_distance",
+        "main_iteratortest_indexes",
+        "main_iteratortest_names"
+      ],
+      "accepted_case_ids": [
+        "main_fastwritertest_writearrays",
+        "main_fastwritertest_writenestedobjects",
+        "main_fastwritertest_writenumericvalue",
+        "main_fuzztest_fuzzdoesntcrash",
+        "main_iteratortest_constness",
+        "main_iteratortest_decrement",
+        "main_iteratortest_indexes",
+        "main_iteratortest_names"
+      ],
+      "replay_generated_case_ids": [
+        "main_fastwritertest_writearrays",
+        "main_fastwritertest_writenestedobjects",
+        "main_fastwritertest_writenumericvalue",
+        "main_iteratortest_constness",
+        "main_iteratortest_decrement"
+      ],
+      "unresolved_case_ids": [
+        "main_iteratortest_convert",
+        "main_iteratortest_distance"
+      ],
+      "errors": [
+        "case main_iteratortest_convert: model returned unresolved, reason=Target API does not support converting mutable iterator to const iterator., details=Source test assigns a mutable iterator to a const iterator. In Rust, members_mut returns MembersMut which is a different type from Members, and no conversion or equality is supported. Cannot replay the conversion behavior.",
+        "case main_iteratortest_distance: model returned unresolved, reason=Target iterators do not support pointer subtraction., details=Source test uses it - json.begin() to compute distance. Rust slice iterators do not implement subtraction. Alternative methods to compute index (e.g., enumerate) would not test the same operation. The behavioral equivalence is not directly replayable."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 5,
+      "stage": "behavior_case_conversion",
+      "iteration": 5,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_iteratortest_convert",
+        "main_iteratortest_distance"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_iteratortest_convert",
+        "main_iteratortest_distance"
+      ],
+      "errors": [
+        "case main_iteratortest_convert: model returned unresolved, reason=Target API does not support converting mutable iterator to const iterator, and no equality between MembersMut and Members., details=Source test assigns a mutable iterator (j.begin()) to a const_iterator, then asserts equality with cj.begin(). In Rust, members_mut returns MembersMut\n...<truncated 17 chars>...\nmbers returns Members (Iter). These types are distinct and no conversion or equality is available. Cannot replay the assignment or equality assertion.",
+        "case main_iteratortest_distance: model returned unresolved, reason=Target iterators do not support pointer subtraction., details=Source test uses it - json.begin() to compute distance. Rust slice iterators do not implement subtraction. Alternative methods (e.g., enumerate, position) would not test the same operation. The behavioral equivalence is not directly replayable."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 6,
+      "stage": "behavior_case_conversion",
+      "iteration": 6,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_iteratortest_convert",
+        "main_iteratortest_distance"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_iteratortest_convert",
+        "main_iteratortest_distance"
+      ],
+      "errors": [
+        "case main_iteratortest_convert: model returned unresolved, reason=Target API does not support converting mutable iterator to const iterator, and no equality between MembersMut and Members., details=Source test assigns a mutable iterator (j.begin()) to a const_iterator, then asserts equality with cj.begin(). In Rust, members_mut returns MembersMut\n...<truncated 111 chars>...\non. The required target functions (members, members_mut) are callable, but the core behavior of converting and comparing iterators cannot be replayed.",
+        "case main_iteratortest_distance: model returned unresolved, reason=Target iterators do not support pointer subtraction., details=Source test uses it - json.begin() to compute distance between iterators and asserts equality with a manually tracked index. Rust slice iterators (Mem\n...<truncated 66 chars>...\ns (e.g., enumerate, position) would not test the same operation. The behavioral equivalence is not directly replayable with the available target APIs."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 7,
+      "stage": "behavior_case_conversion",
+      "iteration": 7,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_iteratortest_reverseiterator",
+        "main_iteratortest_staticstringkey",
+        "main_membertemplateas_behavessameasnamedas",
+        "main_membertemplateis_behavessameasnamedis",
+        "main_parsewithstructurederrorstest_singleerror",
+        "main_parsewithstructurederrorstest_success",
+        "main_readertest_allowdroppednullplaceholders",
+        "main_readertest_allownumerickeystest",
+        "main_readertest_parsearray",
+        "main_readertest_parsechinesewithoneerror"
+      ],
+      "accepted_case_ids": [
+        "main_iteratortest_reverseiterator",
+        "main_membertemplateas_behavessameasnamedas",
+        "main_membertemplateis_behavessameasnamedis",
+        "main_parsewithstructurederrorstest_singleerror",
+        "main_parsewithstructurederrorstest_success"
+      ],
+      "replay_generated_case_ids": [
+        "main_iteratortest_reverseiterator",
+        "main_membertemplateas_behavessameasnamedas",
+        "main_membertemplateis_behavessameasnamedis",
+        "main_parsewithstructurederrorstest_success"
+      ],
+      "unresolved_case_ids": [
+        "main_iteratortest_staticstringkey",
+        "main_readertest_allowdroppednullplaceholders",
+        "main_readertest_allownumerickeystest",
+        "main_readertest_parsearray",
+        "main_readertest_parsechinesewithoneerror"
+      ],
+      "errors": [
+        "case main_iteratortest_staticstringkey: model returned unresolved, reason=Target API does not provide a public method to retrieve object keys during iteration; cannot replay key() assertion., details=The source test uses Json::Value::begin().key() to retrieve the first key. The target crate provides members_mut() which iterates over values only; there is no public API to enumerate keys. Replaying the test would require a different assertion behavior, which is not allowed.",
+        "case main_readertest_allowdroppednullplaceholders: model returned unresolved, reason=Target parse function does not support dropped null placeholders feature., details=Source test uses Reader with allowDroppedNullPlaceholders_=true to parse [1,,2] and expects null placeholder. Target parse() does not provide this configuration; the input is invalid JSON in standard parsing.",
+        "case main_readertest_allownumerickeystest: model returned unresolved, reason=Target parse function does not support numeric keys feature., details=Source test uses Reader with allowNumericKeys_=true to parse '{ 123 : \"abc\" }' . Target parse() does not provide this configuration.",
+        "case main_readertest_parsearray: model returned unresolved, reason=Target parse function does not return structured errors with offsets; cannot replay error position assertions., details=Source test expects specific error offsets and messages for malformed arrays. Target crate's Error enum does not include offset information.",
+        "case main_readertest_parsechinesewithoneerror: model returned unresolved, reason=Target parse function does not return structured errors with offsets; cannot replay error position assertions., details=Source test expects specific error offset (18,19) and message. Target parse does not provide structured errors."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 8,
+      "stage": "behavior_case_conversion",
+      "iteration": 8,
+      "scheduling": "immediate_retry",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_iteratortest_staticstringkey",
+        "main_readertest_allowdroppednullplaceholders",
+        "main_readertest_allownumerickeystest",
+        "main_readertest_parsearray",
+        "main_readertest_parsechinesewithoneerror"
+      ],
+      "accepted_case_ids": [
+        "main_readertest_parsearray",
+        "main_readertest_parsechinesewithoneerror"
+      ],
+      "replay_generated_case_ids": [
+        "main_readertest_parsearray",
+        "main_readertest_parsechinesewithoneerror"
+      ],
+      "unresolved_case_ids": [
+        "main_iteratortest_staticstringkey",
+        "main_readertest_allowdroppednullplaceholders",
+        "main_readertest_allownumerickeystest"
+      ],
+      "errors": [
+        "case main_iteratortest_staticstringkey: model returned unresolved, reason=Target API does not provide a public method to retrieve object keys during iteration; cannot replay key() assertion., details=The source test uses Json::Value::begin().key() to retrieve the first key. The target crate provides members_mut() which iterates over values only; there is no public API to enumerate keys. Replaying the test would require a different assertion behavior, which is not allowed.",
+        "case main_readertest_allowdroppednullplaceholders: model returned unresolved, reason=Target parse function does not support allowDroppedNullPlaceholders feature., details=Source test uses Reader with allowDroppedNullPlaceholders_=true to parse [1,,2] and expects null placeholder. Target parse() does not support this configuration; the input is invalid JSON in standard parsing.",
+        "case main_readertest_allownumerickeystest: model returned unresolved, reason=Target parse function does not support allowNumericKeys feature., details=Source test uses Reader with allowNumericKeys_=true to parse '{ 123 : \"abc\" }'. Target parse() does not support this configuration."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "json_parse_error",
+      "json_format_repair_used": true,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 9,
+      "stage": "behavior_case_conversion",
+      "iteration": 9,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_iteratortest_staticstringkey",
+        "main_readertest_allowdroppednullplaceholders",
+        "main_readertest_allownumerickeystest"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_iteratortest_staticstringkey",
+        "main_readertest_allowdroppednullplaceholders",
+        "main_readertest_allownumerickeystest"
+      ],
+      "errors": [
+        "case main_iteratortest_staticstringkey: model returned unresolved, reason=Target API does not provide a public method to retrieve object keys during iteration; cannot replay key() assertion., details=The source test uses Json::Value::begin().key() to retrieve the first key. The target crate provides members_mut() which iterates over values only; there is no public API to enumerate keys. Replaying the test would require a different assertion behavior, which is not allowed.",
+        "case main_readertest_allowdroppednullplaceholders: model returned unresolved, reason=Target parse function does not support allowDroppedNullPlaceholders feature., details=Source test uses Reader with allowDroppedNullPlaceholders_=true to parse [1,,2] and expects null placeholder. Target parse() does not support this configuration; the input is invalid JSON in standard parsing.",
+        "case main_readertest_allownumerickeystest: model returned unresolved, reason=Target parse function does not support allowNumericKeys feature., details=Source test uses Reader with allowNumericKeys_=true to parse '{ 123 : \"abc\" }'. Target parse() does not support this configuration."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 10,
+      "stage": "behavior_case_conversion",
+      "iteration": 10,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_readertest_parsecomment",
+        "main_readertest_parseobject",
+        "main_readertest_parsespecialfloat",
+        "main_readertest_parsestring",
+        "main_readertest_parsewithdetailerror",
+        "main_readertest_parsewithnoerrors",
+        "main_readertest_parsewithnoerrorstestingoffsets",
+        "main_readertest_parsewithoneerror",
+        "main_readertest_pusherrortest",
+        "main_readertest_streamparsewithnoerrors"
+      ],
+      "accepted_case_ids": [
+        "main_readertest_parsecomment",
+        "main_readertest_parseobject",
+        "main_readertest_parsespecialfloat",
+        "main_readertest_parsestring",
+        "main_readertest_parsewithdetailerror",
+        "main_readertest_parsewithnoerrors",
+        "main_readertest_parsewithnoerrorstestingoffsets",
+        "main_readertest_parsewithoneerror",
+        "main_readertest_pusherrortest",
+        "main_readertest_streamparsewithnoerrors"
+      ],
+      "replay_generated_case_ids": [
+        "main_readertest_parsecomment",
+        "main_readertest_parseobject",
+        "main_readertest_parsespecialfloat",
+        "main_readertest_parsestring",
+        "main_readertest_parsewithdetailerror",
+        "main_readertest_parsewithnoerrors",
+        "main_readertest_parsewithnoerrorstestingoffsets",
+        "main_readertest_parsewithoneerror",
+        "main_readertest_pusherrortest",
+        "main_readertest_streamparsewithnoerrors"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 11,
+      "stage": "behavior_case_conversion",
+      "iteration": 11,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_readertest_strictmodeparsenumber",
+        "main_streamwritertest_dropnullplaceholders",
+        "main_streamwritertest_enableyamlcompatibility",
+        "main_streamwritertest_escapecontrolcharacters",
+        "main_streamwritertest_escapetabcharacterwindows",
+        "main_streamwritertest_indentation",
+        "main_streamwritertest_multilinearray",
+        "main_streamwritertest_unicode",
+        "main_streamwritertest_writearrays",
+        "main_streamwritertest_writenestedobjects"
+      ],
+      "accepted_case_ids": [
+        "main_readertest_strictmodeparsenumber",
+        "main_streamwritertest_dropnullplaceholders",
+        "main_streamwritertest_enableyamlcompatibility",
+        "main_streamwritertest_escapecontrolcharacters",
+        "main_streamwritertest_escapetabcharacterwindows",
+        "main_streamwritertest_indentation",
+        "main_streamwritertest_multilinearray",
+        "main_streamwritertest_unicode",
+        "main_streamwritertest_writearrays",
+        "main_streamwritertest_writenestedobjects"
+      ],
+      "replay_generated_case_ids": [
+        "main_readertest_strictmodeparsenumber",
+        "main_streamwritertest_dropnullplaceholders",
+        "main_streamwritertest_enableyamlcompatibility",
+        "main_streamwritertest_escapecontrolcharacters",
+        "main_streamwritertest_escapetabcharacterwindows",
+        "main_streamwritertest_indentation",
+        "main_streamwritertest_multilinearray",
+        "main_streamwritertest_unicode",
+        "main_streamwritertest_writearrays",
+        "main_streamwritertest_writenestedobjects"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 12,
+      "stage": "behavior_case_conversion",
+      "iteration": 12,
+      "scheduling": "new_batch",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_streamwritertest_writenumericvalue",
+        "main_streamwritertest_writezeroes",
+        "main_styledstreamwritertest_multilinearray",
+        "main_styledstreamwritertest_writearrays",
+        "main_styledstreamwritertest_writenestedobjects",
+        "main_styledstreamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_writevaluewithcomment",
+        "main_styledwritertest_multilinearray",
+        "main_styledwritertest_writearrays",
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_streamwritertest_writenumericvalue",
+        "main_streamwritertest_writezeroes",
+        "main_styledstreamwritertest_multilinearray",
+        "main_styledstreamwritertest_writearrays",
+        "main_styledstreamwritertest_writenestedobjects",
+        "main_styledstreamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_writevaluewithcomment",
+        "main_styledwritertest_multilinearray",
+        "main_styledwritertest_writearrays",
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "errors": [
+        "case main_streamwritertest_writenumericvalue: replay_events[52].rust_test_body uses macros not declared by target public API: ['json']",
+        "case main_streamwritertest_writezeroes: replay_events[52].rust_test_body uses macros not declared by target public API: ['json']",
+        "case main_styledstreamwritertest_multilinearray: replay_events[52].rust_test_body uses macros not declared by target public API: ['json']",
+        "case main_styledstreamwritertest_writearrays: replay_events[52].rust_test_body uses macros not declared by target public API: ['json']",
+        "case main_styledstreamwritertest_writenestedobjects: replay_events[52].rust_test_body uses macros not declared by target public API: ['json']",
+        "case main_styledstreamwritertest_writenumericvalue: replay_events[52].rust_test_body uses macros not declared by target public API: ['json']",
+        "case main_styledstreamwritertest_writevaluewithcomment: replay_events[52].rust_test_body uses macros not declared by target public API: ['json']",
+        "case main_styledwritertest_multilinearray: replay_events[52].rust_test_body uses macros not declared by target public API: ['json']",
+        "case main_styledwritertest_writearrays: replay_events[52].rust_test_body uses macros not declared by target public API: ['json']",
+        "case main_styledwritertest_writenestedobjects: replay_events[52].rust_test_body uses macros not declared by target public API: ['json']"
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 13,
+      "stage": "behavior_case_conversion",
+      "iteration": 13,
+      "scheduling": "immediate_retry",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_streamwritertest_writenumericvalue",
+        "main_streamwritertest_writezeroes",
+        "main_styledstreamwritertest_multilinearray",
+        "main_styledstreamwritertest_writearrays",
+        "main_styledstreamwritertest_writenestedobjects",
+        "main_styledstreamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_writevaluewithcomment",
+        "main_styledwritertest_multilinearray",
+        "main_styledwritertest_writearrays",
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "accepted_case_ids": [
+        "main_streamwritertest_writenumericvalue",
+        "main_streamwritertest_writezeroes",
+        "main_styledstreamwritertest_multilinearray",
+        "main_styledstreamwritertest_writearrays",
+        "main_styledstreamwritertest_writenestedobjects",
+        "main_styledstreamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_writevaluewithcomment",
+        "main_styledwritertest_multilinearray",
+        "main_styledwritertest_writearrays",
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "replay_generated_case_ids": [
+        "main_streamwritertest_writenumericvalue",
+        "main_streamwritertest_writezeroes",
+        "main_styledstreamwritertest_multilinearray",
+        "main_styledstreamwritertest_writearrays",
+        "main_styledstreamwritertest_writenestedobjects",
+        "main_styledstreamwritertest_writenumericvalue",
+        "main_styledstreamwritertest_writevaluewithcomment",
+        "main_styledwritertest_multilinearray",
+        "main_styledwritertest_writearrays",
+        "main_styledwritertest_writenestedobjects"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 14,
+      "stage": "behavior_case_conversion",
+      "iteration": 14,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_styledwritertest_writevaluewithcomment",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_arrayissue252",
+        "main_valuetest_arrays",
+        "main_valuetest_bools",
+        "main_valuetest_commentbefore",
+        "main_valuetest_comparearray",
+        "main_valuetest_comparenull",
+        "main_valuetest_compareobject"
+      ],
+      "accepted_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_styledwritertest_writevaluewithcomment",
+        "main_valuetest_arrayinsertatrandomindex",
+        "main_valuetest_arrays",
+        "main_valuetest_bools",
+        "main_valuetest_commentbefore",
+        "main_valuetest_comparearray",
+        "main_valuetest_comparenull",
+        "main_valuetest_compareobject"
+      ],
+      "replay_generated_case_ids": [
+        "main_styledwritertest_writenumericvalue",
+        "main_styledwritertest_writevaluewithcomment",
+        "main_valuetest_bools",
+        "main_valuetest_commentbefore"
+      ],
+      "unresolved_case_ids": [
+        "main_valuetest_arrayissue252"
+      ],
+      "errors": [
+        "case main_valuetest_arrayissue252: model returned unresolved, reason=Source test does not provide an observable behavior for the aligned source function (size); the only assertion is commented out., details=Aligned source function is Json::Value::size, but the test body contains no call to size and the assertion that would have used size is commented out. No expected behavior can be derived."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 15,
+      "stage": "behavior_case_conversion",
+      "iteration": 15,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_arrayissue252"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_arrayissue252"
+      ],
+      "errors": [
+        "case main_valuetest_arrayissue252: model returned unresolved, reason=Source test does not provide an observable assertion or expected behavior for the aligned source function (size); the only relevant assertion is commented out., details=Aligned source function is Json::Value::size, but the test body contains no call to size and the assertion that would have used size is commented out. No expected behavior can be derived from the source test."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 16,
+      "stage": "behavior_case_conversion",
+      "iteration": 16,
+      "scheduling": "immediate_retry",
+      "status": "failed",
+      "targeted_case_ids": [
+        "main_valuetest_arrayissue252"
+      ],
+      "accepted_case_ids": [],
+      "replay_generated_case_ids": [],
+      "unresolved_case_ids": [
+        "main_valuetest_arrayissue252"
+      ],
+      "errors": [
+        "case main_valuetest_arrayissue252: model returned unresolved, reason=Source test does not provide an observable assertion or expected behavior for the aligned source function (size); the only relevant assertion is commented out., details=Aligned source function is Json::Value::size, but the test body contains no call to size and the assertion that would have used size is commented out. No expected behavior can be derived from the source test."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 17,
+      "stage": "behavior_case_conversion",
+      "iteration": 17,
+      "scheduling": "new_batch",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_valuetest_comparetype",
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_getarrayvalue",
+        "main_valuetest_membercount",
+        "main_valuetest_nonintegers",
+        "main_valuetest_null",
+        "main_valuetest_objects",
+        "main_valuetest_precision",
+        "main_valuetest_resizearray"
+      ],
+      "accepted_case_ids": [
+        "main_valuetest_comparetype",
+        "main_valuetest_copymovearray",
+        "main_valuetest_copyobject",
+        "main_valuetest_getarrayvalue",
+        "main_valuetest_membercount",
+        "main_valuetest_nonintegers",
+        "main_valuetest_null",
+        "main_valuetest_objects",
+        "main_valuetest_precision",
+        "main_valuetest_resizearray"
+      ],
+      "replay_generated_case_ids": [
+        "main_valuetest_copyobject",
+        "main_valuetest_getarrayvalue",
+        "main_valuetest_membercount",
+        "main_valuetest_null",
+        "main_valuetest_objects",
+        "main_valuetest_resizearray"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 18,
+      "stage": "behavior_case_conversion",
+      "iteration": 18,
+      "scheduling": "new_batch",
+      "status": "partial",
+      "targeted_case_ids": [
+        "main_valuetest_resizepopulatesallmissingelements",
+        "main_valuetest_searchvaluebypath",
+        "main_valuetest_specialfloats",
+        "main_valuetest_strings",
+        "main_valuetest_typechecksthrowexceptions",
+        "main_valuetest_widestring",
+        "main_valuetest_zeroes",
+        "main_valuetest_zeroesinkeys"
+      ],
+      "accepted_case_ids": [
+        "main_valuetest_resizepopulatesallmissingelements",
+        "main_valuetest_searchvaluebypath",
+        "main_valuetest_specialfloats",
+        "main_valuetest_strings",
+        "main_valuetest_typechecksthrowexceptions",
+        "main_valuetest_widestring"
+      ],
+      "replay_generated_case_ids": [
+        "main_valuetest_resizepopulatesallmissingelements",
+        "main_valuetest_searchvaluebypath",
+        "main_valuetest_specialfloats",
+        "main_valuetest_strings",
+        "main_valuetest_typechecksthrowexceptions",
+        "main_valuetest_widestring"
+      ],
+      "unresolved_case_ids": [
+        "main_valuetest_zeroes",
+        "main_valuetest_zeroesinkeys"
+      ],
+      "errors": [
+        "case main_valuetest_zeroes: model returned unresolved, reason=Target API does not support null bytes in string keys, which are required to replicate the source behavior for removeMember with binary key, details=The source test uses a binary string containing a null byte as a member key and calls removeMember with begin/end pointers. The target JsonValue::remo\n...<truncated 76 chars>...\nring slice with embedded null byte to call remove. The behavior difference is fundamental and cannot be replayed without unsafe code or different API.",
+        "case main_valuetest_zeroesinkeys: model returned unresolved, reason=Target API does not support null bytes in string keys, which are required to replicate the source behavior for removeMember with binary key, details=Same as main_valuetest_zeroes: the source test uses a binary string containing null bytes as a key and calls removeMember. The target remove function expects a &str, which cannot contain null bytes. Cannot construct the required key type."
+      ],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 19,
+      "stage": "behavior_case_conversion",
+      "iteration": 19,
+      "scheduling": "immediate_retry",
+      "status": "accepted",
+      "targeted_case_ids": [
+        "main_valuetest_zeroes",
+        "main_valuetest_zeroesinkeys"
+      ],
+      "accepted_case_ids": [
+        "main_valuetest_zeroes",
+        "main_valuetest_zeroesinkeys"
+      ],
+      "replay_generated_case_ids": [
+        "main_valuetest_zeroes",
+        "main_valuetest_zeroesinkeys"
+      ],
+      "unresolved_case_ids": [],
+      "errors": [],
+      "json_failure_kind": "",
+      "original_json_failure_kind": "",
+      "json_format_repair_used": false,
+      "json_format_repair_error": ""
+    },
+    {
+      "attempt": 20,
+      "stage": "replay_infrastructure_repair",
+      "status": "failed",
+      "errors": [],
+      "input_infrastructure_failed_tests": 9,
+      "total_infrastructure_failed_tests_before_attempt": 9,
+      "replay_status": "partial_infrastructure_failed",
+      "replay_reason": "merged_replay_result_after_targeted_repair_subset",
+      "rerun_event_count": 9,
+      "remaining_infrastructure_failures": 1
+    },
+    {
+      "attempt": 21,
+      "stage": "replay_infrastructure_repair",
+      "status": "passed",
+      "errors": [],
+      "input_infrastructure_failed_tests": 1,
+      "total_infrastructure_failed_tests_before_attempt": 1,
+      "replay_status": "failed",
+      "replay_reason": "merged_replay_result_after_targeted_repair_subset",
+      "rerun_event_count": 1,
+      "remaining_infrastructure_failures": 0
+    }
+  ]
+}

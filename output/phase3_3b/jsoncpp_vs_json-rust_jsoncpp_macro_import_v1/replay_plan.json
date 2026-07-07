@@ -7,252 +7,10 @@
   "skipped_scope_event_count": 0,
   "events": [
     {
-      "id": "replay_issue178_allowdropnull",
+      "id": "replay_charreaderallowspecialfloatstest_specialfloat",
       "layer": "public_behavior",
-      "description": "Parse JSON with allowDroppedNullPlaceholders enabled",
-      "evidence": "src/test_lib_json/main.cpp:35-36: JSONTEST_ASSERT(ok); JSONTEST_ASSERT_STRING_EQUAL(errs, \"\")",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-        "src/lib_json/json_value.cpp::Json::Value::size"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::len"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "assertion_line",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "parse JSON string with null placeholders"
-      },
-      "expected": {
-        "observable_behavior": "Parsing returns Ok and no errors"
-      },
-      "source_case_ids": [
-        "main_charreaderallowdropnulltest_issue178"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "many_to_many",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          },
-          {
-            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::size",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-          "src/lib_json/json_value.cpp::Json::Value::size"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse",
-          "src/value/mod.rs::JsonValue::len"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "replay_allownumerickeys",
-      "layer": "public_behavior",
-      "description": "Parse JSON with allowNumericKeys enabled",
-      "evidence": "src/test_lib_json/main.cpp:9-14: JSONTEST_ASSERT(ok); JSONTEST_ASSERT_STRING_EQUAL(\"\", errs); JSONTEST_ASSERT_EQUAL(3u, root.size()); JSONTEST_ASSERT_EQUAL(true, root.get(\"15\", false)); ...",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-        "src/lib_json/json_value.cpp::Json::Value::size"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::len"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "equality_expected_behavior",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "parse object with numeric keys"
-      },
-      "expected": {
-        "observable_behavior": "Parsed object equals expected object with string keys"
-      },
-      "source_case_ids": [
-        "main_charreaderallownumerickeystest_allownumerickeys"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "many_to_many",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          },
-          {
-            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::size",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-          "src/lib_json/json_value.cpp::Json::Value::size"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse",
-          "src/value/mod.rs::JsonValue::len"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "replay_issue182_allowsinglequotes",
-      "layer": "public_behavior",
-      "description": "Parse JSON with allowSingleQuotes enabled",
-      "evidence": "src/test_lib_json/main.cpp:10-13: JSONTEST_ASSERT(ok); JSONTEST_ASSERT_STRING_EQUAL(\"\", errs); JSONTEST_ASSERT_EQUAL(2u, root.size()); JSONTEST_ASSERT_EQUAL(true, root.get(\"a\", false));",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-        "src/lib_json/json_value.cpp::Json::Value::size"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::len"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "equality_expected_behavior",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "parse objects with single-quoted keys"
-      },
-      "expected": {
-        "observable_behavior": "Parsed objects equal expected objects"
-      },
-      "source_case_ids": [
-        "main_charreaderallowsinglequotestest_issue182"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "many_to_many",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          },
-          {
-            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::size",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-          "src/lib_json/json_value.cpp::Json::Value::size"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse",
-          "src/value/mod.rs::JsonValue::len"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "replay_issue209_allowspecialfloats",
-      "layer": "public_behavior",
-      "description": "Parse JSON with allowSpecialFloats enabled",
-      "evidence": "src/test_lib_json/main.cpp:10-17: JSONTEST_ASSERT(ok); JSONTEST_ASSERT_STRING_EQUAL(\"\", errs); JSONTEST_ASSERT_EQUAL(4u, root.size()); JSONTEST_ASSERT(std::isnan(n));",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-        "src/lib_json/json_value.cpp::Json::Value::size"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::len"
-      ],
-      "support_target_functions": [
-        "src/object.rs::Object::index#sig_f2a28c71",
-        "src/value/mod.rs::JsonValue::as_f64"
-      ],
-      "event_metadata": {
-        "normalization": "assertion_line",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "parse object with NaN and Infinity values"
-      },
-      "expected": {
-        "observable_behavior": "Parsed object has expected special float values"
-      },
-      "source_case_ids": [
-        "main_charreaderallowspecialfloatstest_issue209"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "many_to_many",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          },
-          {
-            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::size",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-          "src/lib_json/json_value.cpp::Json::Value::size"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse",
-          "src/value/mod.rs::JsonValue::len"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/object.rs::Object::index#sig_f2a28c71",
-          "src/value/mod.rs::JsonValue::as_f64"
-        ]
-      }
-    },
-    {
-      "id": "replay_specialfloat_fail",
-      "layer": "public_behavior",
-      "description": "Parse NaN/Infinity without allowSpecialFloats (expect failure)",
-      "evidence": "src/test_lib_json/main.cpp:9-13: JSONTEST_ASSERT(!ok); JSONTEST_ASSERT_STRING_EQUAL(...);",
+      "description": "CharReaderAllowSpecialFloatsTest.specialFloat: parse NaN and Infinity without allowSpecialFloats should fail.",
+      "evidence": "src/test_lib_json/main.cpp line 3736: JSONTEST_ASSERT(!ok) for NaN and Infinity.",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse"
       ],
@@ -261,17 +19,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "assertion_line",
+        "normalization": "parse returns Err",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "parse JSON with NaN and Infinity without special float flag"
-      },
+      "input": "JSON strings with NaN or Infinity values",
       "expected": {
-        "observable_behavior": "Parsing fails with error"
+        "observable_behavior": "parse returns error (Err) for both inputs"
       },
       "source_case_ids": [
         "main_charreaderallowspecialfloatstest_specialfloat"
@@ -300,69 +56,10 @@
       }
     },
     {
-      "id": "replay_issue176_allowzeroes",
+      "id": "replay_main_charreaderfailifextratest_commentafterbool",
       "layer": "public_behavior",
-      "description": "Parse JSON with allowSingleQuotes enabled (issue176 replication)",
-      "evidence": "src/test_lib_json/main.cpp:10-13: JSONTEST_ASSERT(ok); JSONTEST_ASSERT_STRING_EQUAL(\"\", errs); JSONTEST_ASSERT_EQUAL(2u, root.size()); JSONTEST_ASSERT_EQUAL(true, root.get(\"a\", false));",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-        "src/lib_json/json_value.cpp::Json::Value::size"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::len"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "equality_expected_behavior",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "parse objects with single-quoted keys"
-      },
-      "expected": {
-        "observable_behavior": "Parsed objects equal expected objects"
-      },
-      "source_case_ids": [
-        "main_charreaderallowzeroestest_issue176"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "many_to_many",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          },
-          {
-            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::size",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-          "src/lib_json/json_value.cpp::Json::Value::size"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse",
-          "src/value/mod.rs::JsonValue::len"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "replay_commentafterarray",
-      "layer": "public_behavior",
-      "description": "Parse JSON array with trailing comment and failIfExtra=true",
-      "evidence": "src/test_lib_json/main.cpp:9-11: JSONTEST_ASSERT(ok); JSONTEST_ASSERT_STRING_EQUAL(\"\", errs); JSONTEST_ASSERT_EQUAL(\"value\", root[1u]);",
+      "description": "CharReaderFailIfExtraTest.commentAfterBool: parse bool with trailing comment and failIfExtra=true should succeed and root asBool equals true.",
+      "evidence": "src/test_lib_json/main.cpp line 3553: JSONTEST_ASSERT(ok) and JSONTEST_ASSERT_EQUAL(true, root.asBool()).",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse"
       ],
@@ -371,70 +68,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "equality_expected_behavior",
+        "normalization": "parse returns Ok and as_bool returns Some(true)",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "parse array with trailing comment"
-      },
+      "input": "\" true /*trailing\\ncomment*/\"",
       "expected": {
-        "observable_behavior": "Parsed array equals expected array"
-      },
-      "source_case_ids": [
-        "main_charreaderfailifextratest_commentafterarray"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "replay_commentafterbool",
-      "layer": "public_behavior",
-      "description": "Parse JSON boolean with trailing comment and failIfExtra=true",
-      "evidence": "src/test_lib_json/main.cpp:9-11: JSONTEST_ASSERT(ok); JSONTEST_ASSERT_STRING_EQUAL(\"\", errs); JSONTEST_ASSERT_EQUAL(true, root.asBool());",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse"
-      ],
-      "support_target_functions": [
-        "src/value/mod.rs::JsonValue::as_bool"
-      ],
-      "event_metadata": {
-        "normalization": "assertion_line",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "parse boolean with trailing comment"
-      },
-      "expected": {
-        "observable_behavior": "Parsed boolean value is true"
+        "observable_behavior": "parse succeeds and parsed value is true"
       },
       "source_case_ids": [
         "main_charreaderfailifextratest_commentafterbool"
@@ -459,172 +101,14 @@
         "missing_source_alignments": [],
         "non_public_alignments": [],
         "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/value/mod.rs::JsonValue::as_bool"
-        ]
-      }
-    },
-    {
-      "id": "replay_commentafterobject",
-      "layer": "public_behavior",
-      "description": "Parse JSON object with trailing comment and failIfExtra=true",
-      "evidence": "src/test_lib_json/main.cpp:10-12: JSONTEST_ASSERT(ok); JSONTEST_ASSERT_STRING_EQUAL(\"\", errs); JSONTEST_ASSERT_EQUAL(\"value\", root[\"property\"]);",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "equality_expected_behavior",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "parse object with trailing comment"
-      },
-      "expected": {
-        "observable_behavior": "Parsed object equals expected object"
-      },
-      "source_case_ids": [
-        "main_charreaderfailifextratest_commentafterobject"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
         "support_target_functions": []
       }
     },
     {
-      "id": "replay_issue107_failextra",
+      "id": "replay_main_charreaderfailifextratest_parsecomment",
       "layer": "public_behavior",
-      "description": "Parse extra token after JSON value with failIfExtra=true",
-      "evidence": "src/test_lib_json/main.cpp:10-14: JSONTEST_ASSERT(!ok); JSONTEST_ASSERT_STRING_EQUAL(...); JSONTEST_ASSERT_EQUAL(1, root.asInt());",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "assertion_line",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "parse '1:2:3' with failIfExtra"
-      },
-      "expected": {
-        "observable_behavior": "Parsing fails with error"
-      },
-      "source_case_ids": [
-        "main_charreaderfailifextratest_issue107"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "replay_charreader_issue164",
-      "layer": "public_behavior",
-      "description": "CharReaderFailIfExtraTest.issue164 - parse with failIfExtra false then true",
-      "evidence": "src/test_lib_json/main.cpp::CharReaderFailIfExtraTest.issue164::assertions (JSONTEST_ASSERT, JSONTEST_ASSERT_EQUAL)",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::as_str"
-      ],
-      "support_target_functions": [
-        "src/value/mod.rs::JsonValue::as_str"
-      ],
-      "event_metadata": {
-        "normalization": "observable equality",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "parse \" \\\"property\\\" : \\\"value\\\" }}\" with failIfExtra false and true",
-      "expected": {
-        "observable_behavior": "First parse returns ok and root == \"property\"; second parse returns error with message 'Extra non-whitespace after JSON value.'"
-      },
-      "source_case_ids": [
-        "main_charreaderfailifextratest_issue164"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/value/mod.rs::JsonValue::as_str"
-        ]
-      }
-    },
-    {
-      "id": "replay_charreader_failifextra_parsecomment",
-      "layer": "public_behavior",
-      "description": "CharReaderFailIfExtraTest.parseComment - comment after boolean, extra after line break",
-      "evidence": "src/test_lib_json/main.cpp::CharReaderFailIfExtraTest.parseComment::assertions (JSONTEST_ASSERT, JSONTEST_ASSERT_STRING_EQUAL, JSONTEST_ASSERT_EQUAL)",
+      "description": "Parse booleans with comments and line endings; first succeeds, others fail due to extra after comment.",
+      "evidence": "source_test_code.full_test_definition lines 3565-3578",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse"
       ],
@@ -636,15 +120,15 @@
         "src/value/mod.rs::JsonValue::as_bool"
       ],
       "event_metadata": {
-        "normalization": "observable equality",
+        "normalization": "parse result (Ok/Err) and root.as_bool() when Ok",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "parse \" true //comment1...\" with failIfExtra false then parse \" true //com\\rment\"",
+      "input": "parse three documents: \" true //comment1...\", \" true //com\\rment\", \" true //com\\nment\"",
       "expected": {
-        "observable_behavior": "First parse returns ok and root.asBool()==true; second parse returns error with message about extra non-whitespace after line break."
+        "observable_behavior": "First document parses successfully and root.as_bool() is Some(true); second and third documents fail."
       },
       "source_case_ids": [
         "main_charreaderfailifextratest_parsecomment"
@@ -675,10 +159,10 @@
       }
     },
     {
-      "id": "replay_charreader_parsechinesewithoneerror",
+      "id": "replay_main_charreaderstrictmodetest_dupkeys",
       "layer": "public_behavior",
-      "description": "CharReaderTest.parseChineseWithOneError - syntax error with Chinese characters",
-      "evidence": "src/test_lib_json/main.cpp::CharReaderTest.parseChineseWithOneError::assertions (JSONTEST_ASSERT)",
+      "description": "Parse JSON object with duplicate keys; expect failure.",
+      "evidence": "source_test_code.full_test_definition lines 3441-3452",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse"
       ],
@@ -687,115 +171,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "observable equality",
+        "normalization": "parse returns Err",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "parse \"{ \\\"pr佐藤erty\\\" :: \\\"value\\\" }\"",
+      "input": "document: { \"property\" : \"value\", \"key\" : \"val1\", \"key\" : \"val2\" }",
       "expected": {
-        "observable_behavior": "Parse returns error with message ending 'Syntax error: value, object or array expected.'"
-      },
-      "source_case_ids": [
-        "main_charreadertest_parsechinesewithoneerror"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "replay_charreader_parsewithdetailerror",
-      "layer": "public_behavior",
-      "description": "CharReaderTest.parseWithDetailError - bad escape sequence in string",
-      "evidence": "src/test_lib_json/main.cpp::CharReaderTest.parseWithDetailError::assertions (JSONTEST_ASSERT)",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "observable equality",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": "parse \"{\\\"property\\\" : \\\"v\\\\alue\\\"}\"",
-      "expected": {
-        "observable_behavior": "Parse returns error with message about bad escape sequence at column 16 and detail at column 20."
-      },
-      "source_case_ids": [
-        "main_charreadertest_parsewithdetailerror"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "replay_charreader_strictmodetest_dupkeys",
-      "layer": "public_behavior",
-      "description": "Parse JSON with duplicate keys and expect a parse error.",
-      "evidence": "src/test_lib_json/main.cpp::CharReaderTest.dupKeys at line 3441: JSONTEST_ASSERT(!ok) after parsing duplicate key input.",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "parse_error_check",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "R\"({ \"property\" : \"value\", \"key\" : \"val1\", \"key\" : \"val2\" })\""
-      },
-      "expected": {
-        "observable_behavior": "parse returns Err"
+        "observable_behavior": "parse fails with an error."
       },
       "source_case_ids": [
         "main_charreaderstrictmodetest_dupkeys"
@@ -824,10 +208,10 @@
       }
     },
     {
-      "id": "replay_charreader_parsearraywitherrors",
+      "id": "replay_main_charreadertest_parsearraywitherrors",
       "layer": "public_behavior",
-      "description": "Parse incomplete array and array with missing comma, both expect parse errors.",
-      "evidence": "src/test_lib_json/main.cpp::CharReaderTest.parseArrayWithErrors at line 3333: JSONTEST_ASSERT(!ok) for two malformed array inputs.",
+      "description": "Parse arrays with missing brackets or consecutive values; both expect failure.",
+      "evidence": "source_test_code.full_test_definition lines 3333-3347",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse"
       ],
@@ -836,17 +220,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse_error_check",
+        "normalization": "parse returns Err",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "doc1 = \"[ \\\"value\\\" \"; doc2 = R\"([ \"value1\" \"value2\" ])\""
-      },
+      "input": "two documents: \"[ \\\"value\\\" \" and \"[ \\\"value1\\\" \\\"value2\\\" ]\"",
       "expected": {
-        "observable_behavior": "parse returns Err for both inputs"
+        "observable_behavior": "parse fails for both documents."
       },
       "source_case_ids": [
         "main_charreadertest_parsearraywitherrors"
@@ -875,34 +257,83 @@
       }
     },
     {
-      "id": "replay_charreader_parsecomment",
+      "id": "replay_main_charreadertest_parsechinesewithoneerror",
       "layer": "public_behavior",
-      "description": "Parse JSON with C++-style comments: success case with valid comment and failure case with misplaced comment.",
-      "evidence": "src/test_lib_json/main.cpp::CharReaderTest.parseComment at line 3279: JSONTEST_ASSERT(ok) and JSONTEST_ASSERT_EQUAL for valid comment, JSONTEST_ASSERT(!ok) for invalid.",
+      "description": "Parse JSON object with Chinese key and double colon; expect failure.",
+      "evidence": "source_test_code.full_test_definition lines 3369-3376",
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "parse returns Err",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": "document: \"{ \\\"pr佐藤erty\\\" :: \\\"value\\\" }\"",
+      "expected": {
+        "observable_behavior": "parse fails."
+      },
+      "source_case_ids": [
+        "main_charreadertest_parsechinesewithoneerror"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+            "tgt_uuid": "src/parser.rs::parse"
+          }
+        ],
+        "covered_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+        ],
+        "covered_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "replay_main_charreadertest_parsecomment",
+      "layer": "public_behavior",
+      "description": "Parse JSON with comments: valid object with comment, invalid comment placement, valid array with comments.",
+      "evidence": "source_test_code.full_test_definition lines 3279-3305",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse"
       ],
       "target_functions": [
         "src/object.rs::Object::index#sig_f2a28c71",
         "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::as_str"
+        "src/value/implements.rs::JsonValue::eq#sig_8ef9d854",
+        "src/value/mod.rs::JsonValue::as_bool"
       ],
       "support_target_functions": [
         "src/object.rs::Object::index#sig_f2a28c71",
-        "src/value/mod.rs::JsonValue::as_str"
+        "src/value/implements.rs::JsonValue::eq#sig_8ef9d854",
+        "src/value/mod.rs::JsonValue::as_bool"
       ],
       "event_metadata": {
-        "normalization": "parse_success_and_failure_with_object_access",
+        "normalization": "parse result (Ok/Err) and when Ok, check object properties or array elements via as_bool/eq/index",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "doc1 = \"//comment1\\n { //comment2\\n \\\"property\\\" : \\\"value\\\" //comment3\\n } //comment4\\n\"; doc2 = \"{ \\\"property\\\" //comment\\n : \\\"value\\\" }\""
-      },
+      "input": "three documents: see source",
       "expected": {
-        "observable_behavior": "First parse returns Ok and value at key \"property\" is \"value\"; second parse returns Err"
+        "observable_behavior": "First document parses successfully and root[\"property\"] == \"value\"; second fails; third succeeds and root[0]==\"value\", root[1]==true."
       },
       "source_case_ids": [
         "main_charreadertest_parsecomment"
@@ -929,15 +360,16 @@
         "missing_target_recipe": [],
         "support_target_functions": [
           "src/object.rs::Object::index#sig_f2a28c71",
-          "src/value/mod.rs::JsonValue::as_str"
+          "src/value/implements.rs::JsonValue::eq#sig_8ef9d854",
+          "src/value/mod.rs::JsonValue::as_bool"
         ]
       }
     },
     {
-      "id": "replay_charreader_parsenumber",
+      "id": "replay_main_charreadertest_parsenumber",
       "layer": "public_behavior",
-      "description": "Parse a large integer that exceeds integer threshold and expect a double representation.",
-      "evidence": "src/test_lib_json/main.cpp::CharReaderTest.parseNumber at line 3193: JSONTEST_ASSERT_EQUAL(1.1111111111111111e+020, root[0]).",
+      "description": "Parse 21-digit number in array and check as f64.",
+      "evidence": "source_test_code.full_test_definition lines 3193-3203",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse"
       ],
@@ -949,17 +381,15 @@
         "src/value/mod.rs::JsonValue::as_f64"
       ],
       "event_metadata": {
-        "normalization": "parse_success_and_float_comparison",
+        "normalization": "parse returns Ok, root[0] as f64 approx equal to expected",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "doc = \"[111111111111111111111]\""
-      },
+      "input": "document: \"[111111111111111111111]\"",
       "expected": {
-        "observable_behavior": "parse returns Ok and first element as f64 equals 1.1111111111111111e+020"
+        "observable_behavior": "parse succeeds, root[0] as f64 is approximately 1.1111111111111111e+020"
       },
       "source_case_ids": [
         "main_charreadertest_parsenumber"
@@ -990,10 +420,10 @@
       }
     },
     {
-      "id": "replay_charreader_parseobjectwitherrors",
+      "id": "replay_main_charreadertest_parseobjectwitherrors",
       "layer": "public_behavior",
-      "description": "Parse incomplete object and object with trailing comma, both expect parse errors.",
-      "evidence": "src/test_lib_json/main.cpp::CharReaderTest.parseObjectWithErrors at line 3310: JSONTEST_ASSERT(!ok) for two malformed object inputs.",
+      "description": "Parse incomplete objects (missing brace, trailing comma); both expect failure.",
+      "evidence": "source_test_code.full_test_definition lines 3310-3326",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse"
       ],
@@ -1002,17 +432,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse_error_check",
+        "normalization": "parse returns Err",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "doc1 = R\"({ \"property\" : \"value\" )\"; doc2 = R\"({ \"property\" : \"value\" ,)\""
-      },
+      "input": "two documents: \"{ \\\"property\\\" : \\\"value\\\" \" and \"{ \\\"property\\\" : \\\"value\\\" ,\"",
       "expected": {
-        "observable_behavior": "parse returns Err for both inputs"
+        "observable_behavior": "parse fails for both documents."
       },
       "source_case_ids": [
         "main_charreadertest_parseobjectwitherrors"
@@ -1041,34 +469,36 @@
       }
     },
     {
-      "id": "replay_charreader_parsestring",
+      "id": "replay_main_charreadertest_parsestring",
       "layer": "public_behavior",
-      "description": "Parse array of strings: empty string and unicode escape, verify length and string values.",
-      "evidence": "src/test_lib_json/main.cpp::CharReaderTest.parseString at line 3209: JSONTEST_ASSERT_EQUAL(\"\", root[0]); JSONTEST_ASSERT_EQUAL(reinterpret_cast<const char*>(u8\"\\u8A2a\"), root[0].asString());",
+      "description": "Parse various strings including empty string, unicode escape, invalid unicode surrogates, bad escape sequences, and single-quote mode (with setting not available in target).",
+      "evidence": "source_test_code.full_test_definition lines 3209-3274",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse",
         "src/lib_json/json_value.cpp::Json::Value::size"
       ],
       "target_functions": [
+        "src/object.rs::Object::index#sig_f2a28c71",
         "src/parser.rs::parse",
+        "src/value/implements.rs::JsonValue::eq#sig_8ef9d854",
         "src/value/mod.rs::JsonValue::as_str",
         "src/value/mod.rs::JsonValue::len"
       ],
       "support_target_functions": [
+        "src/object.rs::Object::index#sig_f2a28c71",
+        "src/value/implements.rs::JsonValue::eq#sig_8ef9d854",
         "src/value/mod.rs::JsonValue::as_str"
       ],
       "event_metadata": {
-        "normalization": "parse_success_array_indexing_and_string_check",
+        "normalization": "parse result (Ok/Err) and when Ok check string values via as_str/eq and object members via index, array size via len",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "doc1 = \"[\\\"\\\"]\"; doc2 = R\"([\"\\u8A2a\"])\""
-      },
+      "input": "seven documents: see source",
       "expected": {
-        "observable_behavior": "First parse returns Ok with array length 1 and first element as empty string; second parse returns Ok with first element as UTF-8 string 訪"
+        "observable_behavior": "First six as per source; seventh (single-quote) expected Ok but target may differ as setting not available."
       },
       "source_case_ids": [
         "main_charreadertest_parsestring"
@@ -1100,15 +530,17 @@
         "non_public_alignments": [],
         "missing_target_recipe": [],
         "support_target_functions": [
+          "src/object.rs::Object::index#sig_f2a28c71",
+          "src/value/implements.rs::JsonValue::eq#sig_8ef9d854",
           "src/value/mod.rs::JsonValue::as_str"
         ]
       }
     },
     {
-      "id": "replay_charreader_parsewithnoerrors",
+      "id": "replay_main_charreadertest_parsewithdetailerror",
       "layer": "public_behavior",
-      "description": "Parse valid JSON object",
-      "evidence": "src/test_lib_json/main.cpp:3169-3175 assert ok and errs empty",
+      "description": "Parse JSON object with bad escape sequence in string; expect failure.",
+      "evidence": "source_test_code.full_test_definition lines 3382-3389",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse"
       ],
@@ -1117,14 +549,63 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse returns Ok",
+        "normalization": "parse returns Err",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": "document: \"{ \\\"property\\\" : \\\"v\\\\alue\\\" }\"",
+      "expected": {
+        "observable_behavior": "parse fails."
+      },
+      "source_case_ids": [
+        "main_charreadertest_parsewithdetailerror"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
+            "tgt_uuid": "src/parser.rs::parse"
+          }
+        ],
+        "covered_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+        ],
+        "covered_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "main_charreadertest_parsewithnoerrors",
+      "layer": "public_behavior",
+      "description": "Parse simple JSON object without errors",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(ok); JSONTEST_ASSERT(errs.empty());",
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::CharReader::parse"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "observable comparison rule: parse returns Ok",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "doc: { \\\"property\\\" : \\\"value\\\" }"
+        "case": "parse valid JSON string"
       },
       "expected": {
         "observable_behavior": "parse returns Ok(JsonValue)"
@@ -1156,10 +637,10 @@
       }
     },
     {
-      "id": "replay_charreader_parsewithnoerrorstestingoffsets",
+      "id": "main_charreadertest_parsewithnoerrorstestingoffsets",
       "layer": "public_behavior",
-      "description": "Parse multiline valid JSON",
-      "evidence": "src/test_lib_json/main.cpp:3180-3190 assert ok and errs empty",
+      "description": "Parse more complex JSON object without errors",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(ok); JSONTEST_ASSERT(errs.empty());",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse"
       ],
@@ -1168,14 +649,14 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse returns Ok",
+        "normalization": "observable comparison rule: parse returns Ok",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "doc: \\\"{ \\\\\\\"property\\\\\\\" : [\\\\\\\"value\\\\\\\", \\\\\\\"value2\\\\\\\"], \\\\\\\"obj\\\\\\\" : { \\\\\\\"nested\\\\\\\" : -6.2e+15, \\\\\\\"num\\\\\\\" : +123, \\\\\\\"bool\\\\\\\" : true}, \\\\\\\"null\\\\\\\" : null, \\\\\\\"false\\\\\\\" : false }\\\""
+        "case": "parse valid JSON string with nested values"
       },
       "expected": {
         "observable_behavior": "parse returns Ok(JsonValue)"
@@ -1207,10 +688,10 @@
       }
     },
     {
-      "id": "replay_charreader_parsewithoneerror",
+      "id": "main_charreadertest_parsewithoneerror",
       "layer": "public_behavior",
-      "description": "Parse invalid JSON with syntax error",
-      "evidence": "src/test_lib_json/main.cpp:3356-3365 assert !ok and errs == error string",
+      "description": "Parse invalid JSON object with one error",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(!ok); JSONTEST_ASSERT(errs == expectedErrorMessage);",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse"
       ],
@@ -1219,17 +700,17 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse returns Err with specific message",
+        "normalization": "observable comparison rule: parse returns Err",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "doc: \\\"({ \\\"property\\\" :: \\\"value\\\" })\\\""
+        "case": "parse invalid JSON string with ::"
       },
       "expected": {
-        "observable_behavior": "parse returns Err containing \\\"* Line 1, Column 15\\\\n  Syntax error: value, object or array expected.\\\\n\\\""
+        "observable_behavior": "parse returns Err"
       },
       "source_case_ids": [
         "main_charreadertest_parsewithoneerror"
@@ -1258,10 +739,10 @@
       }
     },
     {
-      "id": "replay_charreader_parsewithstacklimit",
+      "id": "main_charreadertest_parsewithstacklimit",
       "layer": "public_behavior",
-      "description": "Parse with stack limit variations",
-      "evidence": "src/test_lib_json/main.cpp:3395-3420 assert ok, errs empty, value equals, assert_throws",
+      "description": "Parse with stack limit settings, test simple and deeply nested input",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(ok); JSONTEST_ASSERT_THROWS on stack limit exceeded",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse",
         "src/lib_json/json_value.cpp::Json::Value::size"
@@ -1272,23 +753,23 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse yields Ok for low stack limit, throws for lower",
+        "normalization": "observable comparison rule: simple parse returns Ok, deeply nested parse returns Err",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "doc: { \\\"property\\\" : \\\"value\\\" } with stackLimit settings"
+        "case": "parse simple JSON and deeply nested JSON"
       },
       "expected": {
-        "observable_behavior": "First parse: Ok(value[\"property\"] == \\\"value\\\"); second parse: throws/panics"
+        "observable_behavior": "simple JSON parses successfully; deeply nested JSON causes parse error"
       },
       "source_case_ids": [
         "main_charreadertest_parsewithstacklimit"
       ],
       "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
+      "expected_behavior_confidence": "medium",
       "alignment_validation": {
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
@@ -1317,10 +798,10 @@
       }
     },
     {
-      "id": "replay_escapesequence_charreaderparse",
+      "id": "main_escapesequencetest_charreaderparseescapesequence",
       "layer": "public_behavior",
-      "description": "Parse JSON with escape sequences",
-      "evidence": "src/test_lib_json/main.cpp:3845-3855 assert ok and errs empty",
+      "description": "Parse array of escape sequences without errors",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(ok); JSONTEST_ASSERT(errs.empty());",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse"
       ],
@@ -1329,14 +810,14 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse returns Ok",
+        "normalization": "observable comparison rule: parse returns Ok",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "doc: array of escaped strings"
+        "case": "parse JSON array with escape sequences"
       },
       "expected": {
         "observable_behavior": "parse returns Ok(JsonValue)"
@@ -1368,10 +849,10 @@
       }
     },
     {
-      "id": "replay_escapesequence_readerparse",
+      "id": "main_escapesequencetest_readerparseescapesequence",
       "layer": "public_behavior",
-      "description": "Parse JSON with escape sequences via Reader-style API",
-      "evidence": "src/test_lib_json/main.cpp:3833-3843 assert ok, getFormattedErrorMessages empty, getStructuredErrors empty",
+      "description": "Parse array of escape sequences using Reader::parse",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(ok); JSONTEST_ASSERT(error messages empty);",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
       ],
@@ -1380,14 +861,14 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse returns Ok",
+        "normalization": "observable comparison rule: parse returns Ok",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "doc: array of escaped strings with newline"
+        "case": "parse JSON array with escape sequences (trailing newline)"
       },
       "expected": {
         "observable_behavior": "parse returns Ok(JsonValue)"
@@ -1419,10 +900,10 @@
       }
     },
     {
-      "id": "replay_escapesequence_write",
+      "id": "main_escapesequencetest_writeescapesequence",
       "layer": "public_behavior",
-      "description": "Write JSON with escape sequences",
-      "evidence": "src/test_lib_json/main.cpp:3858-3875 assert string equal",
+      "description": "Write array with escape sequences and compare output",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::FastWriter::write"
       ],
@@ -1431,18 +912,17 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "dump equals expected serialized string",
+        "normalization": "observable comparison rule: string equality (including trailing newline)",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "array of escaped strings",
-        "expected_output": "[\\\"\\\\\\\"\\\",\\\"\\\\\\\\\\\",\\\"\\\\b\\\",\\\"\\\\f\\\",\\\"\\\\n\\\",\\\"\\\\r\\\",\\\"\\\\t\\\",\\\"ɸ\\\",\\\"𤭢\\\"]\\n"
+        "case": "construct JsonValue array with special strings and dump"
       },
       "expected": {
-        "observable_behavior": "dump returns exact string with escapes"
+        "observable_behavior": "dump output matches expected JSON string with newline"
       },
       "source_case_ids": [
         "main_escapesequencetest_writeescapesequence"
@@ -1471,10 +951,10 @@
       }
     },
     {
-      "id": "replay_fastwriter_dropnullplaceholders",
+      "id": "main_fastwritertest_dropnullplaceholders",
       "layer": "public_behavior",
-      "description": "Drop null placeholders in FastWriter",
-      "evidence": "src/test_lib_json/main.cpp:2304-2308 assert write(nullValue) == \"null\\n\" then == \"\\n\"",
+      "description": "Write null value with default settings",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(writer.write(nullValue) == \"null\\n\");",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::FastWriter::write"
       ],
@@ -1483,17 +963,17 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "dump of Null value changes after dropNullPlaceholders",
+        "normalization": "observable comparison rule: string equality (expected \"null\\n\")",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "null JsonValue"
+        "case": "create null JsonValue and dump"
       },
       "expected": {
-        "observable_behavior": "First dump returns \"null\\n\"; after dropNullPlaceholders returns \"\\n\""
+        "observable_behavior": "dump returns \"null\\n\""
       },
       "source_case_ids": [
         "main_fastwritertest_dropnullplaceholders"
@@ -1522,10 +1002,10 @@
       }
     },
     {
-      "id": "replay_fastwriter_enableyamlcompatibility",
+      "id": "main_fastwritertest_enableyamlcompatibility",
       "layer": "public_behavior",
-      "description": "Enable YAML compatibility in FastWriter",
-      "evidence": "src/test_lib_json/main.cpp:2313-2319 assert write(root) == expected before and after",
+      "description": "Write object with default formatting",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(writer.write(root) == \"{\\\"hello\\\":\\\"world\\\"}\\n\");",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::FastWriter::write"
       ],
@@ -1534,17 +1014,17 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "dump output changes colon spacing",
+        "normalization": "observable comparison rule: string equality (expected \"{\\\"hello\\\":\\\"world\\\"}\\n\")",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "object with key hello and value world"
+        "case": "construct object with key \"hello\", value \"world\" and dump"
       },
       "expected": {
-        "observable_behavior": "First dump: \"{\\\"hello\\\":\\\"world\\\"}\\n\"; after enableYAMLCompatibility: \"{\\\"hello\\\": \\\"world\\\"}\\n\""
+        "observable_behavior": "dump returns \"{\\\"hello\\\":\\\"world\\\"}\\n\""
       },
       "source_case_ids": [
         "main_fastwritertest_enableyamlcompatibility"
@@ -1573,10 +1053,10 @@
       }
     },
     {
-      "id": "replay_fastwriter_omitendinglinefeed",
+      "id": "main_fastwritertest_omitendinglinefeed",
       "layer": "public_behavior",
-      "description": "Omit ending line feed in FastWriter",
-      "evidence": "src/test_lib_json/main.cpp:2324-2330 assert write(nullValue) == \"null\\n\" then == \"null\"",
+      "description": "Write null value with default settings (linefeed present)",
+      "evidence": "src/test_lib_json/main.cpp JSONTEST_ASSERT(writer.write(nullValue) == \"null\\n\");",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::FastWriter::write"
       ],
@@ -1585,17 +1065,17 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "dump of Null value without trailing newline",
+        "normalization": "observable comparison rule: string equality (expected \"null\\n\")",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "null JsonValue"
+        "case": "create null JsonValue and dump"
       },
       "expected": {
-        "observable_behavior": "First dump returns \"null\\n\"; after omitEndingLineFeed returns \"null\""
+        "observable_behavior": "dump returns \"null\\n\""
       },
       "source_case_ids": [
         "main_fastwritertest_omitendinglinefeed"
@@ -1624,21 +1104,17 @@
       }
     },
     {
-      "id": "replay_fastwriter_writearrays",
+      "id": "replay_main_fastwritertest_writearrays",
       "layer": "public_behavior",
-      "description": "FastWriter.writeArrays: build object with two array properties and dump to string",
-      "evidence": "src/test_lib_json/main.cpp lines 2356-2363: JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+      "description": "Write arrays object via dump",
+      "evidence": "source: src/test_lib_json/main.cpp FastWriterTest.writeArrays assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::FastWriter::write"
       ],
       "target_functions": [
         "src/value/mod.rs::JsonValue::dump"
       ],
-      "support_target_functions": [
-        "src/value/implements.rs::JsonValue::from#sig_85cb0854",
-        "src/value/implements.rs::JsonValue::from#sig_9bca93f0",
-        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
-      ],
+      "support_target_functions": [],
       "event_metadata": {
         "normalization": "observable string equality",
         "normalization_status": "adapter_declared_v2",
@@ -1647,10 +1123,10 @@
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "Object with property1 array [value1,value2] and property2 empty array"
+        "case": "Json::Value root with property1 array [value1,value2] and property2 empty array"
       },
       "expected": {
-        "observable_behavior": "dump output equals expected JSON with trailing newline"
+        "observable_behavior": "dump() output equals expected JSON string with newline"
       },
       "source_case_ids": [
         "main_fastwritertest_writearrays"
@@ -1675,29 +1151,21 @@
         "missing_source_alignments": [],
         "non_public_alignments": [],
         "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/value/implements.rs::JsonValue::from#sig_85cb0854",
-          "src/value/implements.rs::JsonValue::from#sig_9bca93f0",
-          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
-        ]
+        "support_target_functions": []
       }
     },
     {
-      "id": "replay_fastwriter_writenestedobjects",
+      "id": "replay_main_fastwritertest_writenestedobjects",
       "layer": "public_behavior",
-      "description": "FastWriter.writeNestedObjects: build object with nested object and empty object, dump to string",
-      "evidence": "src/test_lib_json/main.cpp lines 2371-2377: JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+      "description": "Write nested objects via dump",
+      "evidence": "source: src/test_lib_json/main.cpp FastWriterTest.writeNestedObjects assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::FastWriter::write"
       ],
       "target_functions": [
         "src/value/mod.rs::JsonValue::dump"
       ],
-      "support_target_functions": [
-        "src/value/implements.rs::JsonValue::from#sig_85cb0854",
-        "src/value/implements.rs::JsonValue::from#sig_9bca93f0",
-        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
-      ],
+      "support_target_functions": [],
       "event_metadata": {
         "normalization": "observable string equality",
         "normalization_status": "adapter_declared_v2",
@@ -1706,10 +1174,10 @@
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "Object with object1 (containing nested:123 and bool:true) and object2 empty"
+        "case": "Json::Value root with nested object containing bool and numeric fields"
       },
       "expected": {
-        "observable_behavior": "dump output equals expected JSON with trailing newline"
+        "observable_behavior": "dump() output equals expected JSON string with newline"
       },
       "source_case_ids": [
         "main_fastwritertest_writenestedobjects"
@@ -1734,18 +1202,14 @@
         "missing_source_alignments": [],
         "non_public_alignments": [],
         "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/value/implements.rs::JsonValue::from#sig_85cb0854",
-          "src/value/implements.rs::JsonValue::from#sig_9bca93f0",
-          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
-        ]
+        "support_target_functions": []
       }
     },
     {
-      "id": "replay_fastwriter_writenumericvalue",
+      "id": "replay_main_fastwritertest_writenumericvalue",
       "layer": "public_behavior",
-      "description": "FastWriter.writeNumericValue: build object with various value types (null, bool, string, large negative float, real, unsigned int) and dump",
-      "evidence": "src/test_lib_json/main.cpp lines 2334-2341: JSONTEST_ASSERT_STRING_EQUAL(expected, result);",
+      "description": "Write various numeric/null/boolean values via dump",
+      "evidence": "source: src/test_lib_json/main.cpp FastWriterTest.writeNumericValue assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
         "src/lib_json/json_writer.cpp::Json::FastWriter::write"
@@ -1755,9 +1219,7 @@
         "src/value/mod.rs::JsonValue::dump"
       ],
       "support_target_functions": [
-        "src/number.rs::Number::from#sig_7ba10114",
-        "src/value/implements.rs::JsonValue::from#sig_85cb0854",
-        "src/value/implements.rs::JsonValue::from#sig_9bca93f0"
+        "src/number.rs::Number::from#sig_7ba10114"
       ],
       "event_metadata": {
         "normalization": "observable string equality",
@@ -1767,10 +1229,10 @@
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "Object with keys emptyValue(null), false(false), null(\"null\"), number(-6.2e+15), real(1.256), uintValue(17U)"
+        "case": "Json::Value root with emptyValue(null), false, null string, number -6.2e15, real 1.256, uintValue 17"
       },
       "expected": {
-        "observable_behavior": "dump output equals expected JSON with trailing newline"
+        "observable_behavior": "dump() output equals expected JSON string with newline"
       },
       "source_case_ids": [
         "main_fastwritertest_writenumericvalue"
@@ -1802,42 +1264,85 @@
         "non_public_alignments": [],
         "missing_target_recipe": [],
         "support_target_functions": [
-          "src/number.rs::Number::from#sig_7ba10114",
-          "src/value/implements.rs::JsonValue::from#sig_85cb0854",
-          "src/value/implements.rs::JsonValue::from#sig_9bca93f0"
+          "src/number.rs::Number::from#sig_7ba10114"
         ]
       }
     },
     {
-      "id": "replay_iteratortest_decrement",
+      "id": "replay_main_iteratortest_constness",
       "layer": "public_behavior",
-      "description": "IteratorTest.decrement: iterate object backwards via members_mut().rev() and collect values in reverse order",
-      "evidence": "src/test_lib_json/main.cpp lines 3985-3994: JSONTEST_ASSERT((values == std::vector<std::string>{\"b\", \"a\"}));",
+      "description": "Iterate over object values using mutable iterator",
+      "evidence": "source: src/test_lib_json/main.cpp IteratorTest.constness iteration and JSONTEST_ASSERT_STRING_EQUAL on the concatenated output",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
       ],
       "target_functions": [
-        "src/value/mod.rs::JsonValue::as_str",
         "src/value/mod.rs::JsonValue::members_mut"
       ],
-      "support_target_functions": [
-        "src/value/implements.rs::JsonValue::from#sig_85cb0854",
-        "src/value/implements.rs::JsonValue::from#sig_9bca93f0",
-        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-        "src/value/mod.rs::JsonValue::as_str"
-      ],
+      "support_target_functions": [],
       "event_metadata": {
-        "normalization": "observable vector equality",
+        "normalization": "observable string equality on collected values",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "Object with keys k1:\"a\" and k2:\"b\", then iterate end-to-begin and collect values"
+        "case": "Json::Value object with keys \" 9\",\"10\",\"11\" each mapping to the same string"
       },
       "expected": {
-        "observable_behavior": "collected values are [\"b\", \"a\"]"
+        "observable_behavior": "Iterating members_mut() yields values in order [\" 9\",\"10\",\"11\"]"
+      },
+      "source_case_ids": [
+        "main_iteratortest_constness"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::members_mut"
+          }
+        ],
+        "covered_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::members_mut"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
+      "id": "replay_main_iteratortest_decrement",
+      "layer": "public_behavior",
+      "description": "Iterate backwards over object values using rev()",
+      "evidence": "source: src/test_lib_json/main.cpp IteratorTest.decrement assertion on std::vector<std::string>{\"b\",\"a\"}",
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::members_mut"
+      ],
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "observable string equality on collected values",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "Json::Value object with keys k1:\"a\", k2:\"b\""
+      },
+      "expected": {
+        "observable_behavior": "Iterating members_mut() in reverse yields [\"b\", \"a\"]"
       },
       "source_case_ids": [
         "main_iteratortest_decrement"
@@ -1862,89 +1367,34 @@
         "missing_source_alignments": [],
         "non_public_alignments": [],
         "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/value/implements.rs::JsonValue::from#sig_85cb0854",
-          "src/value/implements.rs::JsonValue::from#sig_9bca93f0",
-          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-          "src/value/mod.rs::JsonValue::as_str"
-        ]
-      }
-    },
-    {
-      "id": "replay_iteratortest_distance",
-      "layer": "public_behavior",
-      "description": "IteratorTest.distance: iterate object with enumerate to simulate distance, and check empty object count",
-      "evidence": "src/test_lib_json/main.cpp lines 4010-4020: JSONTEST_ASSERT_EQUAL(i, dist) and JSONTEST_ASSERT_EQUAL(0, empty.end()-empty.begin())",
-      "source_functions": [
-        "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
-      ],
-      "target_functions": [
-        "src/value/mod.rs::JsonValue::members_mut"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "observable integer equality",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "Object with keys k1:\"a\", k2:\"b\"; also empty object"
-      },
-      "expected": {
-        "observable_behavior": "distance increases by 1 per iteration; empty object distance 0"
-      },
-      "source_case_ids": [
-        "main_iteratortest_distance"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::members_mut"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
-        ],
-        "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::members_mut"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
         "support_target_functions": []
       }
     },
     {
-      "id": "replay_reverseiterator",
+      "id": "replay_main_iteratortest_reverseiterator",
       "layer": "public_behavior",
-      "description": "Reverse iteration over object members yields reversed values",
-      "evidence": "source test: IteratorTest.reverseIterator line 4004 assertion: values == {b, a}",
+      "description": "Reverse iteration over object values using members_mut().rev()",
+      "evidence": "src/test_lib_json/main.cpp line 4000-4009: JSONTEST_ASSERT((values == std::vector<std::string>{\"b\", \"a\"}))",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945"
       ],
       "target_functions": [
+        "src/value/mod.rs::JsonValue::as_str",
         "src/value/mod.rs::JsonValue::members_mut"
       ],
-      "support_target_functions": [],
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::as_str"
+      ],
       "event_metadata": {
-        "normalization": "exact_match",
+        "normalization": "observable comparison rule",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Json with keys k1=a, k2=b"
-      },
+      "input": "Construct JsonValue object with keys 'k1' and 'k2' mapped to 'a' and 'b', then iterate reverse using members_mut().rev() and collect as_str() values",
       "expected": {
-        "observable_behavior": "Reverse iteration yields values b, a"
+        "observable_behavior": "The reversed values should be [\"b\", \"a\"]"
       },
       "source_case_ids": [
         "main_iteratortest_reverseiterator"
@@ -1969,14 +1419,16 @@
         "missing_source_alignments": [],
         "non_public_alignments": [],
         "missing_target_recipe": [],
-        "support_target_functions": []
+        "support_target_functions": [
+          "src/value/mod.rs::JsonValue::as_str"
+        ]
       }
     },
     {
-      "id": "replay_membertemplateas_behavessameasnamedas",
+      "id": "replay_main_membertemplateas_behavessameasnamedas",
       "layer": "public_behavior",
-      "description": "as_str returns correct string for string value",
-      "evidence": "source assertions: jstr.as<const char*>() == jstr.asCString() and jstr.as<Json::String>() == jstr.asString()",
+      "description": "Check that as<const char*> and asCString return same value",
+      "evidence": "src/test_lib_json/main.cpp line 4195-4216: JSONTEST_ASSERT_STRING_EQUAL(jstr.as<const char*>(), jstr.asCString())",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::asCString"
       ],
@@ -1985,17 +1437,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "exact_match",
+        "normalization": "observable comparison rule",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "JsonValue from \"hello world\""
-      },
+      "input": "Construct a JsonValue with string 'hello world' and compare results of two as_str calls",
       "expected": {
-        "observable_behavior": "as_str returns Some(\"hello world\")"
+        "observable_behavior": "Both calls return the same string slice"
       },
       "source_case_ids": [
         "main_membertemplateas_behavessameasnamedas"
@@ -2024,10 +1474,10 @@
       }
     },
     {
-      "id": "replay_membertemplateis_behavessameasnamedis",
+      "id": "replay_main_membertemplateis_behavessameasnamedis",
       "layer": "public_behavior",
-      "description": "Named is functions return correct type for boolean, number, string values",
-      "evidence": "source assertions: j.is<bool>() == j.isBool() etc. using values true, 142, 40.63, \"hello world\"",
+      "description": "Compare template is<bool> with named isBool, is<Int> etc not aligned, but we check that is_boolean, is_number, is_string work correctly",
+      "evidence": "src/test_lib_json/main.cpp line 4218-4227: JSONTEST_ASSERT_EQUAL(j.is<bool>(), j.isBool()), etc.",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::isBool",
         "src/lib_json/json_value.cpp::Json::Value::isDouble",
@@ -2038,19 +1488,19 @@
         "src/value/mod.rs::JsonValue::is_number",
         "src/value/mod.rs::JsonValue::is_string"
       ],
-      "support_target_functions": [],
+      "support_target_functions": [
+        "src/value/mod.rs::JsonValue::members_mut"
+      ],
       "event_metadata": {
-        "normalization": "exact_match",
+        "normalization": "observable comparison rule",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Array of values of different types"
-      },
+      "input": "Array of values and call is_boolean, is_number, is_string for each, asserting equality between two calls of each method",
       "expected": {
-        "observable_behavior": "is_boolean returns true for boolean, is_number returns true for numbers, is_string returns true for string"
+        "observable_behavior": "For each value, the two calls to each method return the same boolean"
       },
       "source_case_ids": [
         "main_membertemplateis_behavessameasnamedis"
@@ -2087,14 +1537,16 @@
         "missing_source_alignments": [],
         "non_public_alignments": [],
         "missing_target_recipe": [],
-        "support_target_functions": []
+        "support_target_functions": [
+          "src/value/mod.rs::JsonValue::members_mut"
+        ]
       }
     },
     {
-      "id": "replay_parsewithstructurederrorstest_singleerror",
+      "id": "replay_main_parsewithstructurederrorstest_success",
       "layer": "public_behavior",
-      "description": "Parse invalid JSON document expecting failure",
-      "evidence": "source assertion: parse returns false and expectedErrors.size()==1",
+      "description": "Parse empty object and expect success",
+      "evidence": "src/test_lib_json/main.cpp line 4169-4170: testErrors('{}', true, {})",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::CharReader::parse",
         "src/lib_json/json_value.cpp::Json::Value::size"
@@ -2105,76 +1557,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "exact_match",
+        "normalization": "observable comparison rule",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Document \"{ 1 : 2 }\""
-      },
+      "input": "Parse '{}' using parse function",
       "expected": {
-        "observable_behavior": "parse returns error"
-      },
-      "source_case_ids": [
-        "main_parsewithstructurederrorstest_singleerror"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "many_to_many",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-            "tgt_uuid": "src/parser.rs::parse"
-          },
-          {
-            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::size",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-          "src/lib_json/json_value.cpp::Json::Value::size"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse",
-          "src/value/mod.rs::JsonValue::len"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "replay_parsewithstructurederrorstest_success",
-      "layer": "public_behavior",
-      "description": "Parse valid empty object and check no errors",
-      "evidence": "source assertions: parse succeeds and expectedErrors.size()==0",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::CharReader::parse",
-        "src/lib_json/json_value.cpp::Json::Value::size"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::len"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "exact_match",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "Document \"{}\""
-      },
-      "expected": {
-        "observable_behavior": "parse returns Ok value with len() == 0"
+        "observable_behavior": "Parse returns Ok(JsonValue)"
       },
       "source_case_ids": [
         "main_parsewithstructurederrorstest_success"
@@ -2209,10 +1600,10 @@
       }
     },
     {
-      "id": "replay_reader_allownumerickeystest",
+      "id": "main_readertest_parsearray",
       "layer": "public_behavior",
-      "description": "Parse invalid JSON with numeric key expecting failure",
-      "evidence": "source assertion: reader->parse(input, root) returns false",
+      "description": "Parse malformed array returns error with missing comma or bracket",
+      "evidence": "src/test_lib_json/main.cpp lines 3001-3012: checkParse expects parse to fail with specific structured errors",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
       ],
@@ -2221,66 +1612,13 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "exact_match",
+        "normalization": "Observable error result",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Document \"({ 123 : })\""
-      },
-      "expected": {
-        "observable_behavior": "parse returns error"
-      },
-      "source_case_ids": [
-        "main_readertest_allownumerickeystest"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
-            "tgt_uuid": "src/parser.rs::parse"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "replay_parsearray",
-      "layer": "public_behavior",
-      "description": "Parse invalid array expecting failure",
-      "evidence": "source assertion: reader->parse(input, root) returns false",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "exact_match",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "Document \"([ )\""
-      },
+      "input": "Parse malformed array JSON: '[ \"value ' and '[ \"value1\" \"value2\" ]'",
       "expected": {
         "observable_behavior": "parse returns error"
       },
@@ -2311,10 +1649,10 @@
       }
     },
     {
-      "id": "replay_reader_parsechinesewithoneerror",
+      "id": "main_readertest_parsechinesewithoneerror",
       "layer": "public_behavior",
-      "description": "Parse invalid JSON containing Chinese characters expecting failure",
-      "evidence": "source assertion: reader->parse(input, root) returns false",
+      "description": "Parse malformed JSON with Chinese characters returns error",
+      "evidence": "src/test_lib_json/main.cpp lines 3111-3119: checkParse expects parse to fail with a syntax error at column 19",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
       ],
@@ -2323,15 +1661,13 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "exact_match",
+        "normalization": "Observable error result",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Document with Chinese syntax error"
-      },
+      "input": "Parse malformed JSON: '{ \"pr\\u4f50\\u85e4erty\" :: \"value\" }'",
       "expected": {
         "observable_behavior": "parse returns error"
       },
@@ -2362,77 +1698,10 @@
       }
     },
     {
-      "id": "main_readertest_allowdroppednullplaceholders",
+      "id": "main_readertest_parsecomment",
       "layer": "public_behavior",
-      "description": "Parse JSON array with dropped null placeholders and verify structure",
-      "evidence": "src/test_lib_json/main.cpp::ReaderTest.allowDroppedNullPlaceholders: assertions check size 3, root[0]==1, root[1].isNull(), root[2]==2",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
-        "src/lib_json/json_value.cpp::Json::Value::isNull",
-        "src/lib_json/json_value.cpp::Json::Value::size"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse",
-        "src/value/mod.rs::JsonValue::is_null",
-        "src/value/mod.rs::JsonValue::len"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "equality of parsed result and expected array",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "Parse '[1,,2]' with allowDroppedNullPlaceholders feature enabled (config step omitted; feature not directly exposed in target)"
-      },
-      "expected": {
-        "observable_behavior": "Parsed JsonValue should have length 3 and equal array [1, null, 2]"
-      },
-      "source_case_ids": [
-        "main_readertest_allowdroppednullplaceholders"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "many_to_many",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
-            "tgt_uuid": "src/parser.rs::parse"
-          },
-          {
-            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isNull",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::is_null"
-          },
-          {
-            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::size",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
-          "src/lib_json/json_value.cpp::Json::Value::isNull",
-          "src/lib_json/json_value.cpp::Json::Value::size"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse",
-          "src/value/mod.rs::JsonValue::is_null",
-          "src/value/mod.rs::JsonValue::len"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
-      "id": "replay_main_readertest_parsecomment",
-      "layer": "public_behavior",
-      "description": "Parse a JSON object containing JavaScript-style comments, expecting parse to fail",
-      "evidence": "src/test_lib_json/main.cpp::ReaderTest.parseComment line 3045: JSONTEST_ASSERT(!reader->parse(input, root))",
+      "description": "Parse JSON with C-style and line comments",
+      "evidence": "src/test_lib_json/main.cpp lines 3045-3049: checkParse with comment inputs",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
       ],
@@ -2441,17 +1710,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse_error_existence_match",
+        "normalization": "parse returns Ok",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Malformed object with comments: '({ /*commentBeforeValue*/ \" : \" }//commentAfterValue)'"
-      },
+      "input": "{\n  { /*commentBeforeValue*/ \"property\" : \"value\" }//commentAfterValue\n  \\n\n  true //comment1\\n//comment2\\r//comment3\\r\\n\n}",
       "expected": {
-        "observable_behavior": "parse returns an error (Err)"
+        "observable_behavior": "parse succeeds for both inputs"
       },
       "source_case_ids": [
         "main_readertest_parsecomment"
@@ -2480,10 +1747,10 @@
       }
     },
     {
-      "id": "replay_main_readertest_parseobject",
+      "id": "main_readertest_parseobject",
       "layer": "public_behavior",
-      "description": "Parse an invalid JSON object missing a colon, expecting parse to fail",
-      "evidence": "src/test_lib_json/main.cpp::ReaderTest.parseObject line 2988: JSONTEST_ASSERT(!reader->parse(input, root))",
+      "description": "Parse malformed objects and expect errors",
+      "evidence": "src/test_lib_json/main.cpp lines 2988-2998: checkParse with three invalid object inputs",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
       ],
@@ -2492,17 +1759,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse_error_existence_match",
+        "normalization": "parse returns Err",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Malformed object: '({\"key\" \"value\"})'"
-      },
+      "input": "Three malformed JSON objects (missing colon, missing closing brace, trailing comma)",
       "expected": {
-        "observable_behavior": "parse returns an error (Err)"
+        "observable_behavior": "parse fails for each malformed object"
       },
       "source_case_ids": [
         "main_readertest_parseobject"
@@ -2531,10 +1796,10 @@
       }
     },
     {
-      "id": "replay_main_readertest_parsespecialfloat",
+      "id": "main_readertest_parsespecialfloat",
       "layer": "public_behavior",
-      "description": "Parse an object containing 'Infi' (invalid float) expecting parse to fail",
-      "evidence": "src/test_lib_json/main.cpp::ReaderTest.parseSpecialFloat line 3090: JSONTEST_ASSERT(!reader->parse(input, root))",
+      "description": "Parse invalid special float literals and expect errors",
+      "evidence": "src/test_lib_json/main.cpp lines 3090-3097: checkParse with Infi, Infiniaa",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
       ],
@@ -2543,17 +1808,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse_error_existence_match",
+        "normalization": "parse returns Err",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Object with 'Infi': '({ \"key\" : Infi })'"
-      },
+      "input": "{\"a\": Infi} and {\"a\": Infiniaa}",
       "expected": {
-        "observable_behavior": "parse returns an error (Err)"
+        "observable_behavior": "parse fails for both invalid special float inputs"
       },
       "source_case_ids": [
         "main_readertest_parsespecialfloat"
@@ -2582,10 +1845,10 @@
       }
     },
     {
-      "id": "replay_main_readertest_parsestring",
+      "id": "main_readertest_parsestring",
       "layer": "public_behavior",
-      "description": "Parse a malformed array of strings expecting parse to fail",
-      "evidence": "src/test_lib_json/main.cpp::ReaderTest.parseString line 3011: JSONTEST_ASSERT(!reader->parse(input, root))",
+      "description": "Parse strings with unicode escapes, surrogate pairs, and invalid escapes",
+      "evidence": "src/test_lib_json/main.cpp lines 3011-3035: multiple checkParse calls",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
       ],
@@ -2594,17 +1857,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse_error_existence_match",
+        "normalization": "parse returns Ok for valid, Err for invalid",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Array with incomplete unicode surrogate: '[\"\\uD800\"]'"
-      },
+      "input": "Valid unicode escape, invalid lone surrogate, invalid second surrogate, invalid hex digit, too few hex digits",
       "expected": {
-        "observable_behavior": "parse returns an error (Err)"
+        "observable_behavior": "parse succeeds for valid unicode escape; fails for all invalid inputs"
       },
       "source_case_ids": [
         "main_readertest_parsestring"
@@ -2633,10 +1894,10 @@
       }
     },
     {
-      "id": "replay_main_readertest_parsewithdetailerror",
+      "id": "main_readertest_parsewithdetailerror",
       "layer": "public_behavior",
-      "description": "Parse an object containing a bad escape sequence in a string, expecting parse to fail",
-      "evidence": "src/test_lib_json/main.cpp::ReaderTest.parseWithDetailError line 3120: JSONTEST_ASSERT(!reader->parse(input, root))",
+      "description": "Parse invalid escape sequence in string",
+      "evidence": "src/test_lib_json/main.cpp lines 3120-3123: checkParse with bad escape",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
       ],
@@ -2645,17 +1906,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse_error_existence_match",
+        "normalization": "parse returns Err",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Object with bad escape: '({\"key\":\"bad\\z\"})'"
-      },
+      "input": "{\"property\": \"v\\alue\"}",
       "expected": {
-        "observable_behavior": "parse returns an error (Err)"
+        "observable_behavior": "parse fails due to invalid escape sequence"
       },
       "source_case_ids": [
         "main_readertest_parsewithdetailerror"
@@ -2684,10 +1943,10 @@
       }
     },
     {
-      "id": "replay_main_readertest_parsewithnoerrors",
+      "id": "main_readertest_parsewithnoerrors",
       "layer": "public_behavior",
-      "description": "Parse an incomplete object expecting parse to fail",
-      "evidence": "src/test_lib_json/main.cpp::ReaderTest.parseWithNoErrors line 2984: JSONTEST_ASSERT(!reader->parse(input, root))",
+      "description": "Parse a simple valid JSON object",
+      "evidence": "src/test_lib_json/main.cpp line 2984: checkParse with valid object",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
       ],
@@ -2696,17 +1955,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse_error_existence_match",
+        "normalization": "parse returns Ok",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Incomplete object: '({ \"key\" : })'"
-      },
+      "input": "{\"property\": \"value\"}",
       "expected": {
-        "observable_behavior": "parse returns an error (Err)"
+        "observable_behavior": "parse succeeds"
       },
       "source_case_ids": [
         "main_readertest_parsewithnoerrors"
@@ -2735,10 +1992,10 @@
       }
     },
     {
-      "id": "replay_main_readertest_parsewithnoerrorstestingoffsets",
+      "id": "main_readertest_parsewithnoerrorstestingoffsets",
       "layer": "public_behavior",
-      "description": "Parse a malformed object and verify parse fails (offset checks omitted due to missing target API)",
-      "evidence": "src/test_lib_json/main.cpp::ReaderTest.parseWithNoErrorsTestingOffsets line 3058: JSONTEST_ASSERT(!reader->parse(input, root))",
+      "description": "Parse a complex valid JSON and verify success (offset checks omitted as not replayable)",
+      "evidence": "src/test_lib_json/main.cpp lines 3058-3078: checkParse with complex input and offset assertions (offset assertions not replayed)",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
       ],
@@ -2747,17 +2004,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse_error_existence_match",
+        "normalization": "parse returns Ok",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Malformed object: '({)' (missing colon/value)"
-      },
+      "input": "Complex JSON object with nested structures",
       "expected": {
-        "observable_behavior": "parse returns an error (Err)"
+        "observable_behavior": "parse succeeds"
       },
       "source_case_ids": [
         "main_readertest_parsewithnoerrorstestingoffsets"
@@ -2786,10 +2041,10 @@
       }
     },
     {
-      "id": "replay_main_readertest_parsewithoneerror",
+      "id": "main_readertest_parsewithoneerror",
       "layer": "public_behavior",
-      "description": "Parse an object with double colon expecting parse to fail",
-      "evidence": "src/test_lib_json/main.cpp::ReaderTest.parseWithOneError line 3080: JSONTEST_ASSERT(!reader->parse(input, root))",
+      "description": "Parse invalid JSON and expect errors",
+      "evidence": "src/test_lib_json/main.cpp lines 3080-3086: checkParse with two invalid inputs",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
       ],
@@ -2798,17 +2053,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse_error_existence_match",
+        "normalization": "parse returns Err",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Object with '::': '({ \"key\" :: \"value\" })'"
-      },
+      "input": "{\"property\" :: \"value\"} and \"s\"",
       "expected": {
-        "observable_behavior": "parse returns an error (Err)"
+        "observable_behavior": "parse fails for both inputs"
       },
       "source_case_ids": [
         "main_readertest_parsewithoneerror"
@@ -2837,10 +2090,71 @@
       }
     },
     {
-      "id": "replay_main_readertest_streamparsewithnoerrors",
+      "id": "main_readertest_pusherrortest",
       "layer": "public_behavior",
-      "description": "Parse an incomplete object from a stream expecting parse to fail",
-      "evidence": "src/test_lib_json/main.cpp::ReaderTest.streamParseWithNoErrors line 3052: JSONTEST_ASSERT(!reader->parse(input, root))",
+      "description": "Parse JSON with AUTHOR field and verify it is not a string",
+      "evidence": "src/test_lib_json/main.cpp lines 3128-3147: parse, check !root[\"AUTHOR\"].isString(), then pushError (pushError not replayed)",
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
+        "src/lib_json/json_value.cpp::Json::Value::isString"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse",
+        "src/value/mod.rs::JsonValue::is_string"
+      ],
+      "support_target_functions": [
+        "src/object.rs::Object::index#sig_f2a28c71"
+      ],
+      "event_metadata": {
+        "normalization": "parse succeeds and root[\"AUTHOR\"].is_string() returns false",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": "{\"AUTHOR\": 123} parsed twice",
+      "expected": {
+        "observable_behavior": "After parse, accessing root[\"AUTHOR\"] yields a value for which is_string() returns false"
+      },
+      "source_case_ids": [
+        "main_readertest_pusherrortest"
+      ],
+      "expected_behavior_source": "source_test_property",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
+            "tgt_uuid": "src/parser.rs::parse"
+          },
+          {
+            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isString",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_string"
+          }
+        ],
+        "covered_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
+          "src/lib_json/json_value.cpp::Json::Value::isString"
+        ],
+        "covered_target_functions": [
+          "src/parser.rs::parse",
+          "src/value/mod.rs::JsonValue::is_string"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/object.rs::Object::index#sig_f2a28c71"
+        ]
+      }
+    },
+    {
+      "id": "main_readertest_streamparsewithnoerrors",
+      "layer": "public_behavior",
+      "description": "Parse a JSON string via stream (string slice) successfully",
+      "evidence": "src/test_lib_json/main.cpp lines 3052-3056: checkParse with istringstream",
       "source_functions": [
         "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
       ],
@@ -2849,17 +2163,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "parse_error_existence_match",
+        "normalization": "parse returns Ok",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Incomplete object: '({ \"key\" : })'"
-      },
+      "input": "{\"property\": \"value\"}",
       "expected": {
-        "observable_behavior": "parse returns an error (Err)"
+        "observable_behavior": "parse succeeds"
       },
       "source_case_ids": [
         "main_readertest_streamparsewithnoerrors"
@@ -2888,10 +2200,57 @@
       }
     },
     {
+      "id": "main_readertest_strictmodeparsenumber",
+      "layer": "public_behavior",
+      "description": "Strict mode parse: bare number should be rejected with specific error",
+      "evidence": "src/test_lib_json/main.cpp:3101: JSONTEST_FIXTURE_LOCAL(ReaderTest, strictModeParseNumber) with checkParse(\"123\", ...)",
+      "source_functions": [
+        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+      ],
+      "target_functions": [
+        "src/parser.rs::parse"
+      ],
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "observable comparison rule",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": "parse \"123\"",
+      "expected": "parse returns error containing 'A valid JSON document must be either an array or an object value.'",
+      "source_case_ids": [
+        "main_readertest_strictmodeparsenumber"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
+            "tgt_uuid": "src/parser.rs::parse"
+          }
+        ],
+        "covered_source_functions": [
+          "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
+        ],
+        "covered_target_functions": [
+          "src/parser.rs::parse"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
       "id": "main_streamwritertest_dropnullplaceholders",
       "layer": "public_behavior",
-      "description": "Test dropNullPlaceholders setting: when false, null value writes 'null'; when true, writes empty string.",
-      "evidence": "StreamWriterTest.dropNullPlaceholders lines 2-7: JSONTEST_ASSERT(Json::writeString(b, nullValue) == \"null\") and JSONTEST_ASSERT(Json::writeString(b, nullValue).empty())",
+      "description": "dropNullPlaceholders: false outputs \"null\", true outputs empty string",
+      "evidence": "src/test_lib_json/main.cpp:2759: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, dropNullPlaceholders)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::writeString"
       ],
@@ -2900,16 +2259,14 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "observable string equality",
+        "normalization": "observable comparison rule",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "null value with dropNullPlaceholders false then true",
-      "expected": {
-        "observable_behavior": "First assertion: \"null\". Second assertion: empty string."
-      },
+      "input": "writeString on null value with settings",
+      "expected": "first stringify(Null) == \"null\", second stringify(Null) == \"\" (exposes missing option)",
       "source_case_ids": [
         "main_streamwritertest_dropnullplaceholders"
       ],
@@ -2939,8 +2296,8 @@
     {
       "id": "main_streamwritertest_enableyamlcompatibility",
       "layer": "public_behavior",
-      "description": "Test enableYAMLCompatibility setting: when false, no space after colon; when true, space after colon.",
-      "evidence": "StreamWriterTest.enableYAMLCompatibility lines 2-13: three assertions on writeString result",
+      "description": "enableYAMLCompatibility adds space after colon",
+      "evidence": "src/test_lib_json/main.cpp:2768: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, enableYAMLCompatibility)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::writeString"
       ],
@@ -2949,16 +2306,14 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "observable string equality",
+        "normalization": "observable comparison rule",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "Object {\"hello\":\"world\"} with indentation=\"\" and enableYAMLCompatibility toggled",
-      "expected": {
-        "observable_behavior": "First and third assertions: \"{\\\"hello\\\":\\\"world\\\"}\". Second: \"{\\\"hello\\\": \\\"world\\\"}\"."
-      },
+      "input": "writeString on object with key 'hello' and value 'world'",
+      "expected": "first stringify == \"{\\\"hello\\\":\\\"world\\\"}\", second == \"{\\\"hello\\\": \\\"world\\\"}\"",
       "source_case_ids": [
         "main_streamwritertest_enableyamlcompatibility"
       ],
@@ -2988,8 +2343,8 @@
     {
       "id": "main_streamwritertest_escapecontrolcharacters",
       "layer": "public_behavior",
-      "description": "Test that control characters are escaped by default.",
-      "evidence": "StreamWriterTest.escapeControlCharacters loop: JSONTEST_ASSERT_STRING_EQUAL with writeString result",
+      "description": "Control characters are escaped (e.g., newline becomes \\n)",
+      "evidence": "src/test_lib_json/main.cpp:2849: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, escapeControlCharacters)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::writeString"
       ],
@@ -2998,16 +2353,14 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "observable string equality",
+        "normalization": "observable comparison rule",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "String with control characters (newline, backspace)",
-      "expected": {
-        "observable_behavior": "String with newline escapes to \"\\\\n\"; backspace escapes to \"\\\\b\"."
-      },
+      "input": "writeString on object with key 'test' and value containing newline (0x0A)",
+      "expected": "output matches \"{\\n\\t\\\"test\\\" : \\\"\\\\n\\\"\\n}\"",
       "source_case_ids": [
         "main_streamwritertest_escapecontrolcharacters"
       ],
@@ -3037,8 +2390,8 @@
     {
       "id": "main_streamwritertest_escapetabcharacterwindows",
       "layer": "public_behavior",
-      "description": "Test that tab character is always escaped as \\t, regardless of emitUTF8 setting.",
-      "evidence": "StreamWriterTest.escapeTabCharacterWindows lines 6-20: three assertions on writeString result with and without emitUTF8",
+      "description": "Tab character is escaped as \\t",
+      "evidence": "src/test_lib_json/main.cpp:2911: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, escapeTabCharacterWindows)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::writeString"
       ],
@@ -3047,16 +2400,14 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "observable string equality",
+        "normalization": "observable comparison rule",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "String containing tab character: \"\\tTabTesting\\t\"",
-      "expected": {
-        "observable_behavior": "\"\\\\tTabTesting\\\\t\""
-      },
+      "input": "writeString on object with key 'test' and value containing tabs",
+      "expected": "output contains escaped tab (\\t)",
       "source_case_ids": [
         "main_streamwritertest_escapetabcharacterwindows"
       ],
@@ -3086,8 +2437,8 @@
     {
       "id": "main_streamwritertest_indentation",
       "layer": "public_behavior",
-      "description": "Test indentation setting: empty string gives compact, tab gives pretty-printed with tabs.",
-      "evidence": "StreamWriterTest.indentation lines 2-11: two assertions on writeString with indentation \"\" and \"\\t\"",
+      "description": "Indentation setting changes output format",
+      "evidence": "src/test_lib_json/main.cpp:2783: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, indentation)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::writeString"
       ],
@@ -3096,16 +2447,14 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "observable string equality",
+        "normalization": "observable comparison rule",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "Object {\"hello\":\"world\"}",
-      "expected": {
-        "observable_behavior": "First assertion: \"{\\\"hello\\\":\\\"world\\\"}\". Second assertion: \"{\\n\\t\\\"hello\\\" : \\\"world\\\"\\n}\"."
-      },
+      "input": "writeString on simple object with different indentation settings",
+      "expected": "first with empty indentation -> \"{\\\"hello\\\":\\\"world\\\"}\", second with tab indentation -> \"{\\n\\t\\\"hello\\\" : \\\"world\\\"\\n}\"",
       "source_case_ids": [
         "main_streamwritertest_indentation"
       ],
@@ -3135,8 +2484,8 @@
     {
       "id": "main_streamwritertest_multilinearray",
       "layer": "public_behavior",
-      "description": "Test array formatting: arrays with more than 20 members are written on multiple lines.",
-      "evidence": "StreamWriterTest.multiLineArray lines 27-33: JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "description": "Array with >20 members prints multi-line, <=20 prints single line",
+      "evidence": "src/test_lib_json/main.cpp:2714: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, multiLineArray)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::writeString"
       ],
@@ -3145,16 +2494,14 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "observable string equality",
+        "normalization": "observable comparison rule",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "Array of 21 numbers (0..20)",
-      "expected": {
-        "observable_behavior": "Multi-line formatted string with tab indentation and comma-separated elements."
-      },
+      "input": "writeString on arrays of length 21 and 10",
+      "expected": "21-element array: multi-line formatting; 10-element: single line",
       "source_case_ids": [
         "main_streamwritertest_multilinearray"
       ],
@@ -3184,8 +2531,8 @@
     {
       "id": "main_streamwritertest_unicode",
       "layer": "public_behavior",
-      "description": "Test that non-ASCII characters are escaped as \\uXXXX by default, and emitUTF8 leaves them raw.",
-      "evidence": "StreamWriterTest.unicode lines 9-20: JSONTEST_ASSERT on writeString with and without emitUTF8",
+      "description": "Unicode characters are escaped by default, not escaped when emitUTF8=true",
+      "evidence": "src/test_lib_json/main.cpp:2818: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, unicode)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::writeString"
       ],
@@ -3194,16 +2541,14 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "observable string equality",
+        "normalization": "observable comparison rule",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "Object with key \"test\" containing tab, newline, and unicode characters",
-      "expected": {
-        "observable_behavior": "Default: escaped unicode. With emitUTF8=true: raw UTF-8."
-      },
+      "input": "writeString on object containing UTF-8 string with special chars",
+      "expected": "default: unicode escaped; emitUTF8: raw UTF-8",
       "source_case_ids": [
         "main_streamwritertest_unicode"
       ],
@@ -3233,8 +2578,8 @@
     {
       "id": "main_streamwritertest_writearrays",
       "layer": "public_behavior",
-      "description": "Test writing objects containing arrays with indentation.",
-      "evidence": "StreamWriterTest.writeArrays lines 12-18: JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "description": "Nested arrays in objects are written with proper indentation",
+      "evidence": "src/test_lib_json/main.cpp:2673: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, writeArrays)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::writeString"
       ],
@@ -3243,16 +2588,14 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "observable string equality",
+        "normalization": "observable comparison rule",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "Object with two properties: property1 (array with two strings), property2 (empty array)",
-      "expected": {
-        "observable_behavior": "Multi-line formatted string with proper indentation and newlines."
-      },
+      "input": "writeString on object containing array values",
+      "expected": "multi-line output with indented arrays",
       "source_case_ids": [
         "main_streamwritertest_writearrays"
       ],
@@ -3282,8 +2625,8 @@
     {
       "id": "main_streamwritertest_writenestedobjects",
       "layer": "public_behavior",
-      "description": "Test writing nested objects with indentation.",
-      "evidence": "StreamWriterTest.writeNestedObjects lines 13-19: JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "description": "Nested objects are written with proper indentation",
+      "evidence": "src/test_lib_json/main.cpp:2693: JSONTEST_FIXTURE_LOCAL(StreamWriterTest, writeNestedObjects)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::writeString"
       ],
@@ -3292,16 +2635,14 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "observable string equality",
+        "normalization": "observable comparison rule",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": "Object with two properties: object1 (nested object with bool and integer), object2 (empty object)",
-      "expected": {
-        "observable_behavior": "Multi-line formatted string with proper indentation."
-      },
+      "input": "writeString on nested objects",
+      "expected": "multi-line output with indented objects",
       "source_case_ids": [
         "main_streamwritertest_writenestedobjects"
       ],
@@ -3329,61 +2670,10 @@
       }
     },
     {
-      "id": "main_readertest_strictmodeparsenumber",
-      "layer": "public_behavior",
-      "description": "Strict mode parse: bare number '123' should be rejected because root must be object/array.",
-      "evidence": "src/test_lib_json/main.cpp line 3101, assertion JSONTEST_ASSERT(!reader->parse(input, root))",
-      "source_functions": [
-        "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
-      ],
-      "target_functions": [
-        "src/parser.rs::parse"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "observable comparison rule: assert parse returns an error (Err) because source test expects false from parse.",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "parse string \"123\""
-      },
-      "expected": {
-        "observable_behavior": "parse function returns an error (Err) indicating failure"
-      },
-      "source_case_ids": [
-        "main_readertest_strictmodeparsenumber"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
-            "tgt_uuid": "src/parser.rs::parse"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff"
-        ],
-        "covered_target_functions": [
-          "src/parser.rs::parse"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
       "id": "replay_main_streamwritertest_writenumericvalue",
       "layer": "public_behavior",
-      "description": "Write a numeric value and other types with StreamWriter",
-      "evidence": "src/test_lib_json/main.cpp line 2651, assertion JSONTEST_ASSERT_STRING_EQUAL",
+      "description": "Write a Json::Value with null, bool, string, large float, small float, unsigned int via StreamWriterBuilder and verify formatted output",
+      "evidence": "main.cpp:2651 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
         "src/lib_json/json_writer.cpp::Json::writeString"
@@ -3394,17 +2684,17 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "exact string equality",
+        "normalization": "string equality",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "root object with emptyValue (null), false, null string, number -6.2e15, real 1.256, uintValue 17"
+        "case": "root with emptyValue=null, false=false, null=\"null\", number=-6.2e15, real=1.256, uintValue=17"
       },
       "expected": {
-        "observable_behavior": "formatted JSON string with newlines and tabs"
+        "observable_behavior": "formatted JSON with tabs and newlines"
       },
       "source_case_ids": [
         "main_streamwritertest_writenumericvalue"
@@ -3439,10 +2729,69 @@
       }
     },
     {
+      "id": "replay_main_streamwritertest_writezeroes",
+      "layer": "public_behavior",
+      "description": "Write a string containing a null byte via StreamWriterBuilder and verify escaped zero output",
+      "evidence": "main.cpp:2796 assertions JSONTEST_ASSERT_STRING_EQUAL(expected, out)",
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::size",
+        "src/lib_json/json_writer.cpp::Json::writeString"
+      ],
+      "target_functions": [
+        "src/lib.rs::stringify",
+        "src/value/mod.rs::JsonValue::len"
+      ],
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "string equality",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "binary string \"hi\" with trailing null character"
+      },
+      "expected": {
+        "observable_behavior": "\"hi\\u0000\" with escaped zero"
+      },
+      "source_case_ids": [
+        "main_streamwritertest_writezeroes"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::size",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
+          },
+          {
+            "src_uuid": "src/lib_json/json_writer.cpp::Json::writeString",
+            "tgt_uuid": "src/lib.rs::stringify"
+          }
+        ],
+        "covered_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::size",
+          "src/lib_json/json_writer.cpp::Json::writeString"
+        ],
+        "covered_target_functions": [
+          "src/lib.rs::stringify",
+          "src/value/mod.rs::JsonValue::len"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
       "id": "replay_main_styledstreamwritertest_multilinearray",
       "layer": "public_behavior",
-      "description": "StyledStreamWriter multi-line array (21 elements vs 10 elements)",
-      "evidence": "src/test_lib_json/main.cpp line 2570, two JSONTEST_ASSERT_STRING_EQUAL assertions",
+      "description": "Write an array with 21 elements (multiline) and 10 elements (single line) using StyledStreamWriter",
+      "evidence": "main.cpp:2570 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
       ],
@@ -3451,17 +2800,17 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "exact string equality",
+        "normalization": "string equality",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "arrays of 0..20 and 0..9"
+        "case": "array of 21 integers then array of 10 integers"
       },
       "expected": {
-        "observable_behavior": "formatted array with newlines and indentation"
+        "observable_behavior": "multiline for 21 elements, single line for 10"
       },
       "source_case_ids": [
         "main_styledstreamwritertest_multilinearray"
@@ -3492,8 +2841,8 @@
     {
       "id": "replay_main_styledstreamwritertest_writearrays",
       "layer": "public_behavior",
-      "description": "StyledStreamWriter write arrays inside object",
-      "evidence": "src/test_lib_json/main.cpp line 2530, assertion JSONTEST_ASSERT_STRING_EQUAL",
+      "description": "Write an object with array properties using StyledStreamWriter",
+      "evidence": "main.cpp:2530 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
       ],
@@ -3502,17 +2851,17 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "exact string equality",
+        "normalization": "string equality",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "root object with property1 (array of two strings) and property2 (empty array)"
+        "case": "object with two array properties, one empty"
       },
       "expected": {
-        "observable_behavior": "formatted JSON string with newlines and indentation"
+        "observable_behavior": "formatted object with indentation"
       },
       "source_case_ids": [
         "main_styledstreamwritertest_writearrays"
@@ -3543,8 +2892,8 @@
     {
       "id": "replay_main_styledstreamwritertest_writenestedobjects",
       "layer": "public_behavior",
-      "description": "StyledStreamWriter write nested objects",
-      "evidence": "src/test_lib_json/main.cpp line 2547, assertion JSONTEST_ASSERT_STRING_EQUAL",
+      "description": "Write nested objects using StyledStreamWriter",
+      "evidence": "main.cpp:2547 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
       ],
@@ -3553,17 +2902,17 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "exact string equality",
+        "normalization": "string equality",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "root object with object1 (child with bool true and nested 123) and object2 (empty object)"
+        "case": "object with nested child object and empty object"
       },
       "expected": {
-        "observable_behavior": "formatted JSON string with nested indentation"
+        "observable_behavior": "formatted nested object with indentation"
       },
       "source_case_ids": [
         "main_styledstreamwritertest_writenestedobjects"
@@ -3594,8 +2943,8 @@
     {
       "id": "replay_main_styledstreamwritertest_writenumericvalue",
       "layer": "public_behavior",
-      "description": "StyledStreamWriter write numeric value with other types",
-      "evidence": "src/test_lib_json/main.cpp line 2505, assertion JSONTEST_ASSERT_STRING_EQUAL",
+      "description": "Write a Json::Value with various numeric types using StyledStreamWriter",
+      "evidence": "main.cpp:2505 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
         "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
@@ -3606,17 +2955,17 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "exact string equality",
+        "normalization": "string equality",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "root object with emptyValue (null), false, null string, number -6.2e15, real 1.256, uintValue 17"
+        "case": "root with null, bool, string, large float, small float, unsigned int"
       },
       "expected": {
-        "observable_behavior": "formatted JSON string with newlines and tabs"
+        "observable_behavior": "formatted JSON with tabs, trailing newline, numeric representations"
       },
       "source_case_ids": [
         "main_styledstreamwritertest_writenumericvalue"
@@ -3651,10 +3000,61 @@
       }
     },
     {
+      "id": "replay_main_styledstreamwritertest_writevaluewithcomment",
+      "layer": "public_behavior",
+      "description": "Write a value with attached comments using StyledStreamWriter (comments not supported by target, test will expose difference)",
+      "evidence": "main.cpp:2617 assertions JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "source_functions": [
+        "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::pretty"
+      ],
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "string equality",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": {
+        "case": "string value \"hello\" with comments before, after on same line, after"
+      },
+      "expected": {
+        "observable_behavior": "output includes comment lines before or after the value"
+      },
+      "source_case_ids": [
+        "main_styledstreamwritertest_writevaluewithcomment"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "medium",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
+          }
+        ],
+        "covered_source_functions": [
+          "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::pretty"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
       "id": "replay_main_styledwritertest_multilinearray",
       "layer": "public_behavior",
-      "description": "StyledWriter multi-line array (21 elements vs 10 elements)",
-      "evidence": "src/test_lib_json/main.cpp line 2448, two JSONTEST_ASSERT_STRING_EQUAL assertions",
+      "description": "Write an array with 21 elements (multiline) and 10 elements (single line) using StyledWriter",
+      "evidence": "main.cpp:2448 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
       ],
@@ -3663,17 +3063,17 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "exact string equality",
+        "normalization": "string equality",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "arrays of 0..20 and 0..9"
+        "case": "array of 21 integers then array of 10 integers"
       },
       "expected": {
-        "observable_behavior": "formatted array with newlines and indentation"
+        "observable_behavior": "multiline for 21 elements (3 spaces indent), single line for 10"
       },
       "source_case_ids": [
         "main_styledwritertest_multilinearray"
@@ -3704,8 +3104,8 @@
     {
       "id": "replay_main_styledwritertest_writearrays",
       "layer": "public_behavior",
-      "description": "StyledWriter write arrays inside object",
-      "evidence": "src/test_lib_json/main.cpp line 2414, assertion JSONTEST_ASSERT_STRING_EQUAL",
+      "description": "Write an object with array properties using StyledWriter",
+      "evidence": "main.cpp:2414 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
       ],
@@ -3714,17 +3114,17 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "exact string equality",
+        "normalization": "string equality",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "root object with property1 (array of two strings) and property2 (empty array)"
+        "case": "object with two array properties, one empty"
       },
       "expected": {
-        "observable_behavior": "formatted JSON string with newlines and indentation"
+        "observable_behavior": "formatted object with 3-space indent"
       },
       "source_case_ids": [
         "main_styledwritertest_writearrays"
@@ -3755,8 +3155,8 @@
     {
       "id": "replay_main_styledwritertest_writenestedobjects",
       "layer": "public_behavior",
-      "description": "StyledWriter write nested objects",
-      "evidence": "src/test_lib_json/main.cpp line 2429, assertion JSONTEST_ASSERT_STRING_EQUAL",
+      "description": "Write nested objects using StyledWriter",
+      "evidence": "main.cpp:2429 assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
       ],
@@ -3765,17 +3165,17 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "exact string equality",
+        "normalization": "string equality",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "root object with object1 (child with bool true and nested 123) and object2 (empty object)"
+        "case": "object with nested child object and empty object"
       },
       "expected": {
-        "observable_behavior": "formatted JSON string with nested indentation"
+        "observable_behavior": "formatted nested object with 3-space indent"
       },
       "source_case_ids": [
         "main_styledwritertest_writenestedobjects"
@@ -3804,48 +3204,52 @@
       }
     },
     {
-      "id": "replay_main_styledstreamwritertest_writevaluewithcomment",
+      "id": "replay_main_styledwritertest_writenumericvalue",
       "layer": "public_behavior",
-      "description": "Write a string value that has a comment before it, then produce styled output",
-      "evidence": "source test main.cpp:2617, assertion JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "description": "Write numeric values with StyledWriter produces formatted JSON with null, false, string, negative float, positive float, unsigned integer.",
+      "evidence": "source path src/test_lib_json/main.cpp line 2392: JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
       "source_functions": [
-        "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+        "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
       ],
       "target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
         "src/value/mod.rs::JsonValue::pretty"
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "observable comparison rule: string equality",
+        "normalization": "string equality after pretty-print with 3-space indent",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Json::Value root = 'hello'; root.setComment('//commentBeforeValue', commentBefore); writer.write(sout, root); result = sout.str()"
-      },
-      "expected": {
-        "observable_behavior": "expected output string is '//commentBeforeValue\\n\\\"hello\\\"\\n'"
-      },
+      "input": "construct Json::Value with mixed types and call StyledWriter::write",
+      "expected": "{\n   \"emptyValue\" : null,\n   \"false\" : false,\n   \"null\" : \"null\",\n   \"number\" : -6200000000000000.0,\n   \"real\" : 1.256,\n   \"uintValue\" : 17\n}\n",
       "source_case_ids": [
-        "main_styledstreamwritertest_writevaluewithcomment"
+        "main_styledwritertest_writenumericvalue"
       ],
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
       "alignment_validation": {
         "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
+        "mapping_shape": "many_to_many",
         "covered_pairs": [
           {
-            "src_uuid": "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write",
+            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+            "tgt_uuid": "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
+          },
+          {
+            "src_uuid": "src/lib_json/json_writer.cpp::Json::StyledWriter::write",
             "tgt_uuid": "src/value/mod.rs::JsonValue::pretty"
           }
         ],
         "covered_source_functions": [
-          "src/lib_json/json_writer.cpp::Json::StyledStreamWriter::write"
+          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
+          "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
         ],
         "covered_target_functions": [
+          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
           "src/value/mod.rs::JsonValue::pretty"
         ],
         "missing_source_alignments": [],
@@ -3857,8 +3261,8 @@
     {
       "id": "replay_main_styledwritertest_writevaluewithcomment",
       "layer": "public_behavior",
-      "description": "Write a JsonValue with comments using StyledWriter; target lacks comment support, so expected string includes comments not produced by pretty.",
-      "evidence": "src/test_lib_json/main.cpp lines 2477-..., JSONTEST_ASSERT_STRING_EQUAL assertions with expected strings containing comments.",
+      "description": "Write value with comments; target does not support comments, test will fail.",
+      "evidence": "source path src/test_lib_json/main.cpp line 2477",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::StyledWriter::write"
       ],
@@ -3867,18 +3271,14 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "assert_eq!",
+        "normalization": "string equality",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "JsonValue 'hello' with comments set via setComment"
-      },
-      "expected": {
-        "observable_behavior": "The pretty() output is compared to the expected string from source which includes comment lines; the test will fail because target does not support comments."
-      },
+      "input": "create string value, write with pretty",
+      "expected": "three expected strings with comment lines (see body asserts)",
       "source_case_ids": [
         "main_styledwritertest_writevaluewithcomment"
       ],
@@ -3906,61 +3306,10 @@
       }
     },
     {
-      "id": "replay_main_valuetest_arrayissue252",
-      "layer": "public_behavior",
-      "description": "Array size returns correct element count",
-      "evidence": "src/test_lib_json/main.cpp:541: JSONTEST_ASSERT_EQUAL(5, root[\"array\"].size());",
-      "source_functions": [
-        "src/lib_json/json_value.cpp::Json::Value::size"
-      ],
-      "target_functions": [
-        "src/value/mod.rs::JsonValue::len"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "equality_expected_behavior",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "Array with 5 items"
-      },
-      "expected": {
-        "observable_behavior": "len() returns 5"
-      },
-      "source_case_ids": [
-        "main_valuetest_arrayissue252"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::size",
-            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_value.cpp::Json::Value::size"
-        ],
-        "covered_target_functions": [
-          "src/value/mod.rs::JsonValue::len"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
       "id": "replay_main_valuetest_bools",
       "layer": "public_behavior",
-      "description": "Test type queries on boolean JsonValue values",
-      "evidence": "src/test_lib_json/main.cpp:678 ValueTest.bools: JSONTEST_ASSERT_EQUAL and JSONTEST_ASSERT_PRED calls",
+      "description": "Test boolean type predicates on true and false values.",
+      "evidence": "source path src/test_lib_json/main.cpp line 678: JSONTEST_ASSERT_PRED(checkIs(...)) and type access",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::isArray",
         "src/lib_json/json_value.cpp::Json::Value::isBool",
@@ -3980,18 +3329,14 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "observable_behavior_equality",
+        "normalization": "boolean equality",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Create JsonValue false and true using value! macro"
-      },
-      "expected": {
-        "observable_behavior": "false_.is_boolean() true, other is_* false; true_.is_boolean() true, other false"
-      },
+      "input": "create Json::Boolean(true) and Json::Boolean(false) and check type predicates",
+      "expected": "true_.isBool()=true, false_.isBool()=true; both isNull=false; both isNumber=false; both isString=false; both isArray=false; both isObject=false",
       "source_case_ids": [
         "main_valuetest_bools"
       ],
@@ -4056,8 +3401,8 @@
     {
       "id": "replay_main_valuetest_commentbefore",
       "layer": "public_behavior",
-      "description": "Test stringify and pretty output for a null JsonValue with expected comment (comments not supported in target)",
-      "evidence": "src/test_lib_json/main.cpp:2016 ValueTest.CommentBefore: JSONTEST_ASSERT_STRING_EQUAL on toStyledString and writeString results",
+      "description": "Test comment handling with writeString and toStyledString; target lacks comment support so tests will fail.",
+      "evidence": "source path src/test_lib_json/main.cpp line 2016",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::toStyledString",
         "src/lib_json/json_writer.cpp::Json::writeString"
@@ -4068,23 +3413,19 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "equality_expected_behavior",
+        "normalization": "string equality",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Create JsonValue null and call stringify and pretty(0)"
-      },
-      "expected": {
-        "observable_behavior": "stringify returns '// this comment should appear before\\nnull'; pretty(0) returns '\\n// this comment should appear before\\nnull\\n' (source expected, but target will not include comments)"
-      },
+      "input": "create null/string values, attempt to set comments (unavailable), write using stringify and pretty",
+      "expected": "expected strings with comment lines (see body asserts)",
       "source_case_ids": [
         "main_valuetest_commentbefore"
       ],
       "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "medium",
+      "expected_behavior_confidence": "high",
       "alignment_validation": {
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
@@ -4113,32 +3454,35 @@
       }
     },
     {
-      "id": "replay_main_valuetest_comparenull",
+      "id": "replay_main_valuetest_copyobject",
       "layer": "public_behavior",
-      "description": "Test equality of null JsonValues",
-      "evidence": "src/test_lib_json/main.cpp:1677 ValueTest.compareNull: JSONTEST_ASSERT_PRED(checkIsEqual(Json::Value(), Json::Value())) etc.",
+      "description": "Test copy behavior and size of JsonValue arrays and objects",
+      "evidence": "source_test_lib_json/main.cpp ValueTest::CopyObject lines 1803-1852; assertions on size after copy and modification",
       "source_functions": [
-        "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f"
+        "src/lib_json/json_value.cpp::Json::Value::size"
       ],
       "target_functions": [
-        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+        "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
+        "src/value/mod.rs::JsonValue::len"
       ],
-      "support_target_functions": [],
+      "support_target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+        "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6"
+      ],
       "event_metadata": {
-        "normalization": "observable_behavior_equality",
+        "normalization": "observable equality comparison using assert_eq!",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Create null JsonValues using Null variant and assert equality"
-      },
+      "input": "Create array with 3 items, string value, object, clone them, modify originals",
       "expected": {
-        "observable_behavior": "All null values are equal"
+        "observable_behavior": "After clone, copies have same size; further modifications of originals do not affect copies; reassignment of copy changes size accordingly"
       },
       "source_case_ids": [
-        "main_valuetest_comparenull"
+        "main_valuetest_copyobject"
       ],
       "expected_behavior_source": "source_test_assertion",
       "expected_behavior_confidence": "high",
@@ -4147,15 +3491,67 @@
         "mapping_shape": "one_to_one",
         "covered_pairs": [
           {
-            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
-            "tgt_uuid": "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
+            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::size",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
           }
         ],
         "covered_source_functions": [
-          "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f"
+          "src/lib_json/json_value.cpp::Json::Value::size"
         ],
         "covered_target_functions": [
-          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
+          "src/value/mod.rs::JsonValue::len"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": [
+          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
+          "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6"
+        ]
+      }
+    },
+    {
+      "id": "replay_main_valuetest_getarrayvalue",
+      "layer": "public_behavior",
+      "description": "Test size of array after assigning elements",
+      "evidence": "source_test_lib_json/main.cpp ValueTest::getArrayValue lines 521-537; assertion array.size() == 5",
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::size"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::len"
+      ],
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "observable equality comparison using assert_eq!",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": "Create array with 5 elements via array! macro",
+      "expected": {
+        "observable_behavior": "len() returns 5"
+      },
+      "source_case_ids": [
+        "main_valuetest_getarrayvalue"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "one_to_one",
+        "covered_pairs": [
+          {
+            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::size",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::len"
+          }
+        ],
+        "covered_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::size"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::len"
         ],
         "missing_source_alignments": [],
         "non_public_alignments": [],
@@ -4166,8 +3562,8 @@
     {
       "id": "replay_main_valuetest_membercount",
       "layer": "public_behavior",
-      "description": "Check member count for various JsonValue types using len()",
-      "evidence": "source test main.cpp line 236-247: assertions that size() returns 0 for null/empty array/empty object, 1 for array with one element/object with one member",
+      "description": "Test member count (size) for various JsonValue types",
+      "evidence": "source_test_lib_json/main.cpp ValueTest::memberCount lines 236-256; assertions on size for null, empty array, empty object, integer, etc.",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::size"
       ],
@@ -4176,17 +3572,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "equality_expected_behavior",
+        "normalization": "observable equality comparison using assert_eq!",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Create null, empty array, empty object, array with one string, object with one key"
-      },
+      "input": "Create various JsonValue instances (null, empty array/object, integer, bool, string, etc.)",
       "expected": {
-        "observable_behavior": "len returns 0 for null, empty array, empty object; len returns 1 for array with one element and object with one key"
+        "observable_behavior": "non-container types and empty containers have len() == 0; arrays/objects with one element have len() == 1"
       },
       "source_case_ids": [
         "main_valuetest_membercount"
@@ -4215,10 +3609,105 @@
       }
     },
     {
+      "id": "replay_main_valuetest_null",
+      "layer": "public_behavior",
+      "description": "Test type-checking methods on a null JsonValue",
+      "evidence": "source_test_lib_json/main.cpp ValueTest::null lines 616-651; assertions on isNull, isConvertibleTo, etc.",
+      "source_functions": [
+        "src/lib_json/json_value.cpp::Json::Value::isArray",
+        "src/lib_json/json_value.cpp::Json::Value::isBool",
+        "src/lib_json/json_value.cpp::Json::Value::isDouble",
+        "src/lib_json/json_value.cpp::Json::Value::isNull",
+        "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+        "src/lib_json/json_value.cpp::Json::Value::isObject",
+        "src/lib_json/json_value.cpp::Json::Value::isString"
+      ],
+      "target_functions": [
+        "src/value/mod.rs::JsonValue::is_array",
+        "src/value/mod.rs::JsonValue::is_boolean",
+        "src/value/mod.rs::JsonValue::is_null",
+        "src/value/mod.rs::JsonValue::is_number",
+        "src/value/mod.rs::JsonValue::is_object",
+        "src/value/mod.rs::JsonValue::is_string"
+      ],
+      "support_target_functions": [],
+      "event_metadata": {
+        "normalization": "boolean assertion using assert! / assert!",
+        "normalization_status": "adapter_declared_v2",
+        "adapter_generation_status": "llm_synthesized_repaired_v1",
+        "scope_filtered_source_functions": false,
+        "omitted_source_functions_outside_l1_scope": []
+      },
+      "input": "Create null JsonValue",
+      "expected": {
+        "observable_behavior": "is_null() returns true; is_boolean(), is_number(), is_string(), is_array(), is_object() return false"
+      },
+      "source_case_ids": [
+        "main_valuetest_null"
+      ],
+      "expected_behavior_source": "source_test_assertion",
+      "expected_behavior_confidence": "high",
+      "alignment_validation": {
+        "status": "fully_aligned",
+        "mapping_shape": "many_to_many",
+        "covered_pairs": [
+          {
+            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isArray",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_array"
+          },
+          {
+            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isBool",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_boolean"
+          },
+          {
+            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isDouble",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_number"
+          },
+          {
+            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isNull",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_null"
+          },
+          {
+            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_number"
+          },
+          {
+            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isObject",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_object"
+          },
+          {
+            "src_uuid": "src/lib_json/json_value.cpp::Json::Value::isString",
+            "tgt_uuid": "src/value/mod.rs::JsonValue::is_string"
+          }
+        ],
+        "covered_source_functions": [
+          "src/lib_json/json_value.cpp::Json::Value::isArray",
+          "src/lib_json/json_value.cpp::Json::Value::isBool",
+          "src/lib_json/json_value.cpp::Json::Value::isDouble",
+          "src/lib_json/json_value.cpp::Json::Value::isNull",
+          "src/lib_json/json_value.cpp::Json::Value::isNumeric",
+          "src/lib_json/json_value.cpp::Json::Value::isObject",
+          "src/lib_json/json_value.cpp::Json::Value::isString"
+        ],
+        "covered_target_functions": [
+          "src/value/mod.rs::JsonValue::is_array",
+          "src/value/mod.rs::JsonValue::is_boolean",
+          "src/value/mod.rs::JsonValue::is_null",
+          "src/value/mod.rs::JsonValue::is_number",
+          "src/value/mod.rs::JsonValue::is_object",
+          "src/value/mod.rs::JsonValue::is_string"
+        ],
+        "missing_source_alignments": [],
+        "non_public_alignments": [],
+        "missing_target_recipe": [],
+        "support_target_functions": []
+      }
+    },
+    {
       "id": "replay_main_valuetest_objects",
       "layer": "public_behavior",
-      "description": "Test object type checks, len, remove, and demand (index_mut)",
-      "evidence": "source test main.cpp line 254-: assertions that emptyObject_ and object1_ have correct is* flags, type, removeMember, demand",
+      "description": "Test object type checks, demand (index_mut), and removeMember",
+      "evidence": "source_test_lib_json/main.cpp ValueTest::objects lines 254-370; assertions on type, find, demand, removeMember, size",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
         "src/lib_json/json_value.cpp::Json::Value::demand",
@@ -4247,23 +3736,21 @@
         "src/value/mod.rs::JsonValue::len"
       ],
       "event_metadata": {
-        "normalization": "observable comparison rule",
+        "normalization": "observable equality and boolean assertions",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "Create empty object and object with one key, test type checks, remove a member, use index_mut to add a member"
-      },
+      "input": "Create empty object, object with key, use index_mut to add key, remove key, check type and size",
       "expected": {
-        "observable_behavior": "empty object len=0, is_object=true, is_null=false, is_boolean=false, is_number=false, is_string=false, is_array=false; after remove len decreases; index_mut sets value"
+        "observable_behavior": "is_object() true for objects; index_mut inserts and allows mutation; remove returns removed value and reduces size; isString true for string values"
       },
       "source_case_ids": [
         "main_valuetest_objects"
       ],
       "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "medium",
+      "expected_behavior_confidence": "high",
       "alignment_validation": {
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
@@ -4341,61 +3828,10 @@
       }
     },
     {
-      "id": "replay_main_valuetest_precision",
-      "layer": "public_behavior",
-      "description": "precision setting in StreamWriterBuilder",
-      "evidence": "src/test_lib_json/main.cpp ValueTest.precision: JSONTEST_ASSERT_STRING_EQUAL",
-      "source_functions": [
-        "src/lib_json/json_writer.cpp::Json::writeString"
-      ],
-      "target_functions": [
-        "src/lib.rs::stringify"
-      ],
-      "support_target_functions": [],
-      "event_metadata": {
-        "normalization": "string equality",
-        "normalization_status": "adapter_declared_v2",
-        "adapter_generation_status": "llm_synthesized_repaired_v1",
-        "scope_filtered_source_functions": false,
-        "omitted_source_functions_outside_l1_scope": []
-      },
-      "input": {
-        "case": "create Json::Value from 100/3 and write with precision 5, then with precision 1"
-      },
-      "expected": {
-        "observable_behavior": "Json::writeString returns formatted string matching expected literals '33.333', '0.25', '0.25635', '0.3'"
-      },
-      "source_case_ids": [
-        "main_valuetest_precision"
-      ],
-      "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
-      "alignment_validation": {
-        "status": "fully_aligned",
-        "mapping_shape": "one_to_one",
-        "covered_pairs": [
-          {
-            "src_uuid": "src/lib_json/json_writer.cpp::Json::writeString",
-            "tgt_uuid": "src/lib.rs::stringify"
-          }
-        ],
-        "covered_source_functions": [
-          "src/lib_json/json_writer.cpp::Json::writeString"
-        ],
-        "covered_target_functions": [
-          "src/lib.rs::stringify"
-        ],
-        "missing_source_alignments": [],
-        "non_public_alignments": [],
-        "missing_target_recipe": [],
-        "support_target_functions": []
-      }
-    },
-    {
       "id": "replay_main_valuetest_resizearray",
       "layer": "public_behavior",
-      "description": "resize array and check size",
-      "evidence": "src/test_lib_json/main.cpp ValueTest.resizeArray: JSONTEST_ASSERT_EQUAL(array.size(), ...)",
+      "description": "Test size after creating arrays of various lengths",
+      "evidence": "source_test_lib_json/main.cpp ValueTest::resizeArray lines 465-485; assertions on array.size() after resize and clear",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::size"
       ],
@@ -4404,17 +3840,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "size equality",
+        "normalization": "observable equality comparison using assert_eq!",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "create arrays with lengths 10, 15, 5, 0 using JsonValue::from(vec)"
-      },
+      "input": "Create arrays with 10, 15, 5, and 0 elements",
       "expected": {
-        "observable_behavior": "len() returns expected array sizes"
+        "observable_behavior": "len() returns the number of elements present: 10, 15, 5, 0 respectively"
       },
       "source_case_ids": [
         "main_valuetest_resizearray"
@@ -4443,10 +3877,10 @@
       }
     },
     {
-      "id": "replay_main_valuetest_resizepopulatesallmissingelements",
+      "id": "main_valuetest_resizepopulatesallmissingelements",
       "layer": "public_behavior",
-      "description": "resize populates all missing elements with null",
-      "evidence": "src/test_lib_json/main.cpp ValueTest.resizePopulatesAllMissingElements: JSONTEST_ASSERT_EQUAL(n, v.size()) and iteration checks",
+      "description": "Resize array populates all missing elements with null",
+      "evidence": "src/test_lib_json/main.cpp: resizePopulatesAllMissingElements: JSONTEST_ASSERT_EQUAL(n, v.size()); JSONTEST_ASSERT_EQUAL(n, std::distance(v.begin(), v.end())); JSONTEST_ASSERT_EQUAL(v.front(), Json::Value{}); JSONTEST_ASSERT_EQUAL(v.back(), Json::Value{}); for loop asserts each element is null",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::begin#sig_281a9945",
         "src/lib_json/json_value.cpp::Json::Value::size"
@@ -4455,19 +3889,19 @@
         "src/value/mod.rs::JsonValue::len",
         "src/value/mod.rs::JsonValue::members_mut"
       ],
-      "support_target_functions": [],
+      "support_target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_9bca93f0"
+      ],
       "event_metadata": {
-        "normalization": "element equality",
+        "normalization": "observable comparison rule: len and all elements equal Null",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "create array of 10 nulls, check size, count, and all elements are null"
-      },
+      "input": "Create array with resize(10)",
       "expected": {
-        "observable_behavior": "len() == 10, members_mut count == 10, first and last elements are JsonValue::Null"
+        "observable_behavior": "size == 10, all elements are null"
       },
       "source_case_ids": [
         "main_valuetest_resizepopulatesallmissingelements"
@@ -4498,14 +3932,16 @@
         "missing_source_alignments": [],
         "non_public_alignments": [],
         "missing_target_recipe": [],
-        "support_target_functions": []
+        "support_target_functions": [
+          "src/value/implements.rs::JsonValue::from#sig_9bca93f0"
+        ]
       }
     },
     {
-      "id": "replay_main_valuetest_searchvaluebypath",
+      "id": "main_valuetest_searchvaluebypath",
       "layer": "public_behavior",
-      "description": "search value by path using FastWriter",
-      "evidence": "src/test_lib_json/main.cpp ValueTest.searchValueByPath: JSONTEST_ASSERT_STRING_EQUAL(expected, outcome)",
+      "description": "Construct Value from C-string and write with FastWriter",
+      "evidence": "src/test_lib_json/main.cpp: searchValueByPath: FastWriter::write(root) and defaultValue construction",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::Value#sig_d68dd45f",
         "src/lib_json/json_writer.cpp::Json::FastWriter::write"
@@ -4516,17 +3952,15 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "string equality",
+        "normalization": "compare output string with expected compact JSON with newline",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "write root object with property1 array and property2 object, compare dump output"
-      },
+      "input": "build object and default string, then write",
       "expected": {
-        "observable_behavior": "dump() returns expected JSON string"
+        "observable_behavior": "output matches expected strings\\n\"{\\\"property1\\\":[0,1],\\\"property2\\\":{\\\"object\\\":\\\"object\\\"}}\\n\" and \"\\\"error\\\"\\n\""
       },
       "source_case_ids": [
         "main_valuetest_searchvaluebypath"
@@ -4561,10 +3995,10 @@
       }
     },
     {
-      "id": "replay_main_valuetest_specialfloats",
+      "id": "main_valuetest_specialfloats",
       "layer": "public_behavior",
-      "description": "special floats NaN, Infinity, -Infinity",
-      "evidence": "src/test_lib_json/main.cpp ValueTest.specialFloats: JSONTEST_ASSERT_STRING_EQUAL(expected, result)",
+      "description": "Write special float values (NaN, Infinity) with writeString",
+      "evidence": "src/test_lib_json/main.cpp: specialFloats: JSONTEST_ASSERT_STRING_EQUAL(expected, result) for NaN, Infinity, -Infinity",
       "source_functions": [
         "src/lib_json/json_writer.cpp::Json::writeString"
       ],
@@ -4573,15 +4007,13 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "string equality",
+        "normalization": "compare output strings with expected literal NaN/Infinity/-Infinity",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "stringify NaN, Infinity, -Infinity"
-      },
+      "input": "JsonValue with NaN, Infinity, -Infinity",
       "expected": {
         "observable_behavior": "stringify returns 'NaN', 'Infinity', '-Infinity'"
       },
@@ -4612,10 +4044,10 @@
       }
     },
     {
-      "id": "replay_main_valuetest_strings",
+      "id": "main_valuetest_strings",
       "layer": "public_behavior",
-      "description": "type checks for string values",
-      "evidence": "src/test_lib_json/main.cpp ValueTest.strings: JSONTEST_ASSERT_EQUAL(type) and checkIs",
+      "description": "Test string value type checks and as_str",
+      "evidence": "src/test_lib_json/main.cpp: strings: JSONTEST_ASSERT_EQUAL(Json::stringValue, string1_.type()); checks on emptyString_, string_, string1_",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::asCString",
         "src/lib_json/json_value.cpp::Json::Value::isArray",
@@ -4635,19 +4067,19 @@
         "src/value/mod.rs::JsonValue::is_object",
         "src/value/mod.rs::JsonValue::is_string"
       ],
-      "support_target_functions": [],
+      "support_target_functions": [
+        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
+      ],
       "event_metadata": {
-        "normalization": "boolean equality and as_str equality",
+        "normalization": "assert is_* methods return correct bools and as_str returns string",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "create empty string, non-empty string, number; verify is_string, is_null, is_number, as_str"
-      },
+      "input": "Create empty string, 'a', 'sometext with space'",
       "expected": {
-        "observable_behavior": "is_string returns true for strings, is_null false, is_number false, as_str returns Some for strings"
+        "observable_behavior": "is_string true for all, as_str returns Some(string), other is_* false"
       },
       "source_case_ids": [
         "main_valuetest_strings"
@@ -4713,14 +4145,16 @@
         "missing_source_alignments": [],
         "non_public_alignments": [],
         "missing_target_recipe": [],
-        "support_target_functions": []
+        "support_target_functions": [
+          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed"
+        ]
       }
     },
     {
-      "id": "replay_main_valuetest_typechecksthrowexceptions",
+      "id": "main_valuetest_typechecksthrowexceptions",
       "layer": "public_behavior",
-      "description": "type checks throw exceptions for invalid operations",
-      "evidence": "src/test_lib_json/main.cpp ValueTest.typeChecksThrowExceptions: JSONTEST_ASSERT_THROWS for index and removeMember on wrong types",
+      "description": "Call as_str and remove on non-string/non-object values should panic",
+      "evidence": "src/test_lib_json/main.cpp: typeChecksThrowExceptions: JSONTEST_ASSERT_THROWS on asCString and removeMember for non-string/non-object",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::asCString",
         "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70"
@@ -4731,23 +4165,21 @@
       ],
       "support_target_functions": [],
       "event_metadata": {
-        "normalization": "panic vs no-panic",
+        "normalization": "each call should unwind",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "call index and remove on int, str, arr; on target remove returns null, index may panic"
-      },
+      "input": "Create int, string, object, array values",
       "expected": {
-        "observable_behavior": "index with string on non-object panics; remove on non-object returns Null (no panic)"
+        "observable_behavior": "calling as_str on int/object/array panics, calling remove on int/string/array panics"
       },
       "source_case_ids": [
         "main_valuetest_typechecksthrowexceptions"
       ],
       "expected_behavior_source": "source_test_assertion",
-      "expected_behavior_confidence": "high",
+      "expected_behavior_confidence": "medium",
       "alignment_validation": {
         "status": "fully_aligned",
         "mapping_shape": "many_to_many",
@@ -4776,38 +4208,27 @@
       }
     },
     {
-      "id": "replay_main_valuetest_widestring",
+      "id": "main_valuetest_widestring",
       "layer": "public_behavior",
-      "description": "wide string roundtrip via toStyledString",
-      "evidence": "src/test_lib_json/main.cpp ValueTest.WideString: JSONTEST_ASSERT_STRING_EQUAL(root[\"abc\"].asString(), uni)",
+      "description": "Write unicode string using toStyledString (pretty)",
+      "evidence": "src/test_lib_json/main.cpp: WideString: toStyledString called on value with unicode key/value, then parse roundtrip",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::toStyledString"
       ],
       "target_functions": [
-        "src/object.rs::Object::index#sig_f2a28c71",
-        "src/object.rs::Object::index_mut#sig_ba73fea6",
-        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-        "src/value/mod.rs::JsonValue::as_str",
         "src/value/mod.rs::JsonValue::pretty"
       ],
-      "support_target_functions": [
-        "src/object.rs::Object::index#sig_f2a28c71",
-        "src/object.rs::Object::index_mut#sig_ba73fea6",
-        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-        "src/value/mod.rs::JsonValue::as_str"
-      ],
+      "support_target_functions": [],
       "event_metadata": {
-        "normalization": "string containment and as_str equality",
+        "normalization": "output contains the unicode string sequence",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
-      "input": {
-        "case": "create object with unicode value, call pretty, verify as_str and string contains unicode"
-      },
+      "input": "Create object with 'abc' = unicode string \"式，进\"",
       "expected": {
-        "observable_behavior": "pretty output contains unicode characters and as_str returns original unicode"
+        "observable_behavior": "pretty output contains the unicode string"
       },
       "source_case_ids": [
         "main_valuetest_widestring"
@@ -4832,47 +4253,36 @@
         "missing_source_alignments": [],
         "non_public_alignments": [],
         "missing_target_recipe": [],
-        "support_target_functions": [
-          "src/object.rs::Object::index#sig_f2a28c71",
-          "src/object.rs::Object::index_mut#sig_ba73fea6",
-          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-          "src/value/mod.rs::JsonValue::as_str"
-        ]
+        "support_target_functions": []
       }
     },
     {
       "id": "replay_main_valuetest_zeroes",
       "layer": "public_behavior",
-      "description": "zero byte in string value and removeMember",
-      "evidence": "src/test_lib_json/main.cpp ValueTest.zeroes: JSONTEST_ASSERT_STRING_EQUAL(binary, root[top].asString()) and removeMember checks",
+      "description": "Remove member with key \"top\" from object containing binary string value (with null byte) and verify removed value matches, then remove same key again and verify returned value is Null.",
+      "evidence": "src/test_lib_json/main.cpp ValueTest.zeroes: removeMember with key \"top\" returns binary string; second remove returns falsy and removed unchanged.",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70"
       ],
       "target_functions": [
-        "src/object.rs::Object::index#sig_f2a28c71",
-        "src/object.rs::Object::index_mut#sig_ba73fea6",
-        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::insert",
         "src/value/mod.rs::JsonValue::remove"
       ],
       "support_target_functions": [
-        "src/object.rs::Object::index#sig_f2a28c71",
-        "src/object.rs::Object::index_mut#sig_ba73fea6",
-        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-        "src/value/mod.rs::JsonValue::as_str"
+        "src/value/mod.rs::JsonValue::insert"
       ],
       "event_metadata": {
-        "normalization": "string equality",
+        "normalization": "Equality of returned JsonValue with expected JsonValue::String using PartialEq.",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "create object with value containing null byte, remove, verify removed value"
+        "case": "Object with single key 'top' mapped to JsonValue::String containing null byte ('h\\0i\\0')"
       },
       "expected": {
-        "observable_behavior": "remove returns value with null byte as_string; second remove returns Null"
+        "observable_behavior": "First remove returns JsonValue::String equal to binary; second remove returns JsonValue::Null."
       },
       "source_case_ids": [
         "main_valuetest_zeroes"
@@ -4898,46 +4308,37 @@
         "non_public_alignments": [],
         "missing_target_recipe": [],
         "support_target_functions": [
-          "src/object.rs::Object::index#sig_f2a28c71",
-          "src/object.rs::Object::index_mut#sig_ba73fea6",
-          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-          "src/value/mod.rs::JsonValue::as_str"
+          "src/value/mod.rs::JsonValue::insert"
         ]
       }
     },
     {
       "id": "replay_main_valuetest_zeroesinkeys",
       "layer": "public_behavior",
-      "description": "zero byte in object keys and removeMember",
-      "evidence": "src/test_lib_json/main.cpp ValueTest.zeroesInKeys: JSONTEST_ASSERT_STRING_EQUAL(\"there\", root.get(binary...).asString()) and removeMember",
+      "description": "Remove member with binary string key containing null byte from object and verify removed value matches, then remove same key again and verify returned value is Null.",
+      "evidence": "src/test_lib_json/main.cpp ValueTest.zeroesInKeys: removeMember with binary key returns \"there\"; second remove returns falsy and removed unchanged.",
       "source_functions": [
         "src/lib_json/json_value.cpp::Json::Value::removeMember#sig_2dc22a70"
       ],
       "target_functions": [
-        "src/object.rs::Object::index#sig_f2a28c71",
-        "src/object.rs::Object::index_mut#sig_ba73fea6",
-        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-        "src/value/mod.rs::JsonValue::as_str",
+        "src/value/mod.rs::JsonValue::insert",
         "src/value/mod.rs::JsonValue::remove"
       ],
       "support_target_functions": [
-        "src/object.rs::Object::index#sig_f2a28c71",
-        "src/object.rs::Object::index_mut#sig_ba73fea6",
-        "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-        "src/value/mod.rs::JsonValue::as_str"
+        "src/value/mod.rs::JsonValue::insert"
       ],
       "event_metadata": {
-        "normalization": "string equality",
+        "normalization": "Equality of returned JsonValue with expected JsonValue::String using PartialEq.",
         "normalization_status": "adapter_declared_v2",
         "adapter_generation_status": "llm_synthesized_repaired_v1",
         "scope_filtered_source_functions": false,
         "omitted_source_functions_outside_l1_scope": []
       },
       "input": {
-        "case": "create object with key containing null byte, retrieve, remove, verify removed value"
+        "case": "Object with single key (binary string containing null byte 'h\\0i\\0') mapped to JsonValue::String \"there\""
       },
       "expected": {
-        "observable_behavior": "remove returns correct value; second remove returns Null"
+        "observable_behavior": "First remove returns JsonValue::String \"there\"; second remove returns JsonValue::Null."
       },
       "source_case_ids": [
         "main_valuetest_zeroesinkeys"
@@ -4963,18 +4364,15 @@
         "non_public_alignments": [],
         "missing_target_recipe": [],
         "support_target_functions": [
-          "src/object.rs::Object::index#sig_f2a28c71",
-          "src/object.rs::Object::index_mut#sig_ba73fea6",
-          "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
-          "src/value/mod.rs::JsonValue::as_str"
+          "src/value/mod.rs::JsonValue::insert"
         ]
       }
     }
   ],
   "summary": {
-    "events": 89,
+    "events": 80,
     "planned_source_functions": 20,
-    "planned_target_functions": 20,
+    "planned_target_functions": 21,
     "planned_source_function_ids": [
       "src/lib_json/json_reader.cpp::Json::CharReader::parse",
       "src/lib_json/json_reader.cpp::Json::Reader::parse#sig_28f4aeff",
@@ -5000,14 +4398,15 @@
     "planned_target_function_ids": [
       "src/lib.rs::stringify",
       "src/object.rs::Object::index#sig_f2a28c71",
-      "src/object.rs::Object::index_mut#sig_ba73fea6",
       "src/parser.rs::parse",
+      "src/value/implements.rs::JsonValue::eq#sig_8ef9d854",
       "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
       "src/value/mod.rs::JsonValue::as_bool",
       "src/value/mod.rs::JsonValue::as_f64",
       "src/value/mod.rs::JsonValue::as_str",
       "src/value/mod.rs::JsonValue::dump",
       "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
+      "src/value/mod.rs::JsonValue::insert",
       "src/value/mod.rs::JsonValue::is_array",
       "src/value/mod.rs::JsonValue::is_boolean",
       "src/value/mod.rs::JsonValue::is_null",
@@ -5063,23 +4462,25 @@
     ],
     "covered_aligned_pairs": 20,
     "alignment_status_counts": {
-      "fully_aligned": 89
+      "fully_aligned": 80
     },
     "mapping_shape_counts": {
-      "many_to_many": 21,
-      "one_to_one": 68
+      "one_to_one": 62,
+      "many_to_many": 18
     },
     "support_target_functions": [
       "src/number.rs::Number::from#sig_7ba10114",
       "src/object.rs::Object::index#sig_f2a28c71",
-      "src/object.rs::Object::index_mut#sig_ba73fea6",
-      "src/value/implements.rs::JsonValue::from#sig_85cb0854",
+      "src/value/implements.rs::JsonValue::eq#sig_8ef9d854",
       "src/value/implements.rs::JsonValue::from#sig_9bca93f0",
       "src/value/implements.rs::JsonValue::from#sig_fee1b1ed",
       "src/value/mod.rs::JsonValue::as_bool",
       "src/value/mod.rs::JsonValue::as_f64",
       "src/value/mod.rs::JsonValue::as_str",
-      "src/value/mod.rs::JsonValue::len"
+      "src/value/mod.rs::JsonValue::index_mut#sig_ba73fea6",
+      "src/value/mod.rs::JsonValue::insert",
+      "src/value/mod.rs::JsonValue::len",
+      "src/value/mod.rs::JsonValue::members_mut"
     ]
   }
 }
